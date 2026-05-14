@@ -1,4 +1,6 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 
 <f:layout name="Default" />
 
@@ -13,30 +15,22 @@
 <f:section name="content">
     <div class="btn-toolbar mb-3" role="toolbar">
         <div class="btn-group me-2" role="group">
-            <f:link.action
-                controller="DetectionReview"
-                action="list"
-                arguments="{onlyUnreviewed: 1}"
-                class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
+            <a href="{uri_filterUnreviewed}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
-            </f:link.action>
-            <f:link.action
-                controller="DetectionReview"
-                action="list"
-                arguments="{onlyUnreviewed: 0}"
-                class="btn btn-default {f:if(condition: onlyUnreviewed, then: '', else: 'active')}">
+            </a>
+            <a href="{uri_filterAll}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: '', else: 'active')}">
                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.all" />
-            </f:link.action>
+            </a>
         </div>
-        <f:form
-            controller="DetectionReview"
-            action="bulkDelete"
-            class="ms-auto"
-            additionalAttributes="{onsubmit: 'return confirm(\'{f:translate(key: \'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm\')}\')'}">
+        <form method="post"
+              action="{uri_bulkDelete}"
+              class="ms-auto"
+              data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm')}">
             <button type="submit" class="btn btn-danger">
+                <core:icon identifier="actions-delete" size="small" />
                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed" />
             </button>
-        </f:form>
+        </form>
     </div>
 
     <f:if condition="{detections -> f:count()} > 0">
@@ -73,40 +67,30 @@
                             </td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <f:link.action
-                                        controller="DetectionReview"
-                                        action="show"
-                                        arguments="{uid: detection.uid}"
-                                        class="btn btn-default"
-                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
+                                    <a href="{detection.uri_show}"
+                                       class="btn btn-default"
+                                       title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
+                                        <core:icon identifier="actions-document-view" size="small" />
                                         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show" />
-                                    </f:link.action>
-                                    <f:link.action
-                                        controller="DetectionReview"
-                                        action="createService"
-                                        arguments="{uid: detection.uid}"
-                                        class="btn btn-primary"
-                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService')}">
+                                    </a>
+                                    <a href="{detection.uri_createService}"
+                                       class="btn btn-primary"
+                                       title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService')}">
+                                        <core:icon identifier="actions-plus" size="small" />
                                         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService" />
-                                    </f:link.action>
+                                    </a>
                                     <f:if condition="{detection.reviewed}">
                                         <f:then>
-                                            <f:link.action
-                                                controller="DetectionReview"
-                                                action="unmarkReviewed"
-                                                arguments="{uid: detection.uid}"
-                                                class="btn btn-default">
+                                            <a href="{detection.uri_unmarkReviewed}" class="btn btn-default">
+                                                <core:icon identifier="actions-close" size="small" />
                                                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.unmarkReviewed" />
-                                            </f:link.action>
+                                            </a>
                                         </f:then>
                                         <f:else>
-                                            <f:link.action
-                                                controller="DetectionReview"
-                                                action="markReviewed"
-                                                arguments="{uid: detection.uid}"
-                                                class="btn btn-success">
+                                            <a href="{detection.uri_markReviewed}" class="btn btn-success">
+                                                <core:icon identifier="actions-check" size="small" />
                                                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.markReviewed" />
-                                            </f:link.action>
+                                            </a>
                                         </f:else>
                                     </f:if>
                                 </div>
