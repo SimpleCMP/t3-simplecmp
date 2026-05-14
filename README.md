@@ -26,6 +26,32 @@ will change.
   admins will review unknown detections and curate the service
   registry from the BE.
 
+## Known limitation: bridge / Service-DB race
+
+When both `serviceDbUrl` and `cmsBridgeUrl` point at this extension,
+the JS-side bridge fires a webhook for **every** detection that's
+`unknown` at first announcement — including ones the Service-DB
+lookup later resolves to known. Expected order:
+
+1. Recorder catches a cookie.
+2. Local classifier misses; detection emitted as `unknown`.
+3. Bridge fires webhook immediately.
+4. Service-DB lookup completes; status updated to `known`.
+
+So a well-known tracker like `_ga` produces both a Service-DB hit
+(detection becomes known on the page) *and* a webhook row in
+`tx_simplecmptypo3_detection`. The webhook table effectively becomes a
+raw event stream of "things the recorder didn't immediately recognize"
+rather than "things nobody knows about." Treat the row as raw input;
+cross-reference against `tx_simplecmptypo3_service` before alerting an
+admin.
+
+A future SimpleCMP release (tracked alongside iteration 4 of this
+extension — the BE module that will actually surface the rows to a
+human reviewer) will add an opt-in grace delay so the bridge waits
+for the DB lookup to settle. Until then, this asymmetry between the
+two persistence paths is documented and intentional.
+
 ## Installation
 
 ```bash
