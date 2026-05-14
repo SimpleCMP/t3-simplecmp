@@ -2,9 +2,9 @@
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
-<f:layout name="Default" />
+<f:layout name="Module" />
 
-<f:section name="headline">
+<f:section name="Content">
     <h1>
         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.title" />
         — <code>{detection.identifier}</code>
@@ -15,9 +15,7 @@
             <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.back" />
         </a>
     </p>
-</f:section>
 
-<f:section name="content">
     <div class="row">
         <div class="col-md-6 mb-3">
             <h3><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.section.identity" /></h3>

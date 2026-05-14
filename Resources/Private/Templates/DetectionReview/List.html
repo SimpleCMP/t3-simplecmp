@@ -2,17 +2,15 @@
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
-<f:layout name="Default" />
+<f:layout name="Module" />
 
-<f:section name="headline">
+<f:section name="Content">
     <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
     <p class="text-body-secondary">
         <strong>{unreviewedCount}</strong> / {totalCount}
         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
     </p>
-</f:section>
 
-<f:section name="content">
     <div class="btn-toolbar mb-3" role="toolbar">
         <div class="btn-group me-2" role="group">
             <a href="{uri_filterUnreviewed}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
