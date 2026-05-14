@@ -1,0 +1,1 @@
+/home/ilja/ddev/simplecmp/dist/simplecmp.global.js

@@ -1,0 +1,32 @@
+{
+  "name": "wapplersystems/simplecmp-typo3",
+  "type": "typo3-cms-extension",
+  "description": "TYPO3 integration for SimpleCMP — consent manager (banner + recorder + service DB + CMS bridge).",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Sven Wappler",
+      "email": "wappler@wappler.systems"
+    },
+    {
+      "name": "Ilja Melnicenko",
+      "email": "melnicenko@wappler.systems"
+    }
+  ],
+  "homepage": "https://github.com/WapplerSystems/simplecmp-typo3",
+  "require": {
+    "php": "^8.3",
+    "typo3/cms-core": "^14.0",
+    "typo3/cms-frontend": "^14.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "WapplerSystems\\SimpleCmpTypo3\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "simplecmp_typo3"
+    }
+  }
+}

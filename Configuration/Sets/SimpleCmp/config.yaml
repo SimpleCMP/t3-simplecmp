@@ -1,0 +1,8 @@
+name: wapplersystems/simplecmp
+label: SimpleCMP — consent manager
+description: |
+  Wires the SimpleCMP JS bundle into TYPO3 frontend pages and feeds it
+  config from the site's settings (privacy/imprint URLs, services list,
+  floating-trigger label, optional Service DB / CMS Bridge endpoints).
+dependencies:
+  - typo3/fluid-styled-content

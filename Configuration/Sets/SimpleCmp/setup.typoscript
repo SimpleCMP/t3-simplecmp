@@ -1,0 +1,6 @@
+# SimpleCMP TYPO3 integration
+#
+# All wiring lives in PHP (Classes/EventListener/RegisterAssets.php) and
+# reads from the site's Settings. This file is intentionally empty so
+# that the Site Set can be loaded without forcing TypoScript inheritance
+# on consumers.

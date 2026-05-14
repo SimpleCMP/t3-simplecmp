@@ -1,0 +1,48 @@
+settings:
+  simplecmp.enabled:
+    label: 'Enable SimpleCMP on this site'
+    description: 'Master switch. When off, the bundle is not loaded.'
+    type: bool
+    default: true
+
+  simplecmp.storageName:
+    label: 'Storage name'
+    description: 'localStorage / cookie key the consent decision is stored under. Defaults to "simplecmp-<sitename>".'
+    type: string
+    default: ''
+
+  simplecmp.privacyPolicyUrl:
+    label: 'Privacy policy URL'
+    description: 'Required by GDPR / DSGVO. Linked in the banner and modal.'
+    type: string
+    default: ''
+
+  simplecmp.imprintUrl:
+    label: 'Imprint URL (Impressum)'
+    description: 'Required in Germany (TMG/MStV). Rendered as a separate link next to the privacy policy.'
+    type: string
+    default: ''
+
+  simplecmp.floatingTriggerLabel:
+    label: 'Floating trigger label'
+    description: 'Accessible label and visible text of the persistent "cookie settings" button. Localize for non-English sites.'
+    type: string
+    default: 'Cookie settings'
+
+  simplecmp.respectGPC:
+    label: 'Respect Global Privacy Control'
+    description: 'When the browser signals GPC, default all non-required services to opt-out on first visit.'
+    type: bool
+    default: true
+
+  simplecmp.serviceDbUrl:
+    label: 'Service DB endpoint URL (optional)'
+    description: 'Base URL of a Service DB that implements the SimpleCMP protocol. Leave empty to use only the local services list.'
+    type: string
+    default: ''
+
+  simplecmp.cmsBridgeUrl:
+    label: 'CMS bridge webhook URL (optional)'
+    description: 'POST target for unknown-tracker alerts in production. Leave empty to disable.'
+    type: string
+    default: ''
