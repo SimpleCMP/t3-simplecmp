@@ -34,10 +34,34 @@ return [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id',
             'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id.description',
             'config' => [
-                'type' => 'input',
+                // TCA `slug` (v14-native) — designed exactly for stable, unique
+                // kebab-case identifiers. Two advantages over `input` +
+                // `eval: 'trim,unique'`:
+                //   1. Collision: slugs reject the save with a clear inline
+                //      error ("This value is already used") instead of
+                //      silently auto-renaming `foo` → `foo0` and emitting
+                //      the misleading yellow "could not be completed" notice.
+                //   2. Character set: the field normalizes spaces / non-ASCII
+                //      to `-` automatically, so admins can type a display
+                //      name and get a valid slug.
+                'type' => 'slug',
                 'size' => 30,
                 'required' => true,
-                'eval' => 'trim,unique',
+                // Auto-fill the slug from `name` on initial create when left
+                // blank, so the "In Dienst umwandeln" pre-fill path still
+                // works even if the controller didn't supply a service_id.
+                'generatorOptions' => [
+                    'fields' => ['name'],
+                    'fieldSeparator' => '-',
+                    'replacements' => [
+                        '/' => '-',
+                    ],
+                ],
+                'fallbackCharacter' => '-',
+                // Globally unique across the whole installation — there is
+                // exactly one service registry (pid=0), so `unique` is the
+                // right scope (not `uniqueInPid` or `uniqueInSite`).
+                'eval' => 'unique',
             ],
         ],
         'name' => [
