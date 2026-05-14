@@ -8,8 +8,10 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
@@ -40,12 +42,14 @@ final class DetectionReviewController extends ActionController
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
         private readonly ConnectionPool $connectionPool,
         private readonly UriBuilder $backendUriBuilder,
+        private readonly PageRenderer $pageRenderer,
     ) {
     }
 
     public function listAction(bool $onlyUnreviewed = true): ResponseInterface
     {
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
         $qb->select('*')
             ->from(self::DETECTION_TABLE)
             ->orderBy('received_at', 'DESC')
@@ -55,21 +59,43 @@ final class DetectionReviewController extends ActionController
         }
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
+        // Build per-row action URLs in PHP — Fluid's `f:uri.action` doesn't
+        // produce properly-namespaced URLs in BE module context (it omits
+        // the `tx_<ext>_<mod>[action]` argument), so we generate URIs via
+        // the Extbase UriBuilder here where it has the request context.
+        // Bake the current filter state into every per-row action URL plus
+        // the bulk-delete form. The action handlers read it back from the
+        // request and redirect to `list` with the same value, so the user
+        // stays on whichever filter they were viewing.
+        $filterArg = ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0];
+        $rowsWithActions = [];
+        foreach ($rows as $r) {
+            $rowArgs = ['uid' => (int) $r['uid']] + $filterArg;
+            $r['uri_show'] = $this->uri('show', $rowArgs);
+            $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
+            $r['uri_markReviewed'] = $this->uri('markReviewed', $rowArgs);
+            $r['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', $rowArgs);
+            $rowsWithActions[] = $r;
+        }
+
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
-            'detections' => $rows,
+            'detections' => $rowsWithActions,
             'onlyUnreviewed' => $onlyUnreviewed,
             'totalCount' => $this->totalCount(),
             'unreviewedCount' => $this->unreviewedCount(),
+            'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1]),
+            'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
+            'uri_bulkDelete' => $this->uri('bulkDelete', $filterArg),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
     }
 
-    public function showAction(int $uid): ResponseInterface
+    public function showAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
     {
         $row = $this->fetchOne($uid);
         if ($row === null) {
-            return $this->redirect('list');
+            return $this->redirectToList($onlyUnreviewed);
         }
 
         $payload = null;
@@ -79,35 +105,59 @@ final class DetectionReviewController extends ActionController
             $payload = null;
         }
 
+        $row['uri_createService'] = $this->uri('createService', ['uid' => (int) $row['uid']]);
+        $row['uri_markReviewed'] = $this->uri('markReviewed', ['uid' => (int) $row['uid'], 'onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
+        $row['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', ['uid' => (int) $row['uid'], 'onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
+
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
             'detection' => $row,
             'payload' => $payload,
             'payloadJson' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            'uri_list' => $this->uri('list', ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/Show');
     }
 
-    public function markReviewedAction(int $uid): ResponseInterface
+    /**
+     * Build an Extbase URI for an action on this controller, with the
+     * proper `tx_<ext>_<mod>` argument namespace baked in.
+     *
+     * @param array<string, scalar> $arguments
+     */
+    private function uri(string $action, array $arguments = []): string
+    {
+        return (string) $this->uriBuilder
+            ->reset()
+            ->setRequest($this->request)
+            ->uriFor($action, $arguments);
+    }
+
+    public function markReviewedAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
     {
         $this->setReviewed($uid, true);
         $this->addFlash('flash.markedReviewed');
-        return $this->redirect('list');
+        return $this->redirectToList($onlyUnreviewed);
     }
 
-    public function unmarkReviewedAction(int $uid): ResponseInterface
+    public function unmarkReviewedAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
     {
         $this->setReviewed($uid, false);
         $this->addFlash('flash.unmarkedReviewed');
-        return $this->redirect('list');
+        return $this->redirectToList($onlyUnreviewed);
     }
 
-    public function bulkDeleteAction(): ResponseInterface
+    public function bulkDeleteAction(bool $onlyUnreviewed = true): ResponseInterface
     {
         $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->delete(self::DETECTION_TABLE, ['reviewed' => 1]);
-        $this->addFlash('flash.bulkDeleted', AbstractMessage::OK, ['count' => $count]);
-        return $this->redirect('list');
+        $this->addFlash('flash.bulkDeleted', ContextualFeedbackSeverity::OK, ['count' => $count]);
+        return $this->redirectToList($onlyUnreviewed);
+    }
+
+    private function redirectToList(bool $onlyUnreviewed): ResponseInterface
+    {
+        return $this->redirect('list', null, null, ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
     }
 
     /**
@@ -139,10 +189,14 @@ final class DetectionReviewController extends ActionController
     /** @return array<string, mixed>|null */
     private function fetchOne(int $uid): ?array
     {
-        $row = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE)
-            ->select('*')
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        // BE-context QueryBuilder applies default restrictions (deleted, hidden,
+        // workspace). Our records are pid=0 with no enable-columns, so the
+        // restrictions return nothing — strip them.
+        $qb->getRestrictions()->removeAll();
+        $row = $qb->select('*')
             ->from(self::DETECTION_TABLE)
-            ->where('uid = ' . $uid)
+            ->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid, ParameterType::INTEGER)))
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchAssociative();
@@ -169,6 +223,7 @@ final class DetectionReviewController extends ActionController
     private function unreviewedCount(): int
     {
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
         return (int) $qb->count('*')
             ->from(self::DETECTION_TABLE)
             ->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)))
@@ -216,11 +271,20 @@ final class DetectionReviewController extends ActionController
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
+        // CSP-safe replacement for the inline `onsubmit="confirm(...)"` on the
+        // bulk-delete form: the listener honours `data-confirm-message` and
+        // calls preventDefault if the user cancels.
+        $this->pageRenderer->loadJavaScriptModule(
+            '@wapplersystems/simplecmp-typo3/Backend/ConfirmForm.js'
+        );
         return $moduleTemplate;
     }
 
-    private function addFlash(string $key, int $severity = AbstractMessage::OK, array $tokens = []): void
-    {
+    private function addFlash(
+        string $key,
+        ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::OK,
+        array $tokens = [],
+    ): void {
         $message = $this->translate($key) ?? $key;
         foreach ($tokens as $token => $value) {
             $message = str_replace('{' . $token . '}', (string) $value, $message);
@@ -230,10 +294,13 @@ final class DetectionReviewController extends ActionController
 
     private function translate(string $key): ?string
     {
-        return \TYPO3\CMS\Core\Localization\LanguageService::create('default') === null
-            ? null
-            : ($GLOBALS['LANG']->sL(
-                'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:' . $key
-            ) ?: null);
+        $lang = $GLOBALS['LANG'] ?? null;
+        if ($lang === null) {
+            return null;
+        }
+        $translated = $lang->sL(
+            'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:' . $key
+        );
+        return $translated !== '' ? $translated : null;
     }
 }
