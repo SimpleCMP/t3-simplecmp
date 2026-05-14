@@ -89,7 +89,11 @@ return [
                 'rows' => 2,
                 'cols' => 30,
                 'default' => '[]',
-                'required' => true,
+                // No `required: true` — the empty-array default `'[]'`
+                // passes the required check but is semantically empty, so
+                // the constraint just disguises a half-curated record as
+                // valid. Treat an empty purposes list as "needs review"
+                // through curation tooling instead.
             ],
         ],
         'privacy_policy_url' => [
