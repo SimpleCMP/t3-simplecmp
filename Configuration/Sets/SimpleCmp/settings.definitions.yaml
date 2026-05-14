@@ -37,7 +37,7 @@ settings:
 
   simplecmp.serviceDbUrl:
     label: 'Service DB endpoint URL (optional)'
-    description: 'Base URL of a Service DB that implements the SimpleCMP protocol. Leave empty to use only the local services list.'
+    description: 'Base URL of a Service DB that implements the SimpleCMP protocol. NOTE: do NOT include the `/v1` version segment — the JS client appends it automatically. Example: `https://example.com/api/simplecmp` (the client will hit `https://example.com/api/simplecmp/v1/lookup`). Leave empty to use only the local services list.'
     type: string
     default: ''
 
