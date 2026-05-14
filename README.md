@@ -9,8 +9,13 @@ will change.
 
 ## What it does
 
-- **Frontend:** loads the SimpleCMP JS bundle on every TYPO3 frontend page and
-  passes it config sourced from the site's Settings (Site Sets, v13+).
+- **Frontend:** loads the SimpleCMP JS bundle on every TYPO3 frontend page
+  and passes it config sourced from the site's Settings (Site Sets, v13+).
+  Service entries from the registry (`tx_simplecmptypo3_service`) flow
+  into the inline `init({...})` payload — both as runtime services and
+  as a `translations` block with per-language title/description.
+  `acceptAll: true` is enabled so the modal shows the full Decline /
+  Save / Accept-all trio.
 - **Service DB endpoint** *(iteration 2 — shipped):* TYPO3-hosted
   implementation of the
   [SimpleCMP service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
@@ -22,9 +27,29 @@ will change.
   stores them in `tx_simplecmptypo3_detection`. Idempotent — repeat
   hits of the same `(source, kind, identifier)` triple bump
   `occurrences` rather than inserting duplicates.
-- **TYPO3 backend module** *(iteration 4 — not yet implemented):*
-  admins will review unknown detections and curate the service
-  registry from the BE.
+- **TYPO3 backend module** *(iteration 4 — shipped):* admins review
+  unknown detections at *Site Management → SimpleCMP-Detektionen* and
+  curate the service registry from the BE. Extbase controller with
+  `list`, `show`, `markReviewed`, `unmarkReviewed`, `bulkDelete`, and
+  `createService` actions. Renders inside the standard TYPO3 backend
+  chrome (`<f:layout name="Module" />`, docheader, breadcrumb,
+  flash-message slot). EN + DE i18n. The `onlyUnreviewed` filter
+  survives mark / unmark / bulk-delete redirects. Bulk delete asks
+  for confirmation via a CSP-safe JS module (the previous inline
+  `onsubmit="confirm(...)"` was blocked by TYPO3 v14's BE CSP).
+- **"Convert to service" smart redirect:** clicking *In Dienst
+  umwandeln* on a detection opens the existing service for editing
+  when one already matches the detection's cookie/origin (resolved
+  via `ServiceRepository::lookup()`, tiebreak by `crdate DESC`), so
+  the admin sees their previously-curated values instead of a blank
+  pre-fill form. Falls through to the standard new-record flow when
+  no match exists.
+- **Service-ID is a TCA `slug`** with `eval: unique` — admin gets
+  inline AJAX feedback as they type ("/<slug>/ wird verwendet" /
+  "wird bereits verwendet, stattdessen /<alt>/") and a clean save
+  on collision instead of the misleading "Vorgang konnte nicht
+  abgeschlossen werden" notice the old `input` + `eval: 'trim,unique'`
+  combination produced.
 
 ## Known limitation: bridge / Service-DB race
 
@@ -63,7 +88,9 @@ dependency. Configure under Site → Settings.
 
 ## Status
 
-Iteration 1 in progress. See the upstream
+Iterations 1–4 shipped. The frontend banner/modal, the service-DB
+endpoint, the CMS-bridge receiver, and the BE module are all live.
+See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
 for the JS-side roadmap.
 
