@@ -108,10 +108,10 @@ final readonly class ServiceRepository
             ->fetchOne();
     }
 
-    public function upsert(array $serviceData): void
+    public function upsert(array $serviceData, int $pid = 0): void
     {
         $row = [
-            'pid' => 0,
+            'pid' => $pid,
             'tstamp' => time(),
             'service_id' => $serviceData['id'],
             'name' => $serviceData['name'],

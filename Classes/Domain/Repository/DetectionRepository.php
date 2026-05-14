@@ -32,8 +32,10 @@ final readonly class DetectionRepository
      * `(source, kind, identifier)` triple into one row.
      *
      * @param array<string, mixed> $payload the raw webhook body
+     * @param int $pid TYPO3 page UID under which to file new rows.
+     *                  Updates of existing rows do not change pid.
      */
-    public function ingest(array $payload): void
+    public function ingest(array $payload, int $pid = 0): void
     {
         $detection = $payload['detection'] ?? [];
         if (!is_array($detection) || !isset($detection['kind'], $detection['identifier'])) {
@@ -92,7 +94,7 @@ final readonly class DetectionRepository
 
         if ($existing === false) {
             $conn->insert(self::TABLE, array_merge($shared, [
-                'pid' => 0,
+                'pid' => $pid,
                 'crdate' => $now,
                 'received_at' => $now,
                 'source' => $source,

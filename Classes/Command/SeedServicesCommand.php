@@ -7,10 +7,12 @@ namespace WapplerSystems\SimpleCmpTypo3\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Core\Environment;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
  * Bootstraps the service registry from the bundled
@@ -29,13 +31,30 @@ final class SeedServicesCommand extends Command
 {
     public function __construct(
         private readonly ServiceRepository $services,
+        private readonly StoragePidResolver $storagePidResolver,
     ) {
         parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this->addOption(
+            'pid',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Page UID to file new service records under. Overrides the Site Set setting `simplecmp.storagePid`.',
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        $pidOption = $input->getOption('pid');
+        $pid = $pidOption !== null
+            ? (int) $pidOption
+            : $this->storagePidResolver->resolveDefault();
+
         $seedDir = $this->seedDirectory();
         if (!is_dir($seedDir)) {
             $io->error("Seed directory not found: {$seedDir}");
@@ -68,11 +87,11 @@ final class SeedServicesCommand extends Command
                 $errors++;
                 continue;
             }
-            $this->services->upsert($payload);
+            $this->services->upsert($payload, $pid);
             $inserted++;
         }
 
-        $io->success(sprintf('Seeded %d service(s); %d error(s).', $inserted, $errors));
+        $io->success(sprintf('Seeded %d service(s) at pid=%d; %d error(s).', $inserted, $pid, $errors));
         return $errors === 0 ? Command::SUCCESS : Command::FAILURE;
     }
 

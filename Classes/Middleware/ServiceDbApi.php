@@ -12,6 +12,7 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
  * Implements the SimpleCMP Service-DB protocol
@@ -39,6 +40,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
     public function __construct(
         private ServiceRepository $services,
         private DetectionRepository $detections,
+        private StoragePidResolver $storagePidResolver,
     ) {
     }
 
@@ -91,7 +93,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             );
         }
 
-        $this->detections->ingest($payload);
+        $this->detections->ingest($payload, $this->storagePidResolver->resolveForRequest($request));
         return new JsonResponse(['ok' => true]);
     }
 

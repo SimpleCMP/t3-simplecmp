@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
  * Backend module: review unknown-tracker detections that the SimpleCMP
@@ -45,6 +46,7 @@ final class DetectionReviewController extends ActionController
         private readonly UriBuilder $backendUriBuilder,
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
+        private readonly StoragePidResolver $storagePidResolver,
     ) {
     }
 
@@ -193,8 +195,9 @@ final class DetectionReviewController extends ActionController
         }
 
         $defaults = $this->buildServiceDefaults($row);
+        $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
         $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => [self::SERVICE_TABLE => [0 => 'new']],
+            'edit' => [self::SERVICE_TABLE => [$pid => 'new']],
             'defVals' => [self::SERVICE_TABLE => $defaults],
             'returnUrl' => $returnUrl,
         ]);
