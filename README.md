@@ -11,13 +11,20 @@ will change.
 
 - **Frontend:** loads the SimpleCMP JS bundle on every TYPO3 frontend page and
   passes it config sourced from the site's Settings (Site Sets, v13+).
-- **Service DB endpoint** *(iteration 2 — not yet implemented):* exposes a
-  TYPO3-managed implementation of the
-  [SimpleCMP service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md)
-  for the JS client to query. Site admins curate the list via TYPO3.
-- **CMS-bridge receiver** *(iteration 3 — not yet implemented):* receives
-  POSTs from the SimpleCMP bridge when an unknown tracker is detected in
-  production and stores them for review.
+- **Service DB endpoint** *(iteration 2 — shipped):* TYPO3-hosted
+  implementation of the
+  [SimpleCMP service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
+  Routes at `/api/simplecmp/v1/{health,services,lookup}`. 10 bundled
+  seeds (Google Analytics, Matomo, YouTube, …) loaded via
+  `ddev exec vendor/bin/typo3 simplecmp:seed`.
+- **CMS-bridge receiver** *(iteration 3 — shipped):* receives JSON
+  POSTs from the SimpleCMP bridge at `/api/simplecmp/webhook` and
+  stores them in `tx_simplecmptypo3_detection`. Idempotent — repeat
+  hits of the same `(source, kind, identifier)` triple bump
+  `occurrences` rather than inserting duplicates.
+- **TYPO3 backend module** *(iteration 4 — not yet implemented):*
+  admins will review unknown detections and curate the service
+  registry from the BE.
 
 ## Installation
 

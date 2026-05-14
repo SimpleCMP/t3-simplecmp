@@ -12,3 +12,10 @@ services:
       - name: 'console.command'
         command: 'simplecmp:seed'
         description: 'Seed the SimpleCMP service registry from bundled JSON fixtures.'
+
+  # PSR-15 middlewares: TYPO3 instantiates these via `makeInstance`, which
+  # only reads from public services in the DI container. Without `public:
+  # true` the autowired constructor args (repositories) silently fail and
+  # the middleware crashes with "Too few arguments to __construct".
+  WapplerSystems\SimpleCmpTypo3\Middleware\ServiceDbApi:
+    public: true
