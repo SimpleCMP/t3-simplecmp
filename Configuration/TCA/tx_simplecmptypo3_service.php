@@ -24,7 +24,9 @@ return [
         'security' => [
             'ignorePageTypeRestriction' => true,
         ],
-        'sortby' => 'service_id',
+        // No `sortby` — that requires an integer column (TYPO3 uses arithmetic
+        // for drag-and-drop ordering). `service_id` is varchar, so we rely on
+        // `default_sortby` instead for display order.
         'default_sortby' => 'service_id ASC',
     ],
     'columns' => [
