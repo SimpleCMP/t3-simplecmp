@@ -37,6 +37,13 @@
       <trans-unit id="show.field.userAgent"><source>User agent</source></trans-unit>
       <trans-unit id="show.field.referrer"><source>Referrer</source></trans-unit>
       <trans-unit id="show.field.libraryVersion"><source>Library version</source></trans-unit>
+      <trans-unit id="show.field.occurrences"><source>Occurrences</source></trans-unit>
+      <trans-unit id="show.field.received"><source>Received</source></trans-unit>
+      <trans-unit id="show.field.sentAt"><source>Sent at</source></trans-unit>
+      <trans-unit id="show.field.pageUrl"><source>Page URL</source></trans-unit>
+      <trans-unit id="show.field.firstSeenOn"><source>First seen on</source></trans-unit>
+      <trans-unit id="show.field.reviewed.yes"><source>✓ yes</source></trans-unit>
+      <trans-unit id="show.field.reviewed.no"><source>● no</source></trans-unit>
 
       <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source></trans-unit>
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source></trans-unit>

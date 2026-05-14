@@ -37,6 +37,13 @@
       <trans-unit id="show.field.userAgent"><source>User agent</source><target>User-Agent</target></trans-unit>
       <trans-unit id="show.field.referrer"><source>Referrer</source><target>Referrer</target></trans-unit>
       <trans-unit id="show.field.libraryVersion"><source>Library version</source><target>Bibliotheksversion</target></trans-unit>
+      <trans-unit id="show.field.occurrences"><source>Occurrences</source><target>Vorkommen</target></trans-unit>
+      <trans-unit id="show.field.received"><source>Received</source><target>Empfangen</target></trans-unit>
+      <trans-unit id="show.field.sentAt"><source>Sent at</source><target>Gesendet am</target></trans-unit>
+      <trans-unit id="show.field.pageUrl"><source>Page URL</source><target>Seiten-URL</target></trans-unit>
+      <trans-unit id="show.field.firstSeenOn"><source>First seen on</source><target>Erstmals gesehen auf</target></trans-unit>
+      <trans-unit id="show.field.reviewed.yes"><source>✓ yes</source><target>✓ ja</target></trans-unit>
+      <trans-unit id="show.field.reviewed.no"><source>● no</source><target>● nein</target></trans-unit>
 
       <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source><target>Detektion als geprüft markiert.</target></trans-unit>
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source><target>Markierung aufgehoben.</target></trans-unit>
