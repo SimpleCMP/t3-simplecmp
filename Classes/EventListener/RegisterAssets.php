@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 
 /**
  * Registers the SimpleCMP JS bundle + inline init call on every TYPO3
@@ -32,6 +33,7 @@ final readonly class RegisterAssets
 {
     public function __construct(
         private AssetCollector $assetCollector,
+        private ServiceRepository $serviceRepository,
     ) {
     }
 
@@ -89,14 +91,21 @@ final readonly class RegisterAssets
         $get = static fn (string $key, mixed $default = null): mixed
             => $settings->get($key) ?: $default;
 
+        [$services, $serviceTranslations] = $this->buildRuntimeServices();
         $config = [
             'storageName' => $get('simplecmp.storageName') ?: 'simplecmp-' . $site->getIdentifier(),
-            'services' => [],
+            'services' => $services,
             'respectGPC' => (bool) $get('simplecmp.respectGPC', true),
+            // Show "Accept all" alongside "Decline" and "Save selected" in the
+            // modal footer so returning users can bulk-toggle from the trigger.
+            'acceptAll' => true,
             'floatingTrigger' => [
                 'label' => (string) $get('simplecmp.floatingTriggerLabel', 'Cookie settings'),
             ],
         ];
+        if ($serviceTranslations !== []) {
+            $config['translations'] = $serviceTranslations;
+        }
 
         $privacy = (string) $get('simplecmp.privacyPolicyUrl', '');
         if ($privacy !== '') {
@@ -130,5 +139,69 @@ final readonly class RegisterAssets
         }
 
         return $config;
+    }
+
+    /**
+     * Map the protocol-shaped rows from `ServiceRepository` to the runtime
+     * `Service` shape the JS `init()` consumes, plus a `translations` block
+     * carrying per-service title/description for the UI's lookup at
+     * `services.<service_id>.{title,description}`.
+     *
+     * Title precedence:
+     * - per-language: `i18n.title.<lang>` from the DB row (rarely set)
+     * - fallback (`zz` language): the DB `name` column — the canonical
+     *   display name, language-neutral if no localizations exist.
+     *
+     * Description precedence is the same: `i18n.description.<lang>` →
+     * `zz` fallback from the DB `description` column.
+     *
+     * @return array{0: list<array<string, mixed>>, 1: array<string, mixed>}
+     */
+    private function buildRuntimeServices(): array
+    {
+        $rows = $this->serviceRepository->paginate(0, 1000)['items'];
+        $services = [];
+        $translations = [];
+        foreach ($rows as $row) {
+            $id = (string) $row['id'];
+            $service = [
+                // `name` is the consent key the manager tracks state under.
+                'name' => $id,
+                'purposes' => $row['purposes'] ?? [],
+            ];
+            $cookies = $row['matches']['cookies'] ?? [];
+            if ($cookies !== []) {
+                $service['cookies'] = $cookies;
+            }
+            if (isset($row['privacyPolicyUrl'])) {
+                $service['privacyPolicyUrl'] = (string) $row['privacyPolicyUrl'];
+            }
+            if (isset($row['vendor'])) {
+                $service['vendor'] = (string) $row['vendor'];
+            }
+            if (isset($row['vendorCountry'])) {
+                $service['vendorCountry'] = (string) $row['vendorCountry'];
+            }
+            $services[] = $service;
+
+            $translations['zz'][$id]['title'] = (string) $row['name'];
+            if (isset($row['description'])) {
+                $translations['zz'][$id]['description'] = (string) $row['description'];
+            }
+            $i18n = is_array($row['i18n'] ?? null) ? $row['i18n'] : [];
+            foreach (['title', 'description'] as $field) {
+                $perLang = $i18n[$field] ?? null;
+                if (!is_array($perLang)) {
+                    continue;
+                }
+                foreach ($perLang as $lang => $value) {
+                    if (!is_string($value) || $value === '') {
+                        continue;
+                    }
+                    $translations[(string) $lang][$id][$field] = $value;
+                }
+            }
+        }
+        return [$services, $translations];
     }
 }
