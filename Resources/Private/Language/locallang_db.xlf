@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
+  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="simplecmp_typo3">
+    <header/>
+    <body>
+      <!-- Service table -->
+      <trans-unit id="tx_simplecmptypo3_service"><source>SimpleCMP service</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.service_id"><source>Service ID (slug)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.service_id.description"><source>Stable kebab-case identifier, e.g. "google-analytics". Lower-case, no spaces.</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.name"><source>Display name</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.vendor"><source>Vendor</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.vendor_country"><source>Vendor country (ISO 3166)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes"><source>Purposes (JSON array)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.description"><source>One of: functional, analytics, marketing, personalization, security, advertising. JSON array, e.g. ["analytics","marketing"].</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.privacy_policy_url"><source>Privacy policy URL</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.description"><source>Description</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.retention"><source>Retention (JSON)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.i18n"><source>Translations (JSON)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.cookies"><source>Cookie matchers (JSON array)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.cookies.description"><source>Strings (exact match) or /regex/ (slash-bounded), e.g. ["_ga", "/^_ga_/", "_gid"].</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.origins"><source>Origin matchers (JSON array)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.origins.description"><source>Host strings or wildcards, e.g. ["www.google-analytics.com", "*.doubleclick.net"].</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.extensions"><source>Extensions (JSON)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.palette.protocol"><source>Protocol contract</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.palette.classification"><source>Classification (cookies + origins)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.palette.metadata"><source>Metadata</source></trans-unit>
+
+      <!-- Detection table -->
+      <trans-unit id="tx_simplecmptypo3_detection"><source>SimpleCMP detection</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.source"><source>Source</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.kind"><source>Kind</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.identifier"><source>Identifier (cookie name / URL)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.origin"><source>Origin (host)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.page_url"><source>Page URL</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.first_seen_on"><source>First seen on (path)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.sent_at"><source>Sent at (ISO timestamp)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.first_seen"><source>First seen (epoch ms)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.last_seen"><source>Last seen (epoch ms)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.received_at"><source>Received at</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.occurrences"><source>Occurrences</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.library_version"><source>Library version</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.user_agent"><source>User agent</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.referrer"><source>Referrer</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.payload"><source>Raw payload (JSON)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_detection.reviewed"><source>Reviewed</source></trans-unit>
+    </body>
+  </file>
+</xliff>

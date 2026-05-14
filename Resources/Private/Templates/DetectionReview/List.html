@@ -1,0 +1,127 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:layout name="Default" />
+
+<f:section name="headline">
+    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
+    <p class="text-body-secondary">
+        <strong>{unreviewedCount}</strong> / {totalCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
+    </p>
+</f:section>
+
+<f:section name="content">
+    <div class="btn-toolbar mb-3" role="toolbar">
+        <div class="btn-group me-2" role="group">
+            <f:link.action
+                controller="DetectionReview"
+                action="list"
+                arguments="{onlyUnreviewed: 1}"
+                class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
+            </f:link.action>
+            <f:link.action
+                controller="DetectionReview"
+                action="list"
+                arguments="{onlyUnreviewed: 0}"
+                class="btn btn-default {f:if(condition: onlyUnreviewed, then: '', else: 'active')}">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.all" />
+            </f:link.action>
+        </div>
+        <f:form
+            controller="DetectionReview"
+            action="bulkDelete"
+            class="ms-auto"
+            additionalAttributes="{onsubmit: 'return confirm(\'{f:translate(key: \'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm\')}\')'}">
+            <button type="submit" class="btn btn-danger">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed" />
+            </button>
+        </f:form>
+    </div>
+
+    <f:if condition="{detections -> f:count()} > 0">
+        <f:then>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.occurrences" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.received" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.reviewed" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.actions" /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{detections}" as="detection">
+                        <tr>
+                            <td><span class="badge bg-secondary">{detection.kind}</span></td>
+                            <td><code>{detection.identifier}</code></td>
+                            <td><f:if condition="{detection.origin}"><code>{detection.origin}</code></f:if></td>
+                            <td class="text-end"><strong>{detection.occurrences}</strong></td>
+                            <td>
+                                <f:format.date format="Y-m-d H:i">{detection.received_at}</f:format.date>
+                            </td>
+                            <td><span class="text-body-secondary">{detection.source}</span></td>
+                            <td>
+                                <f:if condition="{detection.reviewed}">
+                                    <f:then><span class="badge bg-success">✓</span></f:then>
+                                    <f:else><span class="badge bg-warning">●</span></f:else>
+                                </f:if>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <f:link.action
+                                        controller="DetectionReview"
+                                        action="show"
+                                        arguments="{uid: detection.uid}"
+                                        class="btn btn-default"
+                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
+                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show" />
+                                    </f:link.action>
+                                    <f:link.action
+                                        controller="DetectionReview"
+                                        action="createService"
+                                        arguments="{uid: detection.uid}"
+                                        class="btn btn-primary"
+                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService')}">
+                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService" />
+                                    </f:link.action>
+                                    <f:if condition="{detection.reviewed}">
+                                        <f:then>
+                                            <f:link.action
+                                                controller="DetectionReview"
+                                                action="unmarkReviewed"
+                                                arguments="{uid: detection.uid}"
+                                                class="btn btn-default">
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.unmarkReviewed" />
+                                            </f:link.action>
+                                        </f:then>
+                                        <f:else>
+                                            <f:link.action
+                                                controller="DetectionReview"
+                                                action="markReviewed"
+                                                arguments="{uid: detection.uid}"
+                                                class="btn btn-success">
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.markReviewed" />
+                                            </f:link.action>
+                                        </f:else>
+                                    </f:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </f:for>
+                </tbody>
+            </table>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty" />
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * TCA for incoming CMS-bridge webhook detections. Read-mostly: only the
+ * `reviewed` toggle is intended to be edited from the standard List
+ * module. The dedicated SimpleCMP backend module is the canonical UI
+ * for triage — see `Classes/Controller/Backend/DetectionReviewController.php`.
+ */
+
+return [
+    'ctrl' => [
+        'title' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection',
+        'label' => 'identifier',
+        'label_alt' => 'kind',
+        'label_alt_force' => true,
+        'tstamp' => 'tstamp',
+        'crdate' => 'crdate',
+        'iconfile' => 'EXT:simplecmp_typo3/Resources/Public/Icons/simplecmp.svg',
+        'searchFields' => 'identifier,origin,page_url,source',
+        'rootLevel' => -1,
+        'security' => [
+            'ignorePageTypeRestriction' => true,
+        ],
+        'default_sortby' => 'received_at DESC',
+        'hideTable' => false,
+        'readOnly' => false,
+    ],
+    'columns' => [
+        'source' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.source',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 30],
+        ],
+        'kind' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.kind',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 16],
+        ],
+        'identifier' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.identifier',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 60],
+        ],
+        'origin' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.origin',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 40],
+        ],
+        'page_url' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.page_url',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 60],
+        ],
+        'first_seen_on' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.first_seen_on',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 60],
+        ],
+        'sent_at' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.sent_at',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 30],
+        ],
+        'received_at' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.received_at',
+            'config' => ['type' => 'datetime', 'readOnly' => true, 'format' => 'datetime'],
+        ],
+        'occurrences' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.occurrences',
+            'config' => ['type' => 'number', 'readOnly' => true, 'size' => 8],
+        ],
+        'library_version' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.library_version',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 20],
+        ],
+        'user_agent' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.user_agent',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 60],
+        ],
+        'referrer' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.referrer',
+            'config' => ['type' => 'input', 'readOnly' => true, 'size' => 60],
+        ],
+        'payload' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.payload',
+            'config' => ['type' => 'text', 'readOnly' => true, 'rows' => 12, 'cols' => 80],
+        ],
+        'reviewed' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.reviewed',
+            'config' => [
+                'type' => 'check',
+                'renderType' => 'checkboxToggle',
+                'default' => 0,
+            ],
+        ],
+    ],
+    'types' => [
+        '0' => [
+            'showitem' => '
+                reviewed,
+                --div--;Identity,
+                source, kind, identifier, origin,
+                --div--;Page context,
+                page_url, first_seen_on, referrer, user_agent, library_version,
+                --div--;Timing,
+                received_at, occurrences, sent_at,
+                --div--;Raw payload,
+                payload,
+            ',
+        ],
+    ],
+];

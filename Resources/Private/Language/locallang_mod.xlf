@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
+  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="simplecmp_typo3">
+    <header/>
+    <body>
+      <trans-unit id="mlang_tabs_tab"><source>SimpleCMP detections</source></trans-unit>
+      <trans-unit id="mlang_labels_tablabel"><source>Review SimpleCMP detections</source></trans-unit>
+      <trans-unit id="mlang_labels_tabdescr"><source>Triage unknown trackers reported by the SimpleCMP CMS bridge. Mark items as reviewed, or convert a detection into a service entry so it classifies as known on future visits.</source></trans-unit>
+
+      <trans-unit id="list.title"><source>SimpleCMP — unknown-tracker detections</source></trans-unit>
+      <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports an unknown tracker.</source></trans-unit>
+      <trans-unit id="list.filter.unreviewed"><source>Only unreviewed</source></trans-unit>
+      <trans-unit id="list.filter.all"><source>All</source></trans-unit>
+      <trans-unit id="list.col.kind"><source>Kind</source></trans-unit>
+      <trans-unit id="list.col.identifier"><source>Identifier</source></trans-unit>
+      <trans-unit id="list.col.origin"><source>Origin</source></trans-unit>
+      <trans-unit id="list.col.occurrences"><source>×</source></trans-unit>
+      <trans-unit id="list.col.received"><source>Received</source></trans-unit>
+      <trans-unit id="list.col.source"><source>Source</source></trans-unit>
+      <trans-unit id="list.col.reviewed"><source>Reviewed</source></trans-unit>
+      <trans-unit id="list.col.actions"><source>Actions</source></trans-unit>
+      <trans-unit id="list.action.show"><source>Details</source></trans-unit>
+      <trans-unit id="list.action.markReviewed"><source>Mark reviewed</source></trans-unit>
+      <trans-unit id="list.action.unmarkReviewed"><source>Unmark</source></trans-unit>
+      <trans-unit id="list.action.createService"><source>Convert to service</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete all reviewed</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source></trans-unit>
+
+      <trans-unit id="show.title"><source>Detection detail</source></trans-unit>
+      <trans-unit id="show.back"><source>← Back to list</source></trans-unit>
+      <trans-unit id="show.section.identity"><source>Identity</source></trans-unit>
+      <trans-unit id="show.section.page"><source>Page context</source></trans-unit>
+      <trans-unit id="show.section.timing"><source>Timing</source></trans-unit>
+      <trans-unit id="show.section.payload"><source>Raw webhook payload</source></trans-unit>
+      <trans-unit id="show.field.firstSeen"><source>First seen</source></trans-unit>
+      <trans-unit id="show.field.lastSeen"><source>Last seen</source></trans-unit>
+      <trans-unit id="show.field.userAgent"><source>User agent</source></trans-unit>
+      <trans-unit id="show.field.referrer"><source>Referrer</source></trans-unit>
+      <trans-unit id="show.field.libraryVersion"><source>Library version</source></trans-unit>
+
+      <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source></trans-unit>
+      <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source></trans-unit>
+      <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source></trans-unit>
+    </body>
+  </file>
+</xliff>
