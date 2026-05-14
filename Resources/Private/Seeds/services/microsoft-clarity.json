@@ -1,0 +1,22 @@
+{
+  "id": "microsoft-clarity",
+  "name": "Microsoft Clarity",
+  "vendor": "Microsoft Corporation",
+  "vendorCountry": "US",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://privacy.microsoft.com/en-us/privacystatement",
+  "description": "Session recording, heatmaps, and engagement analytics. Free alternative to Hotjar.",
+  "retention": {
+    "display": { "en": "1 year", "de": "1 Jahr" },
+    "durationDays": 365
+  },
+  "i18n": {
+    "description": {
+      "de": "Session-Aufzeichnungen, Heatmaps und Engagement-Analysen. Kostenlose Alternative zu Hotjar."
+    }
+  },
+  "matches": {
+    "cookies": ["/^_clck/", "/^_clsk/", "CLID", "ANONCHK", "MR", "MUID", "SM"],
+    "origins": ["*.clarity.ms"]
+  }
+}

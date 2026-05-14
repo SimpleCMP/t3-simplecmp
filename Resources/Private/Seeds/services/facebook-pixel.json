@@ -1,0 +1,18 @@
+{
+  "id": "facebook-pixel",
+  "name": "Meta Pixel",
+  "vendor": "Meta Platforms Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "advertising", "analytics"],
+  "privacyPolicyUrl": "https://www.facebook.com/privacy/policy/",
+  "description": "Tracks user actions for ad targeting and conversion attribution on Facebook and Instagram. Sets cookies that identify users across sites in the Meta network.",
+  "i18n": {
+    "description": {
+      "de": "Erfasst Nutzeraktionen für Werbe-Targeting und Conversion-Tracking auf Facebook und Instagram. Setzt Cookies, die Nutzer im Meta-Netzwerk websiteübergreifend identifizieren."
+    }
+  },
+  "matches": {
+    "cookies": ["_fbp", "/^_fbc/", "fr"],
+    "origins": ["*.facebook.com", "*.facebook.net"]
+  }
+}

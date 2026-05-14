@@ -1,0 +1,22 @@
+{
+  "id": "matomo",
+  "name": "Matomo",
+  "vendor": "InnoCraft Ltd",
+  "vendorCountry": "NZ",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://matomo.org/privacy-policy/",
+  "description": "Self-hostable web analytics. Cookies are typically same-origin, so origin matching may not apply for self-hosted installations.",
+  "retention": {
+    "display": { "en": "13 months", "de": "13 Monate" },
+    "durationDays": 396
+  },
+  "i18n": {
+    "description": {
+      "de": "Selbst-hostbare Web-Analyse. Cookies sind in der Regel Same-Origin; Origin-Matching greift bei selbst gehosteten Installationen nicht."
+    }
+  },
+  "matches": {
+    "cookies": ["/^_pk_/", "matomo_sessid", "matomo_ignore"],
+    "origins": []
+  }
+}

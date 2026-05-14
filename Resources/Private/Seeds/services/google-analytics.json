@@ -1,0 +1,22 @@
+{
+  "id": "google-analytics",
+  "name": "Google Analytics",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Tracks visits and user behaviour across sessions for traffic analytics. Sets cookies that identify the user across page loads.",
+  "retention": {
+    "display": { "en": "26 months", "de": "26 Monate" },
+    "durationDays": 791
+  },
+  "i18n": {
+    "description": {
+      "de": "Erfasst Besuche und Nutzerverhalten über Sitzungen hinweg für Traffic-Analysen. Setzt Cookies, die Nutzer über Seitenaufrufe hinweg identifizieren."
+    }
+  },
+  "matches": {
+    "cookies": ["_ga", "/^_ga_/", "_gid", "_gat", "/^_gac_/"],
+    "origins": ["www.google-analytics.com", "ssl.google-analytics.com", "stats.g.doubleclick.net"]
+  }
+}

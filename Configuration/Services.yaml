@@ -6,3 +6,9 @@ services:
 
   WapplerSystems\SimpleCmpTypo3\:
     resource: '../Classes/*'
+
+  WapplerSystems\SimpleCmpTypo3\Command\SeedServicesCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:seed'
+        description: 'Seed the SimpleCMP service registry from bundled JSON fixtures.'

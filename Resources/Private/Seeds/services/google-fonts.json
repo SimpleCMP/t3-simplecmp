@@ -1,0 +1,18 @@
+{
+  "id": "google-fonts",
+  "name": "Google Fonts",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Web fonts hosted by Google. Each font request transmits the visitor's IP to Google. Multiple German court decisions classify hot-loading Google Fonts as requiring consent — self-host the fonts when possible.",
+  "i18n": {
+    "description": {
+      "de": "Von Google gehostete Web-Fonts. Jede Font-Anfrage übermittelt die IP-Adresse des Besuchers an Google. Mehrere deutsche Gerichtsurteile haben das Einbinden von Google Fonts ohne Self-Hosting für einwilligungspflichtig erklärt — Fonts möglichst selbst hosten."
+    }
+  },
+  "matches": {
+    "cookies": [],
+    "origins": ["fonts.googleapis.com", "fonts.gstatic.com"]
+  }
+}

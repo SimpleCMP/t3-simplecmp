@@ -1,0 +1,18 @@
+{
+  "id": "youtube",
+  "name": "YouTube",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "personalization"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Embedded video player. Sets cookies that may be used for personalized advertising. Use the youtube-nocookie.com variant to suppress most tracking until playback.",
+  "i18n": {
+    "description": {
+      "de": "Eingebetteter Video-Player. Setzt Cookies, die für personalisierte Werbung genutzt werden können. Die youtube-nocookie.com-Variante unterdrückt das meiste Tracking bis zum Abspielen."
+    }
+  },
+  "matches": {
+    "cookies": ["VISITOR_INFO1_LIVE", "YSC", "PREF", "GPS", "VISITOR_PRIVACY_METADATA"],
+    "origins": ["*.youtube.com", "*.youtube-nocookie.com", "*.ytimg.com", "*.googlevideo.com"]
+  }
+}

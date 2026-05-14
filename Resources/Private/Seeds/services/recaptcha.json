@@ -1,0 +1,18 @@
+{
+  "id": "recaptcha",
+  "name": "Google reCAPTCHA",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["security"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Bot-detection on forms. v3 runs continuously in the background; v2 only on form interaction. Loads scripts from google.com.",
+  "i18n": {
+    "description": {
+      "de": "Bot-Erkennung auf Formularen. v3 läuft kontinuierlich im Hintergrund; v2 nur bei Formular-Interaktion. Lädt Skripte von google.com."
+    }
+  },
+  "matches": {
+    "cookies": [],
+    "origins": ["www.google.com", "www.gstatic.com", "www.recaptcha.net"]
+  }
+}

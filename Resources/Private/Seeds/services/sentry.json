@@ -1,0 +1,18 @@
+{
+  "id": "sentry",
+  "name": "Sentry",
+  "vendor": "Functional Software, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://sentry.io/privacy/",
+  "description": "Error and performance monitoring SDK. Transmits stack traces, browser info, and (depending on configuration) user identifiers.",
+  "i18n": {
+    "description": {
+      "de": "Fehler- und Performance-Monitoring-SDK. Übermittelt Stack-Traces, Browser-Informationen und (je nach Konfiguration) Nutzer-Identifikatoren."
+    }
+  },
+  "matches": {
+    "cookies": [],
+    "origins": ["*.sentry.io", "*.ingest.sentry.io", "*.ingest.us.sentry.io", "*.ingest.de.sentry.io"]
+  }
+}

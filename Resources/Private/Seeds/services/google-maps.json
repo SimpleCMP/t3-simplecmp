@@ -1,0 +1,18 @@
+{
+  "id": "google-maps",
+  "name": "Google Maps",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["functional", "personalization"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Embedded maps. Sets Google account cookies if the user is signed in; can transmit IP and location data.",
+  "i18n": {
+    "description": {
+      "de": "Eingebettete Karten. Setzt Google-Account-Cookies wenn der Nutzer eingeloggt ist; kann IP- und Standortdaten übertragen."
+    }
+  },
+  "matches": {
+    "cookies": [],
+    "origins": ["maps.google.com", "maps.googleapis.com", "*.maps.gstatic.com", "*.gstatic.com"]
+  }
+}

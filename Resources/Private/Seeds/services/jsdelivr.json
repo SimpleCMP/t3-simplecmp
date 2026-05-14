@@ -1,0 +1,18 @@
+{
+  "id": "jsdelivr",
+  "name": "jsDelivr",
+  "vendor": "Prospect One",
+  "vendorCountry": "PL",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://www.jsdelivr.com/privacy-policy-jsdelivr-net",
+  "description": "Open-source CDN for JavaScript and CSS libraries. Transmits IP per request. Whether consent is required depends on the script being loaded — often considered necessary if the library is essential to site function.",
+  "i18n": {
+    "description": {
+      "de": "Open-Source-CDN für JavaScript- und CSS-Bibliotheken. Übermittelt die IP pro Anfrage. Ob Einwilligung nötig ist, hängt vom geladenen Skript ab — oft als notwendig eingestuft, wenn die Bibliothek funktional erforderlich ist."
+    }
+  },
+  "matches": {
+    "cookies": [],
+    "origins": ["cdn.jsdelivr.net"]
+  }
+}
