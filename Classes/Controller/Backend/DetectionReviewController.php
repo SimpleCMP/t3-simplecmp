@@ -206,9 +206,11 @@ final class DetectionReviewController extends ActionController
 
     /**
      * If any service already matches the detection's cookie name or
-     * origin, return that service's uid. Picks the first match
-     * (deterministic by service_id ASC via ServiceRepository::paginate's
-     * underlying order) when several services overlap.
+     * origin, return that service's uid. When several services overlap
+     * on the same matcher, pick the most recently *created* one — the
+     * admin's most recent curation, which the freshly-created record
+     * almost always is. (`tstamp` would also bump from merely opening
+     * the edit form, so `crdate` is the more stable signal.)
      *
      * @param array<string, mixed> $detection
      */
@@ -227,13 +229,18 @@ final class DetectionReviewController extends ActionController
             return null;
         }
         // The repository returns protocol-shape rows keyed by `id`
-        // (service_id), not uid. One small DB hop to resolve uid.
-        $serviceId = (string) $matches[0]['id'];
+        // (service_id), not uid. One DB hop to resolve uids + tstamps,
+        // pick the most recent.
+        $serviceIds = array_map(static fn (array $m) => (string) $m['id'], $matches);
         $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
         $qb->getRestrictions()->removeAll();
         $uid = $qb->select('uid')
             ->from(self::SERVICE_TABLE)
-            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
+            ->where($qb->expr()->in(
+                'service_id',
+                $qb->createNamedParameter($serviceIds, \TYPO3\CMS\Core\Database\Connection::PARAM_STR_ARRAY)
+            ))
+            ->orderBy('crdate', 'DESC')
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchOne();
