@@ -49,6 +49,7 @@
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source></trans-unit>
       <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source></trans-unit>
+      <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source></trans-unit>
     </body>
   </file>
 </xliff>

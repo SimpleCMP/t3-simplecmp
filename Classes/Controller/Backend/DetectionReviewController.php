@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 
 /**
  * Backend module: review unknown-tracker detections that the SimpleCMP
@@ -43,6 +44,7 @@ final class DetectionReviewController extends ActionController
         private readonly ConnectionPool $connectionPool,
         private readonly UriBuilder $backendUriBuilder,
         private readonly PageRenderer $pageRenderer,
+        private readonly ServiceRepository $serviceRepository,
     ) {
     }
 
@@ -161,11 +163,10 @@ final class DetectionReviewController extends ActionController
     }
 
     /**
-     * Build the URL to the standard TYPO3 record-edit form for a NEW
-     * service entry, pre-populated with the detection's cookie /
-     * origin / identifier. The admin lands directly in the service form
-     * with most fields already filled — they fill in name/purposes and
-     * save.
+     * Open the TYPO3 record-edit form for the service entry that covers
+     * this detection — either an existing one (so the admin sees their
+     * previously-saved custom values) or a fresh new-record form
+     * pre-populated with the detection's cookie / origin / identifier.
      */
     public function createServiceAction(int $uid): ResponseInterface
     {
@@ -174,16 +175,69 @@ final class DetectionReviewController extends ActionController
             return $this->redirect('list');
         }
 
+        $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
+
+        // If a service already covers this detection, open it for editing
+        // instead of starting a fresh new-record form. Otherwise the admin
+        // would see only the controller-derived pre-fill values and would
+        // lose the visual cue that they had already curated this entry.
+        $existingUid = $this->findExistingServiceUid($row);
+        if ($existingUid !== null) {
+            $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
+                'edit' => [self::SERVICE_TABLE => [$existingUid => 'edit']],
+                'returnUrl' => $returnUrl,
+            ]);
+            $this->addFlash('flash.createServiceExisting');
+            return $this->responseFactory->createResponse(302)
+                ->withHeader('Location', $editUrl);
+        }
+
         $defaults = $this->buildServiceDefaults($row);
         $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
             'edit' => [self::SERVICE_TABLE => [0 => 'new']],
             'defVals' => [self::SERVICE_TABLE => $defaults],
-            'returnUrl' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections'),
+            'returnUrl' => $returnUrl,
         ]);
 
         $this->addFlash('flash.createServiceRedirect');
         return $this->responseFactory->createResponse(302)
             ->withHeader('Location', $editUrl);
+    }
+
+    /**
+     * If any service already matches the detection's cookie name or
+     * origin, return that service's uid. Picks the first match
+     * (deterministic by service_id ASC via ServiceRepository::paginate's
+     * underlying order) when several services overlap.
+     *
+     * @param array<string, mixed> $detection
+     */
+    private function findExistingServiceUid(array $detection): ?int
+    {
+        $kind = (string) ($detection['kind'] ?? '');
+        $identifier = (string) ($detection['identifier'] ?? '');
+        $origin = isset($detection['origin']) ? (string) $detection['origin'] : '';
+        $cookie = $kind === 'cookie' && $identifier !== '' ? $identifier : null;
+        $originVal = $kind !== 'cookie' && $origin !== '' ? $origin : null;
+        if ($cookie === null && $originVal === null) {
+            return null;
+        }
+        $matches = $this->serviceRepository->lookup($cookie, $originVal);
+        if ($matches === []) {
+            return null;
+        }
+        // The repository returns protocol-shape rows keyed by `id`
+        // (service_id), not uid. One small DB hop to resolve uid.
+        $serviceId = (string) $matches[0]['id'];
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $uid = $qb->select('uid')
+            ->from(self::SERVICE_TABLE)
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+        return $uid === false ? null : (int) $uid;
     }
 
     /** @return array<string, mixed>|null */

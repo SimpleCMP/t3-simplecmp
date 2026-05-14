@@ -49,6 +49,7 @@
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source><target>Markierung aufgehoben.</target></trans-unit>
       <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source><target>{count} geprüfte Detektion(en) gelöscht.</target></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source><target>Neues Dienst-Formular wurde mit den Detektionsdaten vorbefüllt — bitte prüfen und speichern.</target></trans-unit>
+      <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source><target>Ein Dienst deckt diese Detektion bereits ab — zum Bearbeiten geöffnet.</target></trans-unit>
     </body>
   </file>
 </xliff>
