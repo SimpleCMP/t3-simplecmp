@@ -26,18 +26,20 @@
     <f:if condition="{secretMissing}">
         <f:then>
             <div class="callout callout-warning mb-3">
-                <h4 class="callout-title">
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.title" />
-                </h4>
-                <p class="callout-body">
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.body" />
-                </p>
-                <form method="post" action="{uri_generateBridgeSecret}">
-                    <button type="submit" class="btn btn-primary">
-                        <core:icon identifier="actions-add" size="small" />
-                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.generate" />
-                    </button>
-                </form>
+                <div class="callout-content">
+                    <h4 class="callout-title">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.title" />
+                    </h4>
+                    <p class="callout-body">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.body" />
+                    </p>
+                    <form method="post" action="{uri_generateBridgeSecret}">
+                        <button type="submit" class="btn btn-primary">
+                            <core:icon identifier="actions-add" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.generate" />
+                        </button>
+                    </form>
+                </div>
             </div>
         </f:then>
         <f:else>

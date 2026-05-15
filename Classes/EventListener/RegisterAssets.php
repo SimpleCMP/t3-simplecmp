@@ -221,6 +221,10 @@ final readonly class RegisterAssets
             if ($cookies !== []) {
                 $service['cookies'] = $cookies;
             }
+            $origins = $row['matches']['origins'] ?? [];
+            if ($origins !== []) {
+                $service['origins'] = $origins;
+            }
             if (isset($row['privacyPolicyUrl'])) {
                 $service['privacyPolicyUrl'] = (string) $row['privacyPolicyUrl'];
             }
