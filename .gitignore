@@ -10,3 +10,7 @@ Thumbs.db
 /composer.lock
 /.phpunit.cache/
 /public/
+
+# Functional test scratch dirs (typo3/testing-framework writes here)
+/var/
+/typo3temp/

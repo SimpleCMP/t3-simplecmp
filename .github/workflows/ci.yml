@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit:
-    name: PHPUnit (PHP ${{ matrix.php-version }})
+    name: PHPUnit unit (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,3 +37,54 @@ jobs:
 
       - name: Run unit tests
         run: composer test:unit
+
+  functional:
+    name: PHPUnit functional (PHP ${{ matrix.php-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.3', '8.4']
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: func_simplecmp_typo3
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      typo3DatabaseDriver: mysqli
+      typo3DatabaseHost: 127.0.0.1
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: root
+      typo3DatabaseName: func_simplecmp_typo3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mysqli
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist --no-interaction
+
+      - name: Run functional tests
+        run: composer test:functional
