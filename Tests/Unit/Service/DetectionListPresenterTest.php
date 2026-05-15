@@ -16,46 +16,25 @@ final class DetectionListPresenterTest extends TestCase
     // --- decorateConfidence -----------------------------------------------
 
     #[Test]
-    #[TestWith([0, 'bg-warning text-dark', true])]
-    #[TestWith([1, 'bg-warning text-dark', true])]
-    #[TestWith([2, 'bg-secondary', false])]
-    #[TestWith([4, 'bg-secondary', false])]
-    #[TestWith([5, 'bg-success', false])]
-    #[TestWith([100, 'bg-success', false])]
-    public function decorateConfidenceAssignsClassAndLowConfidenceFlag(
+    #[TestWith([0, 'bg-warning text-dark'])]
+    #[TestWith([1, 'bg-warning text-dark'])]
+    #[TestWith([2, 'bg-secondary'])]
+    #[TestWith([4, 'bg-secondary'])]
+    #[TestWith([5, 'bg-success'])]
+    #[TestWith([100, 'bg-success'])]
+    public function decorateConfidenceAssignsClassByOccurrences(
         int $occurrences,
         string $expectedClass,
-        bool $expectedLowConfidence,
     ): void {
-        $row = DetectionListPresenter::decorateConfidence(
-            ['occurrences' => $occurrences],
-            'CONFIRM_MESSAGE',
-        );
+        $row = DetectionListPresenter::decorateConfidence(['occurrences' => $occurrences]);
         self::assertSame($expectedClass, $row['confidence_class']);
-        self::assertSame($expectedLowConfidence, $row['low_confidence']);
-    }
-
-    #[Test]
-    public function lowConfidenceConfirmIsPopulatedOnlyForLowConfidence(): void
-    {
-        $low = DetectionListPresenter::decorateConfidence(
-            ['occurrences' => 1],
-            'verify before curating',
-        );
-        $high = DetectionListPresenter::decorateConfidence(
-            ['occurrences' => 5],
-            'verify before curating',
-        );
-        self::assertSame('verify before curating', $low['low_confidence_confirm']);
-        self::assertSame('', $high['low_confidence_confirm']);
     }
 
     #[Test]
     public function decorateConfidenceTreatsMissingOccurrencesAsZero(): void
     {
-        $row = DetectionListPresenter::decorateConfidence([], 'msg');
+        $row = DetectionListPresenter::decorateConfidence([]);
         self::assertSame('bg-warning text-dark', $row['confidence_class']);
-        self::assertTrue($row['low_confidence']);
     }
 
     #[Test]
@@ -63,7 +42,6 @@ final class DetectionListPresenterTest extends TestCase
     {
         $row = DetectionListPresenter::decorateConfidence(
             ['uid' => 42, 'occurrences' => 3, 'identifier' => '_test'],
-            'msg',
         );
         self::assertSame(42, $row['uid']);
         self::assertSame('_test', $row['identifier']);

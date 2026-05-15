@@ -113,7 +113,6 @@ final class DetectionReviewController extends ActionController
         $stateCounts = $this->stateCountsAcrossAll($context);
 
         $filterArg = $this->filterArg($filters);
-        $lowConfidenceMessage = $this->translate('list.action.curate.lowConfidenceConfirm') ?? '';
         $rowsWithActions = [];
         foreach ($paginated as $r) {
             $rowArgs = ['uid' => (int) $r['uid']] + $filterArg;
@@ -138,7 +137,7 @@ final class DetectionReviewController extends ActionController
             ) {
                 $r['approve_affected_count'] = $stateCounts['affectedByLibraryId'][(string) $r['match']['id']] ?? 0;
             }
-            $r = DetectionListPresenter::decorateConfidence($r, $lowConfidenceMessage);
+            $r = DetectionListPresenter::decorateConfidence($r);
             $rowsWithActions[] = $r;
         }
 

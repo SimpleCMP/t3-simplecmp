@@ -186,7 +186,7 @@ final readonly class DetectionListPresenter
      * @param array<string, mixed> $row
      * @return array<string, mixed>
      */
-    public static function decorateConfidence(array $row, string $lowConfidenceMessage): array
+    public static function decorateConfidence(array $row): array
     {
         $occurrences = (int) ($row['occurrences'] ?? 0);
         $row['confidence_class'] = match (true) {
@@ -194,8 +194,6 @@ final readonly class DetectionListPresenter
             $occurrences >= 2 => 'bg-secondary',
             default => 'bg-warning text-dark',
         };
-        $row['low_confidence'] = $occurrences <= 1;
-        $row['low_confidence_confirm'] = $row['low_confidence'] ? $lowConfidenceMessage : '';
         return $row;
     }
 

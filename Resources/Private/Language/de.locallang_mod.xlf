@@ -20,7 +20,7 @@
       <trans-unit id="list.col.origin"><source>Origin</source><target>Origin</target></trans-unit>
       <trans-unit id="list.col.occurrences"><source>×</source><target>×</target></trans-unit>
       <trans-unit id="list.col.received"><source>Received</source><target>Empfangen</target></trans-unit>
-      <trans-unit id="list.col.source"><source>Source</source><target>Quelle</target></trans-unit>
+      <trans-unit id="list.col.source"><source>Reporting site</source><target>Meldende Site</target></trans-unit>
       <trans-unit id="list.col.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
       <trans-unit id="list.col.selectAll"><source>Select all rows</source><target>Alle Zeilen auswählen</target></trans-unit>
       <trans-unit id="list.col.selectRow"><source>Select row</source><target>Zeile auswählen</target></trans-unit>
@@ -35,7 +35,6 @@
       <trans-unit id="list.action.customize.title"><source>Open the pre-filled service form to review or edit before saving.</source><target>Das vorbefüllte Dienst-Formular öffnen, um vor dem Speichern zu prüfen oder anzupassen.</target></trans-unit>
       <trans-unit id="list.action.curate"><source>Curate</source><target>Kuratieren</target></trans-unit>
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source><target>Das Formular für einen neuen Dienst öffnen (keine Übereinstimmung in der Bibliothek — manuell eintragen).</target></trans-unit>
-      <trans-unit id="list.action.curate.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source><target>Dieser Tracker wurde erst einmal gemeldet. Prüfe, ob Cookie / Origin zu einem realen Drittanbieter passen, bevor du den Eintrag kuratierst — gefälschte Zeilen werden gezielt platziert, um Admins zur Freigabe zu verleiten.</target></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source><target>Den Registry-Eintrag öffnen, der diese Detektion abdeckt.</target></trans-unit>
       <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source><target>Alle Detektionen löschen</target></trans-unit>
@@ -58,8 +57,8 @@
       <trans-unit id="filter.status.kuratiert"><source>Only curated</source><target>Nur kuratierte</target></trans-unit>
       <trans-unit id="filter.status.all"><source>All statuses</source><target>Alle</target></trans-unit>
 
-      <trans-unit id="filter.source.label"><source>Source filter</source><target>Quellenfilter</target></trans-unit>
-      <trans-unit id="filter.source.all"><source>All sources</source><target>Alle Quellen</target></trans-unit>
+      <trans-unit id="filter.source.label"><source>Reporting-site filter</source><target>Filter „Meldende Site"</target></trans-unit>
+      <trans-unit id="filter.source.all"><source>All reporting sites</source><target>Alle meldenden Sites</target></trans-unit>
 
       <trans-unit id="filter.kind.label"><source>Kind filter</source><target>Typenfilter</target></trans-unit>
       <trans-unit id="filter.kind.all"><source>All kinds</source><target>Alle Typen</target></trans-unit>
