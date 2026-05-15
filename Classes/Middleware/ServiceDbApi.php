@@ -12,7 +12,10 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 use WapplerSystems\SimpleCmpTypo3\Service\WebhookPayloadValidator;
 use WapplerSystems\SimpleCmpTypo3\Service\WebhookRequestGuard;
@@ -47,6 +50,8 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private WebhookRequestGuard $requestGuard,
         private WebhookPayloadValidator $validator,
         private BridgeRateLimiter $rateLimiter,
+        private BridgeSecretProvider $secretProvider,
+        private BridgeNonceService $nonceService,
     ) {
     }
 
@@ -82,17 +87,19 @@ final readonly class ServiceDbApi implements MiddlewareInterface
     }
 
     /**
-     * Phase 1 defense for the webhook endpoint:
+     * Defense-in-depth for the webhook endpoint:
      *
-     *   1. Sec-Fetch-Site + Origin guards    (cheap, no DB hit)
-     *   2. Per-IP rate limit                  (one cache read)
-     *   3. Strict payload validation          (length cap, type/enum/epoch)
-     *   4. Repository ingest
+     *   1. Sec-Fetch-Site + Origin guards    (Phase 1; cheap, no DB hit)
+     *   2. Per-IP rate limit                  (Phase 1; one cache read)
+     *   3. Strict payload validation          (Phase 1; length cap, type/enum/epoch)
+     *   4. HMAC nonce verification            (Phase 2; source-bound, 1h TTL)
+     *   5. Repository ingest
      *
-     * The endpoint stays intentionally semi-public — the browser-side
-     * sender cannot hold a real secret, so the trust boundary lives in
-     * the BE admin review step, not here. See ADR / memory
-     * `webhook_browser_secret_constraint`.
+     * Nonce step is enforced when `bridgeSecret` is configured. When
+     * the secret is missing the receiver refuses outright (503) so we
+     * never silently fall back to the looser Phase-1-only mode. See
+     * memory `webhook_browser_secret_constraint` for why the nonce is
+     * a "raise the bar" defense, not real authentication.
      */
     private function webhook(ServerRequestInterface $request): ResponseInterface
     {
@@ -112,8 +119,38 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             return $this->jsonError($result->status, $result->message);
         }
 
+        $nonceError = $this->verifyBridgeNonce($request, $result->payload);
+        if ($nonceError !== null) {
+            return $nonceError;
+        }
+
         $this->detections->ingest($result->payload, $this->storagePidResolver->resolveForRequest($request));
         return new JsonResponse(['ok' => true]);
+    }
+
+    /**
+     * @param array<string, mixed> $payload validated payload (has `source`)
+     */
+    private function verifyBridgeNonce(ServerRequestInterface $request, array $payload): ?ResponseInterface
+    {
+        if (!$this->secretProvider->isConfigured()) {
+            return $this->jsonError(503, 'Bridge secret not configured');
+        }
+        $authHeader = $request->getHeader('Authorization');
+        $nonce = $authHeader === [] ? '' : (string) $authHeader[0];
+        if (str_starts_with($nonce, 'Bearer ')) {
+            $nonce = substr($nonce, 7);
+        }
+        if ($nonce === '') {
+            return $this->jsonError(401, 'Missing bridge nonce');
+        }
+        $verification = $this->nonceService->verify($nonce, (string) $payload['source']);
+        return match ($verification->status) {
+            BridgeNonceVerification::OK => null,
+            BridgeNonceVerification::EXPIRED => $this->jsonError(401, 'Expired bridge nonce'),
+            BridgeNonceVerification::SOURCE_MISMATCH => $this->jsonError(401, 'Nonce / source mismatch'),
+            default => $this->jsonError(401, 'Invalid bridge nonce'),
+        };
     }
 
     private function health(): ResponseInterface

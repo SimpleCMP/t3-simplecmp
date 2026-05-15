@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace WapplerSystems\SimpleCmpTypo3\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 
 /**
  * Registers the SimpleCMP JS bundle + inline init call on every TYPO3
@@ -34,6 +37,9 @@ final readonly class RegisterAssets
     public function __construct(
         private AssetCollector $assetCollector,
         private ServiceRepository $serviceRepository,
+        private BridgeSecretProvider $secretProvider,
+        private BridgeNonceService $nonceService,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -128,8 +134,24 @@ final readonly class RegisterAssets
 
         $cmsBridgeUrl = (string) $get('simplecmp.cmsBridgeUrl', '');
         if ($cmsBridgeUrl !== '') {
-            $config['cmsBridgeUrl'] = $cmsBridgeUrl;
-            $config['record'] = ['silenceProductionWarning' => true];
+            if (!$this->secretProvider->isConfigured()) {
+                // Refuse-until-configured. The bridge would otherwise POST
+                // unauthenticated traffic to a receiver that should reject
+                // it — silent breakage. Surface clearly and skip the bridge
+                // config entirely so the rest of SimpleCMP still works.
+                $this->logger->warning(
+                    'SimpleCMP cmsBridgeUrl is configured but bridgeSecret is missing — '
+                    . 'bridge will not be enabled on this site. Run '
+                    . '`vendor/bin/typo3 simplecmp:generate-bridge-secret` and follow '
+                    . 'the printed instructions.',
+                );
+            } else {
+                $config['cmsBridgeUrl'] = $cmsBridgeUrl;
+                $config['cmsBridgeAuth'] = [
+                    'token' => $this->nonceService->issue((string) $config['storageName']),
+                ];
+                $config['record'] = ['silenceProductionWarning' => true];
+            }
         }
 
         if ($privacy === '' && $config['services'] === []) {
