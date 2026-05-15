@@ -217,6 +217,7 @@
                                                     data-approve-trigger
                                                     data-approve-url="{detection.uri_approve}"
                                                     data-approve-payload="{detection.approve_modal_data}"
+                                                    data-approve-affected-count="{detection.approve_affected_count}"
                                                     data-label-title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.title')}"
                                                     data-label-cancel="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.cancel')}"
                                                     data-label-confirm="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.confirm')}"
@@ -224,7 +225,31 @@
                                                     data-label-purposes="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.purposes')}"
                                                     data-label-privacy="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.privacy')}"
                                                     data-label-cookies="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.cookies')}"
-                                                    data-label-origins="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.origins')}">
+                                                    data-label-origins="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.origins')}"
+                                                    data-label-section-frontend="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.section.frontend')}"
+                                                    data-label-section-raw="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.section.raw')}"
+                                                    data-label-section-impact="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.section.impact')}"
+                                                    data-label-field-service-id="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.field.serviceId')}"
+                                                    data-label-field-retention="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.field.retention')}"
+                                                    data-label-field-i18n-names="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.field.i18nNames')}"
+                                                    data-label-field-library-source="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.field.librarySource')}"
+                                                    data-label-preview-title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.preview.title')}"
+                                                    data-label-preview-disclaimer="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.preview.disclaimer')}"
+                                                    data-label-preview-consent-toggle="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.preview.consentToggle')}"
+                                                    data-label-impact-affected="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.impact.affected')}"
+                                                    data-label-impact-future="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.impact.future')}"
+                                                    data-purpose-analytics-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.label')}"
+                                                    data-purpose-analytics-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.description')}"
+                                                    data-purpose-marketing-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.label')}"
+                                                    data-purpose-marketing-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.description')}"
+                                                    data-purpose-advertising-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.label')}"
+                                                    data-purpose-advertising-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.description')}"
+                                                    data-purpose-functional-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.label')}"
+                                                    data-purpose-functional-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.description')}"
+                                                    data-purpose-personalization-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.label')}"
+                                                    data-purpose-personalization-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.description')}"
+                                                    data-purpose-security-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.label')}"
+                                                    data-purpose-security-description="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.description')}">
                                                 <core:icon identifier="actions-check" size="small" />
                                                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.approve" />
                                             </button>

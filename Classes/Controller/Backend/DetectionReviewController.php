@@ -108,6 +108,10 @@ final class DetectionReviewController extends ActionController
         $page = min($page, $totalPages);
         $paginated = array_slice($stateFiltered, ($page - 1) * $perPage, $perPage);
 
+        // State counts need to be computed before the per-row decoration loop
+        // because each Erkannt row reads its affected count from the map.
+        $stateCounts = $this->stateCountsAcrossAll($context);
+
         $filterArg = $this->filterArg($filters);
         $lowConfidenceMessage = $this->translate('list.action.curate.lowConfidenceConfirm') ?? '';
         $rowsWithActions = [];
@@ -127,12 +131,18 @@ final class DetectionReviewController extends ActionController
             $r['approve_modal_data'] = $r['state'] === DetectionListPresenter::STATE_RECOGNIZED
                 ? json_encode($r['match'] ?? [], JSON_UNESCAPED_SLASHES)
                 : '';
+            $r['approve_affected_count'] = 0;
+            if ($r['state'] === DetectionListPresenter::STATE_RECOGNIZED
+                && is_array($r['match'] ?? null)
+                && isset($r['match']['id'])
+            ) {
+                $r['approve_affected_count'] = $stateCounts['affectedByLibraryId'][(string) $r['match']['id']] ?? 0;
+            }
             $r = DetectionListPresenter::decorateConfidence($r, $lowConfidenceMessage);
             $rowsWithActions[] = $r;
         }
 
         $spike = $this->listPresenter->computeSpikeContext();
-        $stateCounts = $this->stateCountsAcrossAll($context);
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
@@ -230,12 +240,13 @@ final class DetectionReviewController extends ActionController
     }
 
     /**
-     * Header counters: how many rows need action (pending) and how
-     * many are already curated. Full-table scan + decoration once per
-     * page render — acceptable at the expected scale.
+     * Header counters + per-library affected-row map. Single full-table
+     * pass: count pending vs curated for the header, and bucket Erkannt
+     * rows by their matched library service id so the *Übernehmen*
+     * confirmation modal can show "approving this resolves N detections."
      *
      * @param array{services: array<array<string, mixed>>, library: array<array<string, mixed>>} $context
-     * @return array{pending: int, kuratiert: int}
+     * @return array{pending: int, kuratiert: int, affectedByLibraryId: array<string, int>}
      */
     private function stateCountsAcrossAll(array $context): array
     {
@@ -247,15 +258,27 @@ final class DetectionReviewController extends ActionController
             ->fetchAllAssociative();
         $pending = 0;
         $curated = 0;
+        $affectedByLibraryId = [];
         foreach ($rows as $r) {
-            $state = DetectionListPresenter::deriveState($r, $context['services'], $context['library'])['state'];
-            if ($state === DetectionListPresenter::STATE_CURATED) {
+            $derived = DetectionListPresenter::deriveState($r, $context['services'], $context['library']);
+            if ($derived['state'] === DetectionListPresenter::STATE_CURATED) {
                 $curated++;
             } else {
                 $pending++;
             }
+            if ($derived['state'] === DetectionListPresenter::STATE_RECOGNIZED
+                && is_array($derived['match'])
+                && isset($derived['match']['id'])
+            ) {
+                $id = (string) $derived['match']['id'];
+                $affectedByLibraryId[$id] = ($affectedByLibraryId[$id] ?? 0) + 1;
+            }
         }
-        return ['pending' => $pending, 'kuratiert' => $curated];
+        return [
+            'pending' => $pending,
+            'kuratiert' => $curated,
+            'affectedByLibraryId' => $affectedByLibraryId,
+        ];
     }
 
     /**
