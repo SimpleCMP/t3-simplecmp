@@ -31,13 +31,17 @@
       <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source><target>Die ausgewählten Detektion(en) dauerhaft löschen?</target></trans-unit>
       <trans-unit id="list.col.selectAll"><source>Select all rows</source><target>Alle Zeilen auswählen</target></trans-unit>
       <trans-unit id="list.col.selectRow"><source>Select row</source><target>Zeile auswählen</target></trans-unit>
+      <trans-unit id="list.pagination.perPageLabel"><source>Rows per page</source><target>Zeilen pro Seite</target></trans-unit>
+      <trans-unit id="list.pagination.range"><source>Showing %d–%d of %d</source><target>Zeige %d–%d von %d</target></trans-unit>
+      <trans-unit id="list.pagination.pageOf"><source>Page %d of %d</source><target>Seite %d von %d</target></trans-unit>
+      <trans-unit id="list.pagination.nav"><source>Page navigation</source><target>Seitennavigation</target></trans-unit>
       <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source><target>Weitere Löschoptionen</target></trans-unit>
       <trans-unit id="list.action.delete"><source>Delete this row</source><target>Diese Zeile löschen</target></trans-unit>
       <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source><target>Diese Detektion dauerhaft löschen?</target></trans-unit>
       <trans-unit id="list.action.createService.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source><target>Dieser Tracker wurde erst einmal gemeldet. Prüfe, ob Cookie / Origin zu einem realen Drittanbieter passen, bevor du den Eintrag kuratierst — gefälschte Zeilen werden gezielt platziert, um Admins zur Freigabe zu verleiten.</target></trans-unit>
       <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source><target>Vertrauen: Grün ≥ 5 Meldungen, Grau ≥ 2, Gelb = nur eine Meldung.</target></trans-unit>
       <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source><target>Ungewöhnlich viele Detektionen heute.</target></trans-unit>
-      <trans-unit id="list.spike.body"><source>{0} new detections today vs. {1}/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source><target>{0} neue Detektionen heute, gleitender 7-Tage-Schnitt: {1}/Tag. Mit besonderer Vorsicht prüfen — geflutete Tabellen sind ein bekannter Angriffsvektor, um die Kuratierung zu manipulieren.</target></trans-unit>
+      <trans-unit id="list.spike.body"><source>%d new detections today vs. %s/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source><target>%d neue Detektionen heute, gleitender 7-Tage-Schnitt: %s/Tag. Mit besonderer Vorsicht prüfen — geflutete Tabellen sind ein bekannter Angriffsvektor, um die Kuratierung zu manipulieren.</target></trans-unit>
 
       <trans-unit id="show.title"><source>Detection detail</source><target>Detail der Detektion</target></trans-unit>
       <trans-unit id="show.back"><source>← Back to list</source><target>← Zurück zur Liste</target></trans-unit>

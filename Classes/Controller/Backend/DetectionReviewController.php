@@ -43,7 +43,8 @@ final class DetectionReviewController extends ActionController
 {
     private const string DETECTION_TABLE = 'tx_simplecmptypo3_detection';
     private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
-    private const int LIST_LIMIT = 200;
+    private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
+    private const int DEFAULT_PER_PAGE = 25;
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -58,14 +59,27 @@ final class DetectionReviewController extends ActionController
     ) {
     }
 
-    public function listAction(bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function listAction(
+        bool $onlyUnreviewed = true,
+        int $page = 1,
+        int $perPage = self::DEFAULT_PER_PAGE,
+    ): ResponseInterface {
+        $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true)
+            ? $perPage
+            : self::DEFAULT_PER_PAGE;
+        $page = max(1, $page);
+
+        $filteredCount = $this->filteredCount($onlyUnreviewed);
+        $totalPages = max(1, (int) ceil($filteredCount / $perPage));
+        $page = min($page, $totalPages);
+
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
         $qb->select('*')
             ->from(self::DETECTION_TABLE)
             ->orderBy('received_at', 'DESC')
-            ->setMaxResults(self::LIST_LIMIT);
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
         if ($onlyUnreviewed) {
             $qb->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
         }
@@ -95,6 +109,7 @@ final class DetectionReviewController extends ActionController
 
         $spike = $this->listPresenter->computeSpikeContext();
 
+        $pageArg = ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0, 'perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
             'detections' => $rowsWithActions,
@@ -105,14 +120,37 @@ final class DetectionReviewController extends ActionController
             'todayCount' => $spike['todayCount'],
             'sevenDayAverage' => $spike['sevenDayAverage'],
             'secretMissing' => !$this->bridgeSecretProvider->isConfigured(),
-            'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1]),
-            'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'perPage' => $perPage,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
+            'filteredCount' => $filteredCount,
+            'rangeStart' => $filteredCount === 0 ? 0 : ($page - 1) * $perPage + 1,
+            'rangeEnd' => min($page * $perPage, $filteredCount),
+            'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1, 'perPage' => $perPage]),
+            'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0, 'perPage' => $perPage]),
+            'uri_pageFirst' => $this->uri('list', $pageArg + ['page' => 1]),
+            'uri_pagePrev' => $this->uri('list', $pageArg + ['page' => max(1, $page - 1)]),
+            'uri_pageNext' => $this->uri('list', $pageArg + ['page' => min($totalPages, $page + 1)]),
+            'uri_pageLast' => $this->uri('list', $pageArg + ['page' => $totalPages]),
+            'uri_listBase' => $this->uri('list', ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]),
             'uri_bulkDeleteReviewed' => $this->uri('bulkDeleteReviewed', $filterArg),
             'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
             'uri_bulkDeleteSelected' => $this->uri('bulkDeleteSelected', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
+    }
+
+    private function filteredCount(bool $onlyUnreviewed): int
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $qb->count('*')->from(self::DETECTION_TABLE);
+        if ($onlyUnreviewed) {
+            $qb->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
+        }
+        return (int) $qb->executeQuery()->fetchOne();
     }
 
     /**
@@ -370,6 +408,9 @@ final class DetectionReviewController extends ActionController
         );
         $this->pageRenderer->loadJavaScriptModule(
             '@wapplersystems/simplecmp-typo3/Backend/BulkSelect.js'
+        );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@wapplersystems/simplecmp-typo3/Backend/Pagination.js'
         );
         return $moduleTemplate;
     }

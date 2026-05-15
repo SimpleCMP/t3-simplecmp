@@ -110,6 +110,22 @@
 
     <f:if condition="{detections -> f:count()} > 0">
         <f:then>
+            <div class="d-flex align-items-center mb-2 gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="simplecmp-per-page" class="form-label mb-0 text-body-secondary small">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.perPageLabel" />
+                    </label>
+                    <select id="simplecmp-per-page" data-per-page class="form-select form-select-sm" style="width:auto">
+                        <f:for each="{perPageOptions}" as="option">
+                            <option value="{option}" {f:if(condition: '{option} == {perPage}', then: 'selected')}>{option}</option>
+                        </f:for>
+                    </select>
+                </div>
+                <div class="text-body-secondary small ms-auto">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.range" arguments="{0: rangeStart, 1: rangeEnd, 2: filteredCount}" />
+                </div>
+            </div>
+
             <form id="simplecmp-bulk-select-form"
                   method="post"
                   action="{uri_bulkDeleteSelected}"
@@ -203,6 +219,30 @@
                 </tbody>
             </table>
             </form>
+
+            <f:if condition="{totalPages} > 1">
+                <nav aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.nav')}">
+                    <ul class="pagination pagination-sm justify-content-end">
+                        <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
+                            <a class="page-link" href="{uri_pageFirst}" aria-label="First">«</a>
+                        </li>
+                        <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
+                            <a class="page-link" href="{uri_pagePrev}" aria-label="Previous">‹</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
+                            </span>
+                        </li>
+                        <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
+                            <a class="page-link" href="{uri_pageNext}" aria-label="Next">›</a>
+                        </li>
+                        <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
+                            <a class="page-link" href="{uri_pageLast}" aria-label="Last">»</a>
+                        </li>
+                    </ul>
+                </nav>
+            </f:if>
         </f:then>
         <f:else>
             <div class="callout callout-info">
