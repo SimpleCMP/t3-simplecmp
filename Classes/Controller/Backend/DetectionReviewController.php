@@ -88,6 +88,7 @@ final class DetectionReviewController extends ActionController
             $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
             $r['uri_markReviewed'] = $this->uri('markReviewed', $rowArgs);
             $r['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', $rowArgs);
+            $r['uri_delete'] = $this->uri('delete', $rowArgs);
             $r = DetectionListPresenter::decorateConfidence($r, $lowConfidenceMessage);
             $rowsWithActions[] = $r;
         }
@@ -106,7 +107,8 @@ final class DetectionReviewController extends ActionController
             'secretMissing' => !$this->bridgeSecretProvider->isConfigured(),
             'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1]),
             'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
-            'uri_bulkDelete' => $this->uri('bulkDelete', $filterArg),
+            'uri_bulkDeleteReviewed' => $this->uri('bulkDeleteReviewed', $filterArg),
+            'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
@@ -204,11 +206,34 @@ final class DetectionReviewController extends ActionController
         return $this->redirectToList($onlyUnreviewed);
     }
 
-    public function bulkDeleteAction(bool $onlyUnreviewed = true): ResponseInterface
+    public function deleteAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
+    {
+        $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
+            ->delete(self::DETECTION_TABLE, ['uid' => $uid]);
+        if ($count > 0) {
+            $this->addFlash('flash.detectionDeleted');
+        } else {
+            $this->addFlash('flash.detectionNotFound', ContextualFeedbackSeverity::WARNING);
+        }
+        return $this->redirectToList($onlyUnreviewed);
+    }
+
+    public function bulkDeleteReviewedAction(bool $onlyUnreviewed = true): ResponseInterface
     {
         $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->delete(self::DETECTION_TABLE, ['reviewed' => 1]);
-        $this->addFlash('flash.bulkDeleted', ContextualFeedbackSeverity::OK, ['count' => $count]);
+        $this->addFlash('flash.bulkDeletedReviewed', ContextualFeedbackSeverity::OK, ['count' => $count]);
+        return $this->redirectToList($onlyUnreviewed);
+    }
+
+    public function bulkDeleteAllAction(bool $onlyUnreviewed = true): ResponseInterface
+    {
+        $conn = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE);
+        // No WHERE — wipes everything. Use TRUNCATE semantics via raw SQL
+        // because Connection::delete requires a non-empty criteria array.
+        $count = (int) $conn->executeQuery('SELECT COUNT(*) FROM ' . self::DETECTION_TABLE)->fetchOne();
+        $conn->executeStatement('DELETE FROM ' . self::DETECTION_TABLE);
+        $this->addFlash('flash.bulkDeletedAll', ContextualFeedbackSeverity::OK, ['count' => $count]);
         return $this->redirectToList($onlyUnreviewed);
     }
 

@@ -23,8 +23,13 @@
       <trans-unit id="list.action.markReviewed"><source>Mark reviewed</source><target>Als geprüft markieren</target></trans-unit>
       <trans-unit id="list.action.unmarkReviewed"><source>Unmark</source><target>Markierung aufheben</target></trans-unit>
       <trans-unit id="list.action.createService"><source>Convert to service</source><target>In Dienst umwandeln</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete all reviewed</source><target>Alle geprüften löschen</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete reviewed</source><target>Geprüfte löschen</target></trans-unit>
       <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source><target>Alle als geprüft markierten Detektionen dauerhaft löschen?</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source><target>Alle Detektionen löschen</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table — reviewed and unreviewed alike?</source><target>WIRKLICH alle Detektionen dauerhaft löschen — geprüft und ungeprüft?</target></trans-unit>
+      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source><target>Weitere Löschoptionen</target></trans-unit>
+      <trans-unit id="list.action.delete"><source>Delete this row</source><target>Diese Zeile löschen</target></trans-unit>
+      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source><target>Diese Detektion dauerhaft löschen?</target></trans-unit>
       <trans-unit id="list.action.createService.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source><target>Dieser Tracker wurde erst einmal gemeldet. Prüfe, ob Cookie / Origin zu einem realen Drittanbieter passen, bevor du den Eintrag kuratierst — gefälschte Zeilen werden gezielt platziert, um Admins zur Freigabe zu verleiten.</target></trans-unit>
       <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source><target>Vertrauen: Grün ≥ 5 Meldungen, Grau ≥ 2, Gelb = nur eine Meldung.</target></trans-unit>
       <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source><target>Ungewöhnlich viele Detektionen heute.</target></trans-unit>
@@ -51,7 +56,10 @@
 
       <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source><target>Detektion als geprüft markiert.</target></trans-unit>
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source><target>Markierung aufgehoben.</target></trans-unit>
-      <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source><target>{count} geprüfte Detektion(en) gelöscht.</target></trans-unit>
+      <trans-unit id="flash.bulkDeletedReviewed"><source>{count} reviewed detection(s) deleted.</source><target>{count} geprüfte Detektion(en) gelöscht.</target></trans-unit>
+      <trans-unit id="flash.bulkDeletedAll"><source>{count} detection(s) deleted.</source><target>{count} Detektion(en) gelöscht.</target></trans-unit>
+      <trans-unit id="flash.detectionDeleted"><source>Detection deleted.</source><target>Detektion gelöscht.</target></trans-unit>
+      <trans-unit id="flash.detectionNotFound"><source>Detection no longer exists.</source><target>Detektion existiert nicht mehr.</target></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source><target>Neues Dienst-Formular wurde mit den Detektionsdaten vorbefüllt — bitte prüfen und speichern.</target></trans-unit>
       <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source><target>Ein Dienst deckt diese Detektion bereits ab — zum Bearbeiten geöffnet.</target></trans-unit>
       <trans-unit id="flash.bridgeSecretGenerated"><source>Bridge secret generated and stored in config/system/settings.php. The bridge will start emitting signed nonces on the next frontend page render.</source><target>Bridge-Secret erzeugt und in config/system/settings.php gespeichert. Beim nächsten Frontend-Aufruf werden signierte Nonces ausgegeben.</target></trans-unit>

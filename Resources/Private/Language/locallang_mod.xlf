@@ -23,8 +23,13 @@
       <trans-unit id="list.action.markReviewed"><source>Mark reviewed</source></trans-unit>
       <trans-unit id="list.action.unmarkReviewed"><source>Unmark</source></trans-unit>
       <trans-unit id="list.action.createService"><source>Convert to service</source></trans-unit>
-      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete all reviewed</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete reviewed</source></trans-unit>
       <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table — reviewed and unreviewed alike?</source></trans-unit>
+      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source></trans-unit>
+      <trans-unit id="list.action.delete"><source>Delete this row</source></trans-unit>
+      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source></trans-unit>
       <trans-unit id="list.action.createService.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source></trans-unit>
       <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source></trans-unit>
       <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source></trans-unit>
@@ -51,7 +56,10 @@
 
       <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source></trans-unit>
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source></trans-unit>
-      <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.bulkDeletedReviewed"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.bulkDeletedAll"><source>{count} detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.detectionDeleted"><source>Detection deleted.</source></trans-unit>
+      <trans-unit id="flash.detectionNotFound"><source>Detection no longer exists.</source></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source></trans-unit>
       <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source></trans-unit>
       <trans-unit id="flash.bridgeSecretGenerated"><source>Bridge secret generated and stored in config/system/settings.php. The bridge will start emitting signed nonces on the next frontend page render.</source></trans-unit>

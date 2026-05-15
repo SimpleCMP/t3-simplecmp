@@ -60,15 +60,38 @@
                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.all" />
             </a>
         </div>
-        <form method="post"
-              action="{uri_bulkDelete}"
-              class="ms-auto"
-              data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm')}">
-            <button type="submit" class="btn btn-danger">
-                <core:icon identifier="actions-delete" size="small" />
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed" />
+        <div class="btn-group ms-auto" role="group">
+            <form method="post"
+                  action="{uri_bulkDeleteReviewed}"
+                  class="d-inline"
+                  data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm')}">
+                <button type="submit" class="btn btn-danger">
+                    <core:icon identifier="actions-delete" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed" />
+                </button>
+            </form>
+            <button type="button"
+                    class="btn btn-danger dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                <span class="visually-hidden">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.moreDeleteOptions" />
+                </span>
             </button>
-        </form>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <form method="post"
+                          action="{uri_bulkDeleteAll}"
+                          class="m-0"
+                          data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteAll.confirm')}">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <core:icon identifier="actions-delete" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteAll" />
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <f:if condition="{detections -> f:count()} > 0">
@@ -137,6 +160,12 @@
                                             </a>
                                         </f:else>
                                     </f:if>
+                                    <a href="{detection.uri_delete}"
+                                       class="btn btn-default text-danger"
+                                       data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.delete.confirm')}"
+                                       title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.delete')}">
+                                        <core:icon identifier="actions-delete" size="small" />
+                                    </a>
                                 </div>
                             </td>
                         </tr>
