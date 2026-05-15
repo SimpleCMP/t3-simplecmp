@@ -139,4 +139,18 @@ final readonly class DetectionRepository
             ->executeQuery('SELECT COUNT(*) FROM ' . self::TABLE)
             ->fetchOne();
     }
+
+    /**
+     * Count rows with `crdate >= $timestamp`. Backs the BE module's
+     * "ingest spike" detection — comparing today vs. a 7-day baseline.
+     */
+    public function countSince(int $timestamp): int
+    {
+        return (int) $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->executeQuery(
+                'SELECT COUNT(*) FROM ' . self::TABLE . ' WHERE crdate >= ?',
+                [$timestamp],
+            )
+            ->fetchOne();
+    }
 }

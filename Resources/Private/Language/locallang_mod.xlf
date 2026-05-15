@@ -25,6 +25,10 @@
       <trans-unit id="list.action.createService"><source>Convert to service</source></trans-unit>
       <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete all reviewed</source></trans-unit>
       <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source></trans-unit>
+      <trans-unit id="list.action.createService.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source></trans-unit>
+      <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source></trans-unit>
+      <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source></trans-unit>
+      <trans-unit id="list.spike.body"><source>{0} new detections today vs. {1}/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source></trans-unit>
 
       <trans-unit id="show.title"><source>Detection detail</source></trans-unit>
       <trans-unit id="show.back"><source>← Back to list</source></trans-unit>

@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
@@ -39,6 +40,8 @@ final class DetectionReviewController extends ActionController
     private const string DETECTION_TABLE = 'tx_simplecmptypo3_detection';
     private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
     private const int LIST_LIMIT = 200;
+    private const int SPIKE_MIN_ABSOLUTE = 50;
+    private const int SPIKE_MULTIPLIER = 10;
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -46,6 +49,7 @@ final class DetectionReviewController extends ActionController
         private readonly UriBuilder $backendUriBuilder,
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
+        private readonly DetectionRepository $detectionRepository,
         private readonly StoragePidResolver $storagePidResolver,
     ) {
     }
@@ -72,6 +76,7 @@ final class DetectionReviewController extends ActionController
         // request and redirect to `list` with the same value, so the user
         // stays on whichever filter they were viewing.
         $filterArg = ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0];
+        $lowConfidenceMessage = $this->translate('list.action.createService.lowConfidenceConfirm') ?? '';
         $rowsWithActions = [];
         foreach ($rows as $r) {
             $rowArgs = ['uid' => (int) $r['uid']] + $filterArg;
@@ -79,8 +84,11 @@ final class DetectionReviewController extends ActionController
             $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
             $r['uri_markReviewed'] = $this->uri('markReviewed', $rowArgs);
             $r['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', $rowArgs);
+            $r = $this->decorateConfidence($r, $lowConfidenceMessage);
             $rowsWithActions[] = $r;
         }
+
+        $spike = $this->computeSpikeContext();
 
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
@@ -88,11 +96,69 @@ final class DetectionReviewController extends ActionController
             'onlyUnreviewed' => $onlyUnreviewed,
             'totalCount' => $this->totalCount(),
             'unreviewedCount' => $this->unreviewedCount(),
+            'spikeAlert' => $spike['spikeAlert'],
+            'todayCount' => $spike['todayCount'],
+            'sevenDayAverage' => $spike['sevenDayAverage'],
             'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1]),
             'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
             'uri_bulkDelete' => $this->uri('bulkDelete', $filterArg),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
+    }
+
+    /**
+     * Attach confidence-tier metadata used by the list template:
+     *
+     * - `confidence_class` — Bootstrap badge class (green / gray / yellow)
+     *   keyed on occurrence count. The badges are visual nudges for
+     *   admins to weight curation against social-engineering risk
+     *   (someone flooding the table with a fake row to trick an admin
+     *   into curating it).
+     * - `low_confidence` — true when occurrences = 1, used to gate the
+     *   confirm dialog on "Convert to service".
+     * - `low_confidence_confirm` — the translated confirm message, or
+     *   empty when occurrences > 1. The CSP-safe click handler in
+     *   `ConfirmForm.js` no-ops on empty values, so the attribute can
+     *   always be rendered.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function decorateConfidence(array $row, string $lowConfidenceMessage): array
+    {
+        $occurrences = (int) ($row['occurrences'] ?? 0);
+        $row['confidence_class'] = match (true) {
+            $occurrences >= 5 => 'bg-success',
+            $occurrences >= 2 => 'bg-secondary',
+            default => 'bg-warning text-dark',
+        };
+        $row['low_confidence'] = $occurrences <= 1;
+        $row['low_confidence_confirm'] = $row['low_confidence'] ? $lowConfidenceMessage : '';
+        return $row;
+    }
+
+    /**
+     * Anomaly-detection signal for the list view: today's ingest vs.
+     * the 7-day rolling average. Returns true when **both** thresholds
+     * trip — today > 10× average AND today > 50 absolute. The absolute
+     * floor avoids false positives on a fresh install where 2-vs-0.1
+     * would be technically a "spike."
+     *
+     * @return array{spikeAlert: bool, todayCount: int, sevenDayAverage: float}
+     */
+    private function computeSpikeContext(): array
+    {
+        $todayStart = mktime(0, 0, 0) ?: time();
+        $todayCount = $this->detectionRepository->countSince($todayStart);
+        $sevenDayTotal = $this->detectionRepository->countSince(time() - 7 * 86400);
+        $sevenDayAverage = $sevenDayTotal / 7;
+        $alert = $todayCount > self::SPIKE_MIN_ABSOLUTE
+            && $todayCount > self::SPIKE_MULTIPLIER * $sevenDayAverage;
+        return [
+            'spikeAlert' => $alert,
+            'todayCount' => $todayCount,
+            'sevenDayAverage' => round($sevenDayAverage, 1),
+        ];
     }
 
     public function showAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface

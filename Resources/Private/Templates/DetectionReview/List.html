@@ -11,6 +11,18 @@
         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
     </p>
 
+    <f:if condition="{spikeAlert}">
+        <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+            <core:icon identifier="actions-exclamation-triangle" size="medium" />
+            <div>
+                <strong><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.spike.title" /></strong>
+                <div>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.spike.body" arguments="{0: todayCount, 1: sevenDayAverage}" />
+                </div>
+            </div>
+        </div>
+    </f:if>
+
     <div class="btn-toolbar mb-3" role="toolbar">
         <div class="btn-group me-2" role="group">
             <a href="{uri_filterUnreviewed}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
@@ -52,7 +64,12 @@
                             <td><span class="badge bg-secondary">{detection.kind}</span></td>
                             <td><code>{detection.identifier}</code></td>
                             <td><f:if condition="{detection.origin}"><code>{detection.origin}</code></f:if></td>
-                            <td class="text-end"><strong>{detection.occurrences}</strong></td>
+                            <td class="text-end">
+                                <span class="badge {detection.confidence_class}"
+                                      title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.confidence.tooltip')}">
+                                    {detection.occurrences}
+                                </span>
+                            </td>
                             <td>
                                 <f:format.date format="Y-m-d H:i">{detection.received_at}</f:format.date>
                             </td>
@@ -73,6 +90,7 @@
                                     </a>
                                     <a href="{detection.uri_createService}"
                                        class="btn btn-primary"
+                                       data-confirm-message="{detection.low_confidence_confirm}"
                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService')}">
                                         <core:icon identifier="actions-plus" size="small" />
                                         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService" />
