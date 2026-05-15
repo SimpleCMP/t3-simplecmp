@@ -27,6 +27,10 @@
       <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source></trans-unit>
       <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source></trans-unit>
       <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table — reviewed and unreviewed alike?</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteSelected"><source>Delete selected</source></trans-unit>
+      <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source></trans-unit>
+      <trans-unit id="list.col.selectAll"><source>Select all rows</source></trans-unit>
+      <trans-unit id="list.col.selectRow"><source>Select row</source></trans-unit>
       <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source></trans-unit>
       <trans-unit id="list.action.delete"><source>Delete this row</source></trans-unit>
       <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source></trans-unit>
@@ -58,6 +62,8 @@
       <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source></trans-unit>
       <trans-unit id="flash.bulkDeletedReviewed"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
       <trans-unit id="flash.bulkDeletedAll"><source>{count} detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.bulkDeletedSelected"><source>{count} selected detection(s) deleted.</source></trans-unit>
+      <trans-unit id="flash.bulkDeleteSelectedEmpty"><source>No rows were selected.</source></trans-unit>
       <trans-unit id="flash.detectionDeleted"><source>Detection deleted.</source></trans-unit>
       <trans-unit id="flash.detectionNotFound"><source>Detection no longer exists.</source></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source></trans-unit>

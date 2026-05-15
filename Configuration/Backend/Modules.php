@@ -31,6 +31,7 @@ return [
                 'delete',
                 'bulkDeleteReviewed',
                 'bulkDeleteAll',
+                'bulkDeleteSelected',
                 'createService',
                 'generateBridgeSecret',
             ],

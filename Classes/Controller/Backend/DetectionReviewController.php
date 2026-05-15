@@ -109,6 +109,7 @@ final class DetectionReviewController extends ActionController
             'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
             'uri_bulkDeleteReviewed' => $this->uri('bulkDeleteReviewed', $filterArg),
             'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
+            'uri_bulkDeleteSelected' => $this->uri('bulkDeleteSelected', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
@@ -237,6 +238,33 @@ final class DetectionReviewController extends ActionController
         return $this->redirectToList($onlyUnreviewed);
     }
 
+    /**
+     * Delete the rows whose uids the user ticked in the list checkboxes.
+     *
+     * @param array<int, scalar> $uids
+     */
+    public function bulkDeleteSelectedAction(array $uids = [], bool $onlyUnreviewed = true): ResponseInterface
+    {
+        $ints = array_values(array_filter(
+            array_map('intval', $uids),
+            static fn (int $u): bool => $u > 0,
+        ));
+        if ($ints === []) {
+            $this->addFlash('flash.bulkDeleteSelectedEmpty', ContextualFeedbackSeverity::INFO);
+            return $this->redirectToList($onlyUnreviewed);
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $count = $qb->delete(self::DETECTION_TABLE)
+            ->where($qb->expr()->in(
+                'uid',
+                $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
+            ))
+            ->executeStatement();
+        $this->addFlash('flash.bulkDeletedSelected', ContextualFeedbackSeverity::OK, ['count' => $count]);
+        return $this->redirectToList($onlyUnreviewed);
+    }
+
     private function redirectToList(bool $onlyUnreviewed): ResponseInterface
     {
         return $this->redirect('list', null, null, ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
@@ -339,6 +367,9 @@ final class DetectionReviewController extends ActionController
         // calls preventDefault if the user cancels.
         $this->pageRenderer->loadJavaScriptModule(
             '@wapplersystems/simplecmp-typo3/Backend/ConfirmForm.js'
+        );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@wapplersystems/simplecmp-typo3/Backend/BulkSelect.js'
         );
         return $moduleTemplate;
     }

@@ -14,6 +14,12 @@ development.
 
 - **Per-row delete** in the *SimpleCMP detections* BE module. Each
   row in the list gains a delete icon button with a confirm dialog.
+- **Multi-row selection + bulk delete** in the detection list. A
+  new checkbox column lets admins tick the rows they want to wipe;
+  the *Delete selected (n)* item in the bulk-delete dropdown is
+  disabled while nothing is checked and shows the live count once
+  rows are ticked. A header *Select all* checkbox toggles every row
+  at once.
 - **Bulk-delete-all** alongside the existing *Delete reviewed*
   button, surfaced as a split-button dropdown. Two distinct
   confirmations: "Delete reviewed" wipes only `reviewed = 1` rows
