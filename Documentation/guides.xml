@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<guides
+    xmlns="https://typo3-documentation.github.io/schemas/2021-12/guides"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://typo3-documentation.github.io/schemas/2021-12/guides https://typo3-documentation.github.io/schemas/2021-12/typo3-guides.xsd"
+    project-version="0.1"
+    project-release="0.1.0"
+>
+    <project
+        title="SimpleCMP for TYPO3"
+        copyright="WapplerSystems"
+    />
+    <extension
+        class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
+        project-issues="https://github.com/WapplerSystems/simplecmp-typo3/issues"
+        project-repository="https://github.com/WapplerSystems/simplecmp-typo3"
+        project-discussions="https://github.com/WapplerSystems/simplecmp-typo3/discussions"
+        project-home="https://github.com/WapplerSystems/simplecmp-typo3"
+        project-contact="wappler@wappler.systems"
+        edit-on-github="WapplerSystems/simplecmp-typo3"
+        edit-on-github-branch="main"
+        typo3-core-preferred="main"
+    />
+</guides>
