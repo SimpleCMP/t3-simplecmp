@@ -23,6 +23,34 @@
         </div>
     </f:if>
 
+    <f:if condition="{secretMissing}">
+        <f:then>
+            <div class="callout callout-warning mb-3">
+                <h4 class="callout-title">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.title" />
+                </h4>
+                <p class="callout-body">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.body" />
+                </p>
+                <form method="post" action="{uri_generateBridgeSecret}">
+                    <button type="submit" class="btn btn-primary">
+                        <core:icon identifier="actions-add" size="small" />
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.generate" />
+                    </button>
+                </form>
+            </div>
+        </f:then>
+        <f:else>
+            <p class="mb-3">
+                <button type="button" class="btn btn-success" disabled
+                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured.tooltip')}">
+                    <core:icon identifier="actions-check" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured" />
+                </button>
+            </p>
+        </f:else>
+    </f:if>
+
     <div class="btn-toolbar mb-3" role="toolbar">
         <div class="btn-group me-2" role="group">
             <a href="{uri_filterUnreviewed}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">

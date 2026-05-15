@@ -48,10 +48,12 @@ final class BridgeNonceServiceTest extends TestCase
     {
         $nonce = $this->service->issue(self::SOURCE);
         $parts = explode('.', $nonce);
-        // Flip a bit in the signature segment.
+        // Replace the first byte of the signature with a character we know
+        // it isn't — `A` for any first byte != 'A', else `B`. Both are
+        // base64url-valid so the format check still passes; the HMAC just
+        // won't match.
         $sig = $parts[3];
-        $parts[3] = strtr(substr($sig, 0, 1), 'a-zA-Z0-9-_', 'b-yB-Y0-9_-')
-            . substr($sig, 1);
+        $parts[3] = ($sig[0] === 'A' ? 'B' : 'A') . substr($sig, 1);
         $tampered = implode('.', $parts);
         $result = $this->service->verify($tampered, self::SOURCE);
         self::assertFalse($result->isValid());

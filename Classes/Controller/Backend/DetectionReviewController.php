@@ -9,12 +9,15 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use Doctrine\DBAL\ParameterType;
+use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
@@ -51,6 +54,7 @@ final class DetectionReviewController extends ActionController
         private readonly ServiceRepository $serviceRepository,
         private readonly DetectionRepository $detectionRepository,
         private readonly StoragePidResolver $storagePidResolver,
+        private readonly BridgeSecretProvider $bridgeSecretProvider,
     ) {
     }
 
@@ -99,11 +103,48 @@ final class DetectionReviewController extends ActionController
             'spikeAlert' => $spike['spikeAlert'],
             'todayCount' => $spike['todayCount'],
             'sevenDayAverage' => $spike['sevenDayAverage'],
+            'secretMissing' => !$this->bridgeSecretProvider->isConfigured(),
             'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1]),
             'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0]),
             'uri_bulkDelete' => $this->uri('bulkDelete', $filterArg),
+            'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
+    }
+
+    /**
+     * One-click bootstrap: generate a fresh HMAC secret and persist it
+     * to `config/system/settings.php` via TYPO3's `ConfigurationManager`.
+     *
+     * The button on the list view only surfaces when the secret is
+     * missing; rotation goes through the CLI command (documented in
+     * the README) so the BE flow stays single-purpose.
+     */
+    public function generateBridgeSecretAction(): ResponseInterface
+    {
+        if ($this->bridgeSecretProvider->isConfigured()) {
+            // Don't overwrite an existing secret silently — rotation is
+            // a deliberate operation via CLI.
+            $this->addFlash('flash.bridgeSecretAlreadyConfigured', ContextualFeedbackSeverity::INFO);
+            return $this->redirect('list');
+        }
+        $secret = base64_encode(random_bytes(32));
+        try {
+            GeneralUtility::makeInstance(ConfigurationManager::class)
+                ->setLocalConfigurationValueByPath(
+                    'EXTENSIONS/simplecmp_typo3/bridgeSecret',
+                    $secret,
+                );
+        } catch (\Throwable $e) {
+            $this->addFlash(
+                'flash.bridgeSecretWriteFailed',
+                ContextualFeedbackSeverity::ERROR,
+                ['reason' => $e->getMessage()],
+            );
+            return $this->redirect('list');
+        }
+        $this->addFlash('flash.bridgeSecretGenerated');
+        return $this->redirect('list');
     }
 
     /**

@@ -30,6 +30,7 @@ return [
                 'unmarkReviewed',
                 'bulkDelete',
                 'createService',
+                'generateBridgeSecret',
             ],
         ],
     ],

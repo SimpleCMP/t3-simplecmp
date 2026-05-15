@@ -54,6 +54,15 @@
       <trans-unit id="flash.bulkDeleted"><source>{count} reviewed detection(s) deleted.</source></trans-unit>
       <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source></trans-unit>
       <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source></trans-unit>
+      <trans-unit id="flash.bridgeSecretGenerated"><source>Bridge secret generated and stored in config/system/settings.php. The bridge will start emitting signed nonces on the next frontend page render.</source></trans-unit>
+      <trans-unit id="flash.bridgeSecretAlreadyConfigured"><source>A bridge secret is already configured. Use vendor/bin/typo3 simplecmp:generate-bridge-secret to rotate via CLI.</source></trans-unit>
+      <trans-unit id="flash.bridgeSecretWriteFailed"><source>Could not write the bridge secret to settings.php: {reason}. Generate it via CLI and add it to your configuration manually.</source></trans-unit>
+
+      <trans-unit id="bridgeSecret.disabled.title"><source>Bridge webhook is disabled</source></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.body"><source>The CMS bridge can't authenticate POSTs without a shared HMAC secret. Generate one to enable detection ingestion. The value will be written to config/system/settings.php.</source></trans-unit>
+      <trans-unit id="bridgeSecret.generate"><source>Generate bridge secret</source></trans-unit>
+      <trans-unit id="bridgeSecret.configured"><source>Bridge secret configured</source></trans-unit>
+      <trans-unit id="bridgeSecret.configured.tooltip"><source>The bridge is signing nonces and accepting verified POSTs. Rotate via the CLI command if needed.</source></trans-unit>
     </body>
   </file>
 </xliff>
