@@ -51,15 +51,46 @@
         </f:else>
     </f:if>
 
-    <div class="btn-toolbar mb-3" role="toolbar">
-        <div class="btn-group me-2" role="group">
-            <a href="{uri_filterUnreviewed}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: 'active')}">
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
-            </a>
-            <a href="{uri_filterAll}" class="btn btn-default {f:if(condition: onlyUnreviewed, then: '', else: 'active')}">
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.all" />
-            </a>
-        </div>
+    <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
+        <select data-list-filter="status" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.status.label')}">
+            <f:for each="{statusOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {status}', then: 'selected')}>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.status.{opt}" />
+                </option>
+            </f:for>
+        </select>
+        <select data-list-filter="source" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.source.label')}">
+            <option value="" {f:if(condition: '{source} == \'\'', then: 'selected')}>
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.source.all" />
+            </option>
+            <f:for each="{sourceOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {source}', then: 'selected')}>{opt}</option>
+            </f:for>
+        </select>
+        <select data-list-filter="kind" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.kind.label')}">
+            <option value="" {f:if(condition: '{kind} == \'\'', then: 'selected')}>
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.kind.all" />
+            </option>
+            <f:for each="{kindOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {kind}', then: 'selected')}>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.kind.{opt}" />
+                </option>
+            </f:for>
+        </select>
+        <select data-list-filter="confidence" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.confidence.label')}">
+            <option value="" {f:if(condition: '{confidence} == \'\'', then: 'selected')}>
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.confidence.all" />
+            </option>
+            <f:for each="{confidenceOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {confidence}', then: 'selected')}>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:filter.confidence.{opt}" />
+                </option>
+            </f:for>
+        </select>
         <div class="btn-group ms-auto" role="group">
             <form method="post"
                   action="{uri_bulkDeleteReviewed}"
@@ -245,9 +276,40 @@
             </f:if>
         </f:then>
         <f:else>
-            <div class="callout callout-info">
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty" />
-            </div>
+            <f:if condition="{filtersActive} && {totalCount} > 0">
+                <f:then>
+                    <div class="callout callout-info">
+                        <div class="callout-content">
+                            <h4 class="callout-title">
+                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.title" />
+                            </h4>
+                            <f:if condition="{filterDropHints -> f:count()} > 0">
+                                <p class="callout-body mb-2">
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.body" />
+                                </p>
+                            </f:if>
+                            <div class="d-flex flex-wrap gap-2">
+                                <f:for each="{filterDropHints}" as="hint">
+                                    <a href="{hint.uri}" class="btn btn-default btn-sm">
+                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.drop.{hint.name}" arguments="{0: hint.count}" />
+                                    </a>
+                                </f:for>
+                                <a href="{uri_resetFilters}" class="btn btn-default btn-sm">
+                                    <core:icon identifier="actions-close" size="small" />
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.reset" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </f:then>
+                <f:else>
+                    <div class="callout callout-info">
+                        <div class="callout-content">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty" />
+                        </div>
+                    </div>
+                </f:else>
+            </f:if>
         </f:else>
     </f:if>
 </f:section>

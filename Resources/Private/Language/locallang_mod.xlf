@@ -9,6 +9,13 @@
 
       <trans-unit id="list.title"><source>SimpleCMP — unknown-tracker detections</source></trans-unit>
       <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports an unknown tracker.</source></trans-unit>
+      <trans-unit id="list.empty.filtered.title"><source>No detections match the active filters.</source></trans-unit>
+      <trans-unit id="list.empty.filtered.body"><source>Try widening one of the active filters:</source></trans-unit>
+      <trans-unit id="list.empty.filtered.reset"><source>Reset all filters</source></trans-unit>
+      <trans-unit id="list.empty.filtered.drop.status"><source>Without status filter: %d</source></trans-unit>
+      <trans-unit id="list.empty.filtered.drop.source"><source>Without source filter: %d</source></trans-unit>
+      <trans-unit id="list.empty.filtered.drop.kind"><source>Without kind filter: %d</source></trans-unit>
+      <trans-unit id="list.empty.filtered.drop.confidence"><source>Without confidence filter: %d</source></trans-unit>
       <trans-unit id="list.filter.unreviewed"><source>Only unreviewed</source></trans-unit>
       <trans-unit id="list.filter.all"><source>All</source></trans-unit>
       <trans-unit id="list.col.kind"><source>Kind</source></trans-unit>
@@ -35,6 +42,29 @@
       <trans-unit id="list.pagination.range"><source>Showing %d–%d of %d</source></trans-unit>
       <trans-unit id="list.pagination.pageOf"><source>Page %d of %d</source></trans-unit>
       <trans-unit id="list.pagination.nav"><source>Page navigation</source></trans-unit>
+
+      <trans-unit id="filter.status.label"><source>Status filter</source></trans-unit>
+      <trans-unit id="filter.status.unreviewed"><source>Only unreviewed</source></trans-unit>
+      <trans-unit id="filter.status.reviewed"><source>Only reviewed</source></trans-unit>
+      <trans-unit id="filter.status.all"><source>All statuses</source></trans-unit>
+
+      <trans-unit id="filter.source.label"><source>Source filter</source></trans-unit>
+      <trans-unit id="filter.source.all"><source>All sources</source></trans-unit>
+
+      <trans-unit id="filter.kind.label"><source>Kind filter</source></trans-unit>
+      <trans-unit id="filter.kind.all"><source>All kinds</source></trans-unit>
+      <trans-unit id="filter.kind.cookie"><source>Cookies</source></trans-unit>
+      <trans-unit id="filter.kind.script"><source>Scripts</source></trans-unit>
+      <trans-unit id="filter.kind.iframe"><source>Iframes</source></trans-unit>
+      <trans-unit id="filter.kind.image"><source>Images</source></trans-unit>
+      <trans-unit id="filter.kind.link"><source>Links</source></trans-unit>
+      <trans-unit id="filter.kind.request"><source>Requests</source></trans-unit>
+
+      <trans-unit id="filter.confidence.label"><source>Confidence filter</source></trans-unit>
+      <trans-unit id="filter.confidence.all"><source>Any confidence</source></trans-unit>
+      <trans-unit id="filter.confidence.low"><source>Low (1 report)</source></trans-unit>
+      <trans-unit id="filter.confidence.medium"><source>Medium (2–4 reports)</source></trans-unit>
+      <trans-unit id="filter.confidence.high"><source>High (≥ 5 reports)</source></trans-unit>
       <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source></trans-unit>
       <trans-unit id="list.action.delete"><source>Delete this row</source></trans-unit>
       <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source></trans-unit>

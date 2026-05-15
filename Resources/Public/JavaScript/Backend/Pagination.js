@@ -1,11 +1,16 @@
 /**
- * Per-page select handling for the detection list.
+ * Auto-submit handling for the detection list's select-based filters
+ * and pagination size:
  *
- * When the user picks a new page-size value, navigate to the same
- * URL with `perPage` swapped in and `page` reset to 1. We don't use
- * a <form method="get"> because TYPO3's BE-module token already
- * lives in the URL — building a form action that preserves it
- * cleanly is more code than just rewriting the location.
+ * - `[data-per-page]` — sets `perPage` and clears `page` (= jump to
+ *   page 1 of the new size).
+ * - `[data-list-filter="<name>"]` — sets `<name>` in the URL (or
+ *   removes it when the value is empty), and clears `page` so the
+ *   user lands on page 1 of the filtered view.
+ *
+ * Both flows rewrite `location` directly. A <form method="get"> would
+ * also work, but TYPO3's BE-module token sits in the URL and weaving
+ * it back into a form action is more code than this.
  */
 class Pagination {
   initialize() {
@@ -17,12 +22,25 @@ class Pagination {
     if (!(target instanceof HTMLSelectElement)) {
       return;
     }
-    if (!target.matches('[data-per-page]')) {
+    if (target.matches('[data-per-page]')) {
+      Pagination.navigate(target, { perPage: target.value, page: null });
       return;
     }
+    const filterName = target.getAttribute('data-list-filter');
+    if (filterName) {
+      Pagination.navigate(target, { [filterName]: target.value || null, page: null });
+    }
+  }
+
+  static navigate(target, paramUpdates) {
     const url = new URL(target.ownerDocument.location);
-    url.searchParams.set('perPage', target.value);
-    url.searchParams.delete('page');
+    for (const [name, value] of Object.entries(paramUpdates)) {
+      if (value === null || value === '') {
+        url.searchParams.delete(name);
+      } else {
+        url.searchParams.set(name, String(value));
+      }
+    }
     target.ownerDocument.location.assign(url.toString());
   }
 }

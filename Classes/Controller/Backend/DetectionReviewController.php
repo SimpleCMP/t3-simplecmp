@@ -45,6 +45,10 @@ final class DetectionReviewController extends ActionController
     private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
+    private const array STATUS_OPTIONS = ['unreviewed', 'reviewed', 'all'];
+    private const string DEFAULT_STATUS = 'unreviewed';
+    private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
+    private const array CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -60,16 +64,20 @@ final class DetectionReviewController extends ActionController
     }
 
     public function listAction(
-        bool $onlyUnreviewed = true,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
         int $page = 1,
         int $perPage = self::DEFAULT_PER_PAGE,
     ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
         $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true)
             ? $perPage
             : self::DEFAULT_PER_PAGE;
         $page = max(1, $page);
 
-        $filteredCount = $this->filteredCount($onlyUnreviewed);
+        $filteredCount = $this->filteredCount($filters);
         $totalPages = max(1, (int) ceil($filteredCount / $perPage));
         $page = min($page, $totalPages);
 
@@ -80,9 +88,7 @@ final class DetectionReviewController extends ActionController
             ->orderBy('received_at', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage);
-        if ($onlyUnreviewed) {
-            $qb->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
-        }
+        $this->applyFilters($qb, $filters);
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         // Build per-row action URLs in PHP — Fluid's `f:uri.action` doesn't
@@ -91,9 +97,9 @@ final class DetectionReviewController extends ActionController
         // the Extbase UriBuilder here where it has the request context.
         // Bake the current filter state into every per-row action URL plus
         // the bulk-delete form. The action handlers read it back from the
-        // request and redirect to `list` with the same value, so the user
-        // stays on whichever filter they were viewing.
-        $filterArg = ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0];
+        // request and redirect to `list` with the same values, so the user
+        // stays on whichever filtered view they were on.
+        $filterArg = $this->filterArg($filters);
         $lowConfidenceMessage = $this->translate('list.action.createService.lowConfidenceConfirm') ?? '';
         $rowsWithActions = [];
         foreach ($rows as $r) {
@@ -109,11 +115,18 @@ final class DetectionReviewController extends ActionController
 
         $spike = $this->listPresenter->computeSpikeContext();
 
-        $pageArg = ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0, 'perPage' => $perPage];
+        $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
             'detections' => $rowsWithActions,
-            'onlyUnreviewed' => $onlyUnreviewed,
+            'status' => $filters['status'],
+            'source' => $filters['source'],
+            'kind' => $filters['kind'],
+            'confidence' => $filters['confidence'],
+            'statusOptions' => self::STATUS_OPTIONS,
+            'sourceOptions' => $this->availableSources(),
+            'kindOptions' => self::KIND_OPTIONS,
+            'confidenceOptions' => self::CONFIDENCE_OPTIONS,
             'totalCount' => $this->totalCount(),
             'unreviewedCount' => $this->unreviewedCount(),
             'spikeAlert' => $spike['spikeAlert'],
@@ -127,29 +140,137 @@ final class DetectionReviewController extends ActionController
             'filteredCount' => $filteredCount,
             'rangeStart' => $filteredCount === 0 ? 0 : ($page - 1) * $perPage + 1,
             'rangeEnd' => min($page * $perPage, $filteredCount),
-            'uri_filterUnreviewed' => $this->uri('list', ['onlyUnreviewed' => 1, 'perPage' => $perPage]),
-            'uri_filterAll' => $this->uri('list', ['onlyUnreviewed' => 0, 'perPage' => $perPage]),
             'uri_pageFirst' => $this->uri('list', $pageArg + ['page' => 1]),
             'uri_pagePrev' => $this->uri('list', $pageArg + ['page' => max(1, $page - 1)]),
             'uri_pageNext' => $this->uri('list', $pageArg + ['page' => min($totalPages, $page + 1)]),
             'uri_pageLast' => $this->uri('list', $pageArg + ['page' => $totalPages]),
-            'uri_listBase' => $this->uri('list', ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]),
             'uri_bulkDeleteReviewed' => $this->uri('bulkDeleteReviewed', $filterArg),
             'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
             'uri_bulkDeleteSelected' => $this->uri('bulkDeleteSelected', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
+            'uri_resetFilters' => $this->uri('list'),
+            'filtersActive' => $filterArg !== [],
+            'filterDropHints' => $this->buildFilterDropHints($filters),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
     }
 
-    private function filteredCount(bool $onlyUnreviewed): int
+    /**
+     * @return array{status: string, source: string, kind: string, confidence: string}
+     */
+    private function normalizeFilters(string $status, string $source, string $kind, string $confidence): array
+    {
+        return [
+            'status' => in_array($status, self::STATUS_OPTIONS, true) ? $status : self::DEFAULT_STATUS,
+            'source' => in_array($source, $this->availableSources(), true) ? $source : '',
+            'kind' => in_array($kind, self::KIND_OPTIONS, true) ? $kind : '',
+            'confidence' => in_array($confidence, self::CONFIDENCE_OPTIONS, true) ? $confidence : '',
+        ];
+    }
+
+    /** @param array<string, string> $filters */
+    private function applyFilters(\TYPO3\CMS\Core\Database\Query\QueryBuilder $qb, array $filters): void
+    {
+        if ($filters['status'] === 'unreviewed') {
+            $qb->andWhere($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
+        } elseif ($filters['status'] === 'reviewed') {
+            $qb->andWhere($qb->expr()->eq('reviewed', $qb->createNamedParameter(1)));
+        }
+        if ($filters['source'] !== '') {
+            $qb->andWhere($qb->expr()->eq('source', $qb->createNamedParameter($filters['source'])));
+        }
+        if ($filters['kind'] !== '') {
+            $qb->andWhere($qb->expr()->eq('kind', $qb->createNamedParameter($filters['kind'])));
+        }
+        if ($filters['confidence'] === 'low') {
+            $qb->andWhere($qb->expr()->eq('occurrences', $qb->createNamedParameter(1, \Doctrine\DBAL\ParameterType::INTEGER)));
+        } elseif ($filters['confidence'] === 'medium') {
+            $qb->andWhere($qb->expr()->between(
+                'occurrences',
+                $qb->createNamedParameter(2, \Doctrine\DBAL\ParameterType::INTEGER),
+                $qb->createNamedParameter(4, \Doctrine\DBAL\ParameterType::INTEGER),
+            ));
+        } elseif ($filters['confidence'] === 'high') {
+            $qb->andWhere($qb->expr()->gte('occurrences', $qb->createNamedParameter(5, \Doctrine\DBAL\ParameterType::INTEGER)));
+        }
+    }
+
+    /**
+     * @param array<string, string> $filters
+     * @return array<string, string|int>
+     */
+    private function filterArg(array $filters): array
+    {
+        // Only include non-default values in the URL so the URLs stay clean
+        // for the common case (default unreviewed-only view).
+        $out = [];
+        if ($filters['status'] !== self::DEFAULT_STATUS) {
+            $out['status'] = $filters['status'];
+        }
+        foreach (['source', 'kind', 'confidence'] as $k) {
+            if ($filters[$k] !== '') {
+                $out[$k] = $filters[$k];
+            }
+        }
+        return $out;
+    }
+
+    /** @return list<string> */
+    private function availableSources(): array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->selectLiteral('DISTINCT source')
+            ->from(self::DETECTION_TABLE)
+            ->orderBy('source', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+        return array_values(array_filter(array_map(static fn (array $r) => (string) $r['source'], $rows)));
+    }
+
+    /**
+     * For each filter that is currently restricting results, compute
+     * "how many rows would match if we dropped just this one filter."
+     * Helps the user diagnose which filter is over-restrictive when
+     * their combo yields zero results.
+     *
+     * A filter "is restricting" when it has a value that excludes
+     * rows — i.e., `status` ∈ {unreviewed, reviewed} (not `all`), or
+     * a non-empty source / kind / confidence. Status='all' is
+     * semantically a no-op so a "drop status" hint would be useless;
+     * skipped.
+     *
+     * @param array<string, string> $filters
+     * @return list<array{name: string, count: int, uri: string}>
+     */
+    private function buildFilterDropHints(array $filters): array
+    {
+        $hints = [];
+        foreach (['status', 'source', 'kind', 'confidence'] as $name) {
+            $isRestricting = $name === 'status'
+                ? $filters[$name] !== 'all'
+                : $filters[$name] !== '';
+            if (!$isRestricting) {
+                continue;
+            }
+            $reduced = $filters;
+            $reduced[$name] = $name === 'status' ? 'all' : '';
+            $hints[] = [
+                'name' => $name,
+                'count' => $this->filteredCount($reduced),
+                'uri' => $this->uri('list', $this->filterArg($reduced)),
+            ];
+        }
+        return $hints;
+    }
+
+    /** @param array<string, string> $filters */
+    private function filteredCount(array $filters): int
     {
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
         $qb->count('*')->from(self::DETECTION_TABLE);
-        if ($onlyUnreviewed) {
-            $qb->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
-        }
+        $this->applyFilters($qb, $filters);
         return (int) $qb->executeQuery()->fetchOne();
     }
 
@@ -189,11 +310,17 @@ final class DetectionReviewController extends ActionController
     }
 
 
-    public function showAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function showAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
         $row = $this->fetchOne($uid);
         if ($row === null) {
-            return $this->redirectToList($onlyUnreviewed);
+            return $this->redirectToList($filters);
         }
 
         $payload = null;
@@ -203,16 +330,17 @@ final class DetectionReviewController extends ActionController
             $payload = null;
         }
 
+        $filterArg = $this->filterArg($filters);
         $row['uri_createService'] = $this->uri('createService', ['uid' => (int) $row['uid']]);
-        $row['uri_markReviewed'] = $this->uri('markReviewed', ['uid' => (int) $row['uid'], 'onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
-        $row['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', ['uid' => (int) $row['uid'], 'onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
+        $row['uri_markReviewed'] = $this->uri('markReviewed', ['uid' => (int) $row['uid']] + $filterArg);
+        $row['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', ['uid' => (int) $row['uid']] + $filterArg);
 
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
             'detection' => $row,
             'payload' => $payload,
             'payloadJson' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-            'uri_list' => $this->uri('list', ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]),
+            'uri_list' => $this->uri('list', $filterArg),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/Show');
     }
@@ -231,22 +359,37 @@ final class DetectionReviewController extends ActionController
             ->uriFor($action, $arguments);
     }
 
-    public function markReviewedAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function markReviewedAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
         $this->setReviewed($uid, true);
         $this->addFlash('flash.markedReviewed');
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
-    public function unmarkReviewedAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function unmarkReviewedAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
         $this->setReviewed($uid, false);
         $this->addFlash('flash.unmarkedReviewed');
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
-    public function deleteAction(int $uid, bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function deleteAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
         $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->delete(self::DETECTION_TABLE, ['uid' => $uid]);
         if ($count > 0) {
@@ -254,26 +397,34 @@ final class DetectionReviewController extends ActionController
         } else {
             $this->addFlash('flash.detectionNotFound', ContextualFeedbackSeverity::WARNING);
         }
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
-    public function bulkDeleteReviewedAction(bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function bulkDeleteReviewedAction(
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
         $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->delete(self::DETECTION_TABLE, ['reviewed' => 1]);
         $this->addFlash('flash.bulkDeletedReviewed', ContextualFeedbackSeverity::OK, ['count' => $count]);
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
-    public function bulkDeleteAllAction(bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function bulkDeleteAllAction(
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
         $conn = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE);
         // No WHERE — wipes everything. Use TRUNCATE semantics via raw SQL
         // because Connection::delete requires a non-empty criteria array.
         $count = (int) $conn->executeQuery('SELECT COUNT(*) FROM ' . self::DETECTION_TABLE)->fetchOne();
         $conn->executeStatement('DELETE FROM ' . self::DETECTION_TABLE);
         $this->addFlash('flash.bulkDeletedAll', ContextualFeedbackSeverity::OK, ['count' => $count]);
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
     /**
@@ -281,15 +432,21 @@ final class DetectionReviewController extends ActionController
      *
      * @param array<int, scalar> $uids
      */
-    public function bulkDeleteSelectedAction(array $uids = [], bool $onlyUnreviewed = true): ResponseInterface
-    {
+    public function bulkDeleteSelectedAction(
+        array $uids = [],
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
         $ints = array_values(array_filter(
             array_map('intval', $uids),
             static fn (int $u): bool => $u > 0,
         ));
         if ($ints === []) {
             $this->addFlash('flash.bulkDeleteSelectedEmpty', ContextualFeedbackSeverity::INFO);
-            return $this->redirectToList($onlyUnreviewed);
+            return $this->redirectToList($filters);
         }
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
@@ -300,12 +457,13 @@ final class DetectionReviewController extends ActionController
             ))
             ->executeStatement();
         $this->addFlash('flash.bulkDeletedSelected', ContextualFeedbackSeverity::OK, ['count' => $count]);
-        return $this->redirectToList($onlyUnreviewed);
+        return $this->redirectToList($filters);
     }
 
-    private function redirectToList(bool $onlyUnreviewed): ResponseInterface
+    /** @param array<string, string> $filters */
+    private function redirectToList(array $filters): ResponseInterface
     {
-        return $this->redirect('list', null, null, ['onlyUnreviewed' => $onlyUnreviewed ? 1 : 0]);
+        return $this->redirect('list', null, null, $this->filterArg($filters));
     }
 
     /**
