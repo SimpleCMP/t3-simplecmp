@@ -52,3 +52,9 @@ settings:
     description: 'TYPO3 page UID under which new `tx_simplecmptypo3_service` and `tx_simplecmptypo3_detection` rows are created (typically a dedicated SysFolder). Defaults to 0 (site root). Records created before changing this setting are NOT moved.'
     type: int
     default: 0
+
+  simplecmp.bridgeRateLimit:
+    label: 'Bridge webhook rate limit (requests per IP per hour)'
+    description: 'Maximum number of /api/simplecmp/webhook POSTs accepted from a single IP within a sliding 1-hour bucket. Set to 0 to disable. Default 500 comfortably covers a normal visitor session (most sites generate 20-30 unique detections per visit).'
+    type: int
+    default: 500

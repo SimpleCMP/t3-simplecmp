@@ -12,7 +12,10 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
+use WapplerSystems\SimpleCmpTypo3\Service\WebhookPayloadValidator;
+use WapplerSystems\SimpleCmpTypo3\Service\WebhookRequestGuard;
 
 /**
  * Implements the SimpleCMP Service-DB protocol
@@ -41,6 +44,9 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private ServiceRepository $services,
         private DetectionRepository $detections,
         private StoragePidResolver $storagePidResolver,
+        private WebhookRequestGuard $requestGuard,
+        private WebhookPayloadValidator $validator,
+        private BridgeRateLimiter $rateLimiter,
     ) {
     }
 
@@ -75,25 +81,38 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         return $this->withCors($this->jsonError(404, 'No route for ' . $method . ' ' . $path));
     }
 
+    /**
+     * Phase 1 defense for the webhook endpoint:
+     *
+     *   1. Sec-Fetch-Site + Origin guards    (cheap, no DB hit)
+     *   2. Per-IP rate limit                  (one cache read)
+     *   3. Strict payload validation          (length cap, type/enum/epoch)
+     *   4. Repository ingest
+     *
+     * The endpoint stays intentionally semi-public — the browser-side
+     * sender cannot hold a real secret, so the trust boundary lives in
+     * the BE admin review step, not here. See ADR / memory
+     * `webhook_browser_secret_constraint`.
+     */
     private function webhook(ServerRequestInterface $request): ResponseInterface
     {
-        $body = (string) $request->getBody();
-        try {
-            $payload = $body === '' ? [] : json_decode($body, true, 32, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            return $this->jsonError(400, 'Invalid JSON body: ' . $e->getMessage());
-        }
-        if (!is_array($payload)) {
-            return $this->jsonError(400, 'Payload must be a JSON object');
-        }
-        if (($payload['schemaVersion'] ?? null) !== 1) {
-            return $this->jsonError(
-                400,
-                'Unsupported schemaVersion (received: ' . var_export($payload['schemaVersion'] ?? null, true) . ')',
-            );
+        $guardError = $this->requestGuard->check($request);
+        if ($guardError !== null) {
+            return $this->jsonError(403, $guardError);
         }
 
-        $this->detections->ingest($payload, $this->storagePidResolver->resolveForRequest($request));
+        $rate = $this->rateLimiter->check($request);
+        if (!$rate['allowed']) {
+            return $this->jsonError(429, 'Rate limit exceeded')
+                ->withHeader('Retry-After', (string) $rate['retryAfter']);
+        }
+
+        $result = $this->validator->validate((string) $request->getBody());
+        if (!$result->valid) {
+            return $this->jsonError($result->status, $result->message);
+        }
+
+        $this->detections->ingest($result->payload, $this->storagePidResolver->resolveForRequest($request));
         return new JsonResponse(['ok' => true]);
     }
 
