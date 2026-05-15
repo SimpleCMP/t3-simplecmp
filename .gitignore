@@ -9,3 +9,4 @@ Thumbs.db
 /vendor/
 /composer.lock
 /.phpunit.cache/
+/public/
