@@ -18,6 +18,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 use WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter;
+use WapplerSystems\SimpleCmpTypo3\Service\ServiceCurator;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
@@ -51,6 +52,7 @@ final class DetectionReviewController extends ActionController
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
         private readonly DetectionListPresenter $listPresenter,
+        private readonly ServiceCurator $serviceCurator,
         private readonly StoragePidResolver $storagePidResolver,
         private readonly BridgeSecretProvider $bridgeSecretProvider,
     ) {
@@ -234,7 +236,7 @@ final class DetectionReviewController extends ActionController
         // instead of starting a fresh new-record form. Otherwise the admin
         // would see only the controller-derived pre-fill values and would
         // lose the visual cue that they had already curated this entry.
-        $existingUid = $this->findExistingServiceUid($row);
+        $existingUid = $this->serviceCurator->findExistingServiceUid($row);
         if ($existingUid !== null) {
             $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
                 'edit' => [self::SERVICE_TABLE => [$existingUid => 'edit']],
@@ -245,7 +247,7 @@ final class DetectionReviewController extends ActionController
                 ->withHeader('Location', $editUrl);
         }
 
-        $defaults = $this->buildServiceDefaults($row);
+        $defaults = ServiceCurator::buildServiceDefaults($row);
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
         $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
             'edit' => [self::SERVICE_TABLE => [$pid => 'new']],
@@ -256,49 +258,6 @@ final class DetectionReviewController extends ActionController
         $this->addFlash('flash.createServiceRedirect');
         return $this->responseFactory->createResponse(302)
             ->withHeader('Location', $editUrl);
-    }
-
-    /**
-     * If any service already matches the detection's cookie name or
-     * origin, return that service's uid. When several services overlap
-     * on the same matcher, pick the most recently *created* one — the
-     * admin's most recent curation, which the freshly-created record
-     * almost always is. (`tstamp` would also bump from merely opening
-     * the edit form, so `crdate` is the more stable signal.)
-     *
-     * @param array<string, mixed> $detection
-     */
-    private function findExistingServiceUid(array $detection): ?int
-    {
-        $kind = (string) ($detection['kind'] ?? '');
-        $identifier = (string) ($detection['identifier'] ?? '');
-        $origin = isset($detection['origin']) ? (string) $detection['origin'] : '';
-        $cookie = $kind === 'cookie' && $identifier !== '' ? $identifier : null;
-        $originVal = $kind !== 'cookie' && $origin !== '' ? $origin : null;
-        if ($cookie === null && $originVal === null) {
-            return null;
-        }
-        $matches = $this->serviceRepository->lookup($cookie, $originVal);
-        if ($matches === []) {
-            return null;
-        }
-        // The repository returns protocol-shape rows keyed by `id`
-        // (service_id), not uid. One DB hop to resolve uids + tstamps,
-        // pick the most recent.
-        $serviceIds = array_map(static fn (array $m) => (string) $m['id'], $matches);
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
-        $qb->getRestrictions()->removeAll();
-        $uid = $qb->select('uid')
-            ->from(self::SERVICE_TABLE)
-            ->where($qb->expr()->in(
-                'service_id',
-                $qb->createNamedParameter($serviceIds, \TYPO3\CMS\Core\Database\Connection::PARAM_STR_ARRAY)
-            ))
-            ->orderBy('crdate', 'DESC')
-            ->setMaxResults(1)
-            ->executeQuery()
-            ->fetchOne();
-        return $uid === false ? null : (int) $uid;
     }
 
     /** @return array<string, mixed>|null */
@@ -344,42 +303,6 @@ final class DetectionReviewController extends ActionController
             ->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)))
             ->executeQuery()
             ->fetchOne();
-    }
-
-    /**
-     * Pre-fill rules for the new-service form:
-     * - service_id ← detection.identifier (lowercased, kebab-ified)
-     * - name ← detection.identifier (verbatim; admin will edit)
-     * - cookies ← `["<identifier>"]` for kind=cookie
-     * - origins ← `["<origin>"]` for non-cookie kinds with origin set
-     * - purposes ← `[]` (admin fills in)
-     *
-     * @param array<string, mixed> $detection
-     * @return array<string, mixed>
-     */
-    private function buildServiceDefaults(array $detection): array
-    {
-        $kind = (string) ($detection['kind'] ?? '');
-        $identifier = (string) ($detection['identifier'] ?? '');
-        $origin = isset($detection['origin']) ? (string) $detection['origin'] : '';
-
-        // Best-effort slug: lowercase, replace non-alnum with hyphen.
-        $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $identifier) ?? '');
-        $slug = trim($slug, '-') ?: 'unknown';
-
-        $defaults = [
-            'service_id' => $slug,
-            'name' => $identifier,
-            'purposes' => '[]',
-        ];
-
-        if ($kind === 'cookie') {
-            $defaults['cookies'] = json_encode([$identifier], JSON_UNESCAPED_SLASHES);
-        } elseif ($origin !== '') {
-            $defaults['origins'] = json_encode([$origin], JSON_UNESCAPED_SLASHES);
-        }
-
-        return $defaults;
     }
 
     private function initModuleTemplate(): ModuleTemplate
