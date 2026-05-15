@@ -101,6 +101,36 @@ Matomo, YouTube, …) that you can import into the registry:
 This is a one-shot import. Re-running the command refreshes the
 seed data; admin-edited values are preserved.
 
+Importing the broader known-trackers library
+============================================
+
+For coverage of common third-party trackers beyond the conservative
+seed set, run:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:import-known-trackers
+
+The bundled library covers ~40 well-known services — analytics
+(Mixpanel, Hotjar, Plausible, Fathom, Amplitude, Heap), ad networks
+(LinkedIn Insight, TikTok Pixel, Pinterest Tag, X Pixel, Snapchat
+Pixel, Microsoft Bing UET, Outbrain, Taboola), embeds (Vimeo,
+Instagram, Spotify, SoundCloud, Twitch), forms / captcha (hCaptcha,
+Cloudflare Turnstile, Typeform, JotForm), chat widgets (Intercom,
+Drift, Crisp, Tawk.to, Zendesk Chat, HubSpot), payments (Stripe,
+PayPal, Klarna), maps (Mapbox), monitoring (Bugsnag, LogRocket,
+Rollbar), fonts (Adobe Fonts / Typekit), Google Tag Manager,
+Mailchimp, and Disqus.
+
+Default behaviour is **skip-if-exists** so admin-edited services
+aren't clobbered when an admin re-runs after an extension update.
+Pass :code:`--force` to overwrite existing services with the
+bundled values.
+
+Once imported, the SimpleCMP recorder's classifier chain matches
+these out of the box, so most of the "BE detection table fills
+with textbook well-known trackers" noise disappears.
+
 Verifying the installation
 ==========================
 

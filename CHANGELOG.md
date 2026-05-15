@@ -12,6 +12,15 @@ development.
 
 ### Added
 
+- **Known-trackers import command.** `vendor/bin/typo3 simplecmp:import-known-trackers`
+  ships a curated library of 40 well-known third-party trackers
+  (analytics, ad networks, embeds, chat widgets, payments,
+  monitoring, fonts, maps) and upserts them into the service
+  registry. Default behaviour is skip-if-exists so admin edits are
+  preserved; pass `--force` to overwrite with the bundled values.
+  Once imported, the existing recorder + classifier chain matches
+  these out of the box — most of the "BE detection table fills with
+  textbook well-known trackers" noise disappears.
 - **Per-row delete** in the *SimpleCMP detections* BE module. Each
   row in the list gains a delete icon button with a confirm dialog.
 - **Multi-row selection + bulk delete** in the detection list. A
