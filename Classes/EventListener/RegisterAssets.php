@@ -125,7 +125,7 @@ final readonly class RegisterAssets
 
         $serviceDbUrl = (string) $get('simplecmp.serviceDbUrl', '');
         if ($serviceDbUrl !== '') {
-            $config['serviceDbUrl'] = $serviceDbUrl;
+            $config['serviceDbUrl'] = $this->normalizeServiceDbUrl($serviceDbUrl);
             // The recorder must be running for the bridge to fire — opt
             // into record mode automatically when an admin has configured
             // a remote data sink (service DB or CMS bridge).
@@ -161,6 +161,32 @@ final readonly class RegisterAssets
         }
 
         return $config;
+    }
+
+    /**
+     * Defensive normalization for the `serviceDbUrl` Site Set setting.
+     *
+     * The SimpleCMP JS client appends `/v1/<endpoint>` itself, so the
+     * configured value must be the base URL **without** the protocol-
+     * version segment. Admins who paste a URL ending in `/v1` (mirror
+     * of what the protocol doc shows in examples) get double-`/v1/v1/`
+     * 404s. Strip trailing slashes and a trailing `/v1` and warn so
+     * the auto-correction is visible in the TYPO3 log.
+     */
+    private function normalizeServiceDbUrl(string $url): string
+    {
+        $stripped = rtrim($url, '/');
+        if (str_ends_with($stripped, '/v1')) {
+            $corrected = substr($stripped, 0, -3);
+            $this->logger->warning(
+                'simplecmp.serviceDbUrl ended in "/v1"; auto-stripping — '
+                . 'the JS client appends the protocol-version segment itself. '
+                . 'Configured: {configured}, sent to JS: {corrected}.',
+                ['configured' => $url, 'corrected' => $corrected],
+            );
+            return $corrected;
+        }
+        return $stripped;
     }
 
     /**

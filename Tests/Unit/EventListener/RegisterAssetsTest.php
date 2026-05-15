@@ -193,6 +193,75 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function serviceDbUrlTrailingSlashIsStripped(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.serviceDbUrl' => 'https://example.com/api/simplecmp/',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertSame('https://example.com/api/simplecmp', $config['serviceDbUrl']);
+    }
+
+    #[Test]
+    public function serviceDbUrlTrailingV1IsStrippedAndWarningLogged(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.serviceDbUrl' => 'https://example.com/api/simplecmp/v1',
+        ]);
+        $this->logger->expects(self::once())
+            ->method('warning')
+            ->with(
+                self::stringContains('/v1'),
+                self::callback(fn (array $ctx): bool =>
+                    ($ctx['configured'] ?? null) === 'https://example.com/api/simplecmp/v1'
+                    && ($ctx['corrected'] ?? null) === 'https://example.com/api/simplecmp'
+                ),
+            );
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertSame('https://example.com/api/simplecmp', $config['serviceDbUrl']);
+    }
+
+    #[Test]
+    public function serviceDbUrlTrailingV1WithSlashIsStripped(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.serviceDbUrl' => 'https://example.com/api/simplecmp/v1/',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertSame('https://example.com/api/simplecmp', $config['serviceDbUrl']);
+    }
+
+    #[Test]
     public function imprintUrlIsEmittedWhenConfigured(): void
     {
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [

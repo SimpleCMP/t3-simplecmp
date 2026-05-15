@@ -10,7 +10,14 @@ development.
 
 ## Unreleased
 
-_Nothing yet._
+### Fixed
+
+- `simplecmp.serviceDbUrl` Site Set values ending in `/v1` are now
+  auto-stripped at render time (the JS client appends the protocol
+  version itself; a configured `/v1` caused double-`/v1/v1/` 404s).
+  Trailing slashes are also normalized. Auto-corrections are logged
+  as warnings so the misconfiguration is visible without breaking
+  the site.
 
 ## 0.1.0 — 2026-05-15
 
