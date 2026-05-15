@@ -88,26 +88,19 @@ dependency. Configure under Site → Settings.
 
 ### Configuring the bridge webhook (required if `cmsBridgeUrl` is set)
 
-The bridge webhook (`/api/simplecmp/webhook`) is gated by an HMAC
-nonce signed with a server-side secret. Without the secret configured,
-the receiver returns `503 Bridge secret not configured` and the
-frontend bridge is silently skipped — by design, so misconfiguration
-surfaces loudly instead of letting unauthenticated traffic through.
+The bridge webhook requires a configured secret. Two ways to bootstrap
+one:
 
-Generate a secret once per install:
+- **CLI:** `vendor/bin/typo3 simplecmp:generate-bridge-secret` prints
+  a fresh value plus a paste-ready configuration snippet
+  (env-var interpolation recommended for production).
+- **BE module:** the SimpleCMP detection list surfaces a *Generate
+  bridge secret* button when no secret is configured. The button
+  writes the value to `config/system/settings.php` for you.
 
-```bash
-vendor/bin/typo3 simplecmp:generate-bridge-secret
-```
-
-Add the printed value to your TYPO3 configuration (env var
-recommended; see the command output). One secret per TYPO3
-installation — if you run multiple installs and one POSTs to another,
-configure the **same** value on both ends.
-
-Rotation: re-run the command and replace the value. Old nonces remain
-valid until their TTL elapses (default 1 hour); hard-cut requires
-restarting PHP / flushing OPcache after the swap.
+One secret per TYPO3 installation. If you run multiple installs and
+one POSTs bridge webhooks to another, configure the **same** value on
+both ends.
 
 ## Status
 
