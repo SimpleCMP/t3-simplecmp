@@ -26,10 +26,8 @@ return [
             DetectionReviewController::class => [
                 'list',
                 'show',
-                'markReviewed',
-                'unmarkReviewed',
+                'approve',
                 'delete',
-                'bulkDeleteReviewed',
                 'bulkDeleteAll',
                 'bulkDeleteSelected',
                 'createService',

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace WapplerSystems\SimpleCmpTypo3\Service;
 
+use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 
 /**
  * View-layer helpers for the detection list BE module.
@@ -25,9 +27,156 @@ final readonly class DetectionListPresenter
     private const int SPIKE_MIN_ABSOLUTE = 50;
     private const int SPIKE_MULTIPLIER = 10;
 
+    public const string STATE_CURATED = 'kuratiert';
+    public const string STATE_RECOGNIZED = 'erkannt';
+    public const string STATE_UNKNOWN = 'unbekannt';
+
     public function __construct(
         private DetectionRepository $detectionRepository,
+        private ServiceRepository $serviceRepository,
     ) {
+    }
+
+    /**
+     * Load the registry once + iterate the library once, then derive
+     * each detection's resolution state without re-querying. Returns
+     * pre-computed match indexes so callers can decorate rows in O(1)
+     * per detection.
+     *
+     * @return array{
+     *     services: array<array<string, mixed>>,
+     *     library: array<array<string, mixed>>
+     * }
+     */
+    public function loadStateContext(): array
+    {
+        return [
+            'services' => $this->serviceRepository->findAll(),
+            'library' => iterator_to_array(ServicesLibrary::services(), false),
+        ];
+    }
+
+    /**
+     * Derive the resolution state for a single detection given the
+     * pre-loaded registry + library context. Three buckets:
+     *
+     * - `kuratiert`: registry already covers this cookie/origin →
+     *   admin has nothing to do; row is filtered out of the default
+     *   actionable view.
+     * - `erkannt`: registry has no match, but the bundled library
+     *   does → admin can one-click *Übernehmen* (silent-import) or
+     *   *Anpassen* (curate with library pre-fill).
+     * - `unbekannt`: nothing matches → admin must *Kuratieren*
+     *   (manual entry). No dismiss-only escape hatch by design.
+     *
+     * @param array<string, mixed> $detection
+     * @param array<array<string, mixed>> $services
+     * @param array<array<string, mixed>> $library
+     * @return array{state: string, match: array<string, mixed>|null}
+     */
+    public static function deriveState(array $detection, array $services, array $library): array
+    {
+        $kind = (string) ($detection['kind'] ?? '');
+        $identifier = (string) ($detection['identifier'] ?? '');
+        $origin = isset($detection['origin']) ? (string) $detection['origin'] : '';
+        $cookie = $kind === 'cookie' && $identifier !== '' ? $identifier : null;
+        $host = $kind !== 'cookie' && $origin !== '' ? $origin : null;
+
+        $registryMatch = self::firstMatchingService($services, $cookie, $host);
+        if ($registryMatch !== null) {
+            return ['state' => self::STATE_CURATED, 'match' => $registryMatch];
+        }
+        $libraryMatch = self::firstMatchingService($library, $cookie, $host);
+        if ($libraryMatch !== null) {
+            return ['state' => self::STATE_RECOGNIZED, 'match' => $libraryMatch];
+        }
+        return ['state' => self::STATE_UNKNOWN, 'match' => null];
+    }
+
+    /**
+     * Decorate a detection row with `state`, `state_class` (badge CSS),
+     * and `match` (matched service when applicable). Pure transform —
+     * stateless once the context is loaded.
+     *
+     * @param array<string, mixed> $row
+     * @param array<array<string, mixed>> $services
+     * @param array<array<string, mixed>> $library
+     * @return array<string, mixed>
+     */
+    public static function decorateState(array $row, array $services, array $library): array
+    {
+        $derived = self::deriveState($row, $services, $library);
+        $row['state'] = $derived['state'];
+        $row['state_class'] = match ($derived['state']) {
+            self::STATE_CURATED => 'bg-success',
+            self::STATE_RECOGNIZED => 'bg-info text-dark',
+            default => 'bg-warning text-dark',
+        };
+        $row['match'] = $derived['match'];
+        return $row;
+    }
+
+    /**
+     * @param array<array<string, mixed>> $services
+     * @return array<string, mixed>|null
+     */
+    private static function firstMatchingService(array $services, ?string $cookie, ?string $host): ?array
+    {
+        if ($cookie === null && $host === null) {
+            return null;
+        }
+        foreach ($services as $service) {
+            $cookies = $service['matches']['cookies'] ?? [];
+            $origins = $service['matches']['origins'] ?? [];
+            if ($cookie !== null && is_array($cookies) && self::cookieMatches($cookie, $cookies)) {
+                return $service;
+            }
+            if ($host !== null && is_array($origins) && self::originMatches($host, $origins)) {
+                return $service;
+            }
+        }
+        return null;
+    }
+
+    /** @param list<mixed> $matchers */
+    private static function cookieMatches(string $cookieName, array $matchers): bool
+    {
+        foreach ($matchers as $matcher) {
+            if (!is_string($matcher)) {
+                continue;
+            }
+            if (strlen($matcher) >= 2 && $matcher[0] === '/' && $matcher[-1] === '/') {
+                if (@preg_match('/' . substr($matcher, 1, -1) . '/', $cookieName) === 1) {
+                    return true;
+                }
+                continue;
+            }
+            if ($matcher === $cookieName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** @param list<mixed> $matchers */
+    private static function originMatches(string $host, array $matchers): bool
+    {
+        foreach ($matchers as $matcher) {
+            if (!is_string($matcher)) {
+                continue;
+            }
+            if (str_starts_with($matcher, '*.')) {
+                $suffix = substr($matcher, 1);
+                if (str_ends_with($host, $suffix) || $host === substr($suffix, 1)) {
+                    return true;
+                }
+                continue;
+            }
+            if ($matcher === $host) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

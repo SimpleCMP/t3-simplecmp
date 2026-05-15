@@ -32,11 +32,13 @@
                 <dd class="col-sm-8">{detection.source}</dd>
                 <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.field.occurrences" /></dt>
                 <dd class="col-sm-8"><strong>{detection.occurrences}</strong></dd>
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.reviewed" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></dt>
                 <dd class="col-sm-8">
-                    <f:if condition="{detection.reviewed}">
-                        <f:then><span class="badge bg-success"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.field.reviewed.yes" /></span></f:then>
-                        <f:else><span class="badge bg-warning"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:show.field.reviewed.no" /></span></f:else>
+                    <span class="badge {detection.state_class}">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
+                    </span>
+                    <f:if condition="{detection.match.name}">
+                        <small class="d-block text-body-secondary mt-1">{detection.match.name}</small>
                     </f:if>
                 </dd>
             </dl>
@@ -91,25 +93,21 @@
         <pre style="background:#f4f4f4;padding:1rem;border-radius:4px;font-size:0.85em;overflow:auto;max-height:400px;"><code>{payloadJson}</code></pre>
     </div>
 
-    <div class="btn-toolbar">
-        <a href="{detection.uri_createService}" class="btn btn-primary me-2">
-            <core:icon identifier="actions-plus" size="small" />
-            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService" />
-        </a>
-        <f:if condition="{detection.reviewed}">
-            <f:then>
-                <a href="{detection.uri_unmarkReviewed}" class="btn btn-default">
-                    <core:icon identifier="actions-close" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.unmarkReviewed" />
+    <div class="btn-toolbar gap-2">
+        <f:switch expression="{detection.state}">
+            <f:case value="erkannt">
+                <a href="{detection.uri_createService}" class="btn btn-default">
+                    <core:icon identifier="actions-pencil" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
                 </a>
-            </f:then>
-            <f:else>
-                <a href="{detection.uri_markReviewed}" class="btn btn-success">
-                    <core:icon identifier="actions-check" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.markReviewed" />
+            </f:case>
+            <f:case value="unbekannt">
+                <a href="{detection.uri_createService}" class="btn btn-warning">
+                    <core:icon identifier="actions-plus" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
                 </a>
-            </f:else>
-        </f:if>
+            </f:case>
+        </f:switch>
     </div>
 </f:section>
 

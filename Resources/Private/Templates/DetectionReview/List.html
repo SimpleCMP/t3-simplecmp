@@ -7,8 +7,12 @@
 <f:section name="Content">
     <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
     <p class="text-body-secondary">
-        <strong>{unreviewedCount}</strong> / {totalCount}
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.filter.unreviewed" />
+        <strong>{pendingCount}</strong>
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.header.pending" />
+        · {curatedCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.header.curated" />
+        · {totalCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.header.total" />
     </p>
 
     <f:if condition="{spikeAlert}">
@@ -94,17 +98,16 @@
             </f:for>
         </select>
         <div class="btn-group ms-auto" role="group">
-            <form method="post"
-                  action="{uri_bulkDeleteReviewed}"
-                  class="d-inline"
-                  data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed.confirm')}">
-                <button type="submit"
-                        class="btn btn-danger"
-                        style="border-top-right-radius:0;border-bottom-right-radius:0">
-                    <core:icon identifier="actions-delete" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteReviewed" />
-                </button>
-            </form>
+            <button type="submit"
+                    form="simplecmp-bulk-select-form"
+                    class="btn btn-danger"
+                    data-bulk-select-trigger
+                    disabled
+                    style="border-top-right-radius:0;border-bottom-right-radius:0">
+                <core:icon identifier="actions-delete" size="small" />
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteSelected" />
+                <span class="badge bg-light text-dark ms-1" data-bulk-select-count>0</span>
+            </button>
             <button type="button"
                     class="btn btn-danger dropdown-toggle dropdown-toggle-split"
                     data-bs-toggle="dropdown"
@@ -114,18 +117,6 @@
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                    <button type="submit"
-                            form="simplecmp-bulk-select-form"
-                            class="dropdown-item text-danger"
-                            data-bulk-select-trigger
-                            disabled>
-                        <core:icon identifier="actions-delete" size="small" />
-                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDeleteSelected" />
-                        <span class="badge bg-secondary ms-1" data-bulk-select-count>0</span>
-                    </button>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
                 <li>
                     <form method="post"
                           action="{uri_bulkDeleteAll}"
@@ -171,13 +162,13 @@
                                    data-bulk-select-all
                                    aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.selectAll')}" />
                         </th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></th>
                         <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></th>
                         <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></th>
                         <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></th>
                         <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.occurrences" /></th>
                         <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.received" /></th>
                         <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></th>
-                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.reviewed" /></th>
                         <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.actions" /></th>
                     </tr>
                 </thead>
@@ -190,6 +181,14 @@
                                        value="{detection.uid}"
                                        data-bulk-select-row
                                        aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.col.selectRow')}" />
+                            </td>
+                            <td>
+                                <span class="badge {detection.state_class}">
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
+                                </span>
+                                <f:if condition="{detection.match.name}">
+                                    <small class="d-block text-body-secondary mt-1">{detection.match.name}</small>
+                                </f:if>
                             </td>
                             <td><span class="badge bg-secondary">{detection.kind}</span></td>
                             <td><code>{detection.identifier}</code></td>
@@ -204,41 +203,59 @@
                                 <f:format.date format="Y-m-d H:i">{detection.received_at}</f:format.date>
                             </td>
                             <td><span class="text-body-secondary">{detection.source}</span></td>
-                            <td>
-                                <f:if condition="{detection.reviewed}">
-                                    <f:then><span class="badge bg-success">✓</span></f:then>
-                                    <f:else><span class="badge bg-warning">●</span></f:else>
-                                </f:if>
-                            </td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{detection.uri_show}"
                                        class="btn btn-default"
                                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
                                         <core:icon identifier="actions-document-view" size="small" />
-                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.show" />
                                     </a>
-                                    <a href="{detection.uri_createService}"
-                                       class="btn btn-primary"
-                                       data-confirm-message="{detection.low_confidence_confirm}"
-                                       title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService')}">
-                                        <core:icon identifier="actions-plus" size="small" />
-                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.createService" />
-                                    </a>
-                                    <f:if condition="{detection.reviewed}">
-                                        <f:then>
-                                            <a href="{detection.uri_unmarkReviewed}" class="btn btn-default">
-                                                <core:icon identifier="actions-close" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.unmarkReviewed" />
-                                            </a>
-                                        </f:then>
-                                        <f:else>
-                                            <a href="{detection.uri_markReviewed}" class="btn btn-success">
+                                    <f:switch expression="{detection.state}">
+                                        <f:case value="erkannt">
+                                            <button type="button"
+                                                    class="btn btn-primary"
+                                                    data-approve-trigger
+                                                    data-approve-url="{detection.uri_approve}"
+                                                    data-approve-payload="{detection.approve_modal_data}"
+                                                    data-label-title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.title')}"
+                                                    data-label-cancel="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.cancel')}"
+                                                    data-label-confirm="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.confirm')}"
+                                                    data-label-vendor="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.vendor')}"
+                                                    data-label-purposes="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.purposes')}"
+                                                    data-label-privacy="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.privacy')}"
+                                                    data-label-cookies="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.cookies')}"
+                                                    data-label-origins="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:approve.modal.origins')}">
                                                 <core:icon identifier="actions-check" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.markReviewed" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.approve" />
+                                            </button>
+                                            <a href="{detection.uri_createService}"
+                                               class="btn btn-default"
+                                               data-confirm-message="{detection.low_confidence_confirm}"
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.customize.title')}">
+                                                <core:icon identifier="actions-pencil" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
                                             </a>
-                                        </f:else>
-                                    </f:if>
+                                        </f:case>
+                                        <f:case value="unbekannt">
+                                            <a href="{detection.uri_createService}"
+                                               class="btn btn-warning"
+                                               data-confirm-message="{detection.low_confidence_confirm}"
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.curate.title')}">
+                                                <core:icon identifier="actions-plus" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
+                                            </a>
+                                        </f:case>
+                                        <f:case value="kuratiert">
+                                            <f:if condition="{detection.uri_editService}">
+                                                <a href="{detection.uri_editService}"
+                                                   class="btn btn-default"
+                                                   title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.editService.title')}">
+                                                    <core:icon identifier="actions-pencil" size="small" />
+                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.editService" />
+                                                </a>
+                                            </f:if>
+                                        </f:case>
+                                    </f:switch>
                                     <a href="{detection.uri_delete}"
                                        class="btn btn-default text-danger"
                                        data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.delete.confirm')}"
@@ -285,17 +302,7 @@
                             <h4 class="callout-title">
                                 <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.title" />
                             </h4>
-                            <f:if condition="{filterDropHints -> f:count()} > 0">
-                                <p class="callout-body mb-2">
-                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.body" />
-                                </p>
-                            </f:if>
-                            <div class="d-flex flex-wrap gap-2">
-                                <f:for each="{filterDropHints}" as="hint">
-                                    <a href="{hint.uri}" class="btn btn-default btn-sm">
-                                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.drop.{hint.name}" arguments="{0: hint.count}" />
-                                    </a>
-                                </f:for>
+                            <div>
                                 <a href="{uri_resetFilters}" class="btn btn-default btn-sm">
                                     <core:icon identifier="actions-close" size="small" />
                                     <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.reset" />

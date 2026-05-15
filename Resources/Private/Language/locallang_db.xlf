@@ -42,7 +42,6 @@
       <trans-unit id="tx_simplecmptypo3_detection.user_agent"><source>User agent</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_detection.referrer"><source>Referrer</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_detection.payload"><source>Raw payload (JSON)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.reviewed"><source>Reviewed</source></trans-unit>
     </body>
   </file>
 </xliff>

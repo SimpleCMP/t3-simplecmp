@@ -40,7 +40,6 @@
       <trans-unit id="tx_simplecmptypo3_detection.user_agent"><source>User agent</source><target>User-Agent</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_detection.referrer"><source>Referrer</source><target>Referrer</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_detection.payload"><source>Raw payload (JSON)</source><target>Roh-Payload (JSON)</target></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.reviewed"><source>Reviewed</source><target>Geprüft</target></trans-unit>
     </body>
   </file>
 </xliff>

@@ -12,7 +12,6 @@ use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
@@ -25,19 +24,23 @@ use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
  * Backend module: review unknown-tracker detections that the SimpleCMP
  * CMS bridge posted into `tx_simplecmptypo3_detection`.
  *
- * Five actions:
- * - `list`              — paginated, optionally filtered to unreviewed only
- * - `show`              — single-row detail with raw payload
- * - `markReviewed`      — flip the `reviewed` flag to 1
- * - `unmarkReviewed`    — flip back to 0
- * - `bulkDelete`        — wipe all detections currently marked reviewed
- * - `createService`     — redirect to TYPO3's record-edit form for a new
- *                         service, pre-filling cookie / origin matchers
- *                         from the detection (closes the loop)
+ * The list is driven by a three-state model derived per-row at view
+ * time — no `reviewed` flag, no "dismiss" escape hatch:
  *
- * Extbase ActionController for the free Fluid + i18n + flash-message
- * infrastructure; the underlying queries are raw DBAL since the data
- * model is denormalized-JSON and Extbase ORM would buy us nothing.
+ * - **Kuratiert** — the service registry already covers this
+ *   cookie/origin. Nothing for the admin to do.
+ * - **Erkannt** — the bundled `simplecmp/services-library` knows this
+ *   pattern, but it hasn't been added to the local registry yet. Admin
+ *   either *Übernehmen* (one-click silent insert with confirmation
+ *   modal showing vendor/purposes/policy URL) or *Anpassen* (curate
+ *   with library pre-fill).
+ * - **Unbekannt** — neither registry nor library matches. Admin must
+ *   *Kuratieren* (manual entry) — no dismiss-only path on purpose,
+ *   so genuinely unknown trackers force a curation decision.
+ *
+ * Status filter values: `pending` (default; erkannt + unbekannt),
+ * `erkannt`, `unbekannt`, `kuratiert`, `all`. The "needs action"
+ * default surfaces only rows the admin can productively act on.
  */
 final class DetectionReviewController extends ActionController
 {
@@ -45,8 +48,8 @@ final class DetectionReviewController extends ActionController
     private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
-    private const array STATUS_OPTIONS = ['unreviewed', 'reviewed', 'all'];
-    private const string DEFAULT_STATUS = 'unreviewed';
+    private const array STATUS_OPTIONS = ['pending', 'erkannt', 'unbekannt', 'kuratiert', 'all'];
+    private const string DEFAULT_STATUS = 'pending';
     private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
     private const array CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
 
@@ -77,43 +80,59 @@ final class DetectionReviewController extends ActionController
             : self::DEFAULT_PER_PAGE;
         $page = max(1, $page);
 
-        $filteredCount = $this->filteredCount($filters);
-        $totalPages = max(1, (int) ceil($filteredCount / $perPage));
-        $page = min($page, $totalPages);
+        // Load registry + library once for the whole page, then derive
+        // state per row in PHP. The state filter can't be expressed in
+        // SQL (it's a "does any cookie/origin matcher match" join over
+        // JSON-encoded arrays), so we fetch all rows matching the
+        // non-state filters, decorate, and PHP-paginate the result.
+        $context = $this->listPresenter->loadStateContext();
 
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
         $qb->select('*')
             ->from(self::DETECTION_TABLE)
-            ->orderBy('received_at', 'DESC')
-            ->setFirstResult(($page - 1) * $perPage)
-            ->setMaxResults($perPage);
-        $this->applyFilters($qb, $filters);
-        $rows = $qb->executeQuery()->fetchAllAssociative();
+            ->orderBy('received_at', 'DESC');
+        $this->applyNonStateFilters($qb, $filters);
+        $allRows = $qb->executeQuery()->fetchAllAssociative();
 
-        // Build per-row action URLs in PHP — Fluid's `f:uri.action` doesn't
-        // produce properly-namespaced URLs in BE module context (it omits
-        // the `tx_<ext>_<mod>[action]` argument), so we generate URIs via
-        // the Extbase UriBuilder here where it has the request context.
-        // Bake the current filter state into every per-row action URL plus
-        // the bulk-delete form. The action handlers read it back from the
-        // request and redirect to `list` with the same values, so the user
-        // stays on whichever filtered view they were on.
+        $decorated = [];
+        foreach ($allRows as $r) {
+            $decorated[] = DetectionListPresenter::decorateState($r, $context['services'], $context['library']);
+        }
+        $stateFiltered = array_values(array_filter(
+            $decorated,
+            fn (array $r): bool => $this->stateMatches((string) $r['state'], $filters['status']),
+        ));
+        $filteredCount = count($stateFiltered);
+        $totalPages = max(1, (int) ceil($filteredCount / $perPage));
+        $page = min($page, $totalPages);
+        $paginated = array_slice($stateFiltered, ($page - 1) * $perPage, $perPage);
+
         $filterArg = $this->filterArg($filters);
-        $lowConfidenceMessage = $this->translate('list.action.createService.lowConfidenceConfirm') ?? '';
+        $lowConfidenceMessage = $this->translate('list.action.curate.lowConfidenceConfirm') ?? '';
         $rowsWithActions = [];
-        foreach ($rows as $r) {
+        foreach ($paginated as $r) {
             $rowArgs = ['uid' => (int) $r['uid']] + $filterArg;
             $r['uri_show'] = $this->uri('show', $rowArgs);
             $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
-            $r['uri_markReviewed'] = $this->uri('markReviewed', $rowArgs);
-            $r['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', $rowArgs);
+            $r['uri_approve'] = $this->uri('approve', $rowArgs);
             $r['uri_delete'] = $this->uri('delete', $rowArgs);
+            // For curated rows, point straight at the matched service's edit form.
+            if ($r['state'] === DetectionListPresenter::STATE_CURATED && is_array($r['match'] ?? null)) {
+                $r['uri_editService'] = $this->editServiceUri((string) $r['match']['id']);
+            } else {
+                $r['uri_editService'] = null;
+            }
+            // Per-row payload for the Übernehmen confirmation modal.
+            $r['approve_modal_data'] = $r['state'] === DetectionListPresenter::STATE_RECOGNIZED
+                ? json_encode($r['match'] ?? [], JSON_UNESCAPED_SLASHES)
+                : '';
             $r = DetectionListPresenter::decorateConfidence($r, $lowConfidenceMessage);
             $rowsWithActions[] = $r;
         }
 
         $spike = $this->listPresenter->computeSpikeContext();
+        $stateCounts = $this->stateCountsAcrossAll($context);
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
@@ -128,7 +147,8 @@ final class DetectionReviewController extends ActionController
             'kindOptions' => self::KIND_OPTIONS,
             'confidenceOptions' => self::CONFIDENCE_OPTIONS,
             'totalCount' => $this->totalCount(),
-            'unreviewedCount' => $this->unreviewedCount(),
+            'pendingCount' => $stateCounts['pending'],
+            'curatedCount' => $stateCounts['kuratiert'],
             'spikeAlert' => $spike['spikeAlert'],
             'todayCount' => $spike['todayCount'],
             'sevenDayAverage' => $spike['sevenDayAverage'],
@@ -144,13 +164,11 @@ final class DetectionReviewController extends ActionController
             'uri_pagePrev' => $this->uri('list', $pageArg + ['page' => max(1, $page - 1)]),
             'uri_pageNext' => $this->uri('list', $pageArg + ['page' => min($totalPages, $page + 1)]),
             'uri_pageLast' => $this->uri('list', $pageArg + ['page' => $totalPages]),
-            'uri_bulkDeleteReviewed' => $this->uri('bulkDeleteReviewed', $filterArg),
             'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
             'uri_bulkDeleteSelected' => $this->uri('bulkDeleteSelected', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
             'uri_resetFilters' => $this->uri('list'),
             'filtersActive' => $filterArg !== [],
-            'filterDropHints' => $this->buildFilterDropHints($filters),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
     }
@@ -168,14 +186,14 @@ final class DetectionReviewController extends ActionController
         ];
     }
 
-    /** @param array<string, string> $filters */
-    private function applyFilters(\TYPO3\CMS\Core\Database\Query\QueryBuilder $qb, array $filters): void
+    /**
+     * SQL-expressible filters only. The status filter is applied in
+     * PHP after state derivation.
+     *
+     * @param array<string, string> $filters
+     */
+    private function applyNonStateFilters(\TYPO3\CMS\Core\Database\Query\QueryBuilder $qb, array $filters): void
     {
-        if ($filters['status'] === 'unreviewed') {
-            $qb->andWhere($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)));
-        } elseif ($filters['status'] === 'reviewed') {
-            $qb->andWhere($qb->expr()->eq('reviewed', $qb->createNamedParameter(1)));
-        }
         if ($filters['source'] !== '') {
             $qb->andWhere($qb->expr()->eq('source', $qb->createNamedParameter($filters['source'])));
         }
@@ -183,16 +201,61 @@ final class DetectionReviewController extends ActionController
             $qb->andWhere($qb->expr()->eq('kind', $qb->createNamedParameter($filters['kind'])));
         }
         if ($filters['confidence'] === 'low') {
-            $qb->andWhere($qb->expr()->eq('occurrences', $qb->createNamedParameter(1, \Doctrine\DBAL\ParameterType::INTEGER)));
+            $qb->andWhere($qb->expr()->eq('occurrences', $qb->createNamedParameter(1, ParameterType::INTEGER)));
         } elseif ($filters['confidence'] === 'medium') {
             $qb->andWhere($qb->expr()->between(
                 'occurrences',
-                $qb->createNamedParameter(2, \Doctrine\DBAL\ParameterType::INTEGER),
-                $qb->createNamedParameter(4, \Doctrine\DBAL\ParameterType::INTEGER),
+                $qb->createNamedParameter(2, ParameterType::INTEGER),
+                $qb->createNamedParameter(4, ParameterType::INTEGER),
             ));
         } elseif ($filters['confidence'] === 'high') {
-            $qb->andWhere($qb->expr()->gte('occurrences', $qb->createNamedParameter(5, \Doctrine\DBAL\ParameterType::INTEGER)));
+            $qb->andWhere($qb->expr()->gte('occurrences', $qb->createNamedParameter(5, ParameterType::INTEGER)));
         }
+    }
+
+    /**
+     * "pending" is a pseudo-state that covers anything not yet
+     * curated — i.e., erkannt + unbekannt. The default view, since
+     * those are the rows the admin can productively act on.
+     */
+    private function stateMatches(string $rowState, string $filterStatus): bool
+    {
+        if ($filterStatus === 'all') {
+            return true;
+        }
+        if ($filterStatus === 'pending') {
+            return $rowState !== DetectionListPresenter::STATE_CURATED;
+        }
+        return $rowState === $filterStatus;
+    }
+
+    /**
+     * Header counters: how many rows need action (pending) and how
+     * many are already curated. Full-table scan + decoration once per
+     * page render — acceptable at the expected scale.
+     *
+     * @param array{services: array<array<string, mixed>>, library: array<array<string, mixed>>} $context
+     * @return array{pending: int, kuratiert: int}
+     */
+    private function stateCountsAcrossAll(array $context): array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('uid', 'kind', 'identifier', 'origin')
+            ->from(self::DETECTION_TABLE)
+            ->executeQuery()
+            ->fetchAllAssociative();
+        $pending = 0;
+        $curated = 0;
+        foreach ($rows as $r) {
+            $state = DetectionListPresenter::deriveState($r, $context['services'], $context['library'])['state'];
+            if ($state === DetectionListPresenter::STATE_CURATED) {
+                $curated++;
+            } else {
+                $pending++;
+            }
+        }
+        return ['pending' => $pending, 'kuratiert' => $curated];
     }
 
     /**
@@ -201,8 +264,6 @@ final class DetectionReviewController extends ActionController
      */
     private function filterArg(array $filters): array
     {
-        // Only include non-default values in the URL so the URLs stay clean
-        // for the common case (default unreviewed-only view).
         $out = [];
         if ($filters['status'] !== self::DEFAULT_STATUS) {
             $out['status'] = $filters['status'];
@@ -229,65 +290,12 @@ final class DetectionReviewController extends ActionController
     }
 
     /**
-     * For each filter that is currently restricting results, compute
-     * "how many rows would match if we dropped just this one filter."
-     * Helps the user diagnose which filter is over-restrictive when
-     * their combo yields zero results.
-     *
-     * A filter "is restricting" when it has a value that excludes
-     * rows — i.e., `status` ∈ {unreviewed, reviewed} (not `all`), or
-     * a non-empty source / kind / confidence. Status='all' is
-     * semantically a no-op so a "drop status" hint would be useless;
-     * skipped.
-     *
-     * @param array<string, string> $filters
-     * @return list<array{name: string, count: int, uri: string}>
-     */
-    private function buildFilterDropHints(array $filters): array
-    {
-        $hints = [];
-        foreach (['status', 'source', 'kind', 'confidence'] as $name) {
-            $isRestricting = $name === 'status'
-                ? $filters[$name] !== 'all'
-                : $filters[$name] !== '';
-            if (!$isRestricting) {
-                continue;
-            }
-            $reduced = $filters;
-            $reduced[$name] = $name === 'status' ? 'all' : '';
-            $hints[] = [
-                'name' => $name,
-                'count' => $this->filteredCount($reduced),
-                'uri' => $this->uri('list', $this->filterArg($reduced)),
-            ];
-        }
-        return $hints;
-    }
-
-    /** @param array<string, string> $filters */
-    private function filteredCount(array $filters): int
-    {
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
-        $qb->getRestrictions()->removeAll();
-        $qb->count('*')->from(self::DETECTION_TABLE);
-        $this->applyFilters($qb, $filters);
-        return (int) $qb->executeQuery()->fetchOne();
-    }
-
-    /**
      * One-click bootstrap: generate a fresh HMAC secret and persist it
      * to `config/system/settings.php` via TYPO3's `ConfigurationManager`.
-     *
-     * The button on the list view only surfaces when the secret is
-     * missing; rotation goes through the CLI command (documented in
-     * the README) so the BE flow stays single-purpose.
      */
     public function generateBridgeSecretAction(): ResponseInterface
     {
         if ($this->bridgeSecretProvider->isConfigured()) {
-            // Don't overwrite an existing secret silently — rotation is
-            // a deliberate operation via CLI.
-            $this->addFlash('flash.bridgeSecretAlreadyConfigured', ContextualFeedbackSeverity::INFO);
             return $this->redirect('list');
         }
         $secret = base64_encode(random_bytes(32));
@@ -297,18 +305,11 @@ final class DetectionReviewController extends ActionController
                     'EXTENSIONS/simplecmp_typo3/bridgeSecret',
                     $secret,
                 );
-        } catch (\Throwable $e) {
-            $this->addFlash(
-                'flash.bridgeSecretWriteFailed',
-                ContextualFeedbackSeverity::ERROR,
-                ['reason' => $e->getMessage()],
-            );
+        } catch (\Throwable) {
             return $this->redirect('list');
         }
-        $this->addFlash('flash.bridgeSecretGenerated');
         return $this->redirect('list');
     }
-
 
     public function showAction(
         int $uid,
@@ -331,9 +332,10 @@ final class DetectionReviewController extends ActionController
         }
 
         $filterArg = $this->filterArg($filters);
+        $context = $this->listPresenter->loadStateContext();
+        $row = DetectionListPresenter::decorateState($row, $context['services'], $context['library']);
         $row['uri_createService'] = $this->uri('createService', ['uid' => (int) $row['uid']]);
-        $row['uri_markReviewed'] = $this->uri('markReviewed', ['uid' => (int) $row['uid']] + $filterArg);
-        $row['uri_unmarkReviewed'] = $this->uri('unmarkReviewed', ['uid' => (int) $row['uid']] + $filterArg);
+        $row['uri_approve'] = $this->uri('approve', ['uid' => (int) $row['uid']] + $filterArg);
 
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
@@ -359,28 +361,54 @@ final class DetectionReviewController extends ActionController
             ->uriFor($action, $arguments);
     }
 
-    public function markReviewedAction(
-        int $uid,
-        string $status = self::DEFAULT_STATUS,
-        string $source = '',
-        string $kind = '',
-        string $confidence = '',
-    ): ResponseInterface {
-        $this->setReviewed($uid, true);
-        $this->addFlash('flash.markedReviewed');
-        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+    private function editServiceUri(string $serviceId): ?string
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $uid = $qb->select('uid')
+            ->from(self::SERVICE_TABLE)
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+        if ($uid === false) {
+            return null;
+        }
+        $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
+        return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
+            'edit' => [self::SERVICE_TABLE => [(int) $uid => 'edit']],
+            'returnUrl' => $returnUrl,
+        ]);
     }
 
-    public function unmarkReviewedAction(
+    /**
+     * Übernehmen: silent-insert the library entry that matches this
+     * detection into the registry. Idempotent via `upsert`. The admin
+     * already saw the service summary in the confirmation modal
+     * before triggering this action, so no further confirmation is
+     * needed server-side.
+     */
+    public function approveAction(
         int $uid,
         string $status = self::DEFAULT_STATUS,
         string $source = '',
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
-        $this->setReviewed($uid, false);
-        $this->addFlash('flash.unmarkedReviewed');
-        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+        $row = $this->fetchOne($uid);
+        if ($row === null) {
+            return $this->redirectToList($filters);
+        }
+        $match = $this->serviceCurator->findLibraryMatch($row);
+        if ($match === null) {
+            // The button shouldn't be visible for non-Erkannt rows;
+            // a stale link is the only way to land here. Bounce.
+            return $this->redirectToList($filters);
+        }
+        $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
+        $this->serviceRepository->upsert($match, $pid);
+        return $this->redirectToList($filters);
     }
 
     public function deleteAction(
@@ -390,25 +418,8 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
-        $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
+        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->delete(self::DETECTION_TABLE, ['uid' => $uid]);
-        if ($count > 0) {
-            $this->addFlash('flash.detectionDeleted');
-        } else {
-            $this->addFlash('flash.detectionNotFound', ContextualFeedbackSeverity::WARNING);
-        }
-        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
-    }
-
-    public function bulkDeleteReviewedAction(
-        string $status = self::DEFAULT_STATUS,
-        string $source = '',
-        string $kind = '',
-        string $confidence = '',
-    ): ResponseInterface {
-        $count = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->delete(self::DETECTION_TABLE, ['reviewed' => 1]);
-        $this->addFlash('flash.bulkDeletedReviewed', ContextualFeedbackSeverity::OK, ['count' => $count]);
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
@@ -418,12 +429,8 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
-        $conn = $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE);
-        // No WHERE — wipes everything. Use TRUNCATE semantics via raw SQL
-        // because Connection::delete requires a non-empty criteria array.
-        $count = (int) $conn->executeQuery('SELECT COUNT(*) FROM ' . self::DETECTION_TABLE)->fetchOne();
-        $conn->executeStatement('DELETE FROM ' . self::DETECTION_TABLE);
-        $this->addFlash('flash.bulkDeletedAll', ContextualFeedbackSeverity::OK, ['count' => $count]);
+        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
+            ->executeStatement('DELETE FROM ' . self::DETECTION_TABLE);
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
@@ -445,18 +452,16 @@ final class DetectionReviewController extends ActionController
             static fn (int $u): bool => $u > 0,
         ));
         if ($ints === []) {
-            $this->addFlash('flash.bulkDeleteSelectedEmpty', ContextualFeedbackSeverity::INFO);
             return $this->redirectToList($filters);
         }
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
-        $count = $qb->delete(self::DETECTION_TABLE)
+        $qb->delete(self::DETECTION_TABLE)
             ->where($qb->expr()->in(
                 'uid',
                 $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
             ))
             ->executeStatement();
-        $this->addFlash('flash.bulkDeletedSelected', ContextualFeedbackSeverity::OK, ['count' => $count]);
         return $this->redirectToList($filters);
     }
 
@@ -468,9 +473,10 @@ final class DetectionReviewController extends ActionController
 
     /**
      * Open the TYPO3 record-edit form for the service entry that covers
-     * this detection — either an existing one (so the admin sees their
-     * previously-saved custom values) or a fresh new-record form
-     * pre-populated with the detection's cookie / origin / identifier.
+     * this detection — either an existing one (admin sees their
+     * previously-saved values) or a fresh new-record form, pre-populated
+     * from the bundled library when a pattern matches, otherwise from
+     * the bare detection identifier/origin.
      */
     public function createServiceAction(int $uid): ResponseInterface
     {
@@ -481,22 +487,17 @@ final class DetectionReviewController extends ActionController
 
         $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
 
-        // If a service already covers this detection, open it for editing
-        // instead of starting a fresh new-record form. Otherwise the admin
-        // would see only the controller-derived pre-fill values and would
-        // lose the visual cue that they had already curated this entry.
         $existingUid = $this->serviceCurator->findExistingServiceUid($row);
         if ($existingUid !== null) {
             $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
                 'edit' => [self::SERVICE_TABLE => [$existingUid => 'edit']],
                 'returnUrl' => $returnUrl,
             ]);
-            $this->addFlash('flash.createServiceExisting');
             return $this->responseFactory->createResponse(302)
                 ->withHeader('Location', $editUrl);
         }
 
-        $defaults = ServiceCurator::buildServiceDefaults($row);
+        $defaults = $this->serviceCurator->buildDefaults($row);
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
         $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
             'edit' => [self::SERVICE_TABLE => [$pid => 'new']],
@@ -504,7 +505,6 @@ final class DetectionReviewController extends ActionController
             'returnUrl' => $returnUrl,
         ]);
 
-        $this->addFlash('flash.createServiceRedirect');
         return $this->responseFactory->createResponse(302)
             ->withHeader('Location', $editUrl);
     }
@@ -513,9 +513,6 @@ final class DetectionReviewController extends ActionController
     private function fetchOne(int $uid): ?array
     {
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
-        // BE-context QueryBuilder applies default restrictions (deleted, hidden,
-        // workspace). Our records are pid=0 with no enable-columns, so the
-        // restrictions return nothing — strip them.
         $qb->getRestrictions()->removeAll();
         $row = $qb->select('*')
             ->from(self::DETECTION_TABLE)
@@ -526,16 +523,6 @@ final class DetectionReviewController extends ActionController
         return $row === false ? null : $row;
     }
 
-    private function setReviewed(int $uid, bool $reviewed): void
-    {
-        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->update(
-                self::DETECTION_TABLE,
-                ['reviewed' => $reviewed ? 1 : 0, 'tstamp' => time()],
-                ['uid' => $uid],
-            );
-    }
-
     private function totalCount(): int
     {
         return (int) $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
@@ -543,24 +530,11 @@ final class DetectionReviewController extends ActionController
             ->fetchOne();
     }
 
-    private function unreviewedCount(): int
-    {
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
-        $qb->getRestrictions()->removeAll();
-        return (int) $qb->count('*')
-            ->from(self::DETECTION_TABLE)
-            ->where($qb->expr()->eq('reviewed', $qb->createNamedParameter(0)))
-            ->executeQuery()
-            ->fetchOne();
-    }
-
     private function initModuleTemplate(): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
-        // CSP-safe replacement for the inline `onsubmit="confirm(...)"` on the
-        // bulk-delete form: the listener honours `data-confirm-message` and
-        // calls preventDefault if the user cancels.
+        // CSP-safe handlers loaded from the extension's JS module map.
         $this->pageRenderer->loadJavaScriptModule(
             '@wapplersystems/simplecmp-typo3/Backend/ConfirmForm.js'
         );
@@ -570,19 +544,10 @@ final class DetectionReviewController extends ActionController
         $this->pageRenderer->loadJavaScriptModule(
             '@wapplersystems/simplecmp-typo3/Backend/Pagination.js'
         );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@wapplersystems/simplecmp-typo3/Backend/ApproveModal.js'
+        );
         return $moduleTemplate;
-    }
-
-    private function addFlash(
-        string $key,
-        ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::OK,
-        array $tokens = [],
-    ): void {
-        $message = $this->translate($key) ?? $key;
-        foreach ($tokens as $token => $value) {
-            $message = str_replace('{' . $token . '}', (string) $value, $message);
-        }
-        $this->addFlashMessage($message, '', $severity);
     }
 
     private function translate(string $key): ?string

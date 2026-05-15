@@ -16,7 +16,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  * "this unknown tracker has fired N times" instead of N rows of the
  * same thing.
  *
- * Reviewable from the (future) BE module via the `reviewed` flag.
+ * Resolution state is derived per-row at view time from registry
+ * coverage — see {@see \WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter}.
  */
 final readonly class DetectionRepository
 {
@@ -104,7 +105,6 @@ final readonly class DetectionRepository
                     ? $detection['firstSeen']
                     : null,
                 'occurrences' => 1,
-                'reviewed' => 0,
             ]));
             return;
         }

@@ -38,7 +38,6 @@ final class DetectionRepositoryTest extends FunctionalTestCase
         self::assertSame('cookie', $row['kind']);
         self::assertSame('_ga', $row['identifier']);
         self::assertSame($now, (int) $row['first_seen']);
-        self::assertSame(0, (int) $row['reviewed']);
     }
 
     #[Test]
@@ -216,7 +215,6 @@ final class DetectionRepositoryTest extends FunctionalTestCase
             'tstamp' => time(),
             'received_at' => time(),
             'occurrences' => 1,
-            'reviewed' => 0,
         ];
         $this->get(ConnectionPool::class)
             ->getConnectionForTable(self::TABLE)

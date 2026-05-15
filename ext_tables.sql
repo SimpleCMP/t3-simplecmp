@@ -43,7 +43,6 @@ CREATE TABLE tx_simplecmptypo3_detection (
     user_agent varchar(500) DEFAULT NULL,
     referrer varchar(500) DEFAULT NULL,
     payload text,
-    reviewed tinyint(1) unsigned DEFAULT '0' NOT NULL,
 
     PRIMARY KEY (uid),
     KEY pid (pid),

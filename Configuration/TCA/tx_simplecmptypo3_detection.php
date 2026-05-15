@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 /**
- * TCA for incoming CMS-bridge webhook detections. Read-mostly: only the
- * `reviewed` toggle is intended to be edited from the standard List
- * module. The dedicated SimpleCMP backend module is the canonical UI
- * for triage — see `Classes/Controller/Backend/DetectionReviewController.php`.
+ * TCA for incoming CMS-bridge webhook detections. Read-only — the
+ * dedicated SimpleCMP backend module is the canonical UI for triage;
+ * see `Classes/Controller/Backend/DetectionReviewController.php`. There
+ * are no admin-editable fields on the row because the new model derives
+ * resolution state from registry coverage rather than a flag.
  */
 
 return [
@@ -80,19 +81,10 @@ return [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.payload',
             'config' => ['type' => 'text', 'readOnly' => true, 'rows' => 12, 'cols' => 80],
         ],
-        'reviewed' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_detection.reviewed',
-            'config' => [
-                'type' => 'check',
-                'renderType' => 'checkboxToggle',
-                'default' => 0,
-            ],
-        ],
     ],
     'types' => [
         '0' => [
             'showitem' => '
-                reviewed,
                 --div--;Identity,
                 source, kind, identifier, origin,
                 --div--;Page context,

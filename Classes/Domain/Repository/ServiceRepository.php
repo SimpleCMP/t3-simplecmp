@@ -155,9 +155,13 @@ final readonly class ServiceRepository
     }
 
     /**
+     * Load every service in protocol shape. Used by callers that need
+     * to match a batch of detections against the registry without
+     * paying N+1 query cost per match.
+     *
      * @return array<array<string, mixed>>
      */
-    private function findAll(): array
+    public function findAll(): array
     {
         $rows = $this->connectionPool->getConnectionForTable(self::TABLE)
             ->createQueryBuilder()

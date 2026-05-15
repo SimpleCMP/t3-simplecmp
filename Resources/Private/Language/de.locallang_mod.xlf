@@ -5,47 +5,57 @@
     <body>
       <trans-unit id="mlang_tabs_tab"><source>SimpleCMP detections</source><target>SimpleCMP-Detektionen</target></trans-unit>
       <trans-unit id="mlang_labels_tablabel"><source>Review SimpleCMP detections</source><target>SimpleCMP-Detektionen prüfen</target></trans-unit>
-      <trans-unit id="mlang_labels_tabdescr"><source>Triage unknown trackers reported by the SimpleCMP CMS bridge. Mark items as reviewed, or convert a detection into a service entry so it classifies as known on future visits.</source><target>Unbekannte Tracker, die von der SimpleCMP-Bridge gemeldet wurden, durchsehen. Items als geprüft markieren oder direkt in einen Dienst-Eintrag umwandeln, damit sie beim nächsten Besuch als bekannt klassifiziert werden.</target></trans-unit>
+      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge. Approve detections recognised by the bundled service library, or curate new services manually for unknown trackers.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden. Bereits in der Bibliothek bekannte Detektionen per Klick übernehmen, unbekannte Tracker manuell kuratieren.</target></trans-unit>
 
-      <trans-unit id="list.title"><source>SimpleCMP — unknown-tracker detections</source><target>SimpleCMP — Detektionen unbekannter Tracker</target></trans-unit>
-      <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports an unknown tracker.</source><target>Noch keine Detektionen. Sobald das SimpleCMP-Frontend einen unbekannten Tracker meldet, erscheint er hier.</target></trans-unit>
+      <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
+      <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>
+      <trans-unit id="list.header.curated"><source>already curated</source><target>bereits kuratiert</target></trans-unit>
+      <trans-unit id="list.header.total"><source>total</source><target>gesamt</target></trans-unit>
+      <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports a tracker.</source><target>Noch keine Detektionen. Sobald das SimpleCMP-Frontend einen Tracker meldet, erscheint er hier.</target></trans-unit>
       <trans-unit id="list.empty.filtered.title"><source>No detections match the active filters.</source><target>Keine Detektion entspricht den aktiven Filtern.</target></trans-unit>
-      <trans-unit id="list.empty.filtered.body"><source>Try widening one of the active filters:</source><target>Einen der aktiven Filter erweitern:</target></trans-unit>
       <trans-unit id="list.empty.filtered.reset"><source>Reset all filters</source><target>Alle Filter zurücksetzen</target></trans-unit>
-      <trans-unit id="list.empty.filtered.drop.status"><source>Without status filter: %d</source><target>Ohne Statusfilter: %d</target></trans-unit>
-      <trans-unit id="list.empty.filtered.drop.source"><source>Without source filter: %d</source><target>Ohne Quellenfilter: %d</target></trans-unit>
-      <trans-unit id="list.empty.filtered.drop.kind"><source>Without kind filter: %d</source><target>Ohne Typenfilter: %d</target></trans-unit>
-      <trans-unit id="list.empty.filtered.drop.confidence"><source>Without confidence filter: %d</source><target>Ohne Vertrauensfilter: %d</target></trans-unit>
-      <trans-unit id="list.filter.unreviewed"><source>Only unreviewed</source><target>Nur ungeprüfte</target></trans-unit>
-      <trans-unit id="list.filter.all"><source>All</source><target>Alle</target></trans-unit>
+      <trans-unit id="list.col.state"><source>State</source><target>Status</target></trans-unit>
       <trans-unit id="list.col.kind"><source>Kind</source><target>Typ</target></trans-unit>
       <trans-unit id="list.col.identifier"><source>Identifier</source><target>Bezeichner</target></trans-unit>
       <trans-unit id="list.col.origin"><source>Origin</source><target>Origin</target></trans-unit>
       <trans-unit id="list.col.occurrences"><source>×</source><target>×</target></trans-unit>
       <trans-unit id="list.col.received"><source>Received</source><target>Empfangen</target></trans-unit>
       <trans-unit id="list.col.source"><source>Source</source><target>Quelle</target></trans-unit>
-      <trans-unit id="list.col.reviewed"><source>Reviewed</source><target>Geprüft</target></trans-unit>
       <trans-unit id="list.col.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
-      <trans-unit id="list.action.show"><source>Details</source><target>Details</target></trans-unit>
-      <trans-unit id="list.action.markReviewed"><source>Mark reviewed</source><target>Als geprüft markieren</target></trans-unit>
-      <trans-unit id="list.action.unmarkReviewed"><source>Unmark</source><target>Markierung aufheben</target></trans-unit>
-      <trans-unit id="list.action.createService"><source>Convert to service</source><target>In Dienst umwandeln</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteReviewed"><source>Delete reviewed</source><target>Geprüfte löschen</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteReviewed.confirm"><source>Permanently delete all detections marked as reviewed?</source><target>Alle als geprüft markierten Detektionen dauerhaft löschen?</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source><target>Alle Detektionen löschen</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table — reviewed and unreviewed alike?</source><target>WIRKLICH alle Detektionen dauerhaft löschen — geprüft und ungeprüft?</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected"><source>Delete selected</source><target>Ausgewählte löschen</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source><target>Die ausgewählten Detektion(en) dauerhaft löschen?</target></trans-unit>
       <trans-unit id="list.col.selectAll"><source>Select all rows</source><target>Alle Zeilen auswählen</target></trans-unit>
       <trans-unit id="list.col.selectRow"><source>Select row</source><target>Zeile auswählen</target></trans-unit>
+
+      <trans-unit id="state.kuratiert"><source>Curated</source><target>Kuratiert</target></trans-unit>
+      <trans-unit id="state.erkannt"><source>Recognised</source><target>Erkannt</target></trans-unit>
+      <trans-unit id="state.unbekannt"><source>Unknown</source><target>Unbekannt</target></trans-unit>
+
+      <trans-unit id="list.action.show"><source>Details</source><target>Details</target></trans-unit>
+      <trans-unit id="list.action.approve"><source>Approve</source><target>Übernehmen</target></trans-unit>
+      <trans-unit id="list.action.customize"><source>Customise</source><target>Anpassen</target></trans-unit>
+      <trans-unit id="list.action.customize.title"><source>Open the pre-filled service form to review or edit before saving.</source><target>Das vorbefüllte Dienst-Formular öffnen, um vor dem Speichern zu prüfen oder anzupassen.</target></trans-unit>
+      <trans-unit id="list.action.curate"><source>Curate</source><target>Kuratieren</target></trans-unit>
+      <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source><target>Das Formular für einen neuen Dienst öffnen (keine Übereinstimmung in der Bibliothek — manuell eintragen).</target></trans-unit>
+      <trans-unit id="list.action.curate.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source><target>Dieser Tracker wurde erst einmal gemeldet. Prüfe, ob Cookie / Origin zu einem realen Drittanbieter passen, bevor du den Eintrag kuratierst — gefälschte Zeilen werden gezielt platziert, um Admins zur Freigabe zu verleiten.</target></trans-unit>
+      <trans-unit id="list.action.editService"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
+      <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source><target>Den Registry-Eintrag öffnen, der diese Detektion abdeckt.</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source><target>Alle Detektionen löschen</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table?</source><target>WIRKLICH alle Detektionen dauerhaft löschen?</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteSelected"><source>Delete selected</source><target>Ausgewählte löschen</target></trans-unit>
+      <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source><target>Die ausgewählten Detektion(en) dauerhaft löschen?</target></trans-unit>
+      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source><target>Weitere Löschoptionen</target></trans-unit>
+      <trans-unit id="list.action.delete"><source>Delete this row</source><target>Diese Zeile löschen</target></trans-unit>
+      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source><target>Diese Detektion dauerhaft löschen?</target></trans-unit>
+
       <trans-unit id="list.pagination.perPageLabel"><source>Rows per page</source><target>Zeilen pro Seite</target></trans-unit>
       <trans-unit id="list.pagination.range"><source>Showing %d–%d of %d</source><target>Zeige %d–%d von %d</target></trans-unit>
       <trans-unit id="list.pagination.pageOf"><source>Page %d of %d</source><target>Seite %d von %d</target></trans-unit>
       <trans-unit id="list.pagination.nav"><source>Page navigation</source><target>Seitennavigation</target></trans-unit>
 
       <trans-unit id="filter.status.label"><source>Status filter</source><target>Statusfilter</target></trans-unit>
-      <trans-unit id="filter.status.unreviewed"><source>Only unreviewed</source><target>Nur ungeprüfte</target></trans-unit>
-      <trans-unit id="filter.status.reviewed"><source>Only reviewed</source><target>Nur geprüfte</target></trans-unit>
+      <trans-unit id="filter.status.pending"><source>Needs action</source><target>Brauchen Aktion</target></trans-unit>
+      <trans-unit id="filter.status.erkannt"><source>Only recognised</source><target>Nur erkannte</target></trans-unit>
+      <trans-unit id="filter.status.unbekannt"><source>Only unknown</source><target>Nur unbekannte</target></trans-unit>
+      <trans-unit id="filter.status.kuratiert"><source>Only curated</source><target>Nur kuratierte</target></trans-unit>
       <trans-unit id="filter.status.all"><source>All statuses</source><target>Alle</target></trans-unit>
 
       <trans-unit id="filter.source.label"><source>Source filter</source><target>Quellenfilter</target></trans-unit>
@@ -65,13 +75,19 @@
       <trans-unit id="filter.confidence.low"><source>Low (1 report)</source><target>Niedrig (1 Meldung)</target></trans-unit>
       <trans-unit id="filter.confidence.medium"><source>Medium (2–4 reports)</source><target>Mittel (2–4 Meldungen)</target></trans-unit>
       <trans-unit id="filter.confidence.high"><source>High (≥ 5 reports)</source><target>Hoch (≥ 5 Meldungen)</target></trans-unit>
-      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source><target>Weitere Löschoptionen</target></trans-unit>
-      <trans-unit id="list.action.delete"><source>Delete this row</source><target>Diese Zeile löschen</target></trans-unit>
-      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source><target>Diese Detektion dauerhaft löschen?</target></trans-unit>
-      <trans-unit id="list.action.createService.lowConfidenceConfirm"><source>This tracker has only been reported once. Verify the cookie / origin matches a real third-party service before curating it — a fake row could be planted to trick you into approving it.</source><target>Dieser Tracker wurde erst einmal gemeldet. Prüfe, ob Cookie / Origin zu einem realen Drittanbieter passen, bevor du den Eintrag kuratierst — gefälschte Zeilen werden gezielt platziert, um Admins zur Freigabe zu verleiten.</target></trans-unit>
+
       <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source><target>Vertrauen: Grün ≥ 5 Meldungen, Grau ≥ 2, Gelb = nur eine Meldung.</target></trans-unit>
       <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source><target>Ungewöhnlich viele Detektionen heute.</target></trans-unit>
       <trans-unit id="list.spike.body"><source>%d new detections today vs. %s/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source><target>%d neue Detektionen heute, gleitender 7-Tage-Schnitt: %s/Tag. Mit besonderer Vorsicht prüfen — geflutete Tabellen sind ein bekannter Angriffsvektor, um die Kuratierung zu manipulieren.</target></trans-unit>
+
+      <trans-unit id="approve.modal.title"><source>Approve service from library?</source><target>Dienst aus der Bibliothek übernehmen?</target></trans-unit>
+      <trans-unit id="approve.modal.confirm"><source>Approve</source><target>Übernehmen</target></trans-unit>
+      <trans-unit id="approve.modal.cancel"><source>Cancel</source><target>Abbrechen</target></trans-unit>
+      <trans-unit id="approve.modal.vendor"><source>Vendor</source><target>Anbieter</target></trans-unit>
+      <trans-unit id="approve.modal.purposes"><source>Purposes</source><target>Zwecke</target></trans-unit>
+      <trans-unit id="approve.modal.privacy"><source>Privacy policy</source><target>Datenschutzerklärung</target></trans-unit>
+      <trans-unit id="approve.modal.cookies"><source>Cookies</source><target>Cookies</target></trans-unit>
+      <trans-unit id="approve.modal.origins"><source>Hosts</source><target>Hosts</target></trans-unit>
 
       <trans-unit id="show.title"><source>Detection detail</source><target>Detail der Detektion</target></trans-unit>
       <trans-unit id="show.back"><source>← Back to list</source><target>← Zurück zur Liste</target></trans-unit>
@@ -89,22 +105,6 @@
       <trans-unit id="show.field.sentAt"><source>Sent at</source><target>Gesendet am</target></trans-unit>
       <trans-unit id="show.field.pageUrl"><source>Page URL</source><target>Seiten-URL</target></trans-unit>
       <trans-unit id="show.field.firstSeenOn"><source>First seen on</source><target>Erstmals gesehen auf</target></trans-unit>
-      <trans-unit id="show.field.reviewed.yes"><source>✓ yes</source><target>✓ ja</target></trans-unit>
-      <trans-unit id="show.field.reviewed.no"><source>● no</source><target>● nein</target></trans-unit>
-
-      <trans-unit id="flash.markedReviewed"><source>Detection marked as reviewed.</source><target>Detektion als geprüft markiert.</target></trans-unit>
-      <trans-unit id="flash.unmarkedReviewed"><source>Detection unmarked.</source><target>Markierung aufgehoben.</target></trans-unit>
-      <trans-unit id="flash.bulkDeletedReviewed"><source>{count} reviewed detection(s) deleted.</source><target>{count} geprüfte Detektion(en) gelöscht.</target></trans-unit>
-      <trans-unit id="flash.bulkDeletedAll"><source>{count} detection(s) deleted.</source><target>{count} Detektion(en) gelöscht.</target></trans-unit>
-      <trans-unit id="flash.bulkDeletedSelected"><source>{count} selected detection(s) deleted.</source><target>{count} ausgewählte Detektion(en) gelöscht.</target></trans-unit>
-      <trans-unit id="flash.bulkDeleteSelectedEmpty"><source>No rows were selected.</source><target>Es wurden keine Zeilen ausgewählt.</target></trans-unit>
-      <trans-unit id="flash.detectionDeleted"><source>Detection deleted.</source><target>Detektion gelöscht.</target></trans-unit>
-      <trans-unit id="flash.detectionNotFound"><source>Detection no longer exists.</source><target>Detektion existiert nicht mehr.</target></trans-unit>
-      <trans-unit id="flash.createServiceRedirect"><source>Pre-filled new service form from this detection — review and save.</source><target>Neues Dienst-Formular wurde mit den Detektionsdaten vorbefüllt — bitte prüfen und speichern.</target></trans-unit>
-      <trans-unit id="flash.createServiceExisting"><source>A service already covers this detection — opened it for editing.</source><target>Ein Dienst deckt diese Detektion bereits ab — zum Bearbeiten geöffnet.</target></trans-unit>
-      <trans-unit id="flash.bridgeSecretGenerated"><source>Bridge secret generated and stored in config/system/settings.php. The bridge will start emitting signed nonces on the next frontend page render.</source><target>Bridge-Secret erzeugt und in config/system/settings.php gespeichert. Beim nächsten Frontend-Aufruf werden signierte Nonces ausgegeben.</target></trans-unit>
-      <trans-unit id="flash.bridgeSecretAlreadyConfigured"><source>A bridge secret is already configured. Use vendor/bin/typo3 simplecmp:generate-bridge-secret to rotate via CLI.</source><target>Ein Bridge-Secret ist bereits konfiguriert. Zum Rotieren `vendor/bin/typo3 simplecmp:generate-bridge-secret` verwenden.</target></trans-unit>
-      <trans-unit id="flash.bridgeSecretWriteFailed"><source>Could not write the bridge secret to settings.php: {reason}. Generate it via CLI and add it to your configuration manually.</source><target>Bridge-Secret konnte nicht in settings.php geschrieben werden: {reason}. Bitte per CLI erzeugen und manuell in die Konfiguration eintragen.</target></trans-unit>
 
       <trans-unit id="bridgeSecret.disabled.title"><source>Bridge webhook is disabled</source><target>Bridge-Webhook ist deaktiviert</target></trans-unit>
       <trans-unit id="bridgeSecret.disabled.body"><source>The CMS bridge can't authenticate POSTs without a shared HMAC secret. Generate one to enable detection ingestion. The value will be written to config/system/settings.php.</source><target>Die CMS-Bridge kann eingehende POSTs ohne gemeinsames HMAC-Secret nicht authentifizieren. Zum Aktivieren ein Secret erzeugen — der Wert wird in config/system/settings.php geschrieben.</target></trans-unit>

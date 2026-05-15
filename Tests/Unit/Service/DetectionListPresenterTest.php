@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter;
 
 final class DetectionListPresenterTest extends TestCase
@@ -125,6 +126,119 @@ final class DetectionListPresenterTest extends TestCase
         $repo = $this->createMock(DetectionRepository::class);
         $repo->method('countSince')
             ->willReturnOnConsecutiveCalls($today, $sevenDayTotal);
-        return new DetectionListPresenter($repo);
+        return new DetectionListPresenter($repo, $this->createMock(ServiceRepository::class));
+    }
+
+    // --- deriveState / decorateState --------------------------------------
+
+    /**
+     * @return array<array<string, mixed>>
+     */
+    private function services(): array
+    {
+        return [[
+            'id' => 'curated-service',
+            'name' => 'Curated Service',
+            'matches' => [
+                'cookies' => ['_curated_*'],
+                'origins' => ['api.curated.example'],
+            ],
+        ]];
+    }
+
+    /**
+     * @return array<array<string, mixed>>
+     */
+    private function library(): array
+    {
+        return [[
+            'id' => 'amplitude',
+            'name' => 'Amplitude',
+            'matches' => [
+                'cookies' => ['/^amplitude_/'],
+                'origins' => ['cdn.amplitude.com'],
+            ],
+        ]];
+    }
+
+    #[Test]
+    public function deriveStateReturnsCuratedWhenRegistryCoversCookie(): void
+    {
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => '_curated_*'],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_CURATED, $result['state']);
+        self::assertSame('curated-service', $result['match']['id']);
+    }
+
+    #[Test]
+    public function deriveStateReturnsRecognizedWhenOnlyLibraryMatchesCookie(): void
+    {
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => 'amplitude_session'],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_RECOGNIZED, $result['state']);
+        self::assertSame('Amplitude', $result['match']['name']);
+    }
+
+    #[Test]
+    public function deriveStateReturnsRecognizedWhenOnlyLibraryMatchesOrigin(): void
+    {
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'script', 'identifier' => 'x', 'origin' => 'cdn.amplitude.com'],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_RECOGNIZED, $result['state']);
+    }
+
+    #[Test]
+    public function deriveStateReturnsUnknownWhenNeitherMatches(): void
+    {
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => 'totally_mystery_cookie'],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_UNKNOWN, $result['state']);
+        self::assertNull($result['match']);
+    }
+
+    #[Test]
+    public function registryMatchTakesPrecedenceOverLibraryMatch(): void
+    {
+        // If a cookie matches BOTH registry and library, registry wins —
+        // admin's curation is the source of truth for the FE consent UI.
+        $services = [[
+            'id' => 'my-amplitude',
+            'name' => 'Custom Amplitude config',
+            'matches' => ['cookies' => ['/^amplitude_/']],
+        ]];
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => 'amplitude_session'],
+            $services,
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_CURATED, $result['state']);
+        self::assertSame('my-amplitude', $result['match']['id']);
+    }
+
+    #[Test]
+    public function decorateStateAttachesStateClassAndMatch(): void
+    {
+        $row = DetectionListPresenter::decorateState(
+            ['uid' => 7, 'kind' => 'cookie', 'identifier' => 'amplitude_session'],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_RECOGNIZED, $row['state']);
+        self::assertSame('bg-info text-dark', $row['state_class']);
+        self::assertSame('Amplitude', $row['match']['name']);
+        // Preserves unrelated row keys.
+        self::assertSame(7, $row['uid']);
     }
 }
