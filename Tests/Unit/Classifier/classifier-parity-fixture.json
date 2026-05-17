@@ -1,0 +1,12 @@
+[
+  { "id": "literal-match",       "cookie": "_ga",         "matcher": "_ga",           "observedOrigins": [],            "expected": true },
+  { "id": "literal-no-match",    "cookie": "_ga",         "matcher": "_gid",          "observedOrigins": [],            "expected": false },
+  { "id": "regex-prefix",        "cookie": "_ga_AB123",   "matcher": "/^_ga_/",       "observedOrigins": [],            "expected": true },
+  { "id": "regex-no-match",      "cookie": "something",   "matcher": "/^_ga_/",       "observedOrigins": [],            "expected": false },
+  { "id": "regex-suffix-fail",   "cookie": "_ga_",        "matcher": "_ga_",          "observedOrigins": [],            "expected": true },
+  { "id": "hq-name-only-php",    "cookie": "MC1",         "matcher": { "name": "MC1", "requireOrigin": "bing.com" }, "observedOrigins": [],            "expected": false, "phpAlwaysTrue": true },
+  { "id": "hq-observed",         "cookie": "MC1",         "matcher": { "name": "MC1", "requireOrigin": "bing.com" }, "observedOrigins": ["bing.com"],  "expected": true },
+  { "id": "hq-wildcard-origin",  "cookie": "m",           "matcher": { "name": "m",   "requireOrigin": "*.stripe.com" }, "observedOrigins": ["m.stripe.com"], "expected": true },
+  { "id": "hq-regex-name",       "cookie": "pmt_session", "matcher": { "name": "/^pmt_/", "requireOrigin": "pmt.test" }, "observedOrigins": ["pmt.test"], "expected": true },
+  { "id": "hq-name-mismatch",    "cookie": "other",       "matcher": { "name": "m",   "requireOrigin": "*.stripe.com" }, "observedOrigins": ["m.stripe.com"], "expected": false }
+]
