@@ -98,6 +98,17 @@ Filter to a single Site Set:
 
 ![Reporting-site filter](Documentation/Images/be-filter-reporting-site.png)
 
+### Banner design
+
+Per-site theme editor at *Websites → SimpleCMP banner design*. Token
+form on the left grouped into Brand / Surface / Advanced / Typography /
+Shape sections, with a live preview on the right that updates as you
+type. The Typography group has a *Detect fonts from active site*
+button that reads computed body + heading typography from the FE via a
+hidden iframe:
+
+![Banner design module](Documentation/Images/be-banner-design.png)
+
 ### Frontend
 
 | Consent banner | Configuration modal |
