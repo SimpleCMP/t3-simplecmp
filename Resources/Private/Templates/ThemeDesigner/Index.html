@@ -32,39 +32,24 @@
         <div class="row">
             <div class="col-md-6">
                 <f:for each="{fieldGroups}" as="fields" key="group">
-                    <f:if condition="{group} == 'advanced'">
-                        <f:then>
-                            <details class="mb-4">
-                                <summary class="h5" style="cursor:pointer;list-style-position:outside">
-                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
-                                </summary>
-                                <p class="text-body-secondary small mt-2 mb-2">
-                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.group.advanced.help" />
-                                </p>
-                                <f:render section="Fields" arguments="{fields: fields, tokens: tokens}" />
-                            </details>
-                        </f:then>
-                        <f:else>
-                            <fieldset class="mb-4">
-                                <legend class="h5">
-                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
-                                </legend>
-                                <f:render section="Fields" arguments="{fields: fields, tokens: tokens}" />
-                                <f:if condition="{group} == 'typography'">
-                                    <div class="mt-2">
-                                        <button type="button"
-                                                class="btn btn-default btn-sm"
-                                                data-detect-fonts
-                                                data-detect-fonts-url="{siteBaseUrl}">
-                                            <core:icon identifier="actions-search" size="small" />
-                                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.detectFonts" />
-                                        </button>
-                                        <small class="text-body-secondary ms-2 detect-fonts-status" data-detect-fonts-status></small>
-                                    </div>
-                                </f:if>
-                            </fieldset>
-                        </f:else>
-                    </f:if>
+                    <fieldset class="mb-4">
+                        <legend class="h5">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
+                        </legend>
+                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens}" />
+                        <f:if condition="{group} == 'typography'">
+                            <div class="mt-2">
+                                <button type="button"
+                                        class="btn btn-default btn-sm"
+                                        data-detect-fonts
+                                        data-detect-fonts-url="{siteBaseUrl}">
+                                    <core:icon identifier="actions-search" size="small" />
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.detectFonts" />
+                                </button>
+                                <small class="text-body-secondary ms-2 detect-fonts-status" data-detect-fonts-status></small>
+                            </div>
+                        </f:if>
+                    </fieldset>
                 </f:for>
             </div>
 

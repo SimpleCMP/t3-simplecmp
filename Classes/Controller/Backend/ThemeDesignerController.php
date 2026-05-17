@@ -63,11 +63,9 @@ final class ThemeDesignerController extends ActionController
 
     /**
      * Field grouping for the form template. Semantic groups — brand
-     * colors and surface colors are always exposed; secondary tokens
-     * (hover/muted/alt) live in a collapsed *Advanced* section because
-     * most admins don't want to think about them and they read fine at
-     * the upstream defaults. Typography and shape get their own
-     * sections for non-color tokens.
+     * colors first, surface colors next, then the secondary "advanced"
+     * tokens (hover/muted/alt) that vary the main ones. Typography and
+     * shape close out with non-color tokens.
      *
      * @var array<string, list<string>>
      */
@@ -95,15 +93,6 @@ final class ThemeDesignerController extends ActionController
         'shape' => ['radius'],
     ];
 
-    /**
-     * Groups rendered inside a collapsed `<details>` block. Default
-     * state is collapsed because admins who don't open it see saved
-     * values + auto-applied upstream defaults — both fine.
-     *
-     * @var list<string>
-     */
-    private const array COLLAPSED_GROUPS = ['advanced'];
-
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
         private readonly PageRenderer $pageRenderer,
@@ -127,7 +116,6 @@ final class ThemeDesignerController extends ActionController
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
-            'collapsedGroups' => self::COLLAPSED_GROUPS,
             'hasCustomTheme' => $hasCustomTheme,
             'uri_save' => $this->uri('save'),
             'uri_reset' => $this->uri('reset', ['site' => $site]),

@@ -18,7 +18,6 @@
       <trans-unit id="designer.group.brand"><source>Brand colors</source><target>Markenfarben</target></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source><target>Text &amp; Hintergrund</target></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source><target>Erweiterte Farben</target></trans-unit>
-      <trans-unit id="designer.group.advanced.help"><source>Secondary colors that most sites keep at the defaults. Override these only if the brand-color pickers above produce a hover/muted/alt that doesn't fit your design.</source><target>Sekundärfarben, die die meisten Sites bei den Standardwerten lassen. Nur überschreiben, wenn der aus den Markenfarben oben abgeleitete Hover-/Dezent-/Alt-Ton nicht zum Design passt.</target></trans-unit>
       <trans-unit id="designer.group.typography"><source>Typography</source><target>Typografie</target></trans-unit>
       <trans-unit id="designer.group.shape"><source>Shape</source><target>Form</target></trans-unit>
 

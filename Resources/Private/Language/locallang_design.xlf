@@ -18,7 +18,6 @@
       <trans-unit id="designer.group.brand"><source>Brand colors</source></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source></trans-unit>
-      <trans-unit id="designer.group.advanced.help"><source>Secondary colors that most sites keep at the defaults. Override these only if the brand-color pickers above produce a hover/muted/alt that doesn't fit your design.</source></trans-unit>
       <trans-unit id="designer.group.typography"><source>Typography</source></trans-unit>
       <trans-unit id="designer.group.shape"><source>Shape</source></trans-unit>
 
