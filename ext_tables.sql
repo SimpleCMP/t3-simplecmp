@@ -22,6 +22,19 @@ CREATE TABLE tx_simplecmptypo3_service (
     KEY pid (pid)
 );
 
+CREATE TABLE tx_simplecmptypo3_theme (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    tokens text,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY site (site)
+);
+
 CREATE TABLE tx_simplecmptypo3_detection (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,

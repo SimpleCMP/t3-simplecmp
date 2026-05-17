@@ -12,6 +12,7 @@ use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 
@@ -34,9 +35,38 @@ use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 )]
 final readonly class RegisterAssets
 {
+    /**
+     * Whitelist of SimpleCMP custom-element selectors that the theme
+     * targets — same set as upstream `src/ui/styles/default.css`.
+     *
+     * Each upstream component imports `tokens.ts` and re-declares the
+     * design tokens on its own `:host`, which **breaks the natural CSS
+     * custom property cascade across shadow DOM boundaries**: a
+     * light-DOM override on `simplecmp-modal` reaches the modal
+     * element, but the nested `simplecmp-purpose-group` inside the
+     * modal's shadow root resets the token via its own `:host` rule.
+     *
+     * Workaround: inject a `:host { --simplecmp-X: Y; }` rule into
+     * every component's `adoptedStyleSheets` from JS. Adopted sheets
+     * append after the component's `static styles`, so equal-
+     * specificity `:host` rules tie and last-in wins.
+     *
+     * @var list<string>
+     */
+    private const array THEME_SELECTORS = [
+        'simplecmp-banner',
+        'simplecmp-modal',
+        'simplecmp-purpose-group',
+        'simplecmp-service-toggle',
+        'simplecmp-trigger',
+        'simplecmp-policy-links',
+        'simplecmp-contextual-notice',
+    ];
+
     public function __construct(
         private AssetCollector $assetCollector,
         private ServiceRepository $serviceRepository,
+        private ThemeRepository $themeRepository,
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
         private LoggerInterface $logger,
@@ -82,6 +112,65 @@ final readonly class RegisterAssets
                 'window.SimpleCMP && window.SimpleCMP.init(%s);',
                 json_encode($config, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
             ),
+        );
+
+        $this->injectTheme($site);
+    }
+
+    /**
+     * Emit the per-site banner theme as an inline `<script>` that
+     * injects the overrides into every SimpleCMP component's shadow
+     * root via `adoptedStyleSheets`. A `<style>` block in light DOM
+     * wouldn't reach nested components (see THEME_SELECTORS comment).
+     *
+     * Skipped when no row exists for this site — falls back cleanly
+     * to the bundle's built-in token defaults (`src/ui/styles/tokens.ts`).
+     */
+    private function injectTheme(Site $site): void
+    {
+        $tokens = $this->themeRepository->findBySite($site->getIdentifier());
+        if ($tokens === null || $tokens === []) {
+            return;
+        }
+        $declarations = [];
+        foreach ($tokens as $token => $value) {
+            if (!is_string($token) || !is_scalar($value)) {
+                continue;
+            }
+            // Map our storage keys (`color-primary`, `radius`, …) to the
+            // upstream CSS custom property names (`--simplecmp-color-primary`).
+            $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ';';
+        }
+        if ($declarations === []) {
+            return;
+        }
+        $css = ':host { ' . implode(' ', $declarations) . ' }';
+        $payload = [
+            'css' => $css,
+            'selectors' => self::THEME_SELECTORS,
+        ];
+        $script = '(function(){'
+            . 'var payload = ' . json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES) . ';'
+            . 'var sheet = new CSSStyleSheet(); sheet.replaceSync(payload.css);'
+            . 'function adopt(root) {'
+                . 'payload.selectors.forEach(function(sel){'
+                    . 'root.querySelectorAll(sel).forEach(function(el){'
+                        . 'if (!el.shadowRoot) return;'
+                        . 'if (el.shadowRoot.adoptedStyleSheets.indexOf(sheet) === -1) {'
+                            . 'el.shadowRoot.adoptedStyleSheets = el.shadowRoot.adoptedStyleSheets.concat(sheet);'
+                        . '}'
+                        . 'adopt(el.shadowRoot);'
+                    . '});'
+                . '});'
+            . '}'
+            . 'adopt(document);'
+            // Re-walk when the bundle mounts the modal lazily after Configure click.
+            . 'new MutationObserver(function(){ adopt(document); })'
+            . '.observe(document.body, { subtree: true, childList: true });'
+            . '})();';
+        $this->assetCollector->addInlineJavaScript(
+            'simplecmp-theme-' . $site->getIdentifier(),
+            $script,
         );
     }
 

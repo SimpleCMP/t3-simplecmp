@@ -3,15 +3,20 @@
 declare(strict_types=1);
 
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DetectionReviewController;
+use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
 
 /**
- * Backend module registration. Lives under the "Site Management" parent
- * (same group as site settings — admins managing trackers operate at the
- * site level, not the content level).
+ * Backend module registration.
  *
- * Extbase-style `controllerActions` config: TYPO3 dispatches HTTP actions
- * to `*Action` methods on the controller. The first action listed is the
- * default landing.
+ * Two flat sibling modules under the "Websites" group — TYPO3's BE module
+ * menu is intentionally 2-level only, so the SimpleCMP feature area is
+ * grouped by adjacency + the shared icon rather than a hierarchical
+ * sub-menu. Both modules sort next to `site_configuration`:
+ *
+ *   Websites
+ *     ├─ Einrichtung (core)
+ *     ├─ SimpleCMP-Detektionen   (detection triage)
+ *     └─ SimpleCMP-Banner-Design (theme designer)
  */
 return [
     'simplecmp_detections' => [
@@ -32,6 +37,22 @@ return [
                 'bulkDeleteSelected',
                 'createService',
                 'generateBridgeSecret',
+            ],
+        ],
+    ],
+    'simplecmp_design' => [
+        'parent' => 'site',
+        'position' => ['after' => 'simplecmp_detections'],
+        'access' => 'admin',
+        'path' => '/module/simplecmp/design',
+        'iconIdentifier' => 'simplecmp-module',
+        'labels' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf',
+        'extensionName' => 'SimpleCmpTypo3',
+        'controllerActions' => [
+            ThemeDesignerController::class => [
+                'index',
+                'save',
+                'reset',
             ],
         ],
     ],

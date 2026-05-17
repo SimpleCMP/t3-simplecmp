@@ -15,6 +15,7 @@ use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteSettings;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
 use WapplerSystems\SimpleCmpTypo3\EventListener\RegisterAssets;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
@@ -32,6 +33,7 @@ final class RegisterAssetsTest extends TestCase
 {
     private AssetCollector&MockObject $assetCollector;
     private ServiceRepository&MockObject $services;
+    private ThemeRepository&MockObject $themes;
     private BridgeSecretProvider&MockObject $secretProvider;
     private BridgeNonceService&MockObject $nonceService;
     private LoggerInterface&MockObject $logger;
@@ -41,6 +43,9 @@ final class RegisterAssetsTest extends TestCase
         $this->assetCollector = $this->createMock(AssetCollector::class);
         $this->services = $this->createMock(ServiceRepository::class);
         $this->services->method('paginate')->willReturn(['items' => [], 'total' => 0]);
+        $this->themes = $this->createMock(ThemeRepository::class);
+        // Default: no theme configured. Tests that need a theme override this.
+        $this->themes->method('findBySite')->willReturn(null);
         $this->secretProvider = $this->createMock(BridgeSecretProvider::class);
         $this->nonceService = $this->createMock(BridgeNonceService::class);
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -300,6 +305,110 @@ final class RegisterAssetsTest extends TestCase
         self::assertSame('simplecmp-corporate', $config['storageName']);
     }
 
+    // --- theme injection ---------------------------------------------------
+
+    #[Test]
+    public function noThemeScriptEmittedWhenNoThemeConfigured(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->themes->method('findBySite')->willReturn(null);
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id) {
+                self::assertStringNotContainsString('theme', $id);
+                return $this->assetCollector;
+            });
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+    }
+
+    #[Test]
+    public function themeScriptEmittedForSavedTheme(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            siteIdentifier: 'corporate',
+        );
+        $this->themes = $this->createMock(ThemeRepository::class);
+        $this->themes->method('findBySite')
+            ->with('corporate')
+            ->willReturn([
+                'color-primary' => '#cc0066',
+                'radius' => '12px',
+            ]);
+
+        $captured = [];
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $script) use (&$captured): AssetCollector {
+                $captured[$id] = $script;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        self::assertArrayHasKey('simplecmp-theme-corporate', $captured);
+        $script = $captured['simplecmp-theme-corporate'];
+        // Walks every SimpleCMP component type via adoptedStyleSheets —
+        // a light-DOM <style> can't reach nested shadow roots, so the
+        // script injects via JS instead.
+        self::assertStringContainsString('simplecmp-banner', $script);
+        self::assertStringContainsString('simplecmp-modal', $script);
+        self::assertStringContainsString('simplecmp-purpose-group', $script);
+        self::assertStringContainsString('simplecmp-service-toggle', $script);
+        self::assertStringContainsString('adoptedStyleSheets', $script);
+        // Storage key → CSS custom property name mapping.
+        self::assertStringContainsString('--simplecmp-color-primary: #cc0066;', $script);
+        self::assertStringContainsString('--simplecmp-radius: 12px;', $script);
+        // Rule is scoped to :host so it lands inside the component shadow.
+        self::assertStringContainsString(':host {', $script);
+    }
+
+    #[Test]
+    public function emptyTokenArrayEmitsNoThemeScript(): void
+    {
+        // Edge case: a row may exist with an empty tokens array (admin
+        // saved, then deleted every override). Treat that as "no theme".
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->themes = $this->createMock(ThemeRepository::class);
+        $this->themes->method('findBySite')->willReturn([]);
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id) {
+                self::assertStringNotContainsString('theme', $id);
+                return $this->assetCollector;
+            });
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+    }
+
+    #[Test]
+    public function nonScalarTokenValuesAreFiltered(): void
+    {
+        // Defensive: a corrupt JSON blob in the DB shouldn't cause type
+        // errors at FE render time. Non-scalar values get silently
+        // dropped from the emitted script.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->themes = $this->createMock(ThemeRepository::class);
+        $this->themes->method('findBySite')->willReturn([
+            'color-primary' => '#cc0066',
+            'broken-nested' => ['not', 'scalar'],
+        ]);
+
+        $captured = [];
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $script) use (&$captured): AssetCollector {
+                $captured[$id] = $script;
+                return $this->assetCollector;
+            });
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $script = $captured['simplecmp-theme-default'] ?? '';
+        self::assertStringContainsString('--simplecmp-color-primary: #cc0066;', $script);
+        self::assertStringNotContainsString('--simplecmp-broken-nested', $script);
+    }
+
     // --- helpers -----------------------------------------------------------
 
     private function listener(): RegisterAssets
@@ -307,6 +416,7 @@ final class RegisterAssetsTest extends TestCase
         return new RegisterAssets(
             $this->assetCollector,
             $this->services,
+            $this->themes,
             $this->secretProvider,
             $this->nonceService,
             $this->logger,

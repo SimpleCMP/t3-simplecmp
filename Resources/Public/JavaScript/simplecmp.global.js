@@ -46,7 +46,9 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
     --simplecmp-spacing-lg: 1.25rem;
 
     --simplecmp-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --simplecmp-font-family-heading: var(--simplecmp-font-family);
     --simplecmp-font-size: 0.95rem;
+    --simplecmp-font-size-heading: 20px;
     --simplecmp-font-size-sm: 0.85rem;
     --simplecmp-line-height: 1.5;
 
@@ -132,7 +134,8 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
 
       h2 {
         margin: 0 0 var(--simplecmp-spacing) 0;
-        font-size: 1.1rem;
+        font-family: var(--simplecmp-font-family-heading);
+        font-size: var(--simplecmp-font-size-heading);
       }
 
       p {
@@ -454,7 +457,8 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
 
       h1 {
         margin: 0 0 var(--simplecmp-spacing) 0;
-        font-size: 1.25rem;
+        font-family: var(--simplecmp-font-family-heading);
+        font-size: var(--simplecmp-font-size-heading);
       }
 
       .description {

@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Controller\Backend;
+
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
+
+/**
+ * Unit tests for the pure `sanitizeTokens` transformation.
+ *
+ * The rest of the controller (action methods, ModuleTemplate wiring,
+ * SiteFinder filtering) needs an Extbase / BE harness; behaviour is
+ * covered functionally through the Playwright save→FE round-trip.
+ */
+final class ThemeDesignerControllerTest extends TestCase
+{
+    #[Test]
+    public function sanitizeStripsUnknownKeys(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-primary' => '#ff0000',
+            'attacker-injected' => 'oops',
+            'random-key' => 'nope',
+        ]);
+        self::assertSame(['color-primary' => '#ff0000'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeStripsValuesEqualToDefaults(): void
+    {
+        // When the admin doesn't touch a field, the form re-submits its
+        // default. We don't want to persist those because:
+        //  1. The stored row should only carry meaningful overrides
+        //  2. If the upstream default ever changes, sites that never
+        //     customized that token stay on the new default automatically.
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-primary' => '#1a936f',  // default — drop
+            'color-text' => '#000000',     // custom — keep
+            'radius' => '6px',             // default — drop
+        ]);
+        self::assertSame(['color-text' => '#000000'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeStripsBlankValues(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-primary' => '',
+            'font-family' => '   ',  // whitespace only
+            'radius' => '12px',
+        ]);
+        self::assertSame(['radius' => '12px'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeTrimsWhitespace(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'font-family' => '  Inter, sans-serif  ',
+        ]);
+        self::assertSame(['font-family' => 'Inter, sans-serif'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeIgnoresNonStringValues(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-primary' => ['not', 'a', 'string'],
+            'radius' => 12,
+            'font-family' => 'Inter',
+        ]);
+        self::assertSame(['font-family' => 'Inter'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeReturnsEmptyArrayWhenAllDefaults(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens(
+            ThemeDesignerController::DEFAULT_TOKENS,
+        );
+        self::assertSame([], $clean);
+    }
+
+    #[Test]
+    public function sanitizeReturnsEmptyArrayForEmptyInput(): void
+    {
+        self::assertSame([], ThemeDesignerController::sanitizeTokens([]));
+    }
+}
