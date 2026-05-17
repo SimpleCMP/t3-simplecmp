@@ -7,75 +7,97 @@ service database, and optional CMS-bridge webhook alerts.
 This extension is **pre-1.0** and tracks SimpleCMP's own pre-release status. APIs
 will change.
 
+![Detection triage view](Documentation/Images/be-list-default.png)
+
+*The detection triage view: three-state per-row model surfaces what the admin
+should actually do next.*
+
 ## What it does
 
-- **Frontend:** loads the SimpleCMP JS bundle on every TYPO3 frontend page
-  and passes it config sourced from the site's Settings (Site Sets, v13+).
-  Service entries from the registry (`tx_simplecmptypo3_service`) flow
-  into the inline `init({...})` payload — both as runtime services and
-  as a `translations` block with per-language title/description.
-  `acceptAll: true` is enabled so the modal shows the full Decline /
-  Save / Accept-all trio.
-- **Service DB endpoint** *(iteration 2 — shipped):* TYPO3-hosted
-  implementation of the
-  [SimpleCMP service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
-  Routes at `/api/simplecmp/v1/{health,services,lookup}`. 10 bundled
-  seeds (Google Analytics, Matomo, YouTube, …) loaded via
-  `ddev exec vendor/bin/typo3 simplecmp:seed`.
-- **CMS-bridge receiver** *(iteration 3 — shipped):* receives JSON
-  POSTs from the SimpleCMP bridge at `/api/simplecmp/webhook` and
-  stores them in `tx_simplecmptypo3_detection`. Idempotent — repeat
-  hits of the same `(source, kind, identifier)` triple bump
-  `occurrences` rather than inserting duplicates.
-- **TYPO3 backend module** *(iteration 4 — shipped):* admins review
-  unknown detections at *Site Management → SimpleCMP-Detektionen* and
-  curate the service registry from the BE. Extbase controller with
-  `list`, `show`, `markReviewed`, `unmarkReviewed`, `bulkDelete`, and
-  `createService` actions. Renders inside the standard TYPO3 backend
-  chrome (`<f:layout name="Module" />`, docheader, breadcrumb,
-  flash-message slot). EN + DE i18n. The `onlyUnreviewed` filter
-  survives mark / unmark / bulk-delete redirects. Bulk delete asks
-  for confirmation via a CSP-safe JS module (the previous inline
-  `onsubmit="confirm(...)"` was blocked by TYPO3 v14's BE CSP).
-- **"Convert to service" smart redirect:** clicking *In Dienst
-  umwandeln* on a detection opens the existing service for editing
-  when one already matches the detection's cookie/origin (resolved
-  via `ServiceRepository::lookup()`, tiebreak by `crdate DESC`), so
-  the admin sees their previously-curated values instead of a blank
-  pre-fill form. Falls through to the standard new-record flow when
-  no match exists.
-- **Service-ID is a TCA `slug`** with `eval: unique` — admin gets
-  inline AJAX feedback as they type ("/<slug>/ wird verwendet" /
-  "wird bereits verwendet, stattdessen /<alt>/") and a clean save
-  on collision instead of the misleading "Vorgang konnte nicht
-  abgeschlossen werden" notice the old `input` + `eval: 'trim,unique'`
-  combination produced.
+- **Frontend integration** — embeds the SimpleCMP JS bundle on every TYPO3
+  frontend page, sourcing its `init({...})` config from the active Site
+  Set's settings. The service registry (`tx_simplecmptypo3_service`)
+  drives the runtime services array and a per-language `translations`
+  block.
 
-## Known limitation: bridge / Service-DB race
+- **Service-DB endpoint** at `/api/simplecmp/v1/{health,services,lookup}` —
+  implements the upstream
+  [Service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
+  Two seed paths:
+  - `vendor/bin/typo3 simplecmp:seed` — 10 bundled essentials (Google
+    Analytics, Matomo, YouTube, …) shipped inside this extension.
+  - `vendor/bin/typo3 simplecmp:import-known-trackers` — 40 curated
+    services from the [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
+    composer package (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha,
+    Bugsnag, Mailchimp, and 33 more).
 
-When both `serviceDbUrl` and `cmsBridgeUrl` point at this extension,
-the JS-side bridge fires a webhook for **every** detection that's
-`unknown` at first announcement — including ones the Service-DB
-lookup later resolves to known. Expected order:
+- **CMS-bridge receiver** at `/api/simplecmp/webhook` — accepts the
+  HMAC-signed POSTs the frontend bridge emits when the recorder catches a
+  cookie or origin neither the local classifier nor the Service-DB
+  endpoint recognises. Idempotent: repeat hits of the same
+  `(source, kind, identifier)` triple bump `occurrences` instead of
+  inserting duplicates.
 
-1. Recorder catches a cookie.
-2. Local classifier misses; detection emitted as `unknown`.
-3. Bridge fires webhook immediately.
-4. Service-DB lookup completes; status updated to `known`.
+- **BE detection module** at *Websites → SimpleCMP-Detektionen* — three
+  states derived per row at view time from **registry coverage + bundled
+  library coverage**:
 
-So a well-known tracker like `_ga` produces both a Service-DB hit
-(detection becomes known on the page) *and* a webhook row in
-`tx_simplecmptypo3_detection`. The webhook table effectively becomes a
-raw event stream of "things the recorder didn't immediately recognize"
-rather than "things nobody knows about." Treat the row as raw input;
-cross-reference against `tx_simplecmptypo3_service` before alerting an
-admin.
+  | State | Meaning | Action |
+  |---|---|---|
+  | **Kuratiert** | Registry already covers this cookie/origin | *Dienst bearbeiten* |
+  | **Erkannt** | Library recognises the pattern but the local registry doesn't | *Übernehmen* (silent insert after confirmation modal) **or** *Anpassen* (curate with library pre-fill) |
+  | **Unbekannt** | Neither registry nor library matches | *Kuratieren* only |
 
-A future SimpleCMP release (tracked alongside iteration 4 of this
-extension — the BE module that will actually surface the rows to a
-human reviewer) will add an opt-in grace delay so the bridge waits
-for the DB lookup to settle. Until then, this asymmetry between the
-two persistence paths is documented and intentional.
+  No `reviewed` flag, no dismiss-only path — the admin makes an explicit
+  decision on every actionable row.
+
+- **Multisite support** — one TYPO3 install can serve as the central
+  triage point for several frontend sites. The *Reporting site* column
+  tags each detection with the Site Set that reported it; the filter
+  dropdown lets admins slice by site.
+
+## Screenshots
+
+### The three row states
+
+| Erkannt — library knows it | Unbekannt — nobody knows it | Kuratiert — already in registry |
+|---|---|---|
+| ![Erkannt](Documentation/Images/be-list-state-erkannt.png) | ![Unbekannt](Documentation/Images/be-list-state-unbekannt.png) | ![Kuratiert](Documentation/Images/be-list-state-kuratiert.png) |
+
+### The Übernehmen confirmation modal
+
+Three sections so the admin sees exactly what they're approving before
+the registry gets the entry — frontend-facing data (purposes with
+descriptions, privacy URL, a faithful preview of the FE service-toggle),
+raw data (the JSON that will land in the registry, link to the library
+source on GitHub), and impact (count of existing detections that will be
+resolved):
+
+![Übernehmen modal](Documentation/Images/be-modal-uebernehmen.png)
+
+### Multisite triage
+
+Detections from multiple Site Sets in one list, with the *Reporting
+site* column showing which frontend reported each row:
+
+![Multisite list](Documentation/Images/be-list-multisite.png)
+
+Filter to a single Site Set:
+
+![Reporting-site filter](Documentation/Images/be-filter-reporting-site.png)
+
+### Bridge configured
+
+The green pill that an active install shows once the HMAC secret is in
+place:
+
+![Bridge configured](Documentation/Images/be-callout-bridge-configured.png)
+
+### Frontend
+
+| Consent banner | Configuration modal |
+|---|---|
+| ![Banner](Documentation/Images/fe-banner.png) | ![Modal](Documentation/Images/fe-modal.png) |
 
 ## Installation
 
@@ -83,29 +105,68 @@ two persistence paths is documented and intentional.
 composer require wapplersystems/simplecmp-typo3
 ```
 
-In the Site → Site Sets page, add the **SimpleCMP — consent manager** set as a
+In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
 dependency. Configure under Site → Settings.
 
-### Configuring the bridge webhook (required if `cmsBridgeUrl` is set)
+After install, run the two seed commands to populate the registry:
 
-The bridge webhook requires a configured secret. Two ways to bootstrap
-one:
+```bash
+ddev exec vendor/bin/typo3 simplecmp:seed
+ddev exec vendor/bin/typo3 simplecmp:import-known-trackers
+```
 
-- **CLI:** `vendor/bin/typo3 simplecmp:generate-bridge-secret` prints
-  a fresh value plus a paste-ready configuration snippet
-  (env-var interpolation recommended for production).
+That gives you ~50 curated services out of the box, so most frontend
+trackers classify as known on first visit.
+
+## Configuring the bridge webhook
+
+Required when `cmsBridgeUrl` is set in your Site Set settings. Two ways
+to bootstrap a secret:
+
+- **CLI:** `vendor/bin/typo3 simplecmp:generate-bridge-secret` prints a
+  fresh value plus a paste-ready configuration snippet. Recommended for
+  production (env-var interpolation).
 - **BE module:** the SimpleCMP detection list surfaces a *Generate
-  bridge secret* button when no secret is configured. The button
-  writes the value to `config/system/settings.php` for you.
+  bridge secret* button when no secret is configured. The button writes
+  the value to `config/system/settings.php` for you.
 
-One secret per TYPO3 installation. If you run multiple installs and
-one POSTs bridge webhooks to another, configure the **same** value on
-both ends.
+One secret per TYPO3 installation. If you run multiple installs and one
+POSTs bridge webhooks to another, configure the **same** value on both
+ends.
+
+## Bridge / Service-DB race
+
+When both `serviceDbUrl` and `cmsBridgeUrl` point at this extension, the
+JS-side bridge can fire a webhook for any detection that's still
+`unknown` at first announcement — including ones the Service-DB lookup
+later resolves to known. Order of events:
+
+1. Recorder catches a cookie.
+2. Local classifier misses; detection emitted as `unknown`.
+3. Bridge fires webhook immediately.
+4. Service-DB lookup completes; status updated to `known`.
+
+So a well-known tracker can produce both a Service-DB hit (the page
+classifies it as known) *and* a webhook row.
+
+**The `simplecmp:import-known-trackers` command dramatically reduces
+this** — well-known patterns ship in the local classifier so step 2
+matches and the bridge never fires. The race still applies for genuinely
+new patterns, but those are by definition worth recording.
+
+A future SimpleCMP release will add an opt-in grace delay so the bridge
+waits for the Service-DB lookup to settle.
 
 ## Status
 
-Iterations 1–4 shipped. The frontend banner/modal, the service-DB
-endpoint, the CMS-bridge receiver, and the BE module are all live.
+Five iterations shipped:
+
+1. Frontend bundle integration + Site Set settings wiring.
+2. Service-DB endpoint with the protocol-conformant routes.
+3. CMS-bridge receiver + HMAC nonce auth (`simplecmp:generate-bridge-secret`).
+4. BE detection module with mark-reviewed / bulk-delete / convert-to-service.
+5. Three-state model with library-aware approve flow + multisite support.
+
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
 for the JS-side roadmap.
