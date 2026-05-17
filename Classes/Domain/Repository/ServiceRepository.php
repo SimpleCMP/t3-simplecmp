@@ -237,22 +237,40 @@ final readonly class ServiceRepository
     private function cookieMatches(string $cookieName, array $matchers): bool
     {
         foreach ($matchers as $matcher) {
-            if (!is_string($matcher)) {
-                continue;
-            }
-            // Slash-bounded → treated as regex (matches the JS LocalClassifier shape).
-            if (strlen($matcher) >= 2 && $matcher[0] === '/' && $matcher[-1] === '/') {
-                $pattern = '/' . substr($matcher, 1, -1) . '/';
-                if (@preg_match($pattern, $cookieName) === 1) {
+            if (is_string($matcher)) {
+                if ($this->cookieNameMatches($cookieName, $matcher)) {
                     return true;
                 }
                 continue;
             }
-            if ($matcher === $cookieName) {
+            // ADR-0010 host-qualified form: array with `name` + `requireOrigin`.
+            // The middleware can only check the *name* part — whether the
+            // qualifying origin has been observed is a runtime decision made
+            // by the FE recorder. We surface the service as a candidate; the
+            // recorder applies the requireOrigin filter when classifying.
+            if (
+                is_array($matcher)
+                && isset($matcher['name'], $matcher['requireOrigin'])
+                && is_string($matcher['name'])
+                && $this->cookieNameMatches($cookieName, $matcher['name'])
+            ) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Slash-bounded → regex (matches the JS LocalClassifier shape).
+     * Otherwise → exact name match.
+     */
+    private function cookieNameMatches(string $cookieName, string $matcher): bool
+    {
+        if (strlen($matcher) >= 2 && $matcher[0] === '/' && $matcher[-1] === '/') {
+            $pattern = '/' . substr($matcher, 1, -1) . '/';
+            return @preg_match($pattern, $cookieName) === 1;
+        }
+        return $matcher === $cookieName;
     }
 
     private function originMatches(string $origin, array $matchers): bool
