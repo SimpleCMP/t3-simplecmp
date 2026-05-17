@@ -12,6 +12,15 @@ development.
 
 ### Added
 
+- **Host-qualified cookie matcher support** in the Service-DB
+  middleware (ADR-0010 in upstream `SimpleCMP/simplecmp`).
+  `ServiceRepository::cookieMatches` now recognises the object form
+  `{name, requireOrigin}` and surfaces the candidate service for
+  `/lookup` cookie queries. The recorder applies the requireOrigin
+  check at runtime, so generic-name cookies (Stripe's `m`, GTM's
+  `td`, Bing's MR/MC0/CC, …) only classify when their setting host
+  is also loaded on the page. Companion to `simplecmp@5358528`.
+
 - **Purposes multi-select widget** in the service TCA. Replaces the
   JSON textarea on `tx_simplecmptypo3_service.purposes` with a
   side-by-side dual-listbox + filter textbox
