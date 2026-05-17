@@ -142,20 +142,38 @@ final readonly class DetectionListPresenter
     private static function cookieMatches(string $cookieName, array $matchers): bool
     {
         foreach ($matchers as $matcher) {
-            if (!is_string($matcher)) {
-                continue;
-            }
-            if (strlen($matcher) >= 2 && $matcher[0] === '/' && $matcher[-1] === '/') {
-                if (@preg_match('/' . substr($matcher, 1, -1) . '/', $cookieName) === 1) {
+            if (is_string($matcher)) {
+                if (self::cookieNameMatches($cookieName, $matcher)) {
                     return true;
                 }
                 continue;
             }
-            if ($matcher === $cookieName) {
+            // ADR-0010 host-qualified form `{name, requireOrigin}`. The
+            // BE state derivation runs server-side and has no
+            // observed-origins context, so it can only check the name
+            // part — treats host-qualified entries as matching by name
+            // alone. The runtime host-qualifier check is the FE
+            // recorder's job. Admins see "kuratiert" for any cookie a
+            // registry service *could* cover; the FE filters at runtime.
+            if (
+                is_array($matcher)
+                && isset($matcher['name'], $matcher['requireOrigin'])
+                && is_string($matcher['name'])
+                && self::cookieNameMatches($cookieName, $matcher['name'])
+            ) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** Slash-bounded = regex; otherwise exact match. */
+    private static function cookieNameMatches(string $cookieName, string $matcher): bool
+    {
+        if (strlen($matcher) >= 2 && $matcher[0] === '/' && $matcher[-1] === '/') {
+            return @preg_match('/' . substr($matcher, 1, -1) . '/', $cookieName) === 1;
+        }
+        return $matcher === $cookieName;
     }
 
     /** @param list<mixed> $matchers */
