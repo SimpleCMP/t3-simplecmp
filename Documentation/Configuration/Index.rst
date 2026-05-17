@@ -136,7 +136,13 @@ Each service represents one third-party service and carries:
     residence. Surfaced in the modal for transparency.
 *   **Purposes** — list of consent purposes (analytics, marketing,
     functional, …). Drives which services are toggled by which
-    "Accept analytics" / "Accept marketing" group switches.
+    "Accept analytics" / "Accept marketing" group switches. Rendered
+    as a side-by-side multi-select with a filter textbox; the
+    available options are auto-discovered from the bundled
+    `simplecmp/services-library` (so a new purpose category appearing
+    in a future library release shows up in the BE form without a
+    TCA edit). Stored in the DB as a JSON array — the form's CSV
+    value is encoded on save and decoded on load.
 *   **Privacy policy URL** — vendor's own privacy policy.
 *   **Description** — short paragraph explaining what the service
     does. Surfaced in the modal.

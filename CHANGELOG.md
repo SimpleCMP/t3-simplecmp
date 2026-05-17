@@ -10,6 +10,23 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Purposes multi-select widget** in the service TCA. Replaces the
+  JSON textarea on `tx_simplecmptypo3_service.purposes` with a
+  side-by-side dual-listbox + filter textbox
+  (`selectMultipleSideBySide` + `enableMultiSelectFilterTextfield`).
+  Available items are auto-discovered from the bundled
+  `simplecmp/services-library` via `itemsProcFunc` — future purpose
+  categories appearing in a library release show up in the BE form
+  automatically. The DB column stays JSON; a FormDataProvider +
+  DataHandler hook pivot between CSV (form value) and JSON (storage).
+- **Documentation catch-up** on docs.typo3.org. Introduction lists
+  the two BE modules; Administration rewritten for the v0.2.0 three-
+  state model (kuratiert / erkannt / unbekannt) and adds a Banner
+  Design module section; Configuration mentions the new purposes
+  widget. `guides.xml` bumped to project-release 0.2.0.
+
 ## 0.2.0 — 2026-05-17
 
 Big sixth-iteration release. Largest UX overhaul to date — the

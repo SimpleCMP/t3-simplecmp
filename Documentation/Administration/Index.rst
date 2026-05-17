@@ -6,40 +6,61 @@
 Administration
 ==============
 
-This page covers day-to-day operation of the backend module.
+Day-to-day operation of the two SimpleCMP backend modules. Both live
+under the *Websites* group in the module menu, prefixed *SimpleCMP*
+for visual grouping.
+
+.. contents::
+   :local:
+   :depth: 2
 
 The detections module
 =====================
 
-Open *Site Management → SimpleCMP detections* in the TYPO3 backend.
-The module lists every unknown-tracker report received via the
-CMS-bridge webhook, with filters, per-row actions, and a one-click
-"convert to service" shortcut.
+*Site Management → SimpleCMP detections.*
 
-Filters and counts
-------------------
+Every unknown-tracker report received via the CMS-bridge webhook
+lands here. The module's job is to help an admin decide what each
+detection is and either *adopt* it from the bundled library or
+*curate* it from scratch.
 
-The header shows the unreviewed-vs-total count. Two filter buttons
-above the table toggle the row set:
+Three-state model
+-----------------
 
-*   **Only unreviewed** (default) — hides rows you've already
-    triaged.
-*   **All** — every row regardless of review status.
+Each row carries a state badge derived at view time — the
+:sql:`reviewed` boolean from earlier versions is gone. The state
+is read from registry and library coverage:
 
-The filter survives mark/unmark/bulk-delete redirects so you stay on
-whichever view you were working in.
+*   **kuratiert** (green) — an existing service in the registry
+    already covers this detection's cookie or origin. Nothing to
+    do; the FE banner already handles consent for this tracker.
+*   **erkannt** (blue) — the bundled `simplecmp/services-library`
+    knows this tracker but no service in this install's registry
+    covers it yet. The recommended action is *Übernehmen* (silent
+    one-click import).
+*   **unbekannt** (yellow) — neither the registry nor the library
+    recognise this. Requires a curation decision from the admin —
+    *Anpassen* (curate with any partial library match pre-filled)
+    or *Kuratieren* (start blank).
+
+The state filter above the list has four values: *Ausstehend*
+(default — *erkannt* + *unbekannt*), *Erkannt*, *Unbekannt*,
+*Kuratiert*, and *Alle*. Bookmarked URLs from earlier versions
+that used :code:`?status=unreviewed` are redirected to the default
+*Ausstehend* view.
 
 Confidence badges
 -----------------
 
-Each row carries a coloured badge with the report count:
+Each row also carries a coloured confidence badge with the report
+count:
 
 *   **Green** (5 or more reports) — high confidence; this is almost
-    certainly a real tracker someone's actually triggering.
+    certainly a real tracker someone is actually triggering.
 *   **Gray** (2-4 reports) — multiple visitors saw it; worth a
     look.
 *   **Yellow / outlined** (1 report) — single observation. Treat
-    with care — see "Convert to service" below for the safeguard.
+    with care.
 
 Volume spike alert
 ------------------
@@ -53,52 +74,105 @@ review the recent rows carefully before bulk-curating any of them.
 Per-row actions
 ---------------
 
-*   **Details** — opens the raw webhook payload for the row,
-    including page URL, user agent, referrer, and the full detection
-    timing.
-*   **Convert to service** — see the next section.
-*   **Mark reviewed** — flips the :code:`reviewed` flag without
-    deleting. The row stays in the table but hides in the default
-    filter.
-*   **Unmark** — visible on rows that are already marked reviewed.
+Every row has up to three action buttons — which ones appear
+depends on the row's state:
 
-The "Delete all reviewed" toolbar button bulk-deletes everything
-marked reviewed. The action is confirmed with a browser dialog.
+*   **Übernehmen** (*erkannt* rows only) — one-click silent-import
+    of the matching bundled-library entry, surfaced behind a
+    confirmation modal. The modal has three labelled sections:
 
-Convert to service
-==================
+    *   *Frontend data.* The purposes the library entry declares
+        (with human-readable descriptions), its privacy-policy URL,
+        and a faithful preview of how the service will render in
+        the FE service-toggle.
+    *   *Raw data.* The full library JSON literal, with a link to
+        the source file on GitHub.
+    *   *Impact.* The number of existing detections that this
+        single import will resolve (because the new service will
+        cover their cookie / origin too).
 
-The *Convert to service* button is the curation shortcut. It does
-one of two things, depending on whether any existing service
-already covers the detection:
+    Confirming creates the service record from the library data
+    verbatim — no form intermediation.
+*   **Anpassen** — opens the new-service form with whatever the
+    library partially matched pre-filled. Use when the library
+    entry is close but you want to refine purposes, vendor, or
+    matchers before saving.
+*   **Kuratieren** — opens a blank new-service form pre-filled
+    only with the slug and the detection's cookie / origin
+    matcher. Use for true *unbekannt* rows the library does not
+    cover.
 
-*   **No existing match.** Opens a new-record form for
-    :sql:`tx_simplecmptypo3_service`, pre-filled from the
-    detection: service ID slug, name, and the appropriate cookie or
-    origin matcher.
-*   **Existing match.** Opens the *existing* service for editing,
-    so you can see (and refine) what's already curated rather than
-    starting fresh. When multiple services overlap on the same
-    matcher, the most recently *created* one wins the tiebreak —
-    typically what you want.
+Each row also has a per-row delete button with a confirm dialog,
+and the table supports multi-row selection with a *Delete
+selected (n)* bulk action that activates once at least one row is
+ticked. A *Delete all* sibling is available in the same split
+button for whole-table cleanup.
 
-Low-confidence guardrail
-------------------------
-
-When a detection has only one report, the *Convert to service*
-button shows a confirmation dialog before navigating. Treat
-single-report rows as unverified — confirm only after you've
-checked the cookie or origin against a real third-party service.
+There is **no** *Mark reviewed* or *Unmark* action. The pre-v0.2.0
+:sql:`reviewed` column is dropped; state derives from registry +
+library coverage instead.
 
 Service curation
-================
+----------------
 
-Services live in :sql:`tx_simplecmptypo3_service` and edit via the
-standard TYPO3 *Web → List* module. See :ref:`configuration` for
-the field reference.
+The new-record form launched from *Anpassen* / *Kuratieren* is the
+same TCA form you reach via *Web → List → SimpleCMP services* —
+pre-filled defaults vs. blank, otherwise identical. See
+:ref:`configuration` for the field reference.
 
-The new-record form launched from *Convert to service* is the same
-form — pre-filled defaults vs. blank, otherwise identical.
+The banner design module
+========================
+
+*Site Management → SimpleCMP banner design.*
+
+Per-site theme editor for the FE consent banner. Each Site Set
+that runs SimpleCMP gets its own theme; admins customise colors,
+typography, and corner radius without editing YAML or PHP.
+
+What's editable
+---------------
+
+Tokens are grouped into five semantic sections:
+
+*   **Brand** — primary color (Accept button background) + decline
+    color.
+*   **Surface** — body text, card background, border.
+*   **Advanced** — primary-hover, muted text, alternate background
+    (badges, required-pill).
+*   **Typography** — body font-family + size, heading font-family +
+    size. Sizes accept px/rem/em (validated by HTML5 pattern).
+    Font-family inputs offer a :code:`<datalist>` with eight common
+    stacks.
+*   **Shape** — corner radius (px/rem/em).
+
+A *Detect fonts from active site* button next to Typography reads
+the live FE's computed :code:`<body>` and first-heading
+:code:`font-family` and :code:`font-size` via a hidden iframe and
+auto-fills the four typography fields. Same-origin only —
+cross-origin reads throw a friendly *"Couldn't read fonts. Type
+them in manually."* fallback.
+
+Live preview
+------------
+
+The right pane is a live preview iframe that boots the real
+SimpleCMP bundle with a synthetic three-service init config. As
+you edit form fields the preview updates with a 120 ms debounce.
+*Accept* / *Decline* clicks in the preview are inert (a capture-
+phase event blocker stops them before they reach the banner's
+event handlers); *Configure* passes through so you can preview
+the modal with all services too.
+
+Save / reset
+------------
+
+*Save theme* writes only the diff from the upstream defaults — if
+the upstream default ever changes, sites that never customised
+that token automatically move to the new default.
+
+*Reset to defaults* (red button, confirmed) deletes the site's
+row from :sql:`tx_simplecmptypo3_theme`. Missing row = upstream
+defaults; this is how a fresh site renders.
 
 Bridge-secret rotation
 ======================

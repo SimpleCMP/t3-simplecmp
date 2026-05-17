@@ -32,10 +32,19 @@ into a full consent-management toolchain:
     them for admin review and one-click conversion into curated
     services.
 
-*   **Backend module** at *Site Management → SimpleCMP detections*.
-    Review unknown-tracker reports, mark them as triaged, or convert
-    a detection straight into a service-registry entry pre-filled
-    with the cookie or origin matcher.
+*   **Backend modules** at *Site Management*. Two flat siblings under
+    the *Websites* group:
+
+    *   *SimpleCMP detections* — review unknown-tracker reports and
+        curate them into services. Each row carries a three-state
+        badge (*kuratiert* / *erkannt* / *unbekannt*) derived at view
+        time from registry and library coverage, with three per-row
+        actions (*Übernehmen*, *Anpassen*, *Kuratieren*) that match
+        what the row needs.
+    *   *SimpleCMP banner design* — per-site theme editor for the
+        consent banner. Colors, typography, and corner radius are
+        edited in a form with a live preview iframe; tokens persist
+        in :sql:`tx_simplecmptypo3_theme` (one row per Site Set).
 
 Who it's for
 ============
