@@ -42,6 +42,31 @@ if (cmp && typeof cmp.init === 'function') {
       },
     },
   });
+
+  // Make Accept/Decline clicks inert in the preview. Real FE flows
+  // (`manager.saveAndApplyConsents`, `simplecmp:accept|decline` events,
+  // localStorage writes, banner unmount) are visitor concerns; the BE
+  // designer is purely cosmetic and side-effects pollute the preview
+  // iframe's storage + risk confusing future observers.
+  //
+  // Capture-phase listener on the iframe document catches the event
+  // before it reaches the button's Lit handler inside the shadow DOM.
+  // Configure passes through unchanged so admins can open the modal
+  // to preview its theming.
+  document.addEventListener('click', (event) => {
+    const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+    for (const node of path) {
+      if (!(node instanceof Element)) continue;
+      if (node.classList?.contains('cn-accept') || node.classList?.contains('cn-decline')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      // Stop walking once we reach a button — `.cn-configure` doesn't
+      // match the conditions above and falls through cleanly.
+      if (node.tagName === 'BUTTON') return;
+    }
+  }, true);
 }
 
 const SELECTORS = [

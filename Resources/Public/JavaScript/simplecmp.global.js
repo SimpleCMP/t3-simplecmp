@@ -231,6 +231,7 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
       input[type='checkbox'] {
         margin-top: 0.25rem;
         flex-shrink: 0;
+        accent-color: var(--simplecmp-color-primary);
       }
 
       .meta {
@@ -320,6 +321,7 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
 
       input[type='checkbox'] {
         margin-top: 0.25rem;
+        accent-color: var(--simplecmp-color-primary);
       }
 
       .title {

@@ -21,6 +21,12 @@ class ThemePreview {
     if (!(target instanceof Element) || !target.hasAttribute('data-token')) {
       return;
     }
+    // For color pickers, the adjacent <code> shows the hex value; keep
+    // it in sync as the user drags through the picker.
+    if (target instanceof HTMLInputElement && target.type === 'color') {
+      const label = target.parentElement?.querySelector('code');
+      if (label) label.textContent = target.value;
+    }
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.send(), 120);
   };
