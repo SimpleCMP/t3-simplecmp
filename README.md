@@ -38,15 +38,15 @@ should actually do next.*
   `(source, kind, identifier)` triple bump `occurrences` instead of
   inserting duplicates.
 
-- **BE detection module** at *Websites → SimpleCMP-Detektionen* — three
+- **BE detection module** at *Websites → SimpleCMP detections* — three
   states derived per row at view time from **registry coverage + bundled
   library coverage**:
 
   | State | Meaning | Action |
   |---|---|---|
-  | **Kuratiert** | Registry already covers this cookie/origin | *Dienst bearbeiten* |
-  | **Erkannt** | Library recognises the pattern but the local registry doesn't | *Übernehmen* (silent insert after confirmation modal) **or** *Anpassen* (curate with library pre-fill) |
-  | **Unbekannt** | Neither registry nor library matches | *Kuratieren* only |
+  | **Curated** | Registry already covers this cookie/origin | *Edit service* |
+  | **Recognised** | Library recognises the pattern but the local registry doesn't | *Approve* (silent insert after confirmation modal) **or** *Customise* (curate with library pre-fill) |
+  | **Unknown** | Neither registry nor library matches | *Curate* only |
 
   No `reviewed` flag, no dismiss-only path — the admin makes an explicit
   decision on every actionable row.
@@ -60,11 +60,15 @@ should actually do next.*
 
 ### The three row states
 
-| Erkannt — library knows it | Unbekannt — nobody knows it | Kuratiert — already in registry |
+| Recognised — library knows it | Unknown — nobody knows it | Curated — already in registry |
 |---|---|---|
-| ![Erkannt](Documentation/Images/be-list-state-erkannt.png) | ![Unbekannt](Documentation/Images/be-list-state-unbekannt.png) | ![Kuratiert](Documentation/Images/be-list-state-kuratiert.png) |
+| ![Recognised](Documentation/Images/be-list-state-erkannt.png) | ![Unknown](Documentation/Images/be-list-state-unbekannt.png) | ![Curated](Documentation/Images/be-list-state-kuratiert.png) |
 
-### The Übernehmen confirmation modal
+*(Screenshots from a German-locale TYPO3 backend — labels read
+*Erkannt* / *Unbekannt* / *Kuratiert*; English-locale shows *Recognised*
+/ *Unknown* / *Curated*.)*
+
+### The Approve confirmation modal
 
 Three sections so the admin sees exactly what they're approving before
 the registry gets the entry — frontend-facing data (purposes with
@@ -73,7 +77,7 @@ raw data (the JSON that will land in the registry, link to the library
 source on GitHub), and impact (count of existing detections that will be
 resolved):
 
-![Übernehmen modal](Documentation/Images/be-modal-uebernehmen.png)
+![Approve modal](Documentation/Images/be-modal-uebernehmen.png)
 
 ### Multisite triage
 
@@ -85,13 +89,6 @@ site* column showing which frontend reported each row:
 Filter to a single Site Set:
 
 ![Reporting-site filter](Documentation/Images/be-filter-reporting-site.png)
-
-### Bridge configured
-
-The green pill that an active install shows once the HMAC secret is in
-place:
-
-![Bridge configured](Documentation/Images/be-callout-bridge-configured.png)
 
 ### Frontend
 
