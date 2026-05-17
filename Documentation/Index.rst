@@ -52,6 +52,7 @@ between minor versions.
     Installation/Index
     Configuration/Index
     Administration/Index
+    Recorder/Index
 
 ..  Meta Menu
 
