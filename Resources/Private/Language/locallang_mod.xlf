@@ -129,11 +129,11 @@
       <trans-unit id="show.field.pageUrl"><source>Page URL</source></trans-unit>
       <trans-unit id="show.field.firstSeenOn"><source>First seen on</source></trans-unit>
 
-      <trans-unit id="bridgeSecret.disabled.title"><source>Bridge webhook is disabled</source></trans-unit>
-      <trans-unit id="bridgeSecret.disabled.body"><source>The CMS bridge can't authenticate POSTs without a shared HMAC secret. Generate one to enable detection ingestion. The value will be written to config/system/settings.php.</source></trans-unit>
-      <trans-unit id="bridgeSecret.generate"><source>Generate bridge secret</source></trans-unit>
-      <trans-unit id="bridgeSecret.configured"><source>Bridge secret configured</source></trans-unit>
-      <trans-unit id="bridgeSecret.configured.tooltip"><source>The bridge is signing nonces and accepting verified POSTs. Rotate via the CLI command if needed.</source></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.title"><source>Tracker detection is off</source></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.body"><source>Visitors' browsers detect cookies and external services in real time, but those reports can't appear in this list until you turn detection on. Click the button below to enable it — every cookie, embed, or third-party service loading on your site will then show up here for review.</source></trans-unit>
+      <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source></trans-unit>
+      <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source></trans-unit>
+      <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list. Run simplecmp:generate-bridge-secret on the command line to rotate the secret if needed.</source></trans-unit>
     </body>
   </file>
 </xliff>

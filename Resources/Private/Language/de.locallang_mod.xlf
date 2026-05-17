@@ -129,11 +129,11 @@
       <trans-unit id="show.field.pageUrl"><source>Page URL</source><target>Seiten-URL</target></trans-unit>
       <trans-unit id="show.field.firstSeenOn"><source>First seen on</source><target>Erstmals gesehen auf</target></trans-unit>
 
-      <trans-unit id="bridgeSecret.disabled.title"><source>Bridge webhook is disabled</source><target>Bridge-Webhook ist deaktiviert</target></trans-unit>
-      <trans-unit id="bridgeSecret.disabled.body"><source>The CMS bridge can't authenticate POSTs without a shared HMAC secret. Generate one to enable detection ingestion. The value will be written to config/system/settings.php.</source><target>Die CMS-Bridge kann eingehende POSTs ohne gemeinsames HMAC-Secret nicht authentifizieren. Zum Aktivieren ein Secret erzeugen — der Wert wird in config/system/settings.php geschrieben.</target></trans-unit>
-      <trans-unit id="bridgeSecret.generate"><source>Generate bridge secret</source><target>Bridge-Secret erzeugen</target></trans-unit>
-      <trans-unit id="bridgeSecret.configured"><source>Bridge secret configured</source><target>Bridge-Secret konfiguriert</target></trans-unit>
-      <trans-unit id="bridgeSecret.configured.tooltip"><source>The bridge is signing nonces and accepting verified POSTs. Rotate via the CLI command if needed.</source><target>Die Bridge signiert Nonces und akzeptiert verifizierte POSTs. Rotation bei Bedarf per CLI.</target></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.title"><source>Tracker detection is off</source><target>Tracker-Erfassung ist deaktiviert</target></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.body"><source>Visitors' browsers detect cookies and external services in real time, but those reports can't appear in this list until you turn detection on. Click the button below to enable it — every cookie, embed, or third-party service loading on your site will then show up here for review.</source><target>Der Browser jedes Besuchers erkennt Cookies und externe Dienste in Echtzeit, aber diese Berichte erscheinen erst in dieser Liste, wenn Sie die Erfassung aktivieren. Klicken Sie auf die Schaltfläche unten — anschließend taucht jedes Cookie, jedes Embed und jeder Drittanbieter-Dienst, der auf Ihrer Website lädt, hier zur Überprüfung auf.</target></trans-unit>
+      <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source><target>Erfassung aktivieren</target></trans-unit>
+      <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source><target>Tracker-Erfassung ist aktiv</target></trans-unit>
+      <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list. Run simplecmp:generate-bridge-secret on the command line to rotate the secret if needed.</source><target>Browser von Besuchern können Tracker-Berichte an diese Liste senden. Mit dem CLI-Befehl simplecmp:generate-bridge-secret kann das Secret bei Bedarf rotiert werden.</target></trans-unit>
     </body>
   </file>
 </xliff>
