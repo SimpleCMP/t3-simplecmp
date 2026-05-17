@@ -56,6 +56,14 @@ should actually do next.*
   tags each detection with the Site Set that reported it; the filter
   dropdown lets admins slice by site.
 
+- **Banner design** at *Websites → SimpleCMP banner design* — per-site
+  theme editor for the FE consent banner. Customise brand colors,
+  surface colors, typography (body + heading font + size, with a
+  "Detect fonts from active site" button), and corner radius without
+  editing YAML or PHP. Live preview iframe on the right of the form
+  updates as you type. Tokens persist in `tx_simplecmptypo3_theme` per
+  site; deleting a row resets that site to defaults.
+
 ## Screenshots
 
 ### The three row states
@@ -156,13 +164,14 @@ waits for the Service-DB lookup to settle.
 
 ## Status
 
-Five iterations shipped:
+Six iterations shipped:
 
 1. Frontend bundle integration + Site Set settings wiring.
 2. Service-DB endpoint with the protocol-conformant routes.
 3. CMS-bridge receiver + HMAC nonce auth (`simplecmp:generate-bridge-secret`).
 4. BE detection module with mark-reviewed / bulk-delete / convert-to-service.
 5. Three-state model with library-aware approve flow + multisite support.
+6. Banner Design module with per-site theming + live preview.
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
