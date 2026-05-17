@@ -10,6 +10,16 @@ development.
 
 ## Unreleased
 
+## 0.2.0 — 2026-05-17
+
+Big sixth-iteration release. Largest UX overhaul to date — the
+manual `reviewed` flag is gone (replaced by a three-state model
+derived from registry + library coverage), the Banner Design BE
+module shipped end-to-end with live preview, and the documentation
+caught up across both README and screenshots. Breaking changes
+listed below; admins upgrading from 0.1.0 should run the TYPO3
+schema analyzer to drop the obsolete `reviewed` column.
+
 ### Added
 
 - **Banner Design BE module** at *Websites → SimpleCMP banner design*.
