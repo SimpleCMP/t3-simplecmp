@@ -9,8 +9,14 @@
       <trans-unit id="tx_simplecmptypo3_service.name"><source>Display name</source><target>Anzeigename</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.vendor"><source>Vendor</source><target>Anbieter</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.vendor_country"><source>Vendor country (ISO 3166)</source><target>Anbieterland (ISO 3166)</target></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes"><source>Purposes (JSON array)</source><target>Zwecke (JSON-Array)</target></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.description"><source>One of: functional, analytics, marketing, personalization, security, advertising. JSON array, e.g. ["analytics","marketing"].</source><target>Eines von: functional, analytics, marketing, personalization, security, advertising. JSON-Array, z. B. ["analytics","marketing"].</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes"><source>Purposes</source><target>Zwecke</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.description"><source>What this service is used for. Choices come from the bundled tracker library and grow as new categories appear in it.</source><target>Wofür dieser Dienst genutzt wird. Die Auswahl stammt aus der mitgelieferten Tracker-Bibliothek und wächst, wenn dort neue Kategorien auftauchen.</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.advertising"><source>Advertising</source><target>Werbung</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.analytics"><source>Analytics</source><target>Analyse</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.functional"><source>Functional</source><target>Funktional</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.marketing"><source>Marketing</source><target>Marketing</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.personalization"><source>Personalization</source><target>Personalisierung</target></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.purposes.item.security"><source>Security</source><target>Sicherheit</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.privacy_policy_url"><source>Privacy policy URL</source><target>Datenschutz-URL</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.description"><source>Description</source><target>Beschreibung</target></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.retention"><source>Retention (JSON)</source><target>Speicherdauer (JSON)</target></trans-unit>

@@ -85,15 +85,26 @@ return [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.purposes',
             'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.purposes.description',
             'config' => [
-                'type' => 'text',
-                'rows' => 2,
-                'cols' => 30,
+                // Multi-select checkbox group; items list is built at
+                // render time from whatever purposes the bundled
+                // services-library currently uses. See
+                // `Classes/Backend/TcaItemsProc/PurposeItems.php`.
+                //
+                // The DB column stays TEXT/JSON. A FormDataProvider
+                // decodes JSON → CSV on form load and a DataHandler
+                // hook re-encodes CSV → JSON on save; both are
+                // registered in `ext_localconf.php`.
+                'type' => 'select',
+                'renderType' => 'selectMultipleSideBySide',
+                'items' => [],
+                'itemsProcFunc' => \WapplerSystems\SimpleCmpTypo3\Backend\TcaItemsProc\PurposeItems::class . '->items',
+                'size' => 6,
+                'enableMultiSelectFilterTextfield' => true,
                 'default' => '[]',
-                // No `required: true` — the empty-array default `'[]'`
-                // passes the required check but is semantically empty, so
-                // the constraint just disguises a half-curated record as
-                // valid. Treat an empty purposes list as "needs review"
-                // through curation tooling instead.
+                // No `required` — an empty purposes list is a valid
+                // "needs review" state that curation tooling can
+                // surface; the constraint would only force admins to
+                // tick something arbitrary to silence the error.
             ],
         ],
         'privacy_policy_url' => [
@@ -138,7 +149,10 @@ return [
         ],
         'metadata' => [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.palette.metadata',
-            'showitem' => 'purposes, privacy_policy_url, retention, i18n, extensions',
+            // `purposes` on its own row so the side-by-side dual-listbox
+            // gets the full palette width; the other fields share the
+            // row below it.
+            'showitem' => 'purposes, --linebreak--, privacy_policy_url, retention, i18n, extensions',
         ],
     ],
     'types' => [
