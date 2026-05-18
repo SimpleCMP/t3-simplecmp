@@ -12,6 +12,12 @@ development.
 
 ### Fixed
 
+- **Modal focus trap + `aria-labelledby` (bundle resync).** Tracks
+  upstream `simplecmp@d53c94f`: the consent modal now hand-rolls a
+  Tab/Shift+Tab focus trap (native `<dialog>`'s built-in trap doesn't
+  work inside Shadow DOM) and exposes an explicit
+  `aria-labelledby="simplecmp-modal-title"`. No TYPO3-side code change
+  — bundle resync only.
 - **WCAG AA contrast — default primary token darkened**. Tracks
   upstream `simplecmp@c4159f6`: default `color-primary` shifts from
   `#1a936f` (3.85:1 on white, failed AA) to `#15775a` (5.30:1);
