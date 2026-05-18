@@ -10,7 +10,42 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **Consent persistence broken for large libraries** (compliance
+  fix). The FE config emits one entry per registered service in
+  the consent payload, which after v0.2.0's services-library
+  expansion runs ~9 KB. Browsers silently drop cookies exceeding
+  the per-cookie ~4 KB limit, so consent was never persisting and
+  the banner re-prompted every visit. `RegisterAssets` now emits
+  `storageMethod: 'localStorage'` in the FE init config; the
+  engine's `LocalStorageStore` handles MB-scale values. The deeper
+  question — whether the FE config should carry the full registry
+  at all — is deferred for v1.0.
+- **BE detection state derivation recognises host-qualified
+  matchers**. `DetectionListPresenter::cookieMatches` was the
+  second place where object-form entries got silently skipped
+  (the first was `ServiceRepository::cookieMatches`, fixed in
+  commit `4dd3a0c`). With both paths fixed, BE detection rows
+  whose match is via an ADR-0010 host-qualified matcher
+  correctly surface as `kuratiert` instead of `unbekannt`. Same
+  shared `cookieNameMatches` helper.
+
 ### Added
+
+- **Cross-classifier parity test** (`Tests/Unit/Classifier/ParityTest.php`)
+  + matching fixture (`classifier-parity-fixture.json`). 20
+  assertions (10 cases × `ServiceRepository` + `DetectionListPresenter`)
+  load the SAME fixture as the JS side at `simplecmp/tests/`. Any
+  future divergence between the two PHP paths or between PHP and
+  JS surfaces as a fixture mismatch. Caught the
+  `DetectionListPresenter` gap mentioned above.
+- **Library-walk determinism test**
+  (`Tests/Unit/Classifier/LibraryWalkDeterminismTest.php`). Locks in
+  "first match in array order wins" + "real library iterates
+  alphabetically by `id`". A future refactor that changes iteration
+  order (caching, scandir without sort, …) breaks the test rather
+  than silently flipping admins' BE match badges.
 
 - **Host-qualified cookie matcher support** in the Service-DB
   middleware (ADR-0010 in upstream `SimpleCMP/simplecmp`).
