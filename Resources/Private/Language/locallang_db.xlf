@@ -27,6 +27,8 @@
       <trans-unit id="tx_simplecmptypo3_service.origins"><source>Origin matchers (JSON array)</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.origins.description"><source>Host strings or wildcards, e.g. ["www.google-analytics.com", "*.doubleclick.net"].</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.extensions"><source>Extensions (JSON)</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.fe_visible"><source>Show on consent banner</source></trans-unit>
+      <trans-unit id="tx_simplecmptypo3_service.fe_visible.description"><source>Off by default for library imports — they pre-fill the classifier server-side. Turn on to expose this service in the visitor's banner. The Approve action on the BE detection table flips this automatically.</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.palette.protocol"><source>Protocol contract</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.palette.classification"><source>Classification (cookies + origins)</source></trans-unit>
       <trans-unit id="tx_simplecmptypo3_service.palette.metadata"><source>Metadata</source></trans-unit>

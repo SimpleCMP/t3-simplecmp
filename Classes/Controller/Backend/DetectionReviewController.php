@@ -429,7 +429,12 @@ final class DetectionReviewController extends ActionController
             return $this->redirectToList($filters);
         }
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
-        $this->serviceRepository->upsert($match, $pid);
+        // Übernehmen is the admin's user-blessed promotion to the FE banner
+        // — modal acknowledgement happened client-side. Set `fe_visible = 1`
+        // on insert; promote explicitly if the service already exists
+        // (e.g. previously library-imported and just sat hidden).
+        $this->serviceRepository->upsert($match, $pid, feVisibleOnInsert: true);
+        $this->serviceRepository->markVisibleOnFe((string) $match['id']);
         return $this->redirectToList($filters);
     }
 

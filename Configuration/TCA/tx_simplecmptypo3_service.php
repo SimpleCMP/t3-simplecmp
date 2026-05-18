@@ -137,6 +137,18 @@ return [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.extensions',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
+        'fe_visible' => [
+            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.fe_visible',
+            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.fe_visible.description',
+            'config' => [
+                'type' => 'check',
+                'renderType' => 'checkboxToggle',
+                'default' => 0,
+                'items' => [
+                    ['label' => ''],
+                ],
+            ],
+        ],
     ],
     'palettes' => [
         'protocol' => [
@@ -159,6 +171,7 @@ return [
         '0' => [
             'showitem' => '
                 --palette--;;protocol,
+                fe_visible,
                 description,
                 --palette--;;classification,
                 --palette--;;metadata,

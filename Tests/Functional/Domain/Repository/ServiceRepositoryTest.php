@@ -139,6 +139,68 @@ final class ServiceRepositoryTest extends FunctionalTestCase
         self::assertNull($this->repository->findOne('not-here'));
     }
 
+    // --- fe_visible --------------------------------------------------------
+
+    #[Test]
+    public function findAllVisibleOnFeReturnsOnlyFlaggedRows(): void
+    {
+        $this->seedService(['id' => 'hidden-a']);
+        $this->seedService(['id' => 'hidden-b']);
+        $this->repository->upsert(
+            ['id' => 'visible-c', 'name' => 'Visible C', 'purposes' => []],
+            0,
+            feVisibleOnInsert: true,
+        );
+
+        $visible = $this->repository->findAllVisibleOnFe();
+        self::assertSame(['visible-c'], array_column($visible, 'id'));
+    }
+
+    #[Test]
+    public function upsertDoesNotChangeFeVisibleOnUpdate(): void
+    {
+        // Insert as visible (e.g. via Approve flow).
+        $this->repository->upsert(
+            ['id' => 'svc', 'name' => 'Initial', 'purposes' => []],
+            0,
+            feVisibleOnInsert: true,
+        );
+        self::assertCount(1, $this->repository->findAllVisibleOnFe());
+
+        // Re-upsert (e.g. re-run `simplecmp:import-known-trackers --force`)
+        // with feVisibleOnInsert=false. Admin's promotion must survive.
+        $this->repository->upsert(
+            ['id' => 'svc', 'name' => 'Updated', 'purposes' => []],
+            0,
+            feVisibleOnInsert: false,
+        );
+        $visible = $this->repository->findAllVisibleOnFe();
+        self::assertCount(1, $visible);
+        self::assertSame('Updated', $visible[0]['name']);
+    }
+
+    #[Test]
+    public function markVisibleOnFePromotesAnExistingService(): void
+    {
+        $this->seedService(['id' => 'svc']);
+        self::assertSame([], $this->repository->findAllVisibleOnFe());
+
+        $this->repository->markVisibleOnFe('svc');
+
+        $visible = $this->repository->findAllVisibleOnFe();
+        self::assertCount(1, $visible);
+        self::assertSame('svc', $visible[0]['id']);
+    }
+
+    #[Test]
+    public function markVisibleOnFeIsIdempotent(): void
+    {
+        $this->seedService(['id' => 'svc']);
+        $this->repository->markVisibleOnFe('svc');
+        $this->repository->markVisibleOnFe('svc');
+        self::assertCount(1, $this->repository->findAllVisibleOnFe());
+    }
+
     // --- helpers -----------------------------------------------------------
 
     /** @param array<string, mixed> $data */

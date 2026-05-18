@@ -189,14 +189,6 @@ final readonly class RegisterAssets
         [$services, $serviceTranslations] = $this->buildRuntimeServices();
         $config = [
             'storageName' => $get('simplecmp.storageName') ?: 'simplecmp-' . $site->getIdentifier(),
-            // Per-cookie 4KB browser limit. The consent payload runs
-            // ~9KB at the current library scale (368 services with one
-            // bool each), so storing in a cookie causes the browser
-            // to silently drop the cookie and the banner re-prompts
-            // every visit. localStorage handles MB-scale values.
-            // See memory `consent_storage_architecture.md` for the
-            // bigger architectural question.
-            'storageMethod' => 'localStorage',
             'services' => $services,
             'respectGPC' => (bool) $get('simplecmp.respectGPC', true),
             // Show "Accept all" alongside "Decline" and "Save selected" in the
@@ -304,7 +296,11 @@ final readonly class RegisterAssets
      */
     private function buildRuntimeServices(): array
     {
-        $rows = $this->serviceRepository->paginate(0, 1000)['items'];
+        // Only services flagged `fe_visible = 1` are emitted to the FE
+        // banner. Library imports default to hidden — they pre-fill the
+        // classifier server-side but stay off the visitor's UI until the
+        // admin promotes them via the BE Übernehmen flow or the TCA toggle.
+        $rows = $this->serviceRepository->findAllVisibleOnFe();
         $services = [];
         $translations = [];
         foreach ($rows as $row) {

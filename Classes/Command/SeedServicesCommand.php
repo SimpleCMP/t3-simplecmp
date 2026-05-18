@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TYPO3\CMS\Core\Core\Environment;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
@@ -87,7 +86,10 @@ final class SeedServicesCommand extends Command
                 $errors++;
                 continue;
             }
-            $this->services->upsert($payload, $pid);
+            // Seed entries are baseline essentials — every site needs them
+            // on the banner. Library imports (`simplecmp:import-known-trackers`)
+            // default to hidden; this command does not.
+            $this->services->upsert($payload, $pid, feVisibleOnInsert: true);
             $inserted++;
         }
 
@@ -97,10 +99,10 @@ final class SeedServicesCommand extends Command
 
     private function seedDirectory(): string
     {
-        // Extension resources resolve relative to the composer-installed
-        // vendor path; using Environment::getPublicPath() + EXT: would
-        // require a TYPO3 frontend bootstrap that's overkill in a CLI.
-        return Environment::getProjectPath()
-            . '/vendor/wapplersystems/simplecmp-typo3/Resources/Private/Seeds/services';
+        // Resolve relative to the command file itself. Survives any TYPO3
+        // bootstrap context including `typo3/testing-framework`'s temporary
+        // test instances (which set `Environment::getProjectPath()` to the
+        // test dir, not the project root).
+        return dirname(__DIR__, 2) . '/Resources/Private/Seeds/services';
     }
 }

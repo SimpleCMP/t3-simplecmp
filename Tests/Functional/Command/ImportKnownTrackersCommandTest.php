@@ -72,6 +72,37 @@ final class ImportKnownTrackersCommandTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function importedServicesDefaultToHiddenFromBanner(): void
+    {
+        // Library imports are classifier pre-fills, not banner entries.
+        // Admin promotes them via the BE Approve (Übernehmen) flow.
+        $this->runImport();
+        self::assertGreaterThan(30, $this->repository->count());
+        self::assertSame(
+            [],
+            $this->repository->findAllVisibleOnFe(),
+            'library imports must default to fe_visible=0',
+        );
+    }
+
+    #[Test]
+    public function forceFlagDoesNotDemoteAdminPromotedServices(): void
+    {
+        // Admin imported earlier, then promoted Mixpanel via Approve.
+        $this->repository->upsert(
+            ['id' => 'mixpanel', 'name' => 'Initial', 'purposes' => []],
+            0,
+            feVisibleOnInsert: true,
+        );
+        self::assertCount(1, $this->repository->findAllVisibleOnFe());
+
+        // Re-running --force must not flip fe_visible back to 0.
+        $this->runImport(['--force' => true]);
+        $visible = array_column($this->repository->findAllVisibleOnFe(), 'id');
+        self::assertContains('mixpanel', $visible);
+    }
+
+    #[Test]
     public function emitsCorrectSummaryCounts(): void
     {
         // Pre-seed one service so we have a skip

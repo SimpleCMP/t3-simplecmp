@@ -10,6 +10,41 @@ development.
 
 ## Unreleased
 
+### Changed (breaking, pre-1.0)
+
+- **Service registry splits into classifier dictionary + banner surface.**
+  New `tx_simplecmptypo3_service.fe_visible` column controls whether a
+  service appears in the visitor's banner. Library imports
+  (`simplecmp:import-known-trackers`) default to **hidden** (`0`); they
+  pre-fill the classifier server-side so the recorder and Service-DB
+  middleware can resolve cookies/origins without bloating the FE init
+  config. The 10-essential `simplecmp:seed` entries default to visible
+  (`1`). The Approve (Übernehmen) action on the BE detection table flips
+  `fe_visible = 1` automatically, so the existing curation flow keeps
+  working unchanged.
+
+  **Why this matters:** before this change the FE config emitted every
+  registered service, which pushed the consent payload past the 4 KB
+  cookie limit once admins ran `import-known-trackers` and forced us to
+  pin `storageMethod: 'localStorage'` as a v0.2.x workaround. With
+  hidden library imports the FE config stays small (typically <10
+  services per site) and the cookie storage backend is viable again —
+  the workaround is removed.
+
+  **Operator notes:**
+  - All existing rows migrate to `fe_visible = 0` (the SQL default).
+    Run `simplecmp:seed` after the schema migration to re-promote the
+    essentials, then promote anything else via the BE service-edit form
+    toggle ("Show on consent banner") or by clicking Approve on a
+    matching detection.
+  - Re-running `simplecmp:import-known-trackers --force` no longer
+    demotes admin-promoted services — `fe_visible` is preserved on
+    UPDATE.
+  - The `storageMethod: 'localStorage'` pin is dropped from
+    `RegisterAssets::buildFrontendConfig()`. The engine default (cookie)
+    is back in effect; sites that explicitly want localStorage can set
+    `simplecmp.storageMethod` in their Site Set.
+
 ### Fixed
 
 - **Modal focus trap + `aria-labelledby` (bundle resync).** Tracks
@@ -28,16 +63,6 @@ development.
   it persisted as a non-default and stop tracking future upstream
   changes). `ApproveModal.js` accent-color updated, bundle resynced
   for the FE banner.
-- **Consent persistence broken for large libraries** (compliance
-  fix). The FE config emits one entry per registered service in
-  the consent payload, which after v0.2.0's services-library
-  expansion runs ~9 KB. Browsers silently drop cookies exceeding
-  the per-cookie ~4 KB limit, so consent was never persisting and
-  the banner re-prompted every visit. `RegisterAssets` now emits
-  `storageMethod: 'localStorage'` in the FE init config; the
-  engine's `LocalStorageStore` handles MB-scale values. The deeper
-  question — whether the FE config should carry the full registry
-  at all — is deferred for v1.0.
 - **BE detection state derivation recognises host-qualified
   matchers**. `DetectionListPresenter::cookieMatches` was the
   second place where object-form entries got silently skipped

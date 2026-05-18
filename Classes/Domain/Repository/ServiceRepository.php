@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WapplerSystems\SimpleCmpTypo3\Domain\Repository;
 
+use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -108,7 +109,20 @@ final readonly class ServiceRepository
             ->fetchOne();
     }
 
-    public function upsert(array $serviceData, int $pid = 0): void
+    /**
+     * Insert-or-update a service.
+     *
+     * `$feVisibleOnInsert` controls the FE banner visibility of *newly
+     * created* rows only:
+     * - `true` for sources whose entries are by definition on every site
+     *   (e.g. `simplecmp:seed`).
+     * - `false` for classifier pre-fills like `simplecmp:import-known-trackers`
+     *   — admin promotes them via the Übernehmen flow.
+     *
+     * On UPDATE we never overwrite `fe_visible` — the admin's prior choice
+     * is the source of truth.
+     */
+    public function upsert(array $serviceData, int $pid = 0, bool $feVisibleOnInsert = false): void
     {
         $row = [
             'pid' => $pid,
@@ -148,10 +162,26 @@ final readonly class ServiceRepository
 
         if ($existing === false) {
             $row['crdate'] = time();
+            $row['fe_visible'] = $feVisibleOnInsert ? 1 : 0;
             $conn->insert(self::TABLE, $row);
         } else {
             $conn->update(self::TABLE, $row, ['uid' => (int) $existing]);
         }
+    }
+
+    /**
+     * Promote a service to the FE banner. Idempotent — repeated calls on
+     * an already-visible service are no-ops. The Übernehmen flow on the
+     * BE detection table is the typical caller.
+     */
+    public function markVisibleOnFe(string $serviceId): void
+    {
+        $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
+        $conn->update(
+            self::TABLE,
+            ['fe_visible' => 1, 'tstamp' => time()],
+            ['service_id' => $serviceId],
+        );
     }
 
     /**
@@ -167,6 +197,31 @@ final readonly class ServiceRepository
             ->createQueryBuilder()
             ->select('*')
             ->from(self::TABLE)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map($this->rowToProtocol(...), $rows);
+    }
+
+    /**
+     * Load services flagged for FE banner display (`fe_visible = 1`).
+     *
+     * Used by `RegisterAssets::buildRuntimeServices()`. Library imports
+     * via `simplecmp:import-known-trackers` default to `fe_visible = 0`
+     * so they seed the classifier without bloating the FE config; admin
+     * promotes them via Übernehmen (the BE detection-approve flow) or
+     * the TCA toggle on the service record.
+     *
+     * @return array<array<string, mixed>>
+     */
+    public function findAllVisibleOnFe(): array
+    {
+        $qb = $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->createQueryBuilder();
+        $rows = $qb
+            ->select('*')
+            ->from(self::TABLE)
+            ->where($qb->expr()->eq('fe_visible', $qb->createNamedParameter(1, ParameterType::INTEGER)))
             ->executeQuery()
             ->fetchAllAssociative();
 
