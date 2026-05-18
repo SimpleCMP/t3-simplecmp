@@ -37,7 +37,7 @@ final class ThemeDesignerControllerTest extends TestCase
         //  2. If the upstream default ever changes, sites that never
         //     customized that token stay on the new default automatically.
         $clean = ThemeDesignerController::sanitizeTokens([
-            'color-primary' => '#1a936f',  // default — drop
+            'color-primary' => '#15775a',  // default — drop
             'color-text' => '#000000',     // custom — keep
             'radius' => '6px',             // default — drop
         ]);

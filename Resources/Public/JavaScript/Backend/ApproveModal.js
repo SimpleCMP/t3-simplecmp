@@ -127,7 +127,7 @@ class ApproveModalHandler {
         font-size:.95rem;line-height:1.5;
       }
       .simplecmp-approve-modal .banner-preview .toggle-row { display:flex;align-items:flex-start;gap:.5rem; }
-      .simplecmp-approve-modal .banner-preview .toggle-row input[type='checkbox'] { margin-top:.25rem;flex-shrink:0;accent-color:#1a936f;width:1rem;height:1rem; }
+      .simplecmp-approve-modal .banner-preview .toggle-row input[type='checkbox'] { margin-top:.25rem;flex-shrink:0;accent-color:#15775a;width:1rem;height:1rem; }
       .simplecmp-approve-modal .banner-preview .toggle-row .meta { flex:1; }
       .simplecmp-approve-modal .banner-preview .toggle-row .title { font-weight:500; }
       .simplecmp-approve-modal .banner-preview .toggle-row .description { margin:.25rem 0 0;font-size:.85rem;color:#5f6b78; }

@@ -40,8 +40,8 @@ final class ThemeDesignerController extends ActionController
      * @var array<string, string>
      */
     public const array DEFAULT_TOKENS = [
-        'color-primary' => '#1a936f',
-        'color-primary-hover' => '#15775a',
+        'color-primary' => '#15775a',
+        'color-primary-hover' => '#0f5d44',
         'color-text' => '#1a232c',
         'color-text-muted' => '#5f6b78',
         'color-bg' => '#ffffff',
