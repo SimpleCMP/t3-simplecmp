@@ -12,6 +12,16 @@ development.
 
 ### Fixed
 
+- **WCAG AA contrast — default primary token darkened**. Tracks
+  upstream `simplecmp@c4159f6`: default `color-primary` shifts from
+  `#1a936f` (3.85:1 on white, failed AA) to `#15775a` (5.30:1);
+  `color-primary-hover` from `#15775a` to `#0f5d44`.
+  `ThemeDesignerController::DEFAULT_TOKENS` updated alongside, so
+  `sanitizeTokens` keeps treating the upstream defaults as "drop
+  from storage" (otherwise sites running default primary would have
+  it persisted as a non-default and stop tracking future upstream
+  changes). `ApproveModal.js` accent-color updated, bundle resynced
+  for the FE banner.
 - **Consent persistence broken for large libraries** (compliance
   fix). The FE config emits one entry per registered service in
   the consent payload, which after v0.2.0's services-library
