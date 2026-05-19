@@ -29,25 +29,39 @@ final readonly class DetectionRepository
     }
 
     /**
-     * Idempotent ingest. Aggregates repeat hits of the same
-     * `(source, kind, identifier)` triple into one row.
+     * Idempotent batch ingest. Loops over `$payload['detections']` and
+     * upserts each one — same `(source, kind, identifier)` triple
+     * collapses to one row with bumped `occurrences` and `last_seen`.
      *
-     * @param array<string, mixed> $payload the raw webhook body
+     * @param array<string, mixed> $payload the raw webhook body (v2 schema)
      * @param int $pid TYPO3 page UID under which to file new rows.
      *                  Updates of existing rows do not change pid.
      */
     public function ingest(array $payload, int $pid = 0): void
     {
-        $detection = $payload['detection'] ?? [];
-        if (!is_array($detection) || !isset($detection['kind'], $detection['identifier'])) {
-            // Drop malformed payloads silently — the JS side wouldn't have
-            // sent one, but if a misconfigured receiver pokes us we don't
-            // want to 500.
+        $detections = $payload['detections'] ?? null;
+        if (!is_array($detections)) {
+            return;
+        }
+        foreach ($detections as $detection) {
+            if (is_array($detection)) {
+                $this->ingestOne($payload, $detection, $pid);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $envelope
+     * @param array<string, mixed> $detection
+     */
+    private function ingestOne(array $envelope, array $detection, int $pid): void
+    {
+        if (!isset($detection['kind'], $detection['identifier'])) {
             return;
         }
 
-        $source = isset($payload['source']) && is_string($payload['source'])
-            ? $payload['source']
+        $source = isset($envelope['source']) && is_string($envelope['source'])
+            ? $envelope['source']
             : 'default';
         $kind = (string) $detection['kind'];
         $identifier = (string) $detection['identifier'];
@@ -69,28 +83,28 @@ final readonly class DetectionRepository
             'last_seen' => isset($detection['lastSeen']) && is_int($detection['lastSeen'])
                 ? $detection['lastSeen']
                 : null,
-            'sent_at' => isset($payload['sentAt']) && is_string($payload['sentAt'])
-                ? $payload['sentAt']
+            'sent_at' => isset($envelope['sentAt']) && is_string($envelope['sentAt'])
+                ? $envelope['sentAt']
                 : null,
             'origin' => isset($detection['origin']) && is_string($detection['origin'])
                 ? $detection['origin']
                 : null,
-            'page_url' => isset($payload['page']['url']) && is_string($payload['page']['url'])
-                ? $payload['page']['url']
+            'page_url' => isset($envelope['page']['url']) && is_string($envelope['page']['url'])
+                ? $envelope['page']['url']
                 : null,
             'first_seen_on' => isset($detection['firstSeenOn']) && is_string($detection['firstSeenOn'])
                 ? $detection['firstSeenOn']
                 : null,
-            'referrer' => isset($payload['page']['referrer']) && is_string($payload['page']['referrer'])
-                ? $payload['page']['referrer']
+            'referrer' => isset($envelope['page']['referrer']) && is_string($envelope['page']['referrer'])
+                ? $envelope['page']['referrer']
                 : null,
-            'user_agent' => isset($payload['page']['userAgent']) && is_string($payload['page']['userAgent'])
-                ? $payload['page']['userAgent']
+            'user_agent' => isset($envelope['page']['userAgent']) && is_string($envelope['page']['userAgent'])
+                ? $envelope['page']['userAgent']
                 : null,
-            'library_version' => isset($payload['library']['version']) && is_string($payload['library']['version'])
-                ? $payload['library']['version']
+            'library_version' => isset($envelope['library']['version']) && is_string($envelope['library']['version'])
+                ? $envelope['library']['version']
                 : null,
-            'payload' => json_encode($payload, JSON_THROW_ON_ERROR),
+            'payload' => json_encode(['envelope' => $envelope, 'detection' => $detection], JSON_THROW_ON_ERROR),
         ];
 
         if ($existing === false) {

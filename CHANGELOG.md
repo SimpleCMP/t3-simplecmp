@@ -10,6 +10,25 @@ development.
 
 ## Unreleased
 
+### Changed (breaking, pre-1.0) — webhook schema v2
+
+- **Webhook accepts schema v2 only** (batched detections). The
+  receiver expects `{ schemaVersion: 2, detections: [...] }` and rejects
+  v1 (single-`detection` shape) with HTTP 400. Tracks upstream
+  `simplecmp@94170f5`. `MAX_BODY_BYTES` raised from 4 KB → 16 KB so a
+  full batch fits.
+- **Receiver surfaces `status:'known'` detections too**, not just
+  unknown. Library-matched cookies now reach the BE detection table —
+  state derivation renders them as **Erkannt** so admins can adopt
+  them via Übernehmen. Resolves the visibility gap previously tracked
+  in `library_detection_visibility_gap.md`.
+- **`DetectionRepository::ingest` loops over `payload['detections']`**
+  internally; per-detection rows still aggregate by
+  `(source, kind, identifier)` via `occurrences`. The `payload` column
+  now stores `{ envelope, detection }` (envelope = source / page /
+  library, detection = the specific row's data) rather than the raw
+  body.
+
 ### Changed (breaking, pre-1.0) — 3-table architecture
 
 - **The registry is now admin-curated only.** Bulk classifier

@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace WapplerSystems\SimpleCmpTypo3\Service;
 
 /**
- * Validates webhook payloads against the SimpleCMP CMS bridge v1
+ * Validates webhook payloads against the SimpleCMP CMS bridge v2
  * schema (see `docs/cms-bridge-webhook.md` in the upstream repo).
+ *
+ * v2 batches multiple detections per POST in a `detections[]` array.
+ * Each entry can have `status: 'known' | 'unknown'` — both reach the
+ * BE so library-recognized detections can be surfaced as Erkannt.
  *
  * This is the "trust nothing the browser sends" boundary. The bridge
  * endpoint is semi-public by design (the browser-side sender cannot
@@ -21,7 +25,8 @@ namespace WapplerSystems\SimpleCmpTypo3\Service;
  */
 final class WebhookPayloadValidator
 {
-    public const int MAX_BODY_BYTES = 4096;
+    public const int MAX_BODY_BYTES = 16384;
+    private const int MAX_DETECTIONS_PER_BATCH = 50;
     private const int MAX_IDENTIFIER = 256;
     private const int MAX_SOURCE = 64;
     private const int MAX_URL = 2048;
@@ -30,10 +35,12 @@ final class WebhookPayloadValidator
     private const int MAX_LIBRARY_VERSION = 32;
     private const int MAX_SENT_AT = 40;
     private const int MAX_COUNT = 10_000;
+    private const int MAX_MATCHED_SERVICE = 100;
     private const int CLOCK_SKEW_FUTURE_MS = 60_000;
     private const int LOOKBACK_MS = 24 * 3600 * 1000;
     private const string SOURCE_REGEX = '/^[a-z0-9_-]{1,64}$/';
     private const array ALLOWED_KINDS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
+    private const array ALLOWED_STATUSES = ['known', 'unknown'];
 
     public function validate(string $body, ?int $nowMs = null): WebhookValidationResult
     {
@@ -45,13 +52,13 @@ final class WebhookPayloadValidator
         }
         try {
             $payload = json_decode($body, true, 32, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (\JsonException) {
             return WebhookValidationResult::failure(400, 'Invalid JSON body');
         }
         if (!is_array($payload)) {
             return WebhookValidationResult::failure(400, 'Payload must be a JSON object');
         }
-        if (($payload['schemaVersion'] ?? null) !== 1) {
+        if (($payload['schemaVersion'] ?? null) !== 2) {
             return WebhookValidationResult::failure(400, 'Unsupported schemaVersion');
         }
 
@@ -59,7 +66,7 @@ final class WebhookPayloadValidator
             ?? $this->validateSentAt($payload)
             ?? $this->validateLibrary($payload)
             ?? $this->validatePage($payload)
-            ?? $this->validateDetection($payload, $nowMs ?? (int) floor(microtime(true) * 1000));
+            ?? $this->validateDetections($payload, $nowMs ?? (int) floor(microtime(true) * 1000));
 
         if ($err !== null) {
             return WebhookValidationResult::failure(400, $err);
@@ -129,44 +136,74 @@ final class WebhookPayloadValidator
     }
 
     /** @param array<string, mixed> $p */
-    private function validateDetection(array $p, int $nowMs): ?string
+    private function validateDetections(array $p, int $nowMs): ?string
     {
-        $det = $p['detection'] ?? null;
-        if (!is_array($det)) {
-            return 'Invalid detection';
+        $detections = $p['detections'] ?? null;
+        if (!is_array($detections) || $detections === []) {
+            return 'Invalid detections';
         }
+        if (!array_is_list($detections)) {
+            return 'detections must be a list, not an object';
+        }
+        if (count($detections) > self::MAX_DETECTIONS_PER_BATCH) {
+            return 'Too many detections in batch';
+        }
+        foreach ($detections as $index => $detection) {
+            if (!is_array($detection)) {
+                return "Invalid detections[{$index}]";
+            }
+            $err = $this->validateDetection($detection, $nowMs);
+            if ($err !== null) {
+                return "detections[{$index}]: {$err}";
+            }
+        }
+        return null;
+    }
+
+    /** @param array<string, mixed> $det */
+    private function validateDetection(array $det, int $nowMs): ?string
+    {
         if (!in_array($det['kind'] ?? null, self::ALLOWED_KINDS, true)) {
-            return 'Invalid detection.kind';
+            return 'Invalid kind';
         }
         $id = $det['identifier'] ?? null;
         if (!is_string($id) || $id === '' || strlen($id) > self::MAX_IDENTIFIER || !self::isUtf8($id)) {
-            return 'Invalid detection.identifier';
+            return 'Invalid identifier';
         }
         if (isset($det['origin'])) {
             if (!is_string($det['origin']) || strlen($det['origin']) > self::MAX_ORIGIN || !self::isUtf8($det['origin'])) {
-                return 'Invalid detection.origin';
+                return 'Invalid origin';
             }
         }
         foreach (['firstSeen', 'lastSeen'] as $tsField) {
             $ts = $det[$tsField] ?? null;
             if (!is_int($ts)) {
-                return 'Invalid detection.' . $tsField;
+                return "Invalid {$tsField}";
             }
             if ($ts < $nowMs - self::LOOKBACK_MS || $ts > $nowMs + self::CLOCK_SKEW_FUTURE_MS) {
-                return 'Invalid detection.' . $tsField . ' (out of range)';
+                return "{$tsField} out of range";
             }
         }
         $count = $det['count'] ?? null;
         if (!is_int($count) || $count < 1 || $count > self::MAX_COUNT) {
-            return 'Invalid detection.count';
+            return 'Invalid count';
         }
         if (isset($det['firstSeenOn'])) {
             if (!is_string($det['firstSeenOn']) || strlen($det['firstSeenOn']) > self::MAX_URL || !self::isUtf8($det['firstSeenOn'])) {
-                return 'Invalid detection.firstSeenOn';
+                return 'Invalid firstSeenOn';
             }
         }
-        if (($det['status'] ?? null) !== 'unknown') {
-            return 'Invalid detection.status';
+        if (!in_array($det['status'] ?? null, self::ALLOWED_STATUSES, true)) {
+            return 'Invalid status';
+        }
+        if (isset($det['matchedService'])) {
+            if (!is_string($det['matchedService'])
+                || $det['matchedService'] === ''
+                || strlen($det['matchedService']) > self::MAX_MATCHED_SERVICE
+                || !self::isUtf8($det['matchedService'])
+            ) {
+                return 'Invalid matchedService';
+            }
         }
         return null;
     }

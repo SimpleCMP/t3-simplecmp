@@ -147,14 +147,19 @@ final class DetectionRepositoryTest extends FunctionalTestCase
      */
     private function payload(array $overrides = []): array
     {
+        // Schema v2: detections live in a `detections[]` array. Tests that
+        // used to pass `'detection' => $det` are forwarded transparently.
         $detection = $overrides['detection'] ?? $this->detection('_ga');
+        unset($overrides['detection']);
+        $detections = $overrides['detections'] ?? [$detection];
+        unset($overrides['detections']);
         return array_replace([
-            'schemaVersion' => 1,
+            'schemaVersion' => 2,
             'source' => 'default',
             'sentAt' => gmdate('Y-m-d\TH:i:s.000\Z'),
             'page' => ['url' => 'https://example.com/'],
             'library' => ['name' => 'simplecmp', 'version' => '0.0.1'],
-            'detection' => $detection,
+            'detections' => $detections,
         ], $overrides);
     }
 
