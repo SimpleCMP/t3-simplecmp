@@ -39,8 +39,10 @@ use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
  *   so genuinely unknown trackers force a curation decision.
  *
  * Status filter values: `pending` (default; erkannt + unbekannt),
- * `erkannt`, `unbekannt`, `kuratiert`, `all`. The "needs action"
- * default surfaces only rows the admin can productively act on.
+ * `erkannt`, `unbekannt`, `kuratiert`, `verworfen`, `all`. The "needs
+ * action" default surfaces only rows the admin can productively act on
+ * — both curated and dismissed are excluded since they require no
+ * further triage.
  */
 final class DetectionReviewController extends ActionController
 {
@@ -48,7 +50,14 @@ final class DetectionReviewController extends ActionController
     private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
-    private const array STATUS_OPTIONS = ['pending', 'erkannt', 'unbekannt', 'kuratiert', 'all'];
+    private const array STATUS_OPTIONS = [
+        'pending',
+        'erkannt',
+        'unbekannt',
+        'kuratiert',
+        'verworfen',
+        'all',
+    ];
     private const string DEFAULT_STATUS = 'pending';
     private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
     private const array CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
@@ -119,7 +128,9 @@ final class DetectionReviewController extends ActionController
             $r['uri_show'] = $this->uri('show', $rowArgs);
             $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
             $r['uri_approve'] = $this->uri('approve', $rowArgs);
-            $r['uri_delete'] = $this->uri('delete', $rowArgs);
+            $r['uri_dismiss'] = $this->uri('dismiss', $rowArgs);
+            $r['uri_undismiss'] = $this->uri('undismiss', $rowArgs);
+            $r['uri_purge'] = $this->uri('purge', $rowArgs);
             // For curated rows, point straight at the matched service's edit form.
             if ($r['state'] === DetectionListPresenter::STATE_CURATED && is_array($r['match'] ?? null)) {
                 $r['uri_editService'] = $this->editServiceUri((string) $r['match']['id']);
@@ -158,6 +169,7 @@ final class DetectionReviewController extends ActionController
             'totalCount' => $this->totalCount(),
             'pendingCount' => $stateCounts['pending'],
             'curatedCount' => $stateCounts['kuratiert'],
+            'dismissedCount' => $stateCounts['verworfen'],
             'spikeAlert' => $spike['spikeAlert'],
             'todayCount' => $spike['todayCount'],
             'sevenDayAverage' => $spike['sevenDayAverage'],
@@ -173,8 +185,10 @@ final class DetectionReviewController extends ActionController
             'uri_pagePrev' => $this->uri('list', $pageArg + ['page' => max(1, $page - 1)]),
             'uri_pageNext' => $this->uri('list', $pageArg + ['page' => min($totalPages, $page + 1)]),
             'uri_pageLast' => $this->uri('list', $pageArg + ['page' => $totalPages]),
-            'uri_bulkDeleteAll' => $this->uri('bulkDeleteAll', $filterArg),
-            'uri_bulkDeleteSelected' => $this->uri('bulkDeleteSelected', $filterArg),
+            'uri_bulkDismissAll' => $this->uri('bulkDismissAll', $filterArg),
+            'uri_bulkDismissSelected' => $this->uri('bulkDismissSelected', $filterArg),
+            'uri_bulkUndismissSelected' => $this->uri('bulkUndismissSelected', $filterArg),
+            'uri_bulkPurgeSelected' => $this->uri('bulkPurgeSelected', $filterArg),
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
             'uri_resetFilters' => $this->uri('list'),
             'filtersActive' => $filterArg !== [],
@@ -227,9 +241,10 @@ final class DetectionReviewController extends ActionController
     }
 
     /**
-     * "pending" is a pseudo-state that covers anything not yet
-     * curated — i.e., erkannt + unbekannt. The default view, since
-     * those are the rows the admin can productively act on.
+     * "pending" is a pseudo-state that covers anything actionable —
+     * erkannt + unbekannt — and excludes both curated and dismissed
+     * (neither needs admin attention). The default view, since
+     * those are the rows the admin can productively triage.
      */
     private function stateMatches(string $rowState, string $filterStatus): bool
     {
@@ -237,34 +252,45 @@ final class DetectionReviewController extends ActionController
             return true;
         }
         if ($filterStatus === 'pending') {
-            return $rowState !== DetectionListPresenter::STATE_CURATED;
+            return $rowState !== DetectionListPresenter::STATE_CURATED
+                && $rowState !== DetectionListPresenter::STATE_DISMISSED;
         }
         return $rowState === $filterStatus;
     }
 
     /**
      * Header counters + per-library affected-row map. Single full-table
-     * pass: count pending vs curated for the header, and bucket Erkannt
-     * rows by their matched library service id so the *Übernehmen*
-     * confirmation modal can show "approving this resolves N detections."
+     * pass: count pending / curated / dismissed for the header, and
+     * bucket Erkannt rows by their matched library service id so the
+     * *Übernehmen* confirmation modal can show "approving this resolves
+     * N detections." Dismissed rows are not counted as affected (admin
+     * already chose not to act on them).
      *
      * @param array{services: array<array<string, mixed>>, library: array<array<string, mixed>>} $context
-     * @return array{pending: int, kuratiert: int, affectedByLibraryId: array<string, int>}
+     * @return array{
+     *     pending: int,
+     *     kuratiert: int,
+     *     verworfen: int,
+     *     affectedByLibraryId: array<string, int>
+     * }
      */
     private function stateCountsAcrossAll(array $context): array
     {
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
-        $rows = $qb->select('uid', 'kind', 'identifier', 'origin')
+        $rows = $qb->select('uid', 'kind', 'identifier', 'origin', 'dismissed_at')
             ->from(self::DETECTION_TABLE)
             ->executeQuery()
             ->fetchAllAssociative();
         $pending = 0;
         $curated = 0;
+        $dismissed = 0;
         $affectedByLibraryId = [];
         foreach ($rows as $r) {
             $derived = DetectionListPresenter::deriveState($r, $context['services'], $context['library']);
-            if ($derived['state'] === DetectionListPresenter::STATE_CURATED) {
+            if ($derived['state'] === DetectionListPresenter::STATE_DISMISSED) {
+                $dismissed++;
+            } elseif ($derived['state'] === DetectionListPresenter::STATE_CURATED) {
                 $curated++;
             } else {
                 $pending++;
@@ -280,6 +306,7 @@ final class DetectionReviewController extends ActionController
         return [
             'pending' => $pending,
             'kuratiert' => $curated,
+            'verworfen' => $dismissed,
             'affectedByLibraryId' => $affectedByLibraryId,
         ];
     }
@@ -440,7 +467,58 @@ final class DetectionReviewController extends ActionController
         return $this->redirectToList($filters);
     }
 
-    public function deleteAction(
+    /**
+     * Verwerfen — flip `dismissed_at` to NOW on a single row.
+     *
+     * Recoverable via undismiss. The row stays in the table; future
+     * bridge re-POSTs for the same (source, kind, identifier) triple
+     * bump `occurrences` / `last_seen` but leave `dismissed_at` set, so
+     * dismissal survives across visitors with different browsers.
+     */
+    public function dismissAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
+            ->update(
+                self::DETECTION_TABLE,
+                ['dismissed_at' => time(), 'tstamp' => time()],
+                ['uid' => $uid],
+            );
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+    }
+
+    /**
+     * Wieder aufgreifen — clear `dismissed_at` so the row falls back to
+     * its derived state (erkannt / unbekannt / kuratiert) and reappears
+     * in the actionable list.
+     */
+    public function undismissAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
+            ->update(
+                self::DETECTION_TABLE,
+                ['dismissed_at' => 0, 'tstamp' => time()],
+                ['uid' => $uid],
+            );
+        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+    }
+
+    /**
+     * Endgültig löschen — true delete, reachable from the Verworfen view
+     * only and behind a confirmation modal in the template. Removes the
+     * row entirely; the next bridge POST for the same triple will
+     * re-create it as a fresh `unbekannt` detection.
+     */
+    public function purgeAction(
         int $uid,
         string $status = self::DEFAULT_STATUS,
         string $source = '',
@@ -452,23 +530,65 @@ final class DetectionReviewController extends ActionController
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
-    public function bulkDeleteAllAction(
+    /**
+     * Bulk-dismiss every row currently in the actionable filter. Same
+     * "are you sure" dropdown affordance as before — just dismisses
+     * instead of destroying.
+     */
+    public function bulkDismissAllAction(
         string $status = self::DEFAULT_STATUS,
         string $source = '',
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->executeStatement('DELETE FROM ' . self::DETECTION_TABLE);
+            ->executeStatement(
+                'UPDATE ' . self::DETECTION_TABLE
+                . ' SET dismissed_at = ?, tstamp = ? WHERE dismissed_at = 0',
+                [time(), time()],
+            );
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
     /**
-     * Delete the rows whose uids the user ticked in the list checkboxes.
+     * Bulk-dismiss the rows the admin ticked in the list checkboxes.
      *
      * @param array<int, scalar> $uids
      */
-    public function bulkDeleteSelectedAction(
+    public function bulkDismissSelectedAction(
+        array $uids = [],
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        return $this->bulkUpdateDismissed($uids, $status, $source, $kind, $confidence, time());
+    }
+
+    /**
+     * Bulk-undismiss — counterpart to bulkDismissSelected for the
+     * Verworfen view.
+     *
+     * @param array<int, scalar> $uids
+     */
+    public function bulkUndismissSelectedAction(
+        array $uids = [],
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        return $this->bulkUpdateDismissed($uids, $status, $source, $kind, $confidence, 0);
+    }
+
+    /**
+     * Bulk-purge — true delete of the ticked rows, reachable only from
+     * the Verworfen view (the template hides this bulk-action key
+     * elsewhere) and confirmed via a modal.
+     *
+     * @param array<int, scalar> $uids
+     */
+    public function bulkPurgeSelectedAction(
         array $uids = [],
         string $status = self::DEFAULT_STATUS,
         string $source = '',
@@ -476,10 +596,7 @@ final class DetectionReviewController extends ActionController
         string $confidence = '',
     ): ResponseInterface {
         $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
-        $ints = array_values(array_filter(
-            array_map('intval', $uids),
-            static fn (int $u): bool => $u > 0,
-        ));
+        $ints = $this->intUids($uids);
         if ($ints === []) {
             return $this->redirectToList($filters);
         }
@@ -492,6 +609,47 @@ final class DetectionReviewController extends ActionController
             ))
             ->executeStatement();
         return $this->redirectToList($filters);
+    }
+
+    /**
+     * @param array<int, scalar> $uids
+     */
+    private function bulkUpdateDismissed(
+        array $uids,
+        string $status,
+        string $source,
+        string $kind,
+        string $confidence,
+        int $newValue,
+    ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+        $ints = $this->intUids($uids);
+        if ($ints === []) {
+            return $this->redirectToList($filters);
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $qb->update(self::DETECTION_TABLE)
+            ->set('dismissed_at', (string) $newValue, false)
+            ->set('tstamp', (string) time(), false)
+            ->where($qb->expr()->in(
+                'uid',
+                $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
+            ))
+            ->executeStatement();
+        return $this->redirectToList($filters);
+    }
+
+    /**
+     * @param array<int, scalar> $uids
+     * @return list<int>
+     */
+    private function intUids(array $uids): array
+    {
+        return array_values(array_filter(
+            array_map('intval', $uids),
+            static fn (int $u): bool => $u > 0,
+        ));
     }
 
     /** @param array<string, string> $filters */

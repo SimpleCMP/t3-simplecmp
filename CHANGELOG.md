@@ -10,6 +10,41 @@ development.
 
 ## Unreleased
 
+### Changed (breaking, pre-1.0) — four-state model adds Verworfen
+
+- **`Verwerfen` (dismiss) replaces destructive Delete on the actionable
+  list.** Clicking the row's dismiss icon now sets a new
+  `tx_simplecmptypo3_detection.dismissed_at` timestamp rather than
+  deleting the row. The detection vanishes from the Needs-action view
+  but survives in the new *Verworfen* filter; the dismissal is
+  durable across visitors because the bridge receiver's `ingest()`
+  bumps `occurrences` / `last_seen` on a re-POST but leaves
+  `dismissed_at` untouched. Fresh-browser revisits to the same
+  tracker no longer resurrect the row — the cross-browser
+  resurrection that previously caused dismissed detections to come
+  back via a different browser is closed.
+- **New status filter value `verworfen`** plus a "dismissed" counter
+  in the headline ("X need action · Y already curated · **Z
+  dismissed** · N total"). Default *Needs action* filter excludes
+  both curated and dismissed.
+- **Endgültig löschen** (true delete) is now reachable only from the
+  Verworfen view, behind a confirmation modal that warns the audit
+  record will be lost. Bulk actions in the Verworfen view: *Restore
+  selected* and *Delete selected permanently*. The trash-icon affordance
+  on non-dismissed rows is swapped from red `actions-delete` to
+  neutral `actions-close-alt` to signal the new "park" semantics
+  rather than "destroy".
+- **Controller actions renamed**: `deleteAction` →
+  `dismissAction`; new `undismissAction` + `purgeAction` for the
+  Verworfen-only paths. Bulk: `bulkDeleteAll` → `bulkDismissAll`,
+  `bulkDeleteSelected` → `bulkDismissSelected`; new
+  `bulkUndismissSelected` + `bulkPurgeSelected`.
+- **`DetectionListPresenter::STATE_DISMISSED = 'verworfen'`** wins
+  over registry/library coverage in `deriveState()`. The matched
+  service is still surfaced on dismissed rows so the sub-label keeps
+  showing "Stripe" / "Google Analytics" and un-dismiss restores the
+  row to the right underlying state.
+
 ### Changed (breaking, pre-1.0) — webhook schema v2
 
 - **Webhook accepts schema v2 only** (batched detections). The

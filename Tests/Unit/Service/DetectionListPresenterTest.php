@@ -219,4 +219,59 @@ final class DetectionListPresenterTest extends TestCase
         // Preserves unrelated row keys.
         self::assertSame(7, $row['uid']);
     }
+
+    #[Test]
+    public function dismissedAtTakesPrecedenceOverEverything(): void
+    {
+        // Dismissed wins over a registry hit. Without this order, a
+        // visitor on a fresh browser could resurrect a dismissed row
+        // by re-triggering a registry-covered tracker (the new POST
+        // bumps occurrences and the row would otherwise re-derive to
+        // kuratiert). The persisted dismissal must be the source of
+        // truth.
+        $row = DetectionListPresenter::deriveState(
+            [
+                'kind' => 'cookie',
+                'identifier' => 'amplitude_session',
+                'dismissed_at' => 1_700_000_000,
+            ],
+            [['id' => 'amplitude', 'matches' => ['cookies' => ['/^amplitude_/']]]],
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_DISMISSED, $row['state']);
+        // The underlying match info is still surfaced so the row's
+        // sub-label can still display the service name, and so
+        // un-dismiss restores it to the right state.
+        self::assertSame('amplitude', $row['match']['id']);
+    }
+
+    #[Test]
+    public function dismissedAtZeroFallsThroughToDerivedState(): void
+    {
+        // dismissed_at = 0 is the "not dismissed" sentinel and must
+        // not trigger the STATE_DISMISSED branch.
+        $row = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => 'amplitude_session', 'dismissed_at' => 0],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_RECOGNIZED, $row['state']);
+    }
+
+    #[Test]
+    public function decorateStateForDismissedUsesMutedBadgeClass(): void
+    {
+        $row = DetectionListPresenter::decorateState(
+            [
+                'uid' => 9,
+                'kind' => 'cookie',
+                'identifier' => 'amplitude_session',
+                'dismissed_at' => 1_700_000_000,
+            ],
+            $this->services(),
+            $this->library(),
+        );
+        self::assertSame(DetectionListPresenter::STATE_DISMISSED, $row['state']);
+        self::assertSame('bg-light text-muted border', $row['state_class']);
+    }
 }

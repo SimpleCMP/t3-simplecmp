@@ -30,6 +30,16 @@ final readonly class DetectionListPresenter
     public const string STATE_CURATED = 'kuratiert';
     public const string STATE_RECOGNIZED = 'erkannt';
     public const string STATE_UNKNOWN = 'unbekannt';
+    /**
+     * Verworfen — admin clicked *Verwerfen* on the row. The dismissal is
+     * persisted server-side via `dismissed_at` so it sticks across
+     * visitors (a fresh browser without a localStorage marker can't
+     * resurrect the row — the receiver bumps `occurrences` but leaves
+     * `dismissed_at` set, keeping the row in this state). Recoverable
+     * via *Wieder aufgreifen*; only true-delete from this state is
+     * destructive.
+     */
+    public const string STATE_DISMISSED = 'verworfen';
 
     public function __construct(
         private DetectionRepository $detectionRepository,
@@ -60,6 +70,10 @@ final readonly class DetectionListPresenter
      * Derive the resolution state for a single detection given the
      * pre-loaded registry + library context. Three buckets:
      *
+     * - `verworfen`: admin clicked *Verwerfen* (server-side flag).
+     *   Checked first so a dismissed row stays dismissed regardless of
+     *   registry/library coverage. Match info is still preserved
+     *   (so un-dismissing sends the row back to its underlying state).
      * - `kuratiert`: registry already covers this cookie/origin →
      *   admin has nothing to do; row is filtered out of the default
      *   actionable view.
@@ -67,7 +81,7 @@ final readonly class DetectionListPresenter
      *   does → admin can one-click *Übernehmen* (silent-import) or
      *   *Anpassen* (curate with library pre-fill).
      * - `unbekannt`: nothing matches → admin must *Kuratieren*
-     *   (manual entry). No dismiss-only escape hatch by design.
+     *   (manual entry).
      *
      * @param array<string, mixed> $detection
      * @param array<array<string, mixed>> $services
@@ -83,10 +97,24 @@ final readonly class DetectionListPresenter
         $host = $kind !== 'cookie' && $origin !== '' ? $origin : null;
 
         $registryMatch = self::firstMatchingService($services, $cookie, $host);
+        $libraryMatch = $registryMatch === null
+            ? self::firstMatchingService($library, $cookie, $host)
+            : null;
+
+        // Dismissed wins over everything — but we still surface the
+        // underlying match so the row shows "Stripe" / "Google Analytics"
+        // sub-labels and un-dismiss restores the right state.
+        $dismissedAt = (int) ($detection['dismissed_at'] ?? 0);
+        if ($dismissedAt > 0) {
+            return [
+                'state' => self::STATE_DISMISSED,
+                'match' => $registryMatch ?? $libraryMatch,
+            ];
+        }
+
         if ($registryMatch !== null) {
             return ['state' => self::STATE_CURATED, 'match' => $registryMatch];
         }
-        $libraryMatch = self::firstMatchingService($library, $cookie, $host);
         if ($libraryMatch !== null) {
             return ['state' => self::STATE_RECOGNIZED, 'match' => $libraryMatch];
         }
@@ -110,6 +138,7 @@ final readonly class DetectionListPresenter
         $row['state_class'] = match ($derived['state']) {
             self::STATE_CURATED => 'bg-success',
             self::STATE_RECOGNIZED => 'bg-info text-dark',
+            self::STATE_DISMISSED => 'bg-light text-muted border',
             default => 'bg-warning text-dark',
         };
         $row['match'] = $derived['match'];

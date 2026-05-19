@@ -38,10 +38,12 @@
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>
       <trans-unit id="list.header.curated"><source>already curated</source></trans-unit>
+      <trans-unit id="list.header.dismissed"><source>dismissed</source></trans-unit>
       <trans-unit id="list.header.total"><source>total</source></trans-unit>
       <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports a tracker.</source></trans-unit>
       <trans-unit id="list.empty.filtered.title"><source>No detections match the active filters.</source></trans-unit>
       <trans-unit id="list.empty.filtered.reset"><source>Reset all filters</source></trans-unit>
+      <trans-unit id="list.empty.dismissed"><source>No dismissed detections yet. Dismiss a detection on the main list and it will appear here.</source></trans-unit>
       <trans-unit id="list.col.state"><source>State</source></trans-unit>
       <trans-unit id="list.col.kind"><source>Kind</source></trans-unit>
       <trans-unit id="list.col.identifier"><source>Identifier</source></trans-unit>
@@ -56,6 +58,7 @@
       <trans-unit id="state.kuratiert"><source>Curated</source></trans-unit>
       <trans-unit id="state.erkannt"><source>Recognised</source></trans-unit>
       <trans-unit id="state.unbekannt"><source>Unknown</source></trans-unit>
+      <trans-unit id="state.verworfen"><source>Dismissed</source></trans-unit>
 
       <trans-unit id="list.action.show"><source>Details</source></trans-unit>
       <trans-unit id="list.action.approve"><source>Approve</source></trans-unit>
@@ -65,13 +68,21 @@
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table?</source></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected"><source>Delete selected</source></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source></trans-unit>
-      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source></trans-unit>
-      <trans-unit id="list.action.delete"><source>Delete this row</source></trans-unit>
-      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source></trans-unit>
+
+      <trans-unit id="list.action.dismiss"><source>Dismiss</source></trans-unit>
+      <trans-unit id="list.action.dismiss.title"><source>Park this detection — it will stop showing in the actionable list and will not reappear even if visitors keep triggering it. Reversible from the Dismissed view.</source></trans-unit>
+      <trans-unit id="list.action.undismiss"><source>Restore</source></trans-unit>
+      <trans-unit id="list.action.undismiss.title"><source>Move this detection back into the actionable list.</source></trans-unit>
+      <trans-unit id="list.action.purge"><source>Delete permanently</source></trans-unit>
+      <trans-unit id="list.action.purge.title"><source>Permanently delete this detection row — the audit record of the dismissal will be lost. The same tracker may re-appear as a fresh unknown if visitors trigger it again.</source></trans-unit>
+      <trans-unit id="list.action.purge.confirm"><source>Permanently delete this dismissed row? The audit record will be lost.</source></trans-unit>
+      <trans-unit id="list.action.bulkDismissAll"><source>Dismiss all actionable detections</source></trans-unit>
+      <trans-unit id="list.action.bulkDismissAll.confirm"><source>Dismiss every actionable detection in the table?</source></trans-unit>
+      <trans-unit id="list.action.bulkDismissSelected"><source>Dismiss selected</source></trans-unit>
+      <trans-unit id="list.action.bulkUndismissSelected"><source>Restore selected</source></trans-unit>
+      <trans-unit id="list.action.bulkPurgeSelected"><source>Delete selected permanently</source></trans-unit>
+      <trans-unit id="list.action.bulkPurgeSelected.confirm"><source>Permanently delete the selected dismissed row(s)? The audit record will be lost.</source></trans-unit>
+      <trans-unit id="list.action.moreBulkOptions"><source>More bulk options</source></trans-unit>
 
       <trans-unit id="list.pagination.perPageLabel"><source>Rows per page</source></trans-unit>
       <trans-unit id="list.pagination.range"><source>Showing %d–%d of %d</source></trans-unit>
@@ -83,6 +94,7 @@
       <trans-unit id="filter.status.erkannt"><source>Only recognised</source></trans-unit>
       <trans-unit id="filter.status.unbekannt"><source>Only unknown</source></trans-unit>
       <trans-unit id="filter.status.kuratiert"><source>Only curated</source></trans-unit>
+      <trans-unit id="filter.status.verworfen"><source>Only dismissed</source></trans-unit>
       <trans-unit id="filter.status.all"><source>All statuses</source></trans-unit>
 
       <trans-unit id="filter.source.label"><source>Reporting-site filter</source></trans-unit>

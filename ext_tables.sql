@@ -56,9 +56,11 @@ CREATE TABLE tx_simplecmptypo3_detection (
     user_agent varchar(500) DEFAULT NULL,
     referrer varchar(500) DEFAULT NULL,
     payload text,
+    dismissed_at int(11) unsigned DEFAULT '0' NOT NULL,
 
     PRIMARY KEY (uid),
     KEY pid (pid),
     KEY dedup_key (source, kind, identifier(191)),
-    KEY received_at (received_at)
+    KEY received_at (received_at),
+    KEY dismissed_at (dismissed_at)
 );

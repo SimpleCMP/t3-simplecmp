@@ -38,10 +38,12 @@
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>
       <trans-unit id="list.header.curated"><source>already curated</source><target>bereits kuratiert</target></trans-unit>
+      <trans-unit id="list.header.dismissed"><source>dismissed</source><target>verworfen</target></trans-unit>
       <trans-unit id="list.header.total"><source>total</source><target>gesamt</target></trans-unit>
       <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports a tracker.</source><target>Noch keine Detektionen. Sobald das SimpleCMP-Frontend einen Tracker meldet, erscheint er hier.</target></trans-unit>
       <trans-unit id="list.empty.filtered.title"><source>No detections match the active filters.</source><target>Keine Detektion entspricht den aktiven Filtern.</target></trans-unit>
       <trans-unit id="list.empty.filtered.reset"><source>Reset all filters</source><target>Alle Filter zurücksetzen</target></trans-unit>
+      <trans-unit id="list.empty.dismissed"><source>No dismissed detections yet. Dismiss a detection on the main list and it will appear here.</source><target>Noch keine verworfenen Detektionen. Verwerfen Sie einen Eintrag in der Hauptliste — er erscheint dann hier.</target></trans-unit>
       <trans-unit id="list.col.state"><source>State</source><target>Status</target></trans-unit>
       <trans-unit id="list.col.kind"><source>Kind</source><target>Typ</target></trans-unit>
       <trans-unit id="list.col.identifier"><source>Identifier</source><target>Bezeichner</target></trans-unit>
@@ -56,6 +58,7 @@
       <trans-unit id="state.kuratiert"><source>Curated</source><target>Kuratiert</target></trans-unit>
       <trans-unit id="state.erkannt"><source>Recognised</source><target>Erkannt</target></trans-unit>
       <trans-unit id="state.unbekannt"><source>Unknown</source><target>Unbekannt</target></trans-unit>
+      <trans-unit id="state.verworfen"><source>Dismissed</source><target>Verworfen</target></trans-unit>
 
       <trans-unit id="list.action.show"><source>Details</source><target>Details</target></trans-unit>
       <trans-unit id="list.action.approve"><source>Approve</source><target>Übernehmen</target></trans-unit>
@@ -65,13 +68,21 @@
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source><target>Das Formular für einen neuen Dienst öffnen (keine Übereinstimmung in der Bibliothek — manuell eintragen).</target></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source><target>Den Registry-Eintrag öffnen, der diese Detektion abdeckt.</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll"><source>Delete all detections</source><target>Alle Detektionen löschen</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteAll.confirm"><source>Permanently delete EVERY detection in the table?</source><target>WIRKLICH alle Detektionen dauerhaft löschen?</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected"><source>Delete selected</source><target>Ausgewählte löschen</target></trans-unit>
-      <trans-unit id="list.action.bulkDeleteSelected.confirm"><source>Permanently delete the selected detection(s)?</source><target>Die ausgewählten Detektion(en) dauerhaft löschen?</target></trans-unit>
-      <trans-unit id="list.action.moreDeleteOptions"><source>More delete options</source><target>Weitere Löschoptionen</target></trans-unit>
-      <trans-unit id="list.action.delete"><source>Delete this row</source><target>Diese Zeile löschen</target></trans-unit>
-      <trans-unit id="list.action.delete.confirm"><source>Permanently delete this detection row?</source><target>Diese Detektion dauerhaft löschen?</target></trans-unit>
+
+      <trans-unit id="list.action.dismiss"><source>Dismiss</source><target>Verwerfen</target></trans-unit>
+      <trans-unit id="list.action.dismiss.title"><source>Park this detection — it will stop showing in the actionable list and will not reappear even if visitors keep triggering it. Reversible from the Dismissed view.</source><target>Diese Detektion parken — sie verschwindet aus der Aktionsliste und taucht auch dann nicht wieder auf, wenn Besucher sie erneut auslösen. Aus der „Verworfen"-Ansicht jederzeit wiederherstellbar.</target></trans-unit>
+      <trans-unit id="list.action.undismiss"><source>Restore</source><target>Wieder aufgreifen</target></trans-unit>
+      <trans-unit id="list.action.undismiss.title"><source>Move this detection back into the actionable list.</source><target>Diese Detektion zurück in die Aktionsliste schieben.</target></trans-unit>
+      <trans-unit id="list.action.purge"><source>Delete permanently</source><target>Endgültig löschen</target></trans-unit>
+      <trans-unit id="list.action.purge.title"><source>Permanently delete this detection row — the audit record of the dismissal will be lost. The same tracker may re-appear as a fresh unknown if visitors trigger it again.</source><target>Diese Detektion endgültig löschen — die Audit-Spur der Verwerfung geht verloren. Derselbe Tracker kann erneut als unbekannt erscheinen, wenn Besucher ihn wieder auslösen.</target></trans-unit>
+      <trans-unit id="list.action.purge.confirm"><source>Permanently delete this dismissed row? The audit record will be lost.</source><target>Diese verworfene Detektion endgültig löschen? Die Audit-Spur geht verloren.</target></trans-unit>
+      <trans-unit id="list.action.bulkDismissAll"><source>Dismiss all actionable detections</source><target>Alle aktiven Detektionen verwerfen</target></trans-unit>
+      <trans-unit id="list.action.bulkDismissAll.confirm"><source>Dismiss every actionable detection in the table?</source><target>Wirklich alle aktiven Detektionen in der Tabelle verwerfen?</target></trans-unit>
+      <trans-unit id="list.action.bulkDismissSelected"><source>Dismiss selected</source><target>Ausgewählte verwerfen</target></trans-unit>
+      <trans-unit id="list.action.bulkUndismissSelected"><source>Restore selected</source><target>Ausgewählte wieder aufgreifen</target></trans-unit>
+      <trans-unit id="list.action.bulkPurgeSelected"><source>Delete selected permanently</source><target>Ausgewählte endgültig löschen</target></trans-unit>
+      <trans-unit id="list.action.bulkPurgeSelected.confirm"><source>Permanently delete the selected dismissed row(s)? The audit record will be lost.</source><target>Die ausgewählten verworfenen Detektion(en) endgültig löschen? Die Audit-Spur geht verloren.</target></trans-unit>
+      <trans-unit id="list.action.moreBulkOptions"><source>More bulk options</source><target>Weitere Massenaktionen</target></trans-unit>
 
       <trans-unit id="list.pagination.perPageLabel"><source>Rows per page</source><target>Zeilen pro Seite</target></trans-unit>
       <trans-unit id="list.pagination.range"><source>Showing %d–%d of %d</source><target>Zeige %d–%d von %d</target></trans-unit>
@@ -83,6 +94,7 @@
       <trans-unit id="filter.status.erkannt"><source>Only recognised</source><target>Nur erkannte</target></trans-unit>
       <trans-unit id="filter.status.unbekannt"><source>Only unknown</source><target>Nur unbekannte</target></trans-unit>
       <trans-unit id="filter.status.kuratiert"><source>Only curated</source><target>Nur kuratierte</target></trans-unit>
+      <trans-unit id="filter.status.verworfen"><source>Only dismissed</source><target>Nur verworfene</target></trans-unit>
       <trans-unit id="filter.status.all"><source>All statuses</source><target>Alle</target></trans-unit>
 
       <trans-unit id="filter.source.label"><source>Reporting-site filter</source><target>Filter „Meldende Site"</target></trans-unit>
