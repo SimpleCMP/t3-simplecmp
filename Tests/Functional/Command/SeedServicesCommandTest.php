@@ -46,4 +46,30 @@ final class SeedServicesCommandTest extends FunctionalTestCase
             'every seeded service must be visible on the FE banner',
         );
     }
+
+    #[Test]
+    public function seedPromotesPreExistingHiddenRows(): void
+    {
+        // Real-world case: admin ran `simplecmp:import-known-trackers`
+        // first (fe_visible=0), then re-runs `simplecmp:seed`. The seed
+        // command must override the hidden state for its essentials —
+        // `feVisibleOnInsert` only applies on insert, so without an
+        // explicit `markVisibleOnFe` call the UPDATE path would leave
+        // the row hidden and admin's banner stays empty.
+        $this->repository->upsert(
+            ['id' => 'google-analytics', 'name' => 'Stale GA', 'purposes' => []],
+            0,
+            feVisibleOnInsert: false,
+        );
+        self::assertSame([], $this->repository->findAllVisibleOnFe());
+
+        $this->command->run(new ArrayInput([]), new BufferedOutput());
+
+        $visibleIds = array_column($this->repository->findAllVisibleOnFe(), 'id');
+        self::assertContains(
+            'google-analytics',
+            $visibleIds,
+            'pre-existing hidden seed entry must be promoted on re-run',
+        );
+    }
 }
