@@ -5,6 +5,8 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
+    <f:render partial="ModuleNav" arguments="{active: 'detections', uri_detectionsTab: uri_detectionsTab, uri_servicesTab: uri_servicesTab}" />
+
     <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
     <p class="text-body-secondary">
         <strong>{pendingCount}</strong>

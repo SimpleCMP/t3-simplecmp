@@ -180,12 +180,12 @@ final class ServiceRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function markVisibleOnFePromotesAnExistingService(): void
+    public function setVisibilityPromotesAnExistingService(): void
     {
         $this->seedService(['id' => 'svc']);
         self::assertSame([], $this->repository->findAllVisibleOnFe());
 
-        $this->repository->markVisibleOnFe('svc');
+        $this->repository->setVisibility('svc', true);
 
         $visible = $this->repository->findAllVisibleOnFe();
         self::assertCount(1, $visible);
@@ -193,11 +193,26 @@ final class ServiceRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function markVisibleOnFeIsIdempotent(): void
+    public function setVisibilityDemotesAVisibleService(): void
+    {
+        $this->repository->upsert(
+            ['id' => 'svc', 'name' => 'Svc', 'purposes' => []],
+            0,
+            feVisibleOnInsert: true,
+        );
+        self::assertCount(1, $this->repository->findAllVisibleOnFe());
+
+        $this->repository->setVisibility('svc', false);
+
+        self::assertSame([], $this->repository->findAllVisibleOnFe());
+    }
+
+    #[Test]
+    public function setVisibilityIsIdempotent(): void
     {
         $this->seedService(['id' => 'svc']);
-        $this->repository->markVisibleOnFe('svc');
-        $this->repository->markVisibleOnFe('svc');
+        $this->repository->setVisibility('svc', true);
+        $this->repository->setVisibility('svc', true);
         self::assertCount(1, $this->repository->findAllVisibleOnFe());
     }
 

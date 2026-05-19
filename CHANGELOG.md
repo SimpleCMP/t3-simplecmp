@@ -10,6 +10,51 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **BE service catalog tab.** New "Dienste" tab inside the existing
+  SimpleCMP module (sibling of "Detektionen"), backed by
+  `ServiceCatalogController`. Lists every row in
+  `tx_simplecmptypo3_service` with: visibility badge (Sichtbar /
+  Verborgen), service id, name, vendor, purposes, and per-row actions.
+  Filter dropdown (Alle / Sichtbar / Verborgen, default Alle), search
+  across service_id / name / vendor / matchers (PHP-side substring,
+  auto-submit on blur or Enter), pagination (25 / 50 / 100 / 500 per
+  page). Two actions per row:
+  - **Auf Banner zeigen / Vom Banner ausblenden** — one-click toggle
+    via the new `ServiceRepository::setVisibility(id, bool)` method.
+  - **Dienst bearbeiten** — opens the standard TCA edit form for full
+    edits (vendor, matchers, purposes, etc.).
+  Filter/search state is preserved across action redirects. New shared
+  partial `Resources/Private/Partials/ModuleNav.html` renders the tab
+  nav above both list templates.
+
+### Changed
+
+- **Module label**: "SimpleCMP-Detektionen" → "SimpleCMP" (the tabs
+  now make the sub-scope clear).
+- **Repository API**: `ServiceRepository::markVisibleOnFe(id)` →
+  `setVisibility(id, bool)`. Old name removed (internal-only API, no
+  consumers outside this extension).
+- **Pagination.js** also handles `<input data-list-filter="…">` for
+  text search (in addition to the existing `<select>` support); fires
+  on `change` (blur or Enter).
+
+### Fixed
+
+- **`simplecmp:seed` now promotes pre-existing hidden rows.** Earlier
+  `feVisibleOnInsert: true` only affected the INSERT path; rows that
+  were already in the registry from an earlier `import-known-trackers`
+  stayed `fe_visible = 0`. Seed now follows the upsert with an
+  explicit `setVisibility(id, true)` so the essentials reach the
+  banner regardless of pre-existing state. Regression test:
+  `seedPromotesPreExistingHiddenRows`.
+- **`SeedServicesCommand::seedDirectory()`** resolves relative to the
+  command file (`__DIR__`) instead of `Environment::getProjectPath()`,
+  so the seed dir is found in functional-test instances (where the
+  framework points the project path at the temp dir, not the real
+  project root).
+
 ### Changed (breaking, pre-1.0)
 
 - **Service registry splits into classifier dictionary + banner surface.**

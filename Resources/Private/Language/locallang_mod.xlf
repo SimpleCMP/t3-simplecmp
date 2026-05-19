@@ -3,9 +3,38 @@
   <file source-language="en" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="simplecmp_typo3">
     <header/>
     <body>
-      <trans-unit id="mlang_tabs_tab"><source>SimpleCMP detections</source></trans-unit>
-      <trans-unit id="mlang_labels_tablabel"><source>Review SimpleCMP detections</source></trans-unit>
-      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge. Approve detections recognised by the bundled service library, or curate new services manually for unknown trackers.</source></trans-unit>
+      <trans-unit id="mlang_tabs_tab"><source>SimpleCMP</source></trans-unit>
+      <trans-unit id="mlang_labels_tablabel"><source>SimpleCMP — detections and service catalog</source></trans-unit>
+      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source></trans-unit>
+
+      <trans-unit id="nav.detections"><source>Detections</source></trans-unit>
+      <trans-unit id="nav.services"><source>Services</source></trans-unit>
+
+      <trans-unit id="library.title"><source>SimpleCMP — service catalog</source></trans-unit>
+      <trans-unit id="library.header.visible"><source>visible on banner</source></trans-unit>
+      <trans-unit id="library.header.hidden"><source>hidden</source></trans-unit>
+      <trans-unit id="library.header.total"><source>total</source></trans-unit>
+      <trans-unit id="library.filter.label"><source>Status</source></trans-unit>
+      <trans-unit id="library.filter.all"><source>All</source></trans-unit>
+      <trans-unit id="library.filter.visible"><source>Visible</source></trans-unit>
+      <trans-unit id="library.filter.hidden"><source>Hidden</source></trans-unit>
+      <trans-unit id="library.search.placeholder"><source>Search id, name, vendor, matchers…</source></trans-unit>
+      <trans-unit id="library.search.button"><source>Search</source></trans-unit>
+      <trans-unit id="library.search.clear"><source>Clear</source></trans-unit>
+      <trans-unit id="library.column.visibility"><source>Banner</source></trans-unit>
+      <trans-unit id="library.column.id"><source>Service ID</source></trans-unit>
+      <trans-unit id="library.column.name"><source>Name</source></trans-unit>
+      <trans-unit id="library.column.vendor"><source>Vendor</source></trans-unit>
+      <trans-unit id="library.column.purposes"><source>Purposes</source></trans-unit>
+      <trans-unit id="library.column.actions"><source>Actions</source></trans-unit>
+      <trans-unit id="library.badge.visible"><source>Visible</source></trans-unit>
+      <trans-unit id="library.badge.hidden"><source>Hidden</source></trans-unit>
+      <trans-unit id="library.action.promote"><source>Show on banner</source></trans-unit>
+      <trans-unit id="library.action.hide"><source>Hide from banner</source></trans-unit>
+      <trans-unit id="library.action.edit"><source>Edit service</source></trans-unit>
+      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:seed for the essentials, or simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source></trans-unit>
+      <trans-unit id="library.empty.filtered.title"><source>No services match the active filters.</source></trans-unit>
+      <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full registry will show.</source></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>

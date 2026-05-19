@@ -89,11 +89,11 @@ final class SeedServicesCommand extends Command
             // Seed entries are baseline essentials — every site needs them
             // on the banner. Library imports (`simplecmp:import-known-trackers`)
             // default to hidden; this command does not. `feVisibleOnInsert`
-            // covers new rows; `markVisibleOnFe` re-promotes rows that
+            // covers new rows; `setVisibility(true)` re-promotes rows that
             // already existed from an earlier library import (where the
             // initial fe_visible was 0).
             $this->services->upsert($payload, $pid, feVisibleOnInsert: true);
-            $this->services->markVisibleOnFe((string) $payload['id']);
+            $this->services->setVisibility((string) $payload['id'], true);
             $inserted++;
         }
 

@@ -1,0 +1,36 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+{namespace core=TYPO3\CMS\Core\ViewHelpers}
+
+<f:comment>
+    Shared tab nav for the simplecmp_detections module. The two URIs
+    `uri_detectionsTab` and `uri_servicesTab` are assigned by both
+    controllers — we don't construct them in Fluid because Extbase's
+    URI builder is scoped to the current controller and can't switch
+    cleanly.
+
+    Pass `active="detections"` or `active="services"` from the parent
+    template to drive the active-state styling.
+</f:comment>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'detections\'', then: 'active')}"
+           href="{uri_detectionsTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'detections\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-list-alternative" size="small" />
+            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:nav.detections" />
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'services\'', then: 'active')}"
+           href="{uri_servicesTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'services\'', then: 'true', else: 'false')}">
+            <core:icon identifier="content-table" size="small" />
+            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:nav.services" />
+        </a>
+    </li>
+</ul>
+</html>

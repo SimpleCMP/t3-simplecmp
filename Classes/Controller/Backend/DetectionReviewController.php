@@ -178,6 +178,10 @@ final class DetectionReviewController extends ActionController
             'uri_generateBridgeSecret' => $this->uri('generateBridgeSecret'),
             'uri_resetFilters' => $this->uri('list'),
             'filtersActive' => $filterArg !== [],
+            'uri_detectionsTab' => $this->uri('list'),
+            'uri_servicesTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\ServiceCatalog_list',
+            ),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
     }
@@ -434,7 +438,7 @@ final class DetectionReviewController extends ActionController
         // on insert; promote explicitly if the service already exists
         // (e.g. previously library-imported and just sat hidden).
         $this->serviceRepository->upsert($match, $pid, feVisibleOnInsert: true);
-        $this->serviceRepository->markVisibleOnFe((string) $match['id']);
+        $this->serviceRepository->setVisibility((string) $match['id'], true);
         return $this->redirectToList($filters);
     }
 

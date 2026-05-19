@@ -3,9 +3,38 @@
   <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="simplecmp_typo3">
     <header/>
     <body>
-      <trans-unit id="mlang_tabs_tab"><source>SimpleCMP detections</source><target>SimpleCMP-Detektionen</target></trans-unit>
-      <trans-unit id="mlang_labels_tablabel"><source>Review SimpleCMP detections</source><target>SimpleCMP-Detektionen prüfen</target></trans-unit>
-      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge. Approve detections recognised by the bundled service library, or curate new services manually for unknown trackers.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden. Bereits in der Bibliothek bekannte Detektionen per Klick übernehmen, unbekannte Tracker manuell kuratieren.</target></trans-unit>
+      <trans-unit id="mlang_tabs_tab"><source>SimpleCMP</source><target>SimpleCMP</target></trans-unit>
+      <trans-unit id="mlang_labels_tablabel"><source>SimpleCMP — detections and service catalog</source><target>SimpleCMP — Detektionen und Dienste-Katalog</target></trans-unit>
+      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden, und den Dienste-Katalog der Registry verwalten. Bibliotheks-Treffer per Klick übernehmen, unbekannte Tracker kuratieren oder Einträge aus der Registry auf das Besucher-Banner heben.</target></trans-unit>
+
+      <trans-unit id="nav.detections"><source>Detections</source><target>Detektionen</target></trans-unit>
+      <trans-unit id="nav.services"><source>Services</source><target>Dienste</target></trans-unit>
+
+      <trans-unit id="library.title"><source>SimpleCMP — service catalog</source><target>SimpleCMP — Dienste-Katalog</target></trans-unit>
+      <trans-unit id="library.header.visible"><source>visible on banner</source><target>auf dem Banner sichtbar</target></trans-unit>
+      <trans-unit id="library.header.hidden"><source>hidden</source><target>verborgen</target></trans-unit>
+      <trans-unit id="library.header.total"><source>total</source><target>gesamt</target></trans-unit>
+      <trans-unit id="library.filter.label"><source>Status</source><target>Status</target></trans-unit>
+      <trans-unit id="library.filter.all"><source>All</source><target>Alle</target></trans-unit>
+      <trans-unit id="library.filter.visible"><source>Visible</source><target>Sichtbar</target></trans-unit>
+      <trans-unit id="library.filter.hidden"><source>Hidden</source><target>Verborgen</target></trans-unit>
+      <trans-unit id="library.search.placeholder"><source>Search id, name, vendor, matchers…</source><target>Suche ID, Name, Anbieter, Muster…</target></trans-unit>
+      <trans-unit id="library.search.button"><source>Search</source><target>Suchen</target></trans-unit>
+      <trans-unit id="library.search.clear"><source>Clear</source><target>Zurücksetzen</target></trans-unit>
+      <trans-unit id="library.column.visibility"><source>Banner</source><target>Banner</target></trans-unit>
+      <trans-unit id="library.column.id"><source>Service ID</source><target>Service-ID</target></trans-unit>
+      <trans-unit id="library.column.name"><source>Name</source><target>Name</target></trans-unit>
+      <trans-unit id="library.column.vendor"><source>Vendor</source><target>Anbieter</target></trans-unit>
+      <trans-unit id="library.column.purposes"><source>Purposes</source><target>Zwecke</target></trans-unit>
+      <trans-unit id="library.column.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+      <trans-unit id="library.badge.visible"><source>Visible</source><target>Sichtbar</target></trans-unit>
+      <trans-unit id="library.badge.hidden"><source>Hidden</source><target>Verborgen</target></trans-unit>
+      <trans-unit id="library.action.promote"><source>Show on banner</source><target>Auf Banner zeigen</target></trans-unit>
+      <trans-unit id="library.action.hide"><source>Hide from banner</source><target>Vom Banner ausblenden</target></trans-unit>
+      <trans-unit id="library.action.edit"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
+      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:seed for the essentials, or simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source><target>Die Dienste-Registry ist leer. simplecmp:seed liefert die Basis-Einträge, simplecmp:import-known-trackers füllt den Klassifizierer mit der gebündelten Bibliothek vor.</target></trans-unit>
+      <trans-unit id="library.empty.filtered.title"><source>No services match the active filters.</source><target>Kein Dienst entspricht den aktiven Filtern.</target></trans-unit>
+      <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full registry will show.</source><target>Filter und Suche zurücksetzen, um die gesamte Registry zu sehen.</target></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>

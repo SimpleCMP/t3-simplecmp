@@ -1,0 +1,154 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:render partial="ModuleNav" arguments="{active: 'services', uri_detectionsTab: uri_detectionsTab, uri_servicesTab: uri_servicesTab}" />
+
+    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
+    <p class="text-body-secondary">
+        <strong>{visibleCount}</strong>
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.visible" />
+        · {hiddenCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.hidden" />
+        · {totalCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.total" />
+    </p>
+
+    <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
+        <select data-list-filter="status" class="form-select form-select-sm" style="width: auto;"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.filter.label')}">
+            <f:for each="{statusOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {status}', then: 'selected')}>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.filter.{opt}" />
+                </option>
+            </f:for>
+        </select>
+
+        <input type="text"
+               data-list-filter="search"
+               value="{search}"
+               class="form-control form-control-sm flex-grow-1"
+               style="max-width: 26rem;"
+               placeholder="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
+               aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
+               maxlength="200" />
+
+        <f:if condition="{filtersActive}">
+            <a href="{uri_resetFilters}" class="btn btn-sm btn-link">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.clear" />
+            </a>
+        </f:if>
+    </div>
+
+    <f:if condition="{services -> f:count()} == 0">
+        <f:then>
+            <f:if condition="{filtersActive}">
+                <f:then>
+                    <div class="callout callout-info">
+                        <h4 class="callout-title">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.title" />
+                        </h4>
+                        <p class="callout-body">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.body" />
+                        </p>
+                    </div>
+                </f:then>
+                <f:else>
+                    <div class="callout callout-info">
+                        <p><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty" /></p>
+                    </div>
+                </f:else>
+            </f:if>
+        </f:then>
+        <f:else>
+            <div class="table-fit">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 7rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.visibility" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.id" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.name" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.vendor" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.purposes" /></th>
+                            <th style="width: 14rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.actions" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{services}" as="svc">
+                            <tr>
+                                <td>
+                                    <f:if condition="{svc.feVisible}">
+                                        <f:then>
+                                            <span class="badge badge-success">
+                                                <core:icon identifier="actions-eye" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.visible" />
+                                            </span>
+                                        </f:then>
+                                        <f:else>
+                                            <span class="badge badge-secondary">
+                                                <core:icon identifier="actions-eye-slash" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.hidden" />
+                                            </span>
+                                        </f:else>
+                                    </f:if>
+                                </td>
+                                <td><code>{svc.id}</code></td>
+                                <td>{svc.name}</td>
+                                <td>{svc.vendor}</td>
+                                <td>
+                                    <f:for each="{svc.purposes}" as="purpose">
+                                        <span class="badge badge-info">{purpose}</span>
+                                    </f:for>
+                                </td>
+                                <td>
+                                    <f:if condition="{svc.feVisible}">
+                                        <f:then>
+                                            <form method="post" action="{svc.uri_hide}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-default">
+                                                    <core:icon identifier="actions-eye-slash" size="small" />
+                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.hide" />
+                                                </button>
+                                            </form>
+                                        </f:then>
+                                        <f:else>
+                                            <form method="post" action="{svc.uri_promote}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <core:icon identifier="actions-eye" size="small" />
+                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.promote" />
+                                                </button>
+                                            </form>
+                                        </f:else>
+                                    </f:if>
+                                    <f:if condition="{svc.uri_edit}">
+                                        <a href="{svc.uri_edit}" class="btn btn-sm btn-link" title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.edit')}">
+                                            <core:icon identifier="actions-open" size="small" />
+                                        </a>
+                                    </f:if>
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+
+            <f:if condition="{totalPages} > 1">
+                <nav class="d-flex justify-content-between align-items-center mt-3" aria-label="Pagination">
+                    <p class="text-body-secondary mb-0">
+                        {rangeStart}–{rangeEnd} / {filteredCount}
+                    </p>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{uri_pageFirst}" class="btn btn-default {f:if(condition: '{currentPage} == 1', then: 'disabled')}">«</a>
+                        <a href="{uri_pagePrev}" class="btn btn-default {f:if(condition: '{currentPage} == 1', then: 'disabled')}">‹</a>
+                        <span class="btn btn-default disabled">{currentPage} / {totalPages}</span>
+                        <a href="{uri_pageNext}" class="btn btn-default {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">›</a>
+                        <a href="{uri_pageLast}" class="btn btn-default {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">»</a>
+                    </div>
+                </nav>
+            </f:if>
+        </f:else>
+    </f:if>
+</f:section>
+</html>

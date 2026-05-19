@@ -54,7 +54,7 @@ final class SeedServicesCommandTest extends FunctionalTestCase
         // first (fe_visible=0), then re-runs `simplecmp:seed`. The seed
         // command must override the hidden state for its essentials —
         // `feVisibleOnInsert` only applies on insert, so without an
-        // explicit `markVisibleOnFe` call the UPDATE path would leave
+        // explicit `setVisibility(true)` call the UPDATE path would leave
         // the row hidden and admin's banner stays empty.
         $this->repository->upsert(
             ['id' => 'google-analytics', 'name' => 'Stale GA', 'purposes' => []],

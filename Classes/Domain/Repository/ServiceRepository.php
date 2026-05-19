@@ -170,16 +170,49 @@ final readonly class ServiceRepository
     }
 
     /**
-     * Promote a service to the FE banner. Idempotent — repeated calls on
-     * an already-visible service are no-ops. The Übernehmen flow on the
-     * BE detection table is the typical caller.
+     * Load every service for the BE service-catalog tab. Same protocol
+     * shape as `findAll()` plus a `feVisible` boolean — the BE-only
+     * field that controls whether a service appears in the FE banner.
+     * Kept separate from `findAll()` so the Service-DB middleware
+     * response shape (which IS the protocol contract) stays clean.
+     *
+     * @return array<array<string, mixed>>
      */
-    public function markVisibleOnFe(string $serviceId): void
+    public function findAllForCatalog(): array
+    {
+        $rows = $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->createQueryBuilder()
+            ->select('*')
+            ->from(self::TABLE)
+            ->orderBy('service_id', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(function (array $row): array {
+            $shape = $this->rowToProtocol($row);
+            $shape['feVisible'] = ((int) ($row['fe_visible'] ?? 0)) === 1;
+            return $shape;
+        }, $rows);
+    }
+
+    /**
+     * Set the FE banner visibility of a service. Idempotent — repeated
+     * calls on an already-matching service are effective no-ops (tstamp
+     * still bumps).
+     *
+     * Typical callers:
+     * - `DetectionReviewController::approveAction` → `setVisibility(id, true)`
+     *   (Übernehmen flow).
+     * - `ServiceCatalogController::promote` / `hide` (BE service catalog tab).
+     * - `SeedServicesCommand` → `setVisibility(id, true)` after upsert, so
+     *   pre-existing rows from earlier library imports get re-promoted.
+     */
+    public function setVisibility(string $serviceId, bool $visible): void
     {
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
         $conn->update(
             self::TABLE,
-            ['fe_visible' => 1, 'tstamp' => time()],
+            ['fe_visible' => $visible ? 1 : 0, 'tstamp' => time()],
             ['service_id' => $serviceId],
         );
     }

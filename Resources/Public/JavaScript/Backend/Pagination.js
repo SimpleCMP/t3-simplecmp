@@ -4,9 +4,10 @@
  *
  * - `[data-per-page]` — sets `perPage` and clears `page` (= jump to
  *   page 1 of the new size).
- * - `[data-list-filter="<name>"]` — sets `<name>` in the URL (or
- *   removes it when the value is empty), and clears `page` so the
- *   user lands on page 1 of the filtered view.
+ * - `<select|input data-list-filter="<name>">` — sets `<name>` in the
+ *   URL (or removes it when empty), and clears `page` so the user
+ *   lands on page 1 of the filtered view. For text inputs, `change`
+ *   fires on blur or Enter.
  *
  * Both flows rewrite `location` directly. A <form method="get"> would
  * also work, but TYPO3's BE-module token sits in the URL and weaving
@@ -19,10 +20,10 @@ class Pagination {
 
   onChange(event) {
     const target = event.target;
-    if (!(target instanceof HTMLSelectElement)) {
+    if (!(target instanceof HTMLSelectElement) && !(target instanceof HTMLInputElement)) {
       return;
     }
-    if (target.matches('[data-per-page]')) {
+    if (target instanceof HTMLSelectElement && target.matches('[data-per-page]')) {
       Pagination.navigate(target, { perPage: target.value, page: null });
       return;
     }
