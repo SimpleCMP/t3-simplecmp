@@ -127,6 +127,12 @@ final class RegistryListController extends ActionController
             'uri_pageNext' => $this->uri('list', $pageArg + ['page' => min($totalPages, $page + 1)]),
             'uri_pageLast' => $this->uri('list', $pageArg + ['page' => $totalPages]),
             'uri_resetFilters' => $this->uri('list'),
+            // Pre-built URL for the orphan callout's "Show only orphans"
+            // shortcut. Building it here (via Extbase's URI builder) and
+            // not via string-concat in the template avoids the double-`?`
+            // bug — BE module URIs always carry a `?token=…` security
+            // token, and `{uri}?source=…` ends up with two question marks.
+            'uri_orphansFilter' => $this->uri('list', ['source' => 'orphaned']),
             'filtersActive' => $filterArg !== [],
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\LibraryBrowser_list',
