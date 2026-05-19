@@ -10,6 +10,50 @@ development.
 
 ## Unreleased
 
+### Added — Dienste tab (registry index, source-tagged)
+
+- **New BE tab "Dienste"** between Detektionen and Bibliothek. Lists
+  every row in `tx_simplecmptypo3_service` regardless of origin, with
+  filter / search / per-row actions. Closes the UX gap where adopted
+  library entries weren't visible together with custom-curated
+  services anywhere in the SimpleCMP module — admins previously had
+  to bounce to *Web → List → SimpleCMP-Dienst* (outside the module)
+  to see the full picture.
+- **Three-source-state derivation** (`RegistryListPresenter`):
+  - **Eigene** (custom-curated) — no library-adoption history.
+  - **Aus Bibliothek** — adopted from the bundled library *and* the
+    library still contains the service.
+  - **Verwaist** — was adopted from the library, but a later library
+    release dropped or renamed the service. The registry row still
+    works in the FE banner; admin gets an orange callout, a *Show
+    only orphans* shortcut, and Delete is unlocked (because the
+    library no longer claims the row).
+  Source is derived at view time from a new
+  `tx_simplecmptypo3_service.library_adopted_at` column compared
+  against the current `ServicesLibrary::services()` ID set, so a
+  `composer update` that drops a service flips affected rows from
+  Aus-Bibliothek → Verwaist with no migration step.
+- **"Aktive Detektionen" column** per registry row — counts how many
+  current detections derive to *Kuratiert* via this specific
+  service. Surfaces unused services (count = 0) so admins can spot
+  prune candidates. One extra full-table detection scan per render.
+- **Asymmetric Delete affordance:** *Eigene* and *Verwaist* rows
+  expose Delete; *Aus Bibliothek* rows don't — those go through the
+  Bibliothek tab's *Unadopt* to keep the adopt-from/unadopt-via-
+  library symmetry. The controller re-derives the source server-side
+  before deleting, so a forged URL pointing at an Aus-Bibliothek row
+  is a no-op rather than a quiet bypass.
+- **Upgrade wizard** `simplecmpTypo3BackfillLibraryAdoptedAt`
+  back-fills `library_adopted_at = NOW()` for rows that pre-date the
+  column whose `service_id` is in the currently-bundled library.
+  Idempotent; runs once via Install Tool's Upgrade module or
+  `vendor/bin/typo3 upgrade:run simplecmpTypo3BackfillLibraryAdoptedAt`.
+- **`ServiceRepository::upsert()` gained `bool $fromLibrary` (default
+  false).** Adoption paths
+  (`LibraryBrowserController::adoptAction`,
+  `DetectionReviewController::approveAction`) now pass `true` so the
+  resulting registry row carries a `library_adopted_at` stamp.
+
 ### Changed (breaking, pre-1.0) — four-state model adds Verworfen
 
 - **`Verwerfen` (dismiss) replaces destructive Delete on the actionable

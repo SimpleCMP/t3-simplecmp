@@ -8,7 +8,43 @@
       <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden, und den Dienste-Katalog der Registry verwalten. Bibliotheks-Treffer per Klick übernehmen, unbekannte Tracker kuratieren oder Einträge aus der Registry auf das Besucher-Banner heben.</target></trans-unit>
 
       <trans-unit id="nav.detections"><source>Detections</source><target>Detektionen</target></trans-unit>
+      <trans-unit id="nav.registry"><source>Services</source><target>Dienste</target></trans-unit>
+      <trans-unit id="nav.library"><source>Library</source><target>Bibliothek</target></trans-unit>
       <trans-unit id="nav.services"><source>Library</source><target>Bibliothek</target></trans-unit>
+
+      <trans-unit id="registry.title"><source>SimpleCMP — registered services</source><target>SimpleCMP — registrierte Dienste</target></trans-unit>
+      <trans-unit id="registry.header.custom"><source>custom</source><target>eigene</target></trans-unit>
+      <trans-unit id="registry.header.library"><source>from library</source><target>aus Bibliothek</target></trans-unit>
+      <trans-unit id="registry.header.orphaned"><source>orphaned</source><target>verwaist</target></trans-unit>
+      <trans-unit id="registry.header.total"><source>total</source><target>gesamt</target></trans-unit>
+      <trans-unit id="registry.orphans.title"><source>Services no longer in the bundled library</source><target>Dienste sind nicht mehr in der Bibliothek</target></trans-unit>
+      <trans-unit id="registry.orphans.body"><source>%d service(s) you previously adopted from the library are no longer part of it — they may have been renamed or removed in a later library release. The services still work in your banner; you can delete them from here or look for replacements in the Library tab.</source><target>%d zuvor aus der Bibliothek übernommene Dienst(e) sind nicht mehr Teil davon — sie wurden möglicherweise in einer späteren Bibliotheksversion umbenannt oder entfernt. Die Dienste funktionieren weiterhin im Banner; Sie können sie hier löschen oder in der Bibliothek nach Ersatz suchen.</target></trans-unit>
+      <trans-unit id="registry.orphans.filter"><source>Show only orphans</source><target>Nur verwaiste anzeigen</target></trans-unit>
+      <trans-unit id="registry.source.label"><source>Source filter</source><target>Quellenfilter</target></trans-unit>
+      <trans-unit id="registry.source.all"><source>All sources</source><target>Alle Quellen</target></trans-unit>
+      <trans-unit id="registry.source.custom"><source>Only custom</source><target>Nur eigene</target></trans-unit>
+      <trans-unit id="registry.source.library"><source>Only from library</source><target>Nur aus Bibliothek</target></trans-unit>
+      <trans-unit id="registry.source.orphaned"><source>Only orphans</source><target>Nur verwaiste</target></trans-unit>
+      <trans-unit id="registry.purpose.label"><source>Purpose filter</source><target>Zweckfilter</target></trans-unit>
+      <trans-unit id="registry.purpose.all"><source>All purposes</source><target>Alle Zwecke</target></trans-unit>
+      <trans-unit id="registry.search.placeholder"><source>Search id, name, vendor, matchers…</source><target>ID, Name, Anbieter, Matcher durchsuchen…</target></trans-unit>
+      <trans-unit id="registry.column.source"><source>Source</source><target>Quelle</target></trans-unit>
+      <trans-unit id="registry.column.name"><source>Service</source><target>Dienst</target></trans-unit>
+      <trans-unit id="registry.column.id"><source>Service ID</source><target>Dienst-ID</target></trans-unit>
+      <trans-unit id="registry.column.purposes"><source>Purposes</source><target>Zwecke</target></trans-unit>
+      <trans-unit id="registry.column.matchers"><source>Matchers</source><target>Treffer</target></trans-unit>
+      <trans-unit id="registry.column.coverage"><source>Active detections</source><target>Aktive Detektionen</target></trans-unit>
+      <trans-unit id="registry.column.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+      <trans-unit id="registry.badge.custom"><source>Custom</source><target>Eigene</target></trans-unit>
+      <trans-unit id="registry.badge.library"><source>From library</source><target>Aus Bibliothek</target></trans-unit>
+      <trans-unit id="registry.badge.orphaned"><source>Orphaned</source><target>Verwaist</target></trans-unit>
+      <trans-unit id="registry.matchers.count"><source>%d cookies · %d hosts</source><target>%d Cookies · %d Hosts</target></trans-unit>
+      <trans-unit id="registry.action.edit"><source>Edit</source><target>Bearbeiten</target></trans-unit>
+      <trans-unit id="registry.action.delete.title"><source>Delete this service from the registry. Library-sourced services can only be unadopted from the Library tab.</source><target>Diesen Dienst aus der Registry löschen. Aus der Bibliothek übernommene Dienste werden im Bibliothek-Tab zurückgenommen.</target></trans-unit>
+      <trans-unit id="registry.action.delete.confirm"><source>Remove this service from the banner? Visitors will stop being prompted for it.</source><target>Diesen Dienst aus dem Banner entfernen? Besucher werden nicht mehr danach gefragt.</target></trans-unit>
+      <trans-unit id="registry.empty"><source>No services in the registry yet. Adopt one from the Library tab or curate one from the Detections list.</source><target>Noch keine Dienste in der Registry. Übernehmen Sie einen aus der Bibliothek oder kuratieren Sie einen aus den Detektionen.</target></trans-unit>
+      <trans-unit id="registry.empty.filtered.title"><source>No services match the active filters.</source><target>Kein Dienst entspricht den aktiven Filtern.</target></trans-unit>
+      <trans-unit id="registry.empty.filtered.reset"><source>Reset all filters</source><target>Alle Filter zurücksetzen</target></trans-unit>
 
       <trans-unit id="library.title"><source>SimpleCMP — service library</source><target>SimpleCMP — Dienste-Bibliothek</target></trans-unit>
       <trans-unit id="library.header.available"><source>available</source><target>verfügbar</target></trans-unit>

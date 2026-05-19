@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DetectionReviewController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\LibraryBrowserController;
+use WapplerSystems\SimpleCmpTypo3\Controller\Backend\RegistryListController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
 
 /**
@@ -12,14 +13,13 @@ use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
  * Two flat sibling modules under the "Websites" group — TYPO3's BE module
  * menu is intentionally 2-level only, so the SimpleCMP feature area is
  * grouped by adjacency + the shared icon rather than a hierarchical
- * sub-menu. The detections module hosts two tabs (Detections + Services
- * catalog) so admins land in one entry-point regardless of whether they
- * want to triage incoming detections or promote registered services to
- * the banner:
+ * sub-menu. The detections module hosts three tabs reflecting the
+ * 3-table architecture: Detections (observation log) | Dienste (registry
+ * surface, source-tagged) | Bibliothek (bundled library browser):
  *
  *   Websites
  *     ├─ Einrichtung (core)
- *     ├─ SimpleCMP             (tabs: Detections | Services)
+ *     ├─ SimpleCMP             (tabs: Detections | Dienste | Bibliothek)
  *     └─ SimpleCMP-Banner-Design (theme designer)
  */
 return [
@@ -50,6 +50,10 @@ return [
                 'list',
                 'adopt',
                 'unadopt',
+            ],
+            RegistryListController::class => [
+                'list',
+                'delete',
             ],
         ],
     ],

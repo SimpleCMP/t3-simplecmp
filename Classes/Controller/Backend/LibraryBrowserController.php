@@ -121,7 +121,10 @@ final class LibraryBrowserController extends ActionController
             'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\DetectionReview_list',
             ),
-            'uri_servicesTab' => $this->uri('list'),
+            'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\RegistryList_list',
+            ),
+            'uri_libraryTab' => $this->uri('list'),
         ]);
         return $moduleTemplate->renderResponse('LibraryBrowser/List');
     }
@@ -134,7 +137,11 @@ final class LibraryBrowserController extends ActionController
         $entry = $this->loadLibraryEntry($serviceId);
         if ($entry !== null) {
             $pid = $this->storagePidResolver->resolveDefault();
-            $this->serviceRepository->upsert($entry, $pid);
+            // fromLibrary: true → stamps `library_adopted_at` so the
+            // Dienste tab can later distinguish Aus-Bibliothek rows
+            // from Eigene rows, and surface Verwaist if the bundled
+            // library drops this service in a future composer update.
+            $this->serviceRepository->upsert($entry, $pid, true);
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }

@@ -117,8 +117,16 @@ final readonly class ServiceRepository
      * model — classifier coverage now comes from the bundled library
      * (`SimpleCMP\ServicesLibrary`) consulted directly by
      * `ClassifierLookup`.
+     *
+     * Pass `$fromLibrary = true` from adoption paths (Bibliothek
+     * Übernehmen, Detection-list approve) so the row gets a
+     * `library_adopted_at` timestamp — that's how the Dienste tab
+     * later distinguishes Aus-Bibliothek rows from Eigene rows, and
+     * surfaces Verwaist when the bundled library drops a service that
+     * was previously adopted. Custom-curated paths leave the default
+     * `$fromLibrary = false` so `library_adopted_at` stays 0.
      */
-    public function upsert(array $serviceData, int $pid = 0): void
+    public function upsert(array $serviceData, int $pid = 0, bool $fromLibrary = false): void
     {
         $row = [
             'pid' => $pid,
@@ -149,19 +157,29 @@ final readonly class ServiceRepository
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
         $existing = $conn->createQueryBuilder()
-            ->select('uid')
+            ->select('uid', 'library_adopted_at')
             ->from(self::TABLE)
             ->where('service_id = :id')
             ->setParameter('id', $serviceData['id'])
             ->executeQuery()
-            ->fetchOne();
+            ->fetchAssociative();
 
         if ($existing === false) {
             $row['crdate'] = time();
+            if ($fromLibrary) {
+                $row['library_adopted_at'] = time();
+            }
             $conn->insert(self::TABLE, $row);
-        } else {
-            $conn->update(self::TABLE, $row, ['uid' => (int) $existing]);
+            return;
         }
+        // Preserve the adoption timestamp on update — re-saving a row
+        // shouldn't change when it was originally adopted. Only set
+        // it if the row was created from a non-library path (custom
+        // curation) and is now being re-saved via an adoption flow.
+        if ($fromLibrary && (int) $existing['library_adopted_at'] === 0) {
+            $row['library_adopted_at'] = time();
+        }
+        $conn->update(self::TABLE, $row, ['uid' => (int) $existing['uid']]);
     }
 
     /**
@@ -188,6 +206,97 @@ final readonly class ServiceRepository
     {
         $this->connectionPool->getConnectionForTable(self::TABLE)
             ->delete(self::TABLE, ['service_id' => $serviceId]);
+    }
+
+    /**
+     * Variant of {@see findAll()} that keeps internal columns admins
+     * need in the Dienste BE tab: `_uid` (for the TCA edit link) and
+     * `_libraryAdoptedAt` (drives Eigene / Aus-Bibliothek / Verwaist
+     * source derivation). The two keys are underscore-prefixed so
+     * they're easy to filter out before exposing rows through the
+     * public `/services` protocol endpoint, which intentionally
+     * doesn't leak BE-internal metadata.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function findAllForRegistryView(): array
+    {
+        $rows = $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->createQueryBuilder()
+            ->select('*')
+            ->from(self::TABLE)
+            ->orderBy('service_id', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(function (array $row): array {
+            $protocol = $this->rowToProtocol($row);
+            $protocol['_uid'] = (int) $row['uid'];
+            $protocol['_libraryAdoptedAt'] = (int) ($row['library_adopted_at'] ?? 0);
+            return $protocol;
+        }, $rows);
+    }
+
+    /**
+     * Backfill `library_adopted_at` for rows whose `service_id`
+     * appears in the currently-bundled library but which pre-date the
+     * column. Called once by the upgrade wizard. Returns the number
+     * of rows updated so the wizard's done-check can confirm work
+     * happened.
+     *
+     * @param list<string> $libraryIds the full set of library
+     *        service IDs currently in `ServicesLibrary::services()`.
+     */
+    public function backfillLibraryAdoptedAt(array $libraryIds): int
+    {
+        if ($libraryIds === []) {
+            return 0;
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        return (int) $qb->update(self::TABLE)
+            ->set(
+                'library_adopted_at',
+                (string) $qb->createNamedParameter(time(), \Doctrine\DBAL\ParameterType::INTEGER),
+                false,
+            )
+            ->where($qb->expr()->in(
+                'service_id',
+                $qb->createNamedParameter($libraryIds, \TYPO3\CMS\Core\Database\Connection::PARAM_STR_ARRAY),
+            ))
+            ->andWhere($qb->expr()->eq(
+                'library_adopted_at',
+                $qb->createNamedParameter(0, \Doctrine\DBAL\ParameterType::INTEGER),
+            ))
+            ->executeStatement();
+    }
+
+    /**
+     * Count rows whose `library_adopted_at = 0` and whose `service_id`
+     * isn't in the supplied library-ID list — the upgrade wizard uses
+     * this to decide whether it still has work to do.
+     *
+     * @param list<string> $libraryIds
+     */
+    public function countRowsNeedingBackfill(array $libraryIds): int
+    {
+        if ($libraryIds === []) {
+            return 0;
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        return (int) $qb->count('uid')
+            ->from(self::TABLE)
+            ->where($qb->expr()->in(
+                'service_id',
+                $qb->createNamedParameter($libraryIds, \TYPO3\CMS\Core\Database\Connection::PARAM_STR_ARRAY),
+            ))
+            ->andWhere($qb->expr()->eq(
+                'library_adopted_at',
+                $qb->createNamedParameter(0, \Doctrine\DBAL\ParameterType::INTEGER),
+            ))
+            ->executeQuery()
+            ->fetchOne();
     }
 
     /**

@@ -193,7 +193,10 @@ final class DetectionReviewController extends ActionController
             'uri_resetFilters' => $this->uri('list'),
             'filtersActive' => $filterArg !== [],
             'uri_detectionsTab' => $this->uri('list'),
-            'uri_servicesTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+            'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\RegistryList_list',
+            ),
+            'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\LibraryBrowser_list',
             ),
         ]);
@@ -462,8 +465,9 @@ final class DetectionReviewController extends ActionController
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
         // Übernehmen inserts (or updates) the registry row. The registry
         // holds admin-curated services only, so anything here appears on
-        // the FE banner.
-        $this->serviceRepository->upsert($match, $pid);
+        // the FE banner. fromLibrary=true stamps library_adopted_at so
+        // the Dienste tab can derive Aus-Bibliothek source state.
+        $this->serviceRepository->upsert($match, $pid, true);
         return $this->redirectToList($filters);
     }
 

@@ -8,7 +8,43 @@
       <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source></trans-unit>
 
       <trans-unit id="nav.detections"><source>Detections</source></trans-unit>
+      <trans-unit id="nav.registry"><source>Services</source></trans-unit>
+      <trans-unit id="nav.library"><source>Library</source></trans-unit>
       <trans-unit id="nav.services"><source>Library</source></trans-unit>
+
+      <trans-unit id="registry.title"><source>SimpleCMP — registered services</source></trans-unit>
+      <trans-unit id="registry.header.custom"><source>custom</source></trans-unit>
+      <trans-unit id="registry.header.library"><source>from library</source></trans-unit>
+      <trans-unit id="registry.header.orphaned"><source>orphaned</source></trans-unit>
+      <trans-unit id="registry.header.total"><source>total</source></trans-unit>
+      <trans-unit id="registry.orphans.title"><source>Services no longer in the bundled library</source></trans-unit>
+      <trans-unit id="registry.orphans.body"><source>%d service(s) you previously adopted from the library are no longer part of it — they may have been renamed or removed in a later library release. The services still work in your banner; you can delete them from here or look for replacements in the Library tab.</source></trans-unit>
+      <trans-unit id="registry.orphans.filter"><source>Show only orphans</source></trans-unit>
+      <trans-unit id="registry.source.label"><source>Source filter</source></trans-unit>
+      <trans-unit id="registry.source.all"><source>All sources</source></trans-unit>
+      <trans-unit id="registry.source.custom"><source>Only custom</source></trans-unit>
+      <trans-unit id="registry.source.library"><source>Only from library</source></trans-unit>
+      <trans-unit id="registry.source.orphaned"><source>Only orphans</source></trans-unit>
+      <trans-unit id="registry.purpose.label"><source>Purpose filter</source></trans-unit>
+      <trans-unit id="registry.purpose.all"><source>All purposes</source></trans-unit>
+      <trans-unit id="registry.search.placeholder"><source>Search id, name, vendor, matchers…</source></trans-unit>
+      <trans-unit id="registry.column.source"><source>Source</source></trans-unit>
+      <trans-unit id="registry.column.name"><source>Service</source></trans-unit>
+      <trans-unit id="registry.column.id"><source>Service ID</source></trans-unit>
+      <trans-unit id="registry.column.purposes"><source>Purposes</source></trans-unit>
+      <trans-unit id="registry.column.matchers"><source>Matchers</source></trans-unit>
+      <trans-unit id="registry.column.coverage"><source>Active detections</source></trans-unit>
+      <trans-unit id="registry.column.actions"><source>Actions</source></trans-unit>
+      <trans-unit id="registry.badge.custom"><source>Custom</source></trans-unit>
+      <trans-unit id="registry.badge.library"><source>From library</source></trans-unit>
+      <trans-unit id="registry.badge.orphaned"><source>Orphaned</source></trans-unit>
+      <trans-unit id="registry.matchers.count"><source>%d cookies · %d hosts</source></trans-unit>
+      <trans-unit id="registry.action.edit"><source>Edit</source></trans-unit>
+      <trans-unit id="registry.action.delete.title"><source>Delete this service from the registry. Library-sourced services can only be unadopted from the Library tab.</source></trans-unit>
+      <trans-unit id="registry.action.delete.confirm"><source>Remove this service from the banner? Visitors will stop being prompted for it.</source></trans-unit>
+      <trans-unit id="registry.empty"><source>No services in the registry yet. Adopt one from the Library tab or curate one from the Detections list.</source></trans-unit>
+      <trans-unit id="registry.empty.filtered.title"><source>No services match the active filters.</source></trans-unit>
+      <trans-unit id="registry.empty.filtered.reset"><source>Reset all filters</source></trans-unit>
 
       <trans-unit id="library.title"><source>SimpleCMP — service library</source></trans-unit>
       <trans-unit id="library.header.available"><source>available</source></trans-unit>

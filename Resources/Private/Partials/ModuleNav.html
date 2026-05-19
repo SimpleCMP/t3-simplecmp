@@ -3,14 +3,20 @@
 {namespace core=TYPO3\CMS\Core\ViewHelpers}
 
 <f:comment>
-    Shared tab nav for the simplecmp_detections module. The two URIs
-    `uri_detectionsTab` and `uri_servicesTab` are assigned by both
-    controllers — we don't construct them in Fluid because Extbase's
-    URI builder is scoped to the current controller and can't switch
-    cleanly.
+    Shared tab nav for the simplecmp_detections module.
 
-    Pass `active="detections"` or `active="services"` from the parent
-    template to drive the active-state styling.
+    Three tabs reflecting the 3-table architecture:
+    - Detections — observation log (DetectionReviewController)
+    - Dienste — registry index regardless of source
+      (RegistryListController)
+    - Bibliothek — bundled library browser + Adopt action
+      (LibraryBrowserController)
+
+    The three URIs are assigned by each controller — we don't construct
+    them in Fluid because Extbase's URI builder is scoped to the current
+    controller and can't switch cleanly. Pass
+    `active="detections"|"registry"|"library"` from the parent template
+    to drive the active-state styling.
 </f:comment>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
@@ -24,12 +30,21 @@
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link {f:if(condition: '{active} == \'services\'', then: 'active')}"
-           href="{uri_servicesTab}"
+        <a class="nav-link {f:if(condition: '{active} == \'registry\'', then: 'active')}"
+           href="{uri_registryTab}"
            role="tab"
-           aria-selected="{f:if(condition: '{active} == \'services\'', then: 'true', else: 'false')}">
+           aria-selected="{f:if(condition: '{active} == \'registry\'', then: 'true', else: 'false')}">
             <core:icon identifier="content-table" size="small" />
-            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:nav.services" />
+            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:nav.registry" />
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'library\'', then: 'active')}"
+           href="{uri_libraryTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'library\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-database" size="small" />
+            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:nav.library" />
         </a>
     </li>
 </ul>

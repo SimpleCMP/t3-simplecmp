@@ -1,0 +1,197 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:render partial="ModuleNav" arguments="{active: 'registry', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab}" />
+
+    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.title" /></h1>
+    <p class="text-body-secondary">
+        <strong>{customCount}</strong>
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.header.custom" />
+        · {libraryCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.header.library" />
+        · <span class="{f:if(condition: '{orphanedCount} > 0', then: 'text-warning fw-bold')}">{orphanedCount}</span>
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.header.orphaned" />
+        · {totalCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.header.total" />
+    </p>
+
+    <f:if condition="{orphanedCount} > 0">
+        <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+            <core:icon identifier="actions-exclamation-triangle" size="medium" />
+            <div>
+                <strong><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.orphans.title" /></strong>
+                <div>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.orphans.body" arguments="{0: orphanedCount}" />
+                </div>
+                <f:if condition="{source} != 'orphaned'">
+                    <a href="{uri_registryTab}?source=orphaned" class="btn btn-warning btn-sm mt-2">
+                        <core:icon identifier="actions-filter" size="small" />
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.orphans.filter" />
+                    </a>
+                </f:if>
+            </div>
+        </div>
+    </f:if>
+
+    <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
+        <select data-list-filter="source" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.source.label')}">
+            <f:for each="{sourceOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {source}', then: 'selected')}>
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.source.{opt}" />
+                </option>
+            </f:for>
+        </select>
+        <select data-list-filter="purpose" class="form-select form-select-sm" style="width:auto"
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.purpose.label')}">
+            <option value="" {f:if(condition: '{purpose} == \'\'', then: 'selected')}>
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.purpose.all" />
+            </option>
+            <f:for each="{purposeOptions}" as="opt">
+                <option value="{opt}" {f:if(condition: '{opt} == {purpose}', then: 'selected')}>{opt}</option>
+            </f:for>
+        </select>
+        <input type="search"
+               data-list-filter="search"
+               value="{search}"
+               placeholder="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.search.placeholder')}"
+               class="form-control form-control-sm"
+               style="width:auto;min-width:18rem"
+               aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.search.placeholder')}" />
+    </div>
+
+    <f:if condition="{services -> f:count()} > 0">
+        <f:then>
+            <div class="d-flex align-items-center mb-2 gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="simplecmp-per-page" class="form-label mb-0 text-body-secondary small">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.perPageLabel" />
+                    </label>
+                    <select id="simplecmp-per-page" data-per-page class="form-select form-select-sm" style="width:auto">
+                        <f:for each="{perPageOptions}" as="option">
+                            <option value="{option}" {f:if(condition: '{option} == {perPage}', then: 'selected')}>{option}</option>
+                        </f:for>
+                    </select>
+                </div>
+                <div class="text-body-secondary small ms-auto">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.range" arguments="{0: rangeStart, 1: rangeEnd, 2: filteredCount}" />
+                </div>
+            </div>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.source" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.name" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.id" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.purposes" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.matchers" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.coverage" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.column.actions" /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{services}" as="service">
+                        <tr>
+                            <td>
+                                <span class="badge {service.source_class}">
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:{service.source_label_key}" />
+                                </span>
+                            </td>
+                            <td>
+                                <strong>{service.name}</strong>
+                                <f:if condition="{service.vendor}">
+                                    <small class="d-block text-body-secondary">{service.vendor}</small>
+                                </f:if>
+                            </td>
+                            <td><code>{service.id}</code></td>
+                            <td>
+                                <f:for each="{service.purposes}" as="p">
+                                    <span class="badge bg-secondary me-1">{p}</span>
+                                </f:for>
+                            </td>
+                            <td class="text-body-secondary small">
+                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.matchers.count" arguments="{0: '{service.matches.cookies -> f:count()}', 1: '{service.matches.origins -> f:count()}'}" />
+                            </td>
+                            <td class="text-end">
+                                <f:if condition="{service.coverage_count} > 0">
+                                    <f:then>
+                                        <span class="badge bg-success">{service.coverage_count}</span>
+                                    </f:then>
+                                    <f:else>
+                                        <span class="text-body-secondary">0</span>
+                                    </f:else>
+                                </f:if>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <f:if condition="{service.uri_edit}">
+                                        <a href="{service.uri_edit}"
+                                           class="btn btn-default"
+                                           title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.action.edit')}">
+                                            <core:icon identifier="actions-pencil" size="small" />
+                                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.action.edit" />
+                                        </a>
+                                    </f:if>
+                                    <f:if condition="{service.uri_delete}">
+                                        <a href="{service.uri_delete}"
+                                           class="btn btn-default text-danger"
+                                           data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.action.delete.confirm')}"
+                                           title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.action.delete.title')}">
+                                            <core:icon identifier="actions-delete" size="small" />
+                                        </a>
+                                    </f:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </f:for>
+                </tbody>
+            </table>
+
+            <f:if condition="{totalPages} > 1">
+                <nav aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.nav')}">
+                    <ul class="pagination pagination-sm justify-content-center">
+                        <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}"><a class="page-link" href="{uri_pageFirst}">«</a></li>
+                        <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}"><a class="page-link" href="{uri_pagePrev}">‹</a></li>
+                        <li class="page-item disabled"><span class="page-link">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
+                        </span></li>
+                        <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}"><a class="page-link" href="{uri_pageNext}">›</a></li>
+                        <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}"><a class="page-link" href="{uri_pageLast}">»</a></li>
+                    </ul>
+                </nav>
+            </f:if>
+        </f:then>
+        <f:else>
+            <f:if condition="{filtersActive} && {totalCount} > 0">
+                <f:then>
+                    <div class="callout callout-info">
+                        <div class="callout-content">
+                            <h4 class="callout-title">
+                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.empty.filtered.title" />
+                            </h4>
+                            <div>
+                                <a href="{uri_resetFilters}" class="btn btn-default btn-sm">
+                                    <core:icon identifier="actions-close" size="small" />
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.empty.filtered.reset" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </f:then>
+                <f:else>
+                    <div class="callout callout-info">
+                        <div class="callout-content">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:registry.empty" />
+                        </div>
+                    </div>
+                </f:else>
+            </f:if>
+        </f:else>
+    </f:if>
+</f:section>
+</html>
