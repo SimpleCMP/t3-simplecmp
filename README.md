@@ -9,8 +9,10 @@ will change.
 
 ![Detection triage view](Documentation/Images/be-list-default.png)
 
-*The detection triage view: three-state per-row model surfaces what the admin
-should actually do next.*
+*The detection triage view, default filter. The four-state model
+(curated / recognised / unknown / dismissed) surfaces what the admin
+should actually do next; dismissed rows are filed under the Verworfen
+filter and excluded from this default actionable view.*
 
 ## What it does
 
@@ -39,18 +41,36 @@ should actually do next.*
   `(source, kind, identifier)` triple bump `occurrences` instead of
   inserting duplicates.
 
-- **BE detection module** at *Websites → SimpleCMP detections* — three
-  states derived per row at view time from **registry coverage + bundled
-  library coverage**:
+- **BE detection module** at *Websites → SimpleCMP* — three tabs and a
+  four-state model. Tabs:
+
+  - *Detektionen* — observation log of trackers visitors triggered.
+  - *Dienste* — full registry index, source-tagged (Eigene / Aus
+    Bibliothek / Verwaist). The Dienste tab is where every registry row
+    lives regardless of how it got there.
+  - *Bibliothek* — browse the bundled `simplecmp/services-library` and
+    Übernehmen entries into the registry on demand.
+
+  Per-row detection state, derived at view time from **registry
+  coverage + bundled library coverage + dismissal flag**:
 
   | State | Meaning | Action |
   |---|---|---|
-  | **Curated** | Registry already covers this cookie/origin | *Edit service* |
-  | **Recognised** | Library recognises the pattern but the local registry doesn't | *Approve* (silent insert after confirmation modal) **or** *Customise* (curate with library pre-fill) |
-  | **Unknown** | Neither registry nor library matches | *Curate* only |
+  | **Curated** | Registry already covers this cookie/origin | *Edit service*, *Dismiss* |
+  | **Recognised** | Library recognises the pattern but the local registry doesn't | *Approve* (silent insert after confirmation modal) **or** *Customise* (curate with library pre-fill), *Dismiss* |
+  | **Unknown** | Neither registry nor library matches | *Curate*, *Dismiss* |
+  | **Dismissed** | Admin parked the row via *Verwerfen* — `dismissed_at` set, persists across visitors so a fresh browser can't resurrect it | *Restore*, *Delete permanently* (confirmation modal) |
 
-  No `reviewed` flag, no dismiss-only path — the admin makes an explicit
-  decision on every actionable row.
+  The Dismissed bucket is the only path that hides a row without
+  curating it, but it's auditable: the row stays in the table, the
+  Verworfen filter surfaces them, and Restore is one click away. No
+  silent dismissal.
+
+  Dienste tab signals when the bundled library drops or renames a
+  service the admin previously adopted — a new **Verwaist** badge,
+  orange callout at the list level, plus an inline alert at the top of
+  the TCA edit form pointing the admin at the Bibliothek tab to find a
+  possible renamed replacement.
 
 - **Multisite support** — one TYPO3 install can serve as the central
   triage point for several frontend sites. The *Reporting site* column
@@ -152,33 +172,27 @@ One secret per TYPO3 installation. If you run multiple installs and one
 POSTs bridge webhooks to another, configure the **same** value on both
 ends.
 
-## Bridge / Service-DB race
+## Bridge / Service-DB ordering
 
-When both `serviceDbUrl` and `cmsBridgeUrl` point at this extension, the
-JS-side bridge can fire a webhook for any detection that's still
-`unknown` at first announcement — including ones the Service-DB lookup
-later resolves to known. Order of events:
+The recorder emits a `detectionSettled` event once any async
+classification (local + Service-DB lookup) has finished, and the bridge
+subscribes to that event rather than the initial `detection`. So a
+well-known tracker that the Service-DB resolves to `known` produces
+exactly one webhook row, with `status: 'known'` and a `matchedService`
+hint — never a duplicate (one `unknown` followed by an upgrade) the
+old behaviour had.
 
-1. Recorder catches a cookie.
-2. Local classifier misses; detection emitted as `unknown`.
-3. Bridge fires webhook immediately.
-4. Service-DB lookup completes; status updated to `known`.
-
-So a well-known tracker can produce both a Service-DB hit (the page
-classifies it as known) *and* a webhook row.
-
-**The bundled library, consulted by the Service-DB middleware,
-dramatically reduces this** — well-known patterns resolve to `known`
-via the library at lookup time so the bridge doesn't fire. The race
-still applies for genuinely new patterns, but those are by definition
-worth recording.
-
-A future SimpleCMP release will add an opt-in grace delay so the bridge
-waits for the Service-DB lookup to settle.
+Webhook payloads use schema v2: batched `detections[]` arrays,
+client-side batching (1.5 s debounce), cross-session dedup
+(`localStorage` marker keyed by `(source, kind, identifier)` with 7-day
+TTL), DNT opt-in / opt-out, and `navigator.sendBeacon` flushing on
+`pagehide`. The receiver dedupes by `(source, kind, identifier)` triple
+into a single row whose `occurrences` and `last_seen` bump on repeat
+hits.
 
 ## Status
 
-Six iterations shipped:
+Iterations shipped:
 
 1. Frontend bundle integration + Site Set settings wiring.
 2. Service-DB endpoint with the protocol-conformant routes.
@@ -186,6 +200,20 @@ Six iterations shipped:
 4. BE detection module with mark-reviewed / bulk-delete / convert-to-service.
 5. Three-state model with library-aware approve flow + multisite support.
 6. Banner Design module with per-site theming + live preview.
+7. **3-table architecture** — registry / library JSON / detection log
+   cleanly separated; `ClassifierLookup` unions registry + library at
+   lookup time so library coverage is automatic without a DB mirror.
+8. **Webhook schema v2** — batched detections, status:'known' detections
+   reach the BE so library matches surface as *Erkannt*, bandwidth
+   bounded by client-side batching + cross-session dedup + DNT respect.
+9. **Four-state model** — *Verworfen* (dismiss) added on top of
+   curated/recognised/unknown. Dismissal is durable across visitors
+   (`dismissed_at` column), auditable, and reversible.
+10. **Dienste tab** — full registry index, source-tagged
+    (*Eigene* / *Aus Bibliothek* / *Verwaist*). Surfaces library
+    drift: a previously-adopted service the bundled library no longer
+    contains is flagged as Verwaist with an orange callout + inline
+    alert in the TCA edit form.
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
