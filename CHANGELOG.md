@@ -65,6 +65,16 @@ development.
   Bulk paths (`import-known-trackers`) bypass the TCA default and
   set `fe_visible = 0` explicitly via the repository.
 
+- **TCA: `purposes` and `description` are now required when saving via
+  the BE form.** A service with no purposes can't render in the FE
+  banner (the modal groups services by purpose; empty purposes →
+  invisible to visitors), and missing descriptions made consent UI
+  uninformative. Enforced via `minitems: 1` on the purposes select
+  and `required: true` on the description text field. Bulk imports
+  via `import-known-trackers` go through DBAL directly and bypass
+  TCA validation — library entries with empty descriptions still
+  land in the registry as classifier pre-fills.
+
 ### Changed (breaking, pre-1.0)
 
 - **Service registry splits into classifier dictionary + banner surface.**

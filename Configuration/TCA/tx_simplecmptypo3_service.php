@@ -101,10 +101,11 @@ return [
                 'size' => 6,
                 'enableMultiSelectFilterTextfield' => true,
                 'default' => '[]',
-                // No `required` — an empty purposes list is a valid
-                // "needs review" state that curation tooling can
-                // surface; the constraint would only force admins to
-                // tick something arbitrary to silence the error.
+                // A service with no purposes never renders in the FE banner
+                // (the modal groups by purpose; empty purposes → no bucket
+                // → invisible to visitors). Force at least one selection so
+                // curated services actually reach the banner.
+                'minitems' => 1,
             ],
         ],
         'privacy_policy_url' => [
@@ -113,7 +114,7 @@ return [
         ],
         'description' => [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.description',
-            'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40],
+            'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40, 'required' => true],
         ],
         'retention' => [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.retention',
