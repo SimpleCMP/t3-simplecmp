@@ -22,8 +22,9 @@ use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
  * The catalog distinguishes two states per service:
  *
  * - **Visible** (`fe_visible = 1`) — appears in the visitor's consent
- *   banner. Promoted via `simplecmp:seed` (essentials), the Übernehmen
- *   flow on a detection, the TCA edit form, or a one-click action here.
+ *   banner. Promoted via the Übernehmen flow on a detection, an
+ *   Anpassen / Kuratieren save (TCA form default), or a one-click
+ *   action here.
  * - **Hidden** (`fe_visible = 0`) — in the registry for classifier
  *   purposes (Service-DB middleware + LocalClassifier server-side) but
  *   not exposed on the banner. Library imports

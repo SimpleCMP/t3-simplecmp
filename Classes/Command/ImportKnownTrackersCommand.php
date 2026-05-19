@@ -25,11 +25,12 @@ use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
  * can share the same definitions. This command is the TYPO3-side
  * importer that upserts each record into `tx_simplecmptypo3_service`.
  *
- * Distinct from `simplecmp:seed`:
- *   - `simplecmp:seed` ships a conservative ~10 most-essential
- *     services as starter data, bundled in this extension.
- *   - This command pulls from the shared services library (~40
- *     entries currently) for broader coverage.
+ * Imported services land with `fe_visible = 0` (classifier pre-fill,
+ * not on the visitor's banner). The bridge skips POSTing for cookies
+ * matched by these — they're `status: known` server-side. Admin
+ * promotes individual entries via the BE catalog tab ("Show on
+ * banner") when they want a specific service to appear in the
+ * consent UI.
  *
  * Default behaviour is **skip-if-exists** so admin-edited services
  * aren't clobbered when an admin re-runs after a release. Use

@@ -113,11 +113,10 @@ final readonly class ServiceRepository
      * Insert-or-update a service.
      *
      * `$feVisibleOnInsert` controls the FE banner visibility of *newly
-     * created* rows only:
-     * - `true` for sources whose entries are by definition on every site
-     *   (e.g. `simplecmp:seed`).
-     * - `false` for classifier pre-fills like `simplecmp:import-known-trackers`
-     *   — admin promotes them via the Übernehmen flow.
+     * created* rows only. Bulk commands (`import-known-trackers`) pass
+     * `false`: their entries are classifier pre-fills, not banner
+     * approvals. The Übernehmen flow passes `true` since the modal
+     * acknowledgement is the per-entry admin approval.
      *
      * On UPDATE we never overwrite `fe_visible` — the admin's prior choice
      * is the source of truth.
@@ -204,8 +203,6 @@ final readonly class ServiceRepository
      * - `DetectionReviewController::approveAction` → `setVisibility(id, true)`
      *   (Übernehmen flow).
      * - `ServiceCatalogController::promote` / `hide` (BE service catalog tab).
-     * - `SeedServicesCommand` → `setVisibility(id, true)` after upsert, so
-     *   pre-existing rows from earlier library imports get re-promoted.
      */
     public function setVisibility(string $serviceId, bool $visible): void
     {

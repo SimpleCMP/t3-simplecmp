@@ -32,7 +32,7 @@
       <trans-unit id="library.action.promote"><source>Show on banner</source></trans-unit>
       <trans-unit id="library.action.hide"><source>Hide from banner</source></trans-unit>
       <trans-unit id="library.action.edit"><source>Edit service</source></trans-unit>
-      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:seed for the essentials, or simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source></trans-unit>
+      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No services match the active filters.</source></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full registry will show.</source></trans-unit>
 

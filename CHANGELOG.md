@@ -10,6 +10,20 @@ development.
 
 ## Unreleased
 
+### Removed (breaking, pre-1.0)
+
+- **`simplecmp:seed` command and the 10 bundled service JSON files
+  (`Resources/Private/Seeds/services/`) are removed.** Bulk-importing
+  ten "essentials" pre-populated the registry but conflicted with the
+  rule that **`fe_visible = 1` only happens via explicit per-entry
+  admin approval**. The path forward for any install is now:
+  `simplecmp:import-known-trackers` pre-fills the classifier (rows
+  land `fe_visible = 0`); the admin then promotes individual services
+  to the banner via Übernehmen / Anpassen on a real detection, or via
+  the BE *Dienste* (catalog) tab. No site needs the 10-essentials list
+  separately — those services are all covered by the broader
+  `simplecmp/services-library` import.
+
 ### Added
 
 - **BE service catalog tab.** New "Dienste" tab inside the existing
@@ -40,20 +54,16 @@ development.
   text search (in addition to the existing `<select>` support); fires
   on `change` (blur or Enter).
 
-### Fixed
+### Changed
 
-- **`simplecmp:seed` now promotes pre-existing hidden rows.** Earlier
-  `feVisibleOnInsert: true` only affected the INSERT path; rows that
-  were already in the registry from an earlier `import-known-trackers`
-  stayed `fe_visible = 0`. Seed now follows the upsert with an
-  explicit `setVisibility(id, true)` so the essentials reach the
-  banner regardless of pre-existing state. Regression test:
-  `seedPromotesPreExistingHiddenRows`.
-- **`SeedServicesCommand::seedDirectory()`** resolves relative to the
-  command file (`__DIR__`) instead of `Environment::getProjectPath()`,
-  so the seed dir is found in functional-test instances (where the
-  framework points the project path at the temp dir, not the real
-  project root).
+- **TCA default for `tx_simplecmptypo3_service.fe_visible` flipped
+  from `0` to `1`.** Applies to new records created via the TCA edit
+  form (Anpassen / Kuratieren flows on a detection row). The admin
+  reviewing the pre-filled form and clicking Save is the per-entry
+  approval — the saved service should land on the visitor's banner
+  without forcing the admin to also flip the visibility toggle.
+  Bulk paths (`import-known-trackers`) bypass the TCA default and
+  set `fe_visible = 0` explicitly via the repository.
 
 ### Changed (breaking, pre-1.0)
 

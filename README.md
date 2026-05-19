@@ -23,13 +23,14 @@ should actually do next.*
 - **Service-DB endpoint** at `/api/simplecmp/v1/{health,services,lookup}` —
   implements the upstream
   [Service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
-  Two seed paths:
-  - `vendor/bin/typo3 simplecmp:seed` — 10 bundled essentials (Google
-    Analytics, Matomo, YouTube, …) shipped inside this extension.
-  - `vendor/bin/typo3 simplecmp:import-known-trackers` — 40 curated
-    services from the [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
-    composer package (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha,
-    Bugsnag, Mailchimp, and 33 more).
+  Classifier pre-fill is bulk-imported from the
+  [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
+  composer package via `vendor/bin/typo3 simplecmp:import-known-trackers`
+  (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha, Mailchimp, and
+  hundreds more). Imported entries land hidden (`fe_visible = 0`) —
+  they pre-fill the classifier server-side but stay off the banner until
+  the admin promotes them via the BE catalog tab or by Übernehmen on a
+  detection.
 
 - **CMS-bridge receiver** at `/api/simplecmp/webhook` — accepts the
   HMAC-signed POSTs the frontend bridge emits when the recorder catches a
@@ -124,15 +125,19 @@ composer require wapplersystems/simplecmp-typo3
 In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
 dependency. Configure under Site → Settings.
 
-After install, run the two seed commands to populate the registry:
+After install, pre-fill the classifier with the bundled services library:
 
 ```bash
-ddev exec vendor/bin/typo3 simplecmp:seed
 ddev exec vendor/bin/typo3 simplecmp:import-known-trackers
 ```
 
-That gives you ~50 curated services out of the box, so most frontend
-trackers classify as known on first visit.
+This populates `tx_simplecmptypo3_service` with the full library so
+the Service-DB middleware resolves common tracker cookies as `known`.
+Imports default to `fe_visible = 0` — they don't appear in the
+visitor's banner. To put a service on the banner, either promote it
+from the BE *SimpleCMP → Dienste* tab, or wait until the recorder
+catches its cookie on the FE and click Übernehmen / Anpassen in the
+*Detektionen* tab.
 
 ## Configuring the bridge webhook
 

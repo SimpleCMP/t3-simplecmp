@@ -143,7 +143,12 @@ return [
             'config' => [
                 'type' => 'check',
                 'renderType' => 'checkboxToggle',
-                'default' => 0,
+                // New records via the TCA form (Anpassen / Kuratieren on a
+                // detection row) default to visible — the admin reviewing the
+                // pre-filled form and clicking Save is the per-entry approval.
+                // Bulk paths (`import-known-trackers`) bypass the TCA default
+                // and set fe_visible = 0 explicitly via the repository.
+                'default' => 1,
                 'items' => [
                     ['label' => ''],
                 ],

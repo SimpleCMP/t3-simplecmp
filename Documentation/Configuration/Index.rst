@@ -152,7 +152,7 @@ Each service represents one third-party service and carries:
     wildcard suffixes (:code:`*.google.com`).
 *   **i18n** — per-language overrides for title and description.
 
-See *Web → List → SimpleCMP services* for the full TCA form. The
-bundled seed services (importable via
-:code:`vendor/bin/typo3 simplecmp:seed`) are good reference
-examples.
+See *Web → List → SimpleCMP services* for the full TCA form. Any
+entry imported via :code:`simplecmp:import-known-trackers` is a
+good reference example for the JSON shape of matchers, purposes,
+and i18n overrides.

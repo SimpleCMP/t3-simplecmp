@@ -88,48 +88,41 @@ TYPO3's database compare on first install:
 *   :sql:`tx_simplecmptypo3_detection` — the webhook receiver's
     landing table.
 
-Seeding bundled services
-========================
+Importing the known-trackers library
+====================================
 
-The extension ships with ten common services (Google Analytics,
-Matomo, YouTube, …) that you can import into the registry:
-
-..  code-block:: bash
-
-    vendor/bin/typo3 simplecmp:seed
-
-This is a one-shot import. Re-running the command refreshes the
-seed data; admin-edited values are preserved.
-
-Importing the broader known-trackers library
-============================================
-
-For coverage of common third-party trackers beyond the conservative
-seed set, run:
+To pre-fill the classifier with the bundled services library:
 
 ..  code-block:: bash
 
     vendor/bin/typo3 simplecmp:import-known-trackers
 
-The bundled library covers ~40 well-known services — analytics
-(Mixpanel, Hotjar, Plausible, Fathom, Amplitude, Heap), ad networks
-(LinkedIn Insight, TikTok Pixel, Pinterest Tag, X Pixel, Snapchat
-Pixel, Microsoft Bing UET, Outbrain, Taboola), embeds (Vimeo,
-Instagram, Spotify, SoundCloud, Twitch), forms / captcha (hCaptcha,
-Cloudflare Turnstile, Typeform, JotForm), chat widgets (Intercom,
-Drift, Crisp, Tawk.to, Zendesk Chat, HubSpot), payments (Stripe,
-PayPal, Klarna), maps (Mapbox), monitoring (Bugsnag, LogRocket,
-Rollbar), fonts (Adobe Fonts / Typekit), Google Tag Manager,
-Mailchimp, and Disqus.
+The bundled library covers hundreds of well-known third-party
+services — analytics (Mixpanel, Hotjar, Plausible, Fathom, Amplitude,
+Heap), ad networks (LinkedIn Insight, TikTok Pixel, Pinterest Tag, X
+Pixel, Snapchat Pixel, Microsoft Bing UET, Outbrain, Taboola), embeds
+(Vimeo, Instagram, Spotify, SoundCloud, Twitch), forms / captcha
+(hCaptcha, Cloudflare Turnstile, Typeform, JotForm), chat widgets
+(Intercom, Drift, Crisp, Tawk.to, Zendesk Chat, HubSpot), payments
+(Stripe, PayPal, Klarna), maps (Mapbox), monitoring (Bugsnag,
+LogRocket, Rollbar), fonts (Adobe Fonts / Typekit), Google Tag
+Manager, Mailchimp, Disqus, and many more.
+
+Imported entries land with :code:`fe_visible = 0` — they pre-fill
+the classifier server-side (so the recorder + Service-DB middleware
+recognise their cookies and origins) but stay off the visitor's
+banner until an admin promotes them. The two promotion paths are:
+
+-   Click *Übernehmen* / *Anpassen* on a real detection in the
+    *Detektionen* tab (the recorder caught the cookie on the FE).
+-   Browse the *Dienste* tab (BE service catalog) and click "Show on
+    banner" for any entry the admin knows is in use on their site.
 
 Default behaviour is **skip-if-exists** so admin-edited services
 aren't clobbered when an admin re-runs after an extension update.
 Pass :code:`--force` to overwrite existing services with the
-bundled values.
-
-Once imported, the SimpleCMP recorder's classifier chain matches
-these out of the box, so most of the "BE detection table fills
-with textbook well-known trackers" noise disappears.
+bundled values. :code:`fe_visible = 1` is preserved across
+re-imports so admin's promotions survive :code:`--force`.
 
 Verifying the installation
 ==========================

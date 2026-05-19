@@ -32,7 +32,7 @@
       <trans-unit id="library.action.promote"><source>Show on banner</source><target>Auf Banner zeigen</target></trans-unit>
       <trans-unit id="library.action.hide"><source>Hide from banner</source><target>Vom Banner ausblenden</target></trans-unit>
       <trans-unit id="library.action.edit"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
-      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:seed for the essentials, or simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source><target>Die Dienste-Registry ist leer. simplecmp:seed liefert die Basis-Einträge, simplecmp:import-known-trackers füllt den Klassifizierer mit der gebündelten Bibliothek vor.</target></trans-unit>
+      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source><target>Die Dienste-Registry ist leer. simplecmp:import-known-trackers füllt den Klassifizierer mit der gebündelten Bibliothek vor.</target></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No services match the active filters.</source><target>Kein Dienst entspricht den aktiven Filtern.</target></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full registry will show.</source><target>Filter und Suche zurücksetzen, um die gesamte Registry zu sehen.</target></trans-unit>
 
