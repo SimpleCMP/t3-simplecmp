@@ -25,3 +25,17 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']
     [\WapplerSystems\SimpleCmpTypo3\Hooks\DataHandler\EncodePurposesJson::class]
     = \WapplerSystems\SimpleCmpTypo3\Hooks\DataHandler\EncodePurposesJson::class;
+
+// Inline "this service is no longer in the bundled library" callout
+// at the top of the SimpleCMP-Dienst edit form. The custom TCA
+// `type: user` field renders nothing for Eigene and Aus-Bibliothek
+// rows, and a yellow alert with the adoption date for Verwaist rows
+// — same warning the Dienste BE tab carries at list level, surfaced
+// where the admin is actually editing the row so the orphan state
+// can't be missed.
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry']
+    [\WapplerSystems\SimpleCmpTypo3\Backend\Form\Element\OrphanCalloutFieldElement::class] = [
+        'nodeName' => 'simplecmpOrphanCallout',
+        'priority' => 40,
+        'class' => \WapplerSystems\SimpleCmpTypo3\Backend\Form\Element\OrphanCalloutFieldElement::class,
+    ];

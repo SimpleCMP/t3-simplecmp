@@ -53,6 +53,14 @@ development.
   (`LibraryBrowserController::adoptAction`,
   `DetectionReviewController::approveAction`) now pass `true` so the
   resulting registry row carries a `library_adopted_at` stamp.
+- **Inline orphan callout in the TCA edit form.** Editing a Verwaist
+  row in the Web → List view (or via the Dienste tab's Edit button)
+  now shows a yellow `<div class="alert alert-warning">` at the top
+  of the form with the adoption date, signalling the row's
+  library-disowned state right where the admin is acting. Driven by
+  a custom TCA `type: user, renderType: simplecmpOrphanCallout`
+  element that renders empty HTML for Eigene and Aus-Bibliothek
+  rows. EN + DE i18n.
 
 ### Changed (breaking, pre-1.0) — four-state model adds Verworfen
 

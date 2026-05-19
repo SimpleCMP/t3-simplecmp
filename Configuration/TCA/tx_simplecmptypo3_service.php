@@ -30,6 +30,19 @@ return [
         'default_sortby' => 'service_id ASC',
     ],
     'columns' => [
+        // Virtual field: renders an inline yellow callout at the top of
+        // the form when the row is Verwaist (was adopted from the
+        // bundled library but the library no longer contains the
+        // service). Renders nothing for Eigene and Aus-Bibliothek
+        // rows — implemented by `OrphanCalloutFieldElement`. The DB
+        // has no `orphan_callout` column; TCA uses the field name only
+        // to plug the custom renderType into `showitem`.
+        'orphan_callout' => [
+            'config' => [
+                'type' => 'user',
+                'renderType' => 'simplecmpOrphanCallout',
+            ],
+        ],
         'service_id' => [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id',
             'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id.description',
@@ -158,7 +171,12 @@ return [
     ],
     'types' => [
         '0' => [
+            // `orphan_callout` sits at the very top so the warning is
+            // the first thing an admin sees when editing a Verwaist
+            // row. On Eigene / Aus-Bibliothek rows the field renders
+            // empty HTML and the form looks unchanged.
             'showitem' => '
+                orphan_callout,
                 --palette--;;protocol,
                 description,
                 --palette--;;classification,
