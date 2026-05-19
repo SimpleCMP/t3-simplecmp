@@ -14,3 +14,11 @@ Thumbs.db
 # Functional test scratch dirs (typo3/testing-framework writes here)
 /var/
 /typo3temp/
+
+# Playwright BE test artifacts
+/node_modules/
+/Tests/Playwright/fixtures/be-storage-state.json
+/Tests/Playwright/playwright-report/
+/Tests/Playwright/test-results/
+/playwright-report/
+/test-results/
