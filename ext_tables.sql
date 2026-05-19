@@ -16,12 +16,10 @@ CREATE TABLE tx_simplecmptypo3_service (
     cookies text,
     origins text,
     extensions text,
-    fe_visible tinyint(1) unsigned DEFAULT '0' NOT NULL,
 
     PRIMARY KEY (uid),
     UNIQUE KEY service_id (service_id),
-    KEY pid (pid),
-    KEY fe_visible (fe_visible)
+    KEY pid (pid)
 );
 
 CREATE TABLE tx_simplecmptypo3_theme (

@@ -10,6 +10,49 @@ development.
 
 ## Unreleased
 
+### Changed (breaking, pre-1.0) — 3-table architecture
+
+- **The registry is now admin-curated only.** Bulk classifier
+  pre-fill is handled by reading the bundled
+  `simplecmp/services-library` JSON files directly at lookup time, not
+  by mirroring them into `tx_simplecmptypo3_service`. The two roles
+  the registry used to conflate (classifier dictionary + banner
+  surface) are now in separate places:
+  - **Library** (`vendor/simplecmp/services-library/data/services/*.json`)
+    — read-only reference, consulted by the new `ClassifierLookup`
+    service.
+  - **Registry** (`tx_simplecmptypo3_service`) — admin-curated services
+    only. Every row appears on the FE banner.
+  - **Detection log** (`tx_simplecmptypo3_detection`) — unchanged.
+- **New `ClassifierLookup` service.** Wraps `ServiceRepository::lookup()`
+  and `SimpleCMP\ServicesLibrary` in one call; returns the union of
+  matches, deduplicated by `service_id` (admin's curated row wins on
+  conflict). Used by the Service-DB middleware so any cookie covered
+  by either source classifies as `known`.
+- **`fe_visible` column dropped.** The flag was a workaround for the
+  registry's dual role; with the split the workaround is unnecessary.
+  Every registry row is on the banner by definition; admin removes a
+  service from the banner by deleting (or unadopting) the row.
+- **`simplecmp:import-known-trackers` command removed.** The bundled
+  library is consulted directly; bulk-mirroring into the registry no
+  longer makes sense. Existing installs need to truncate
+  `tx_simplecmptypo3_service` once to drop the stale library copies.
+
+### Changed
+
+- **BE "Dienste" tab repurposed as "Bibliothek" (library browser).**
+  Lists the bundled library JSON entries (369 today) with
+  `available` / `adopted` / `all` filter, search, and per-row
+  *Übernehmen* (adopt → copy into registry) / *Aus Registry
+  entfernen* (unadopt → delete from registry) actions. The catalog
+  is no longer a view over `tx_simplecmptypo3_service` rows.
+- `ServiceRepository`: simplified — `setVisibility()`,
+  `findAllVisibleOnFe()`, `findAllForCatalog()` and the
+  `feVisibleOnInsert` parameter on `upsert()` are gone. Added
+  `delete(serviceId)` for the unadopt flow.
+- `DetectionReviewController::approveAction` is now a simple
+  `upsert()` — no per-flag visibility steps needed.
+
 ### Removed (breaking, pre-1.0)
 
 - **`simplecmp:seed` command and the 10 bundled service JSON files

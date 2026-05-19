@@ -138,23 +138,6 @@ return [
             'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.extensions',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
-        'fe_visible' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.fe_visible',
-            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.fe_visible.description',
-            'config' => [
-                'type' => 'check',
-                'renderType' => 'checkboxToggle',
-                // New records via the TCA form (Anpassen / Kuratieren on a
-                // detection row) default to visible — the admin reviewing the
-                // pre-filled form and clicking Save is the per-entry approval.
-                // Bulk paths (`import-known-trackers`) bypass the TCA default
-                // and set fe_visible = 0 explicitly via the repository.
-                'default' => 1,
-                'items' => [
-                    ['label' => ''],
-                ],
-            ],
-        ],
     ],
     'palettes' => [
         'protocol' => [
@@ -177,7 +160,6 @@ return [
         '0' => [
             'showitem' => '
                 --palette--;;protocol,
-                fe_visible,
                 description,
                 --palette--;;classification,
                 --palette--;;metadata,

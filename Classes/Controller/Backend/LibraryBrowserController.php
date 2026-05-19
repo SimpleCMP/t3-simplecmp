@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
+use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -12,35 +13,30 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 
 /**
- * Backend module: browse the service registry and promote / hide entries
- * from the FE banner. Shares the `simplecmp_detections` module slot with
- * `DetectionReviewController`; rendered as the "Services" tab next to
- * the "Detections" tab.
+ * Backend module tab: browse the bundled
+ * `simplecmp/services-library` JSON catalog and copy entries into the
+ * site's registry on demand.
  *
- * The catalog distinguishes two states per service:
+ * Shares the `simplecmp_detections` module slot with
+ * `DetectionReviewController`; rendered as the "Bibliothek" tab next
+ * to "Detektionen".
  *
- * - **Visible** (`fe_visible = 1`) — appears in the visitor's consent
- *   banner. Promoted via the Übernehmen flow on a detection, an
- *   Anpassen / Kuratieren save (TCA form default), or a one-click
- *   action here.
- * - **Hidden** (`fe_visible = 0`) — in the registry for classifier
- *   purposes (Service-DB middleware + LocalClassifier server-side) but
- *   not exposed on the banner. Library imports
- *   (`simplecmp:import-known-trackers`) default to this state so the
- *   classifier benefits without bloating the FE init payload.
- *
- * Filtering is PHP-side after `findAllForCatalog()` because the search
- * term needs to substring-match JSON-encoded matcher columns and the
- * row volume (~hundreds) doesn't warrant SQL gymnastics.
+ * The library is a read-only reference: this controller never modifies
+ * the JSON files. The only write path is `adoptAction`, which copies
+ * one library entry into `tx_simplecmptypo3_service` via the existing
+ * upsert flow. After adoption the service appears on the visitor's
+ * banner (every registry row is on the banner post-fe_visible
+ * architecture).
  */
-final class ServiceCatalogController extends ActionController
+final class LibraryBrowserController extends ActionController
 {
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
-    private const array STATUS_OPTIONS = ['all', 'visible', 'hidden'];
-    private const string DEFAULT_STATUS = 'all';
+    private const array STATUS_OPTIONS = ['available', 'adopted', 'all'];
+    private const string DEFAULT_STATUS = 'available';
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -48,6 +44,7 @@ final class ServiceCatalogController extends ActionController
         private readonly UriBuilder $backendUriBuilder,
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
+        private readonly StoragePidResolver $storagePidResolver,
     ) {
     }
 
@@ -62,25 +59,26 @@ final class ServiceCatalogController extends ActionController
         $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : self::DEFAULT_PER_PAGE;
         $page = max(1, $page);
 
-        $all = $this->serviceRepository->findAllForCatalog();
-        $visibleCount = 0;
-        $hiddenCount = 0;
-        foreach ($all as $row) {
-            if ($row['feVisible']) {
-                $visibleCount++;
+        $adoptedIds = $this->adoptedIds();
+        $allEntries = $this->loadLibrary($adoptedIds);
+        $availableCount = 0;
+        $adoptedCount = 0;
+        foreach ($allEntries as $entry) {
+            if ($entry['adopted']) {
+                $adoptedCount++;
             } else {
-                $hiddenCount++;
+                $availableCount++;
             }
         }
 
-        $filtered = array_values(array_filter($all, function (array $row) use ($status, $search): bool {
-            if ($status === 'visible' && !$row['feVisible']) {
+        $filtered = array_values(array_filter($allEntries, function (array $entry) use ($status, $search): bool {
+            if ($status === 'available' && $entry['adopted']) {
                 return false;
             }
-            if ($status === 'hidden' && $row['feVisible']) {
+            if ($status === 'adopted' && !$entry['adopted']) {
                 return false;
             }
-            if ($search !== '' && !$this->matchesSearch($row, $search)) {
+            if ($search !== '' && !$this->matchesSearch($entry, $search)) {
                 return false;
             }
             return true;
@@ -93,20 +91,20 @@ final class ServiceCatalogController extends ActionController
 
         $filterArg = $this->filterArg($status, $search);
         $rows = array_map(
-            fn (array $row): array => $this->decorateRow($row, $filterArg),
+            fn (array $entry): array => $this->decorateRow($entry, $filterArg),
             $paginated,
         );
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
-            'services' => $rows,
+            'entries' => $rows,
             'status' => $status,
             'search' => $search,
             'statusOptions' => self::STATUS_OPTIONS,
-            'visibleCount' => $visibleCount,
-            'hiddenCount' => $hiddenCount,
-            'totalCount' => count($all),
+            'availableCount' => $availableCount,
+            'adoptedCount' => $adoptedCount,
+            'totalCount' => count($allEntries),
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'perPage' => $perPage,
@@ -125,57 +123,105 @@ final class ServiceCatalogController extends ActionController
             ),
             'uri_servicesTab' => $this->uri('list'),
         ]);
-        return $moduleTemplate->renderResponse('ServiceCatalog/List');
+        return $moduleTemplate->renderResponse('LibraryBrowser/List');
     }
 
-    public function promoteAction(
+    public function adoptAction(
         string $serviceId,
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        $this->serviceRepository->setVisibility($serviceId, true);
-        return $this->redirectToList($status, $search);
+        $entry = $this->loadLibraryEntry($serviceId);
+        if ($entry !== null) {
+            $pid = $this->storagePidResolver->resolveDefault();
+            $this->serviceRepository->upsert($entry, $pid);
+        }
+        return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
-    public function hideAction(
+    public function unadoptAction(
         string $serviceId,
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        $this->serviceRepository->setVisibility($serviceId, false);
-        return $this->redirectToList($status, $search);
+        $this->serviceRepository->delete($serviceId);
+        return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
     // ---------------------------------------------------------------------
 
     /**
-     * @param array<string, mixed> $row catalog-shaped row
+     * @return array<string, true> keyed by service_id
      */
-    private function matchesSearch(array $row, string $needle): bool
+    private function adoptedIds(): array
+    {
+        $rows = $this->serviceRepository->findAll();
+        $byId = [];
+        foreach ($rows as $row) {
+            $byId[(string) ($row['id'] ?? '')] = true;
+        }
+        return $byId;
+    }
+
+    /**
+     * @param array<string, true> $adoptedIds
+     * @return list<array<string, mixed>>
+     */
+    private function loadLibrary(array $adoptedIds): array
+    {
+        $entries = [];
+        foreach (ServicesLibrary::services() as $entry) {
+            if (!isset($entry['id'])) {
+                continue;
+            }
+            $id = (string) $entry['id'];
+            $entry['adopted'] = isset($adoptedIds[$id]);
+            $entries[] = $entry;
+        }
+        return $entries;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function loadLibraryEntry(string $serviceId): ?array
+    {
+        foreach (ServicesLibrary::services() as $entry) {
+            if (isset($entry['id']) && (string) $entry['id'] === $serviceId) {
+                return $entry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function matchesSearch(array $entry, string $needle): bool
     {
         $haystack = strtolower(implode(' ', [
-            (string) ($row['id'] ?? ''),
-            (string) ($row['name'] ?? ''),
-            (string) ($row['vendor'] ?? ''),
-            json_encode($row['matches']['cookies'] ?? [], JSON_UNESCAPED_SLASHES) ?: '',
-            json_encode($row['matches']['origins'] ?? [], JSON_UNESCAPED_SLASHES) ?: '',
+            (string) ($entry['id'] ?? ''),
+            (string) ($entry['name'] ?? ''),
+            (string) ($entry['vendor'] ?? ''),
+            json_encode($entry['matches']['cookies'] ?? [], JSON_UNESCAPED_SLASHES) ?: '',
+            json_encode($entry['matches']['origins'] ?? [], JSON_UNESCAPED_SLASHES) ?: '',
         ]));
         return str_contains($haystack, strtolower($needle));
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array<string, mixed> $entry
      * @param array<string, scalar> $filterArg
      * @return array<string, mixed>
      */
-    private function decorateRow(array $row, array $filterArg): array
+    private function decorateRow(array $entry, array $filterArg): array
     {
-        $id = (string) $row['id'];
+        $id = (string) $entry['id'];
         $rowArgs = ['serviceId' => $id] + $filterArg;
-        $row['uri_promote'] = $this->uri('promote', $rowArgs);
-        $row['uri_hide'] = $this->uri('hide', $rowArgs);
-        $row['uri_edit'] = $this->editServiceUri($id);
-        return $row;
+        $entry['uri_adopt'] = $this->uri('adopt', $rowArgs);
+        $entry['uri_unadopt'] = $this->uri('unadopt', $rowArgs);
+        $entry['uri_edit'] = $entry['adopted'] ? $this->editServiceUri($id) : null;
+        return $entry;
     }
 
     private function editServiceUri(string $serviceId): ?string
@@ -211,11 +257,6 @@ final class ServiceCatalogController extends ActionController
             $args['search'] = $search;
         }
         return $args;
-    }
-
-    private function redirectToList(string $status, string $search): ResponseInterface
-    {
-        return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
     /**

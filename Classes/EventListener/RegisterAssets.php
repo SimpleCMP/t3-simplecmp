@@ -296,11 +296,11 @@ final readonly class RegisterAssets
      */
     private function buildRuntimeServices(): array
     {
-        // Only services flagged `fe_visible = 1` are emitted to the FE
-        // banner. Library imports default to hidden — they pre-fill the
-        // classifier server-side but stay off the visitor's UI until the
-        // admin promotes them via the BE Übernehmen flow or the TCA toggle.
-        $rows = $this->serviceRepository->findAllVisibleOnFe();
+        // The registry only ever holds admin-curated services post-
+        // fe_visible architecture — every row appears on the FE banner.
+        // Classifier coverage for library cookies is consulted via the
+        // bundled `simplecmp/services-library` JSONs at lookup time.
+        $rows = $this->serviceRepository->findAll();
         $services = [];
         $translations = [];
         foreach ($rows as $row) {

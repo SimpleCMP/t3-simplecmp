@@ -19,6 +19,7 @@ use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
 use WapplerSystems\SimpleCmpTypo3\Service\WebhookPayloadValidator;
 use WapplerSystems\SimpleCmpTypo3\Service\WebhookRequestGuard;
@@ -41,6 +42,7 @@ final class ServiceDbApiTest extends TestCase
     private BridgeRateLimiter&MockObject $rateLimiter;
     private BridgeSecretProvider&MockObject $secretProvider;
     private BridgeNonceService&MockObject $nonceService;
+    private ClassifierLookup&MockObject $classifierLookup;
     private RequestHandlerInterface&MockObject $handler;
 
     protected function setUp(): void
@@ -53,6 +55,7 @@ final class ServiceDbApiTest extends TestCase
         $this->rateLimiter = $this->createMock(BridgeRateLimiter::class);
         $this->secretProvider = $this->createMock(BridgeSecretProvider::class);
         $this->nonceService = $this->createMock(BridgeNonceService::class);
+        $this->classifierLookup = $this->createMock(ClassifierLookup::class);
         $this->handler = $this->createMock(RequestHandlerInterface::class);
 
         // Defaults: everything passes — individual tests override what they need.
@@ -174,7 +177,7 @@ final class ServiceDbApiTest extends TestCase
     #[Test]
     public function lookupCallsRepositoryForEachQueryItem(): void
     {
-        $this->services->expects(self::exactly(2))
+        $this->classifierLookup->expects(self::exactly(2))
             ->method('lookup')
             ->willReturnOnConsecutiveCalls([['id' => 'm1']], []);
         $request = $this->request('POST', '/api/simplecmp/v1/lookup', body: json_encode([
@@ -356,6 +359,7 @@ final class ServiceDbApiTest extends TestCase
             $overrides['rateLimiter'] ?? $this->rateLimiter,
             $overrides['secretProvider'] ?? $this->secretProvider,
             $overrides['nonceService'] ?? $this->nonceService,
+            $overrides['classifierLookup'] ?? $this->classifierLookup,
         );
     }
 

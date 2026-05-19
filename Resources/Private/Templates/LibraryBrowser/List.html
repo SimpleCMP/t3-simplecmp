@@ -9,10 +9,10 @@
 
     <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
     <p class="text-body-secondary">
-        <strong>{visibleCount}</strong>
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.visible" />
-        · {hiddenCount}
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.hidden" />
+        <strong>{availableCount}</strong>
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.available" />
+        · {adoptedCount}
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.adopted" />
         · {totalCount}
         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.total" />
     </p>
@@ -43,7 +43,7 @@
         </f:if>
     </div>
 
-    <f:if condition="{services -> f:count()} == 0">
+    <f:if condition="{entries -> f:count()} == 0">
         <f:then>
             <f:if condition="{filtersActive}">
                 <f:then>
@@ -68,7 +68,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th style="width: 7rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.visibility" /></th>
+                            <th style="width: 8rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.status" /></th>
                             <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.id" /></th>
                             <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.name" /></th>
                             <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.vendor" /></th>
@@ -77,55 +77,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <f:for each="{services}" as="svc">
+                        <f:for each="{entries}" as="entry">
                             <tr>
                                 <td>
-                                    <f:if condition="{svc.feVisible}">
+                                    <f:if condition="{entry.adopted}">
                                         <f:then>
                                             <span class="badge badge-success">
-                                                <core:icon identifier="actions-eye" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.visible" />
+                                                <core:icon identifier="actions-check" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.adopted" />
                                             </span>
                                         </f:then>
                                         <f:else>
                                             <span class="badge badge-secondary">
-                                                <core:icon identifier="actions-eye-slash" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.hidden" />
+                                                <core:icon identifier="actions-plus" size="small" />
+                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.available" />
                                             </span>
                                         </f:else>
                                     </f:if>
                                 </td>
-                                <td><code>{svc.id}</code></td>
-                                <td>{svc.name}</td>
-                                <td>{svc.vendor}</td>
+                                <td><code>{entry.id}</code></td>
+                                <td>{entry.name}</td>
+                                <td>{entry.vendor}</td>
                                 <td>
-                                    <f:for each="{svc.purposes}" as="purpose">
+                                    <f:for each="{entry.purposes}" as="purpose">
                                         <span class="badge badge-info">{purpose}</span>
                                     </f:for>
                                 </td>
                                 <td>
-                                    <f:if condition="{svc.feVisible}">
+                                    <f:if condition="{entry.adopted}">
                                         <f:then>
-                                            <form method="post" action="{svc.uri_hide}" class="d-inline">
+                                            <form method="post" action="{entry.uri_unadopt}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-default">
-                                                    <core:icon identifier="actions-eye-slash" size="small" />
-                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.hide" />
+                                                    <core:icon identifier="actions-minus" size="small" />
+                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.unadopt" />
                                                 </button>
                                             </form>
+                                            <f:if condition="{entry.uri_edit}">
+                                                <a href="{entry.uri_edit}" class="btn btn-sm btn-link" title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.edit')}">
+                                                    <core:icon identifier="actions-open" size="small" />
+                                                </a>
+                                            </f:if>
                                         </f:then>
                                         <f:else>
-                                            <form method="post" action="{svc.uri_promote}" class="d-inline">
+                                            <form method="post" action="{entry.uri_adopt}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-primary">
-                                                    <core:icon identifier="actions-eye" size="small" />
-                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.promote" />
+                                                    <core:icon identifier="actions-plus" size="small" />
+                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.adopt" />
                                                 </button>
                                             </form>
                                         </f:else>
-                                    </f:if>
-                                    <f:if condition="{svc.uri_edit}">
-                                        <a href="{svc.uri_edit}" class="btn btn-sm btn-link" title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.edit')}">
-                                            <core:icon identifier="actions-open" size="small" />
-                                        </a>
                                     </f:if>
                                 </td>
                             </tr>

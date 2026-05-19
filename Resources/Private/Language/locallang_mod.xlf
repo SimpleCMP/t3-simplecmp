@@ -8,33 +8,32 @@
       <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source></trans-unit>
 
       <trans-unit id="nav.detections"><source>Detections</source></trans-unit>
-      <trans-unit id="nav.services"><source>Services</source></trans-unit>
+      <trans-unit id="nav.services"><source>Library</source></trans-unit>
 
-      <trans-unit id="library.title"><source>SimpleCMP — service catalog</source></trans-unit>
-      <trans-unit id="library.header.visible"><source>visible on banner</source></trans-unit>
-      <trans-unit id="library.header.hidden"><source>hidden</source></trans-unit>
+      <trans-unit id="library.title"><source>SimpleCMP — service library</source></trans-unit>
+      <trans-unit id="library.header.available"><source>available</source></trans-unit>
+      <trans-unit id="library.header.adopted"><source>adopted</source></trans-unit>
       <trans-unit id="library.header.total"><source>total</source></trans-unit>
       <trans-unit id="library.filter.label"><source>Status</source></trans-unit>
       <trans-unit id="library.filter.all"><source>All</source></trans-unit>
-      <trans-unit id="library.filter.visible"><source>Visible</source></trans-unit>
-      <trans-unit id="library.filter.hidden"><source>Hidden</source></trans-unit>
+      <trans-unit id="library.filter.available"><source>Available</source></trans-unit>
+      <trans-unit id="library.filter.adopted"><source>Adopted</source></trans-unit>
       <trans-unit id="library.search.placeholder"><source>Search id, name, vendor, matchers…</source></trans-unit>
-      <trans-unit id="library.search.button"><source>Search</source></trans-unit>
       <trans-unit id="library.search.clear"><source>Clear</source></trans-unit>
-      <trans-unit id="library.column.visibility"><source>Banner</source></trans-unit>
+      <trans-unit id="library.column.status"><source>Status</source></trans-unit>
       <trans-unit id="library.column.id"><source>Service ID</source></trans-unit>
       <trans-unit id="library.column.name"><source>Name</source></trans-unit>
       <trans-unit id="library.column.vendor"><source>Vendor</source></trans-unit>
       <trans-unit id="library.column.purposes"><source>Purposes</source></trans-unit>
       <trans-unit id="library.column.actions"><source>Actions</source></trans-unit>
-      <trans-unit id="library.badge.visible"><source>Visible</source></trans-unit>
-      <trans-unit id="library.badge.hidden"><source>Hidden</source></trans-unit>
-      <trans-unit id="library.action.promote"><source>Show on banner</source></trans-unit>
-      <trans-unit id="library.action.hide"><source>Hide from banner</source></trans-unit>
+      <trans-unit id="library.badge.available"><source>Available</source></trans-unit>
+      <trans-unit id="library.badge.adopted"><source>Adopted</source></trans-unit>
+      <trans-unit id="library.action.adopt"><source>Adopt</source></trans-unit>
+      <trans-unit id="library.action.unadopt"><source>Remove from registry</source></trans-unit>
       <trans-unit id="library.action.edit"><source>Edit service</source></trans-unit>
-      <trans-unit id="library.empty"><source>The service registry is empty. Run simplecmp:import-known-trackers to pre-fill the classifier with the bundled library.</source></trans-unit>
-      <trans-unit id="library.empty.filtered.title"><source>No services match the active filters.</source></trans-unit>
-      <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full registry will show.</source></trans-unit>
+      <trans-unit id="library.empty"><source>The bundled services library appears empty — check that simplecmp/services-library is installed via composer.</source></trans-unit>
+      <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source></trans-unit>
+      <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full library will show.</source></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>

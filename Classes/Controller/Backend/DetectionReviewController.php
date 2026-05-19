@@ -180,7 +180,7 @@ final class DetectionReviewController extends ActionController
             'filtersActive' => $filterArg !== [],
             'uri_detectionsTab' => $this->uri('list'),
             'uri_servicesTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\ServiceCatalog_list',
+                'simplecmp_detections.Backend\\LibraryBrowser_list',
             ),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
@@ -433,12 +433,10 @@ final class DetectionReviewController extends ActionController
             return $this->redirectToList($filters);
         }
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
-        // Übernehmen is the admin's user-blessed promotion to the FE banner
-        // — modal acknowledgement happened client-side. Set `fe_visible = 1`
-        // on insert; promote explicitly if the service already exists
-        // (e.g. previously library-imported and just sat hidden).
-        $this->serviceRepository->upsert($match, $pid, feVisibleOnInsert: true);
-        $this->serviceRepository->setVisibility((string) $match['id'], true);
+        // Übernehmen inserts (or updates) the registry row. The registry
+        // holds admin-curated services only, so anything here appears on
+        // the FE banner.
+        $this->serviceRepository->upsert($match, $pid);
         return $this->redirectToList($filters);
     }
 

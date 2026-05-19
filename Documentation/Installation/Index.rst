@@ -88,41 +88,39 @@ TYPO3's database compare on first install:
 *   :sql:`tx_simplecmptypo3_detection` — the webhook receiver's
     landing table.
 
-Importing the known-trackers library
-====================================
+The bundled services library
+============================
 
-To pre-fill the classifier with the bundled services library:
+The :code:`simplecmp/services-library` composer package ships with
+hundreds of well-known third-party services — analytics (Mixpanel,
+Hotjar, Plausible, Fathom, Amplitude, Heap), ad networks (LinkedIn
+Insight, TikTok Pixel, Pinterest Tag, X Pixel, Snapchat Pixel,
+Microsoft Bing UET, Outbrain, Taboola), embeds (Vimeo, Instagram,
+Spotify, SoundCloud, Twitch), forms / captcha (hCaptcha, Cloudflare
+Turnstile, Typeform, JotForm), chat widgets (Intercom, Drift, Crisp,
+Tawk.to, Zendesk Chat, HubSpot), payments (Stripe, PayPal, Klarna),
+maps (Mapbox), monitoring (Bugsnag, LogRocket, Rollbar), fonts (Adobe
+Fonts / Typekit), Google Tag Manager, Mailchimp, Disqus, and many
+more.
 
-..  code-block:: bash
+**No import step needed** — the library lives in the composer vendor
+tree and is consulted directly by the Service-DB middleware at
+lookup time via the :code:`ClassifierLookup` service. Cookies covered
+by the library classify as :code:`known` from day one without any
+admin action.
 
-    vendor/bin/typo3 simplecmp:import-known-trackers
+The registry (:code:`tx_simplecmptypo3_service`) starts empty and
+only ever holds admin-curated services. Two ways for the admin to
+adopt a library entry into the registry — required so visitors see
+the consent toggle in the banner:
 
-The bundled library covers hundreds of well-known third-party
-services — analytics (Mixpanel, Hotjar, Plausible, Fathom, Amplitude,
-Heap), ad networks (LinkedIn Insight, TikTok Pixel, Pinterest Tag, X
-Pixel, Snapchat Pixel, Microsoft Bing UET, Outbrain, Taboola), embeds
-(Vimeo, Instagram, Spotify, SoundCloud, Twitch), forms / captcha
-(hCaptcha, Cloudflare Turnstile, Typeform, JotForm), chat widgets
-(Intercom, Drift, Crisp, Tawk.to, Zendesk Chat, HubSpot), payments
-(Stripe, PayPal, Klarna), maps (Mapbox), monitoring (Bugsnag,
-LogRocket, Rollbar), fonts (Adobe Fonts / Typekit), Google Tag
-Manager, Mailchimp, Disqus, and many more.
-
-Imported entries land with :code:`fe_visible = 0` — they pre-fill
-the classifier server-side (so the recorder + Service-DB middleware
-recognise their cookies and origins) but stay off the visitor's
-banner until an admin promotes them. The two promotion paths are:
-
--   Click *Übernehmen* / *Anpassen* on a real detection in the
-    *Detektionen* tab (the recorder caught the cookie on the FE).
--   Browse the *Dienste* tab (BE service catalog) and click "Show on
-    banner" for any entry the admin knows is in use on their site.
-
-Default behaviour is **skip-if-exists** so admin-edited services
-aren't clobbered when an admin re-runs after an extension update.
-Pass :code:`--force` to overwrite existing services with the
-bundled values. :code:`fe_visible = 1` is preserved across
-re-imports so admin's promotions survive :code:`--force`.
+-   **Bibliothek tab** (BE module): browse the full library, filter
+    by Available / Adopted, search by id / name / vendor / matchers,
+    click *Übernehmen* on any entry.
+-   **Detektionen tab**: when the recorder catches the cookie on the
+    FE, the resulting detection row offers *Übernehmen* (silent adopt
+    with confirmation modal) or *Anpassen* (TCA edit with library
+    pre-fill).
 
 Verifying the installation
 ==========================

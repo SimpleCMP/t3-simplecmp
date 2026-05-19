@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Http\Response;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
+use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
@@ -52,6 +53,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private BridgeRateLimiter $rateLimiter,
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
+        private ClassifierLookup $classifierLookup,
     ) {
     }
 
@@ -202,7 +204,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             $cookie = isset($query['cookie']) && is_string($query['cookie']) ? $query['cookie'] : null;
             $origin = isset($query['origin']) && is_string($query['origin']) ? $query['origin'] : null;
 
-            $matches = $this->services->lookup($cookie, $origin);
+            $matches = $this->classifierLookup->lookup($cookie, $origin);
             $cleanQuery = [];
             if ($cookie !== null) {
                 $cleanQuery['cookie'] = $cookie;

@@ -13,12 +13,6 @@ services:
         command: 'simplecmp:generate-bridge-secret'
         description: 'Generate a fresh HMAC secret for the SimpleCMP bridge webhook nonces.'
 
-  WapplerSystems\SimpleCmpTypo3\Command\ImportKnownTrackersCommand:
-    tags:
-      - name: 'console.command'
-        command: 'simplecmp:import-known-trackers'
-        description: 'Import a curated library of well-known third-party trackers into the service registry.'
-
   # PSR-15 middlewares: TYPO3 instantiates these via `makeInstance`, which
   # only reads from public services in the DI container. Without `public:
   # true` the autowired constructor args (repositories) silently fail and

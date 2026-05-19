@@ -139,81 +139,35 @@ final class ServiceRepositoryTest extends FunctionalTestCase
         self::assertNull($this->repository->findOne('not-here'));
     }
 
-    // --- fe_visible --------------------------------------------------------
+    // --- findAll + delete -----------------------------------------------
 
     #[Test]
-    public function findAllVisibleOnFeReturnsOnlyFlaggedRows(): void
+    public function findAllReturnsRowsSortedById(): void
     {
-        $this->seedService(['id' => 'hidden-a']);
-        $this->seedService(['id' => 'hidden-b']);
-        $this->repository->upsert(
-            ['id' => 'visible-c', 'name' => 'Visible C', 'purposes' => []],
-            0,
-            feVisibleOnInsert: true,
-        );
-
-        $visible = $this->repository->findAllVisibleOnFe();
-        self::assertSame(['visible-c'], array_column($visible, 'id'));
+        $this->seedService(['id' => 'svc-c']);
+        $this->seedService(['id' => 'svc-a']);
+        $this->seedService(['id' => 'svc-b']);
+        self::assertSame(['svc-a', 'svc-b', 'svc-c'], array_column($this->repository->findAll(), 'id'));
     }
 
     #[Test]
-    public function upsertDoesNotChangeFeVisibleOnUpdate(): void
-    {
-        // Insert as visible (e.g. via Approve flow).
-        $this->repository->upsert(
-            ['id' => 'svc', 'name' => 'Initial', 'purposes' => []],
-            0,
-            feVisibleOnInsert: true,
-        );
-        self::assertCount(1, $this->repository->findAllVisibleOnFe());
-
-        // Re-upsert (e.g. re-run `simplecmp:import-known-trackers --force`)
-        // with feVisibleOnInsert=false. Admin's promotion must survive.
-        $this->repository->upsert(
-            ['id' => 'svc', 'name' => 'Updated', 'purposes' => []],
-            0,
-            feVisibleOnInsert: false,
-        );
-        $visible = $this->repository->findAllVisibleOnFe();
-        self::assertCount(1, $visible);
-        self::assertSame('Updated', $visible[0]['name']);
-    }
-
-    #[Test]
-    public function setVisibilityPromotesAnExistingService(): void
+    public function deleteRemovesTheRow(): void
     {
         $this->seedService(['id' => 'svc']);
-        self::assertSame([], $this->repository->findAllVisibleOnFe());
+        $this->seedService(['id' => 'other']);
+        self::assertSame(2, $this->repository->count());
 
-        $this->repository->setVisibility('svc', true);
+        $this->repository->delete('svc');
 
-        $visible = $this->repository->findAllVisibleOnFe();
-        self::assertCount(1, $visible);
-        self::assertSame('svc', $visible[0]['id']);
+        self::assertSame(['other'], array_column($this->repository->findAll(), 'id'));
     }
 
     #[Test]
-    public function setVisibilityDemotesAVisibleService(): void
-    {
-        $this->repository->upsert(
-            ['id' => 'svc', 'name' => 'Svc', 'purposes' => []],
-            0,
-            feVisibleOnInsert: true,
-        );
-        self::assertCount(1, $this->repository->findAllVisibleOnFe());
-
-        $this->repository->setVisibility('svc', false);
-
-        self::assertSame([], $this->repository->findAllVisibleOnFe());
-    }
-
-    #[Test]
-    public function setVisibilityIsIdempotent(): void
+    public function deleteIsANoOpForUnknownServiceId(): void
     {
         $this->seedService(['id' => 'svc']);
-        $this->repository->setVisibility('svc', true);
-        $this->repository->setVisibility('svc', true);
-        self::assertCount(1, $this->repository->findAllVisibleOnFe());
+        $this->repository->delete('does-not-exist');
+        self::assertSame(1, $this->repository->count());
     }
 
     // --- helpers -----------------------------------------------------------

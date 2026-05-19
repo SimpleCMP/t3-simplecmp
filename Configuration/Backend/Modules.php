@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DetectionReviewController;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ServiceCatalogController;
+use WapplerSystems\SimpleCmpTypo3\Controller\Backend\LibraryBrowserController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
 
 /**
@@ -42,10 +42,10 @@ return [
                 'createService',
                 'generateBridgeSecret',
             ],
-            ServiceCatalogController::class => [
+            LibraryBrowserController::class => [
                 'list',
-                'promote',
-                'hide',
+                'adopt',
+                'unadopt',
             ],
         ],
     ],

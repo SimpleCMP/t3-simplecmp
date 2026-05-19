@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WapplerSystems\SimpleCmpTypo3\Domain\Repository;
 
-use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -110,18 +109,16 @@ final readonly class ServiceRepository
     }
 
     /**
-     * Insert-or-update a service.
+     * Insert-or-update an admin-curated service.
      *
-     * `$feVisibleOnInsert` controls the FE banner visibility of *newly
-     * created* rows only. Bulk commands (`import-known-trackers`) pass
-     * `false`: their entries are classifier pre-fills, not banner
-     * approvals. The Übernehmen flow passes `true` since the modal
-     * acknowledgement is the per-entry admin approval.
-     *
-     * On UPDATE we never overwrite `fe_visible` — the admin's prior choice
-     * is the source of truth.
+     * Every row in this table is on the FE banner by definition
+     * (post-fe_visible architecture): the table holds **admin-curated
+     * services only**. Bulk-import paths went away with the 3-table
+     * model — classifier coverage now comes from the bundled library
+     * (`SimpleCMP\ServicesLibrary`) consulted directly by
+     * `ClassifierLookup`.
      */
-    public function upsert(array $serviceData, int $pid = 0, bool $feVisibleOnInsert = false): void
+    public function upsert(array $serviceData, int $pid = 0): void
     {
         $row = [
             'pid' => $pid,
@@ -161,7 +158,6 @@ final readonly class ServiceRepository
 
         if ($existing === false) {
             $row['crdate'] = time();
-            $row['fe_visible'] = $feVisibleOnInsert ? 1 : 0;
             $conn->insert(self::TABLE, $row);
         } else {
             $conn->update(self::TABLE, $row, ['uid' => (int) $existing]);
@@ -169,55 +165,9 @@ final readonly class ServiceRepository
     }
 
     /**
-     * Load every service for the BE service-catalog tab. Same protocol
-     * shape as `findAll()` plus a `feVisible` boolean — the BE-only
-     * field that controls whether a service appears in the FE banner.
-     * Kept separate from `findAll()` so the Service-DB middleware
-     * response shape (which IS the protocol contract) stays clean.
-     *
-     * @return array<array<string, mixed>>
-     */
-    public function findAllForCatalog(): array
-    {
-        $rows = $this->connectionPool->getConnectionForTable(self::TABLE)
-            ->createQueryBuilder()
-            ->select('*')
-            ->from(self::TABLE)
-            ->orderBy('service_id', 'ASC')
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        return array_map(function (array $row): array {
-            $shape = $this->rowToProtocol($row);
-            $shape['feVisible'] = ((int) ($row['fe_visible'] ?? 0)) === 1;
-            return $shape;
-        }, $rows);
-    }
-
-    /**
-     * Set the FE banner visibility of a service. Idempotent — repeated
-     * calls on an already-matching service are effective no-ops (tstamp
-     * still bumps).
-     *
-     * Typical callers:
-     * - `DetectionReviewController::approveAction` → `setVisibility(id, true)`
-     *   (Übernehmen flow).
-     * - `ServiceCatalogController::promote` / `hide` (BE service catalog tab).
-     */
-    public function setVisibility(string $serviceId, bool $visible): void
-    {
-        $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
-        $conn->update(
-            self::TABLE,
-            ['fe_visible' => $visible ? 1 : 0, 'tstamp' => time()],
-            ['service_id' => $serviceId],
-        );
-    }
-
-    /**
-     * Load every service in protocol shape. Used by callers that need
-     * to match a batch of detections against the registry without
-     * paying N+1 query cost per match.
+     * Load every admin-curated service in protocol shape. All registry
+     * rows appear on the FE banner; there's no visibility filter post-
+     * fe_visible architecture.
      *
      * @return array<array<string, mixed>>
      */
@@ -227,35 +177,17 @@ final readonly class ServiceRepository
             ->createQueryBuilder()
             ->select('*')
             ->from(self::TABLE)
+            ->orderBy('service_id', 'ASC')
             ->executeQuery()
             ->fetchAllAssociative();
 
         return array_map($this->rowToProtocol(...), $rows);
     }
 
-    /**
-     * Load services flagged for FE banner display (`fe_visible = 1`).
-     *
-     * Used by `RegisterAssets::buildRuntimeServices()`. Library imports
-     * via `simplecmp:import-known-trackers` default to `fe_visible = 0`
-     * so they seed the classifier without bloating the FE config; admin
-     * promotes them via Übernehmen (the BE detection-approve flow) or
-     * the TCA toggle on the service record.
-     *
-     * @return array<array<string, mixed>>
-     */
-    public function findAllVisibleOnFe(): array
+    public function delete(string $serviceId): void
     {
-        $qb = $this->connectionPool->getConnectionForTable(self::TABLE)
-            ->createQueryBuilder();
-        $rows = $qb
-            ->select('*')
-            ->from(self::TABLE)
-            ->where($qb->expr()->eq('fe_visible', $qb->createNamedParameter(1, ParameterType::INTEGER)))
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        return array_map($this->rowToProtocol(...), $rows);
+        $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->delete(self::TABLE, ['service_id' => $serviceId]);
     }
 
     /**

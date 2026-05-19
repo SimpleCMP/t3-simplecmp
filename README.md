@@ -23,14 +23,14 @@ should actually do next.*
 - **Service-DB endpoint** at `/api/simplecmp/v1/{health,services,lookup}` —
   implements the upstream
   [Service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
-  Classifier pre-fill is bulk-imported from the
-  [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
-  composer package via `vendor/bin/typo3 simplecmp:import-known-trackers`
-  (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha, Mailchimp, and
-  hundreds more). Imported entries land hidden (`fe_visible = 0`) —
-  they pre-fill the classifier server-side but stay off the banner until
-  the admin promotes them via the BE catalog tab or by Übernehmen on a
-  detection.
+  Classifier coverage comes from two sources unioned at lookup time:
+  the admin-curated registry (`tx_simplecmptypo3_service`) plus the
+  bundled [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
+  composer package (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha,
+  Mailchimp, and hundreds more — read-only reference, no DB mirror).
+  Admin adopts a library entry into the registry via the BE *Bibliothek*
+  tab or by Übernehmen on a real detection; only adopted entries appear
+  on the visitor's banner.
 
 - **CMS-bridge receiver** at `/api/simplecmp/webhook` — accepts the
   HMAC-signed POSTs the frontend bridge emits when the recorder catches a
@@ -125,19 +125,16 @@ composer require wapplersystems/simplecmp-typo3
 In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
 dependency. Configure under Site → Settings.
 
-After install, pre-fill the classifier with the bundled services library:
-
-```bash
-ddev exec vendor/bin/typo3 simplecmp:import-known-trackers
-```
-
-This populates `tx_simplecmptypo3_service` with the full library so
-the Service-DB middleware resolves common tracker cookies as `known`.
-Imports default to `fe_visible = 0` — they don't appear in the
-visitor's banner. To put a service on the banner, either promote it
-from the BE *SimpleCMP → Dienste* tab, or wait until the recorder
-catches its cookie on the FE and click Übernehmen / Anpassen in the
-*Detektionen* tab.
+The registry (`tx_simplecmptypo3_service`) starts empty and only ever
+holds admin-curated entries. The bundled
+[`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
+is consulted at classifier-lookup time directly (no DB mirror), so
+common third-party cookies classify as `known` from day one without
+any setup. To put a specific service on the visitor's banner the
+admin **adopts** it — either via the BE *Bibliothek* tab (browse the
+library, click Übernehmen on any entry) or by waiting until the
+recorder catches its cookie on the FE and clicking *Übernehmen /
+Anpassen* in the *Detektionen* tab.
 
 ## Configuring the bridge webhook
 
@@ -170,10 +167,11 @@ later resolves to known. Order of events:
 So a well-known tracker can produce both a Service-DB hit (the page
 classifies it as known) *and* a webhook row.
 
-**The `simplecmp:import-known-trackers` command dramatically reduces
-this** — well-known patterns ship in the local classifier so step 2
-matches and the bridge never fires. The race still applies for genuinely
-new patterns, but those are by definition worth recording.
+**The bundled library, consulted by the Service-DB middleware,
+dramatically reduces this** — well-known patterns resolve to `known`
+via the library at lookup time so the bridge doesn't fire. The race
+still applies for genuinely new patterns, but those are by definition
+worth recording.
 
 A future SimpleCMP release will add an opt-in grace delay so the bridge
 waits for the Service-DB lookup to settle.
