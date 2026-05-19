@@ -159,6 +159,30 @@
                                 </button>
                             </form>
                         </li>
+                        <f:comment>
+                            The `all` view is the only place a single
+                            selection can mix Verworfen + non-Verworfen
+                            rows. Expose Restore selected here so the
+                            admin doesn't have to bounce to the Verworfen
+                            filter just to undismiss a row they're
+                            already looking at. Purge stays
+                            Verworfen-only — true delete needs the
+                            muscle-memory dampener of one extra click.
+                        </f:comment>
+                        <f:if condition="{status} == 'all'">
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <button type="submit"
+                                        form="simplecmp-bulk-select-form"
+                                        formaction="{uri_bulkUndismissSelected}"
+                                        class="dropdown-item"
+                                        data-bulk-select-trigger
+                                        disabled>
+                                    <core:icon identifier="actions-undo" size="small" />
+                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.action.bulkUndismissSelected" />
+                                </button>
+                            </li>
+                        </f:if>
                     </ul>
                 </div>
             </f:else>

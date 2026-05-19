@@ -474,6 +474,12 @@ final class DetectionReviewController extends ActionController
      * bridge re-POSTs for the same (source, kind, identifier) triple
      * bump `occurrences` / `last_seen` but leave `dismissed_at` set, so
      * dismissal survives across visitors with different browsers.
+     *
+     * Only acts on rows where `dismissed_at = 0` — a stale POST against
+     * an already-dismissed row is a no-op rather than rewriting the
+     * audit timestamp. The per-row Verwerfen button is hidden by the
+     * template on dismissed rows; this SQL guard is defense-in-depth
+     * against forged URLs.
      */
     public function dismissAction(
         int $uid,
@@ -483,10 +489,10 @@ final class DetectionReviewController extends ActionController
         string $confidence = '',
     ): ResponseInterface {
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->update(
-                self::DETECTION_TABLE,
-                ['dismissed_at' => time(), 'tstamp' => time()],
-                ['uid' => $uid],
+            ->executeStatement(
+                'UPDATE ' . self::DETECTION_TABLE
+                . ' SET dismissed_at = ?, tstamp = ? WHERE uid = ? AND dismissed_at = 0',
+                [time(), time(), $uid],
             );
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
@@ -494,7 +500,8 @@ final class DetectionReviewController extends ActionController
     /**
      * Wieder aufgreifen — clear `dismissed_at` so the row falls back to
      * its derived state (erkannt / unbekannt / kuratiert) and reappears
-     * in the actionable list.
+     * in the actionable list. Only touches dismissed rows so the
+     * idempotent case stays a no-op.
      */
     public function undismissAction(
         int $uid,
@@ -504,10 +511,10 @@ final class DetectionReviewController extends ActionController
         string $confidence = '',
     ): ResponseInterface {
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->update(
-                self::DETECTION_TABLE,
-                ['dismissed_at' => 0, 'tstamp' => time()],
-                ['uid' => $uid],
+            ->executeStatement(
+                'UPDATE ' . self::DETECTION_TABLE
+                . ' SET dismissed_at = 0, tstamp = ? WHERE uid = ? AND dismissed_at > 0',
+                [time(), $uid],
             );
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
@@ -517,6 +524,12 @@ final class DetectionReviewController extends ActionController
      * only and behind a confirmation modal in the template. Removes the
      * row entirely; the next bridge POST for the same triple will
      * re-create it as a fresh `unbekannt` detection.
+     *
+     * Defense-in-depth: only deletes if the row is actually dismissed,
+     * even though the template only renders the purge button on
+     * Verworfen rows. A forged URL pointing at a non-dismissed UID is a
+     * no-op rather than a quiet destructive bypass of the dismiss-first
+     * audit-trail rule.
      */
     public function purgeAction(
         int $uid,
@@ -526,7 +539,11 @@ final class DetectionReviewController extends ActionController
         string $confidence = '',
     ): ResponseInterface {
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->delete(self::DETECTION_TABLE, ['uid' => $uid]);
+            ->executeStatement(
+                'DELETE FROM ' . self::DETECTION_TABLE
+                . ' WHERE uid = ? AND dismissed_at > 0',
+                [$uid],
+            );
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
@@ -600,6 +617,9 @@ final class DetectionReviewController extends ActionController
         if ($ints === []) {
             return $this->redirectToList($filters);
         }
+        // Purge only deletes rows that are actually dismissed — the
+        // dismiss-first audit-trail rule must hold even if a forged
+        // URL points the bulk action at non-Verworfen UIDs.
         $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
         $qb->getRestrictions()->removeAll();
         $qb->delete(self::DETECTION_TABLE)
@@ -607,11 +627,24 @@ final class DetectionReviewController extends ActionController
                 'uid',
                 $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
             ))
+            ->andWhere($qb->expr()->gt(
+                'dismissed_at',
+                $qb->createNamedParameter(0, ParameterType::INTEGER),
+            ))
             ->executeStatement();
         return $this->redirectToList($filters);
     }
 
     /**
+     * Bulk-dismiss ($newValue > 0) or bulk-undismiss ($newValue = 0).
+     *
+     * The WHERE clause filters by current `dismissed_at` so the
+     * operation is symmetric and idempotent — dismissing only touches
+     * not-yet-dismissed rows, undismissing only touches dismissed rows.
+     * This preserves the audit timestamp on rows that are already in
+     * the target state, which matters in the `all` view where a ticked
+     * Verworfen row used to silently reset its `dismissed_at` to NOW.
+     *
      * @param array<int, scalar> $uids
      */
     private function bulkUpdateDismissed(
@@ -636,6 +669,9 @@ final class DetectionReviewController extends ActionController
                 'uid',
                 $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
             ))
+            ->andWhere($newValue > 0
+                ? $qb->expr()->eq('dismissed_at', $qb->createNamedParameter(0, ParameterType::INTEGER))
+                : $qb->expr()->gt('dismissed_at', $qb->createNamedParameter(0, ParameterType::INTEGER)))
             ->executeStatement();
         return $this->redirectToList($filters);
     }
