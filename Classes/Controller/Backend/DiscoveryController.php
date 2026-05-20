@@ -50,14 +50,17 @@ final class DiscoveryController extends ActionController
     ) {
     }
 
-    public function indexAction(string $site = ''): ResponseInterface
+    public function indexAction(string $site = '', string $sitemapUrl = ''): ResponseInterface
     {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
         $siteObject = $this->resolveSite($site);
         $baseUrl = $siteObject !== null ? (string) $siteObject->getBase() : '';
-        $sitemapUrl = $baseUrl !== '' ? $this->sitemapFetcher->defaultSitemapUrl($baseUrl) : '';
-        $urls = $sitemapUrl !== '' ? $this->sitemapFetcher->fetch($sitemapUrl) : [];
+        if ($sitemapUrl === '') {
+            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl);
+        } else {
+            $urls = $this->sitemapFetcher->fetch($sitemapUrl);
+        }
 
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
@@ -90,14 +93,17 @@ final class DiscoveryController extends ActionController
      * different site without reloading the page. Returns the new
      * site's sitemap URL + URL list so the JS can repaint the preview.
      */
-    public function fetchSitemapAction(string $site = ''): ResponseInterface
+    public function fetchSitemapAction(string $site = '', string $sitemapUrl = ''): ResponseInterface
     {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
         $siteObject = $this->resolveSite($site);
         $baseUrl = $siteObject !== null ? (string) $siteObject->getBase() : '';
-        $sitemapUrl = $baseUrl !== '' ? $this->sitemapFetcher->defaultSitemapUrl($baseUrl) : '';
-        $urls = $sitemapUrl !== '' ? $this->sitemapFetcher->fetch($sitemapUrl) : [];
+        if ($sitemapUrl === '') {
+            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl);
+        } else {
+            $urls = $this->sitemapFetcher->fetch($sitemapUrl);
+        }
 
         $response = $this->responseFactory->createResponse()
             ->withHeader('Content-Type', 'application/json');
@@ -108,6 +114,53 @@ final class DiscoveryController extends ActionController
             'urls' => $urls,
         ], JSON_THROW_ON_ERROR));
         return $response;
+    }
+
+    /**
+     * Try a small list of candidate sitemap URLs and return the first
+     * one that yields any URLs, along with that URL.
+     *
+     * Real-world TYPO3 installs rarely serve their sitemap at the bare
+     * `<base>/sitemap.xml` — EXT:seo serves per-rootline, and language-
+     * prefixed sites (default base `/de/`, `/en/`, etc.) need the
+     * language prefix in the URL. We try root → each language base in
+     * order, settling for whichever returns URLs.
+     *
+     * Returns the original `<base>/sitemap.xml` (with empty URL list)
+     * if nothing worked — the admin then sees what we tried and can
+     * type the right URL into the Refetch input.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private function autoDetectSitemap(?Site $site, string $baseUrl): array
+    {
+        if ($baseUrl === '') {
+            return ['', []];
+        }
+        $rootUrl = $this->sitemapFetcher->defaultSitemapUrl($baseUrl);
+
+        $candidates = [$rootUrl];
+        if ($site !== null) {
+            foreach ($site->getLanguages() as $language) {
+                // SiteLanguage::getBase() returns the full resolved URI
+                // (scheme + host + language path), not just the path. We
+                // only want the path segment so we can re-anchor it on
+                // the site's base.
+                $langPath = trim($language->getBase()->getPath(), '/');
+                if ($langPath === '') {
+                    continue;
+                }
+                $candidates[] = rtrim($baseUrl, '/') . '/' . $langPath . '/sitemap.xml';
+            }
+        }
+
+        foreach (array_unique($candidates) as $candidate) {
+            $urls = $this->sitemapFetcher->fetch($candidate);
+            if ($urls !== []) {
+                return [$candidate, $urls];
+            }
+        }
+        return [$rootUrl, []];
     }
 
     /**

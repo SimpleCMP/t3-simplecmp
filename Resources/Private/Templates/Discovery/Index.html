@@ -34,7 +34,7 @@
                         <label for="discover-site" class="form-label">
                             <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.site" />
                         </label>
-                        <select id="discover-site" name="tx_simplecmptypo3_simplecmpdetections[site]"
+                        <select id="discover-site" name="site"
                                 class="form-select" data-discover-site>
                             <f:for each="{availableSites}" as="s">
                                 <option value="{s}" {f:if(condition: '{s} == {site}', then: 'selected')}>{s}</option>
@@ -49,7 +49,18 @@
                     <h2 class="h5 mb-2">
                         <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.sitemap" />
                     </h2>
-                    <div class="text-body-secondary small mb-2 text-truncate" data-discover-sitemap-url>{sitemapUrl}</div>
+                    <div class="input-group input-group-sm mb-2">
+                        <input type="url"
+                               class="form-control"
+                               data-discover-sitemap-url
+                               value="{sitemapUrl}"
+                               spellcheck="false"
+                               aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.sitemap')}">
+                        <button type="button" class="btn btn-outline-secondary" data-discover-refetch>
+                            <core:icon identifier="actions-refresh" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.refetch" />
+                        </button>
+                    </div>
                     <f:if condition="{urls -> f:count()} == 0">
                         <div class="alert alert-info small mb-2">
                             <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.empty" />

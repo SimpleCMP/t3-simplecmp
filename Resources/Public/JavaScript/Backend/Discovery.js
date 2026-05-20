@@ -36,6 +36,7 @@ class Discovery {
     this.urlsTextarea = document.querySelector('[data-discover-urls]');
     this.urlCountEl = document.querySelector('[data-discover-url-count]');
     this.sitemapUrlEl = document.querySelector('[data-discover-sitemap-url]');
+    this.refetchButton = document.querySelector('[data-discover-refetch]');
 
     if (this.urlsTextarea && this.urlCountEl) {
       const recount = () => {
@@ -57,6 +58,9 @@ class Discovery {
     if (this.siteSelect) {
       this.siteSelect.addEventListener('change', () => this.onSiteChange());
     }
+    if (this.refetchButton) {
+      this.refetchButton.addEventListener('click', () => this.onRefetch());
+    }
     if (this.showIframeToggle && this.iframeWrap) {
       this.showIframeToggle.addEventListener('change', () => {
         this.iframeWrap.hidden = !this.showIframeToggle.checked;
@@ -65,21 +69,45 @@ class Discovery {
   }
 
   async onSiteChange() {
-    const site = this.siteSelect.value;
-    if (!site || !this.fetchSitemapUrl) return;
-    const url = `${this.fetchSitemapUrl}${this.fetchSitemapUrl.includes('?') ? '&' : '?'}tx_simplecmptypo3_simplecmpdetections%5Bsite%5D=${encodeURIComponent(site)}`;
+    await this.refetchSitemap({ resetUrl: true });
+  }
+
+  async onRefetch() {
+    await this.refetchSitemap({ resetUrl: false });
+  }
+
+  async refetchSitemap({ resetUrl }) {
+    if (!this.fetchSitemapUrl) return;
+    const site = this.siteSelect?.value || '';
+    const sitemapUrl = resetUrl ? '' : (this.sitemapUrlEl?.value || '');
+    // BE module Extbase binds BARE param names to action arguments (NOT
+    // the `tx_simplecmptypo3_*[name]` namespaced form). Mirrors the
+    // existing Pagination.js convention. See memory:
+    // `banner_theming.md` decision #6 for the same gotcha.
+    const params = new URLSearchParams();
+    if (site) params.set('site', site);
+    if (sitemapUrl) params.set('sitemapUrl', sitemapUrl);
+    const sep = this.fetchSitemapUrl.includes('?') ? '&' : '?';
+    const url = `${this.fetchSitemapUrl}${sep}${params.toString()}`;
+    if (this.refetchButton) this.refetchButton.disabled = true;
     try {
       const response = await fetch(url, { credentials: 'same-origin' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       this.renderUrls(data.urls || [], data.sitemapUrl || '');
+      this.appendLog(
+        data.urls?.length > 0 ? 'ok' : 'warn',
+        `Sitemap ${data.sitemapUrl} → ${data.urls?.length || 0} URL${data.urls?.length === 1 ? '' : 's'}`,
+      );
     } catch (err) {
-      this.appendLog('error', `Failed to re-fetch sitemap: ${err.message}`);
+      this.appendLog('error', `Failed to fetch sitemap: ${err.message}`);
+    } finally {
+      if (this.refetchButton) this.refetchButton.disabled = false;
     }
   }
 
   renderUrls(urls, sitemapUrl) {
-    if (this.sitemapUrlEl) this.sitemapUrlEl.textContent = sitemapUrl;
+    if (this.sitemapUrlEl) this.sitemapUrlEl.value = sitemapUrl;
     if (this.urlsTextarea) {
       this.urlsTextarea.value = urls.join('\n') + (urls.length > 0 ? '\n' : '');
     }

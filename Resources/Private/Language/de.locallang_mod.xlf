@@ -216,6 +216,7 @@
       <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source><target>Lädt die Sitemap der Website in Ihrem Browser. Jede Seite wird in einem versteckten Frame geladen; die Erfassungskette zeichnet Cookies und externe Dienste auf, wie sie es bei jedem Besucher tun würde. Sie können diesen Tab laufen lassen und später wiederkommen.</target></trans-unit>
       <trans-unit id="discover.site"><source>Site</source><target>Website</target></trans-unit>
       <trans-unit id="discover.sitemap"><source>Sitemap</source><target>Sitemap</target></trans-unit>
+      <trans-unit id="discover.refetch"><source>Refetch</source><target>Neu laden</target></trans-unit>
       <trans-unit id="discover.urls.found"><source>URLs found</source><target>URLs gefunden</target></trans-unit>
       <trans-unit id="discover.urls.label"><source>URLs to visit</source><target>Zu besuchende URLs</target></trans-unit>
       <trans-unit id="discover.urls.empty"><source>The sitemap didn't return any URLs. Paste the URLs you want to check into the box below — one per line — or install EXT:seo so the sitemap can be auto-discovered.</source><target>Die Sitemap hat keine URLs zurückgegeben. Fügen Sie die zu prüfenden URLs unten ein — eine pro Zeile — oder installieren Sie EXT:seo, damit die Sitemap automatisch erkannt wird.</target></trans-unit>
