@@ -72,6 +72,19 @@ filter and excluded from this default actionable view.*
   the TCA edit form pointing the admin at the Bibliothek tab to find a
   possible renamed replacement.
 
+- **Discover trackers** — sitemap sweep that walks a list of FE URLs in
+  a hidden iframe inside the admin's own browser, so the detection
+  table populates without waiting for organic visitor traffic.
+  Reachable from a *Tracker entdecken* button on the Detektionen list
+  toolbar. Each iframe load gets `?simplecmp_discover=1` appended, which
+  the upstream bridge honours by suspending cross-session dedup, DNT,
+  and sampling for that page load only — visitor traffic is unaffected.
+  Pre-fills URLs from `<baseUrl>/sitemap.xml` when EXT:seo is installed;
+  an editable textarea (one URL per line, `#` comments ignored) is the
+  fallback for sites without a sitemap. No Node, no headless browser,
+  no production-server changes — uses the browser the admin already has
+  open.
+
 - **Multisite support** — one TYPO3 install can serve as the central
   triage point for several frontend sites. The *Reporting site* column
   tags each detection with the Site Set that reported it; the filter

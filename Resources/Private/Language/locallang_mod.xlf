@@ -210,6 +210,25 @@
       <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source></trans-unit>
       <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source></trans-unit>
       <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list. Run simplecmp:generate-bridge-secret on the command line to rotate the secret if needed.</source></trans-unit>
+
+      <trans-unit id="list.discover"><source>Discover trackers</source></trans-unit>
+      <trans-unit id="discover.title"><source>Discover trackers across this site</source></trans-unit>
+      <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source></trans-unit>
+      <trans-unit id="discover.site"><source>Site</source></trans-unit>
+      <trans-unit id="discover.sitemap"><source>Sitemap</source></trans-unit>
+      <trans-unit id="discover.urls.found"><source>URLs found</source></trans-unit>
+      <trans-unit id="discover.urls.label"><source>URLs to visit</source></trans-unit>
+      <trans-unit id="discover.urls.empty"><source>The sitemap didn't return any URLs. Paste the URLs you want to check into the box below — one per line — or install EXT:seo so the sitemap can be auto-discovered.</source></trans-unit>
+      <trans-unit id="discover.urls.placeholder"><source>https://example.com/about&#10;https://example.com/contact</source></trans-unit>
+      <trans-unit id="discover.urls.help"><source>One URL per line. Lines starting with # are ignored. Edits are local to this run — they don't change the sitemap.</source></trans-unit>
+      <trans-unit id="discover.start"><source>Start discovery</source></trans-unit>
+      <trans-unit id="discover.cancel"><source>Cancel</source></trans-unit>
+      <trans-unit id="discover.back"><source>Back to detections</source></trans-unit>
+      <trans-unit id="discover.showIframe"><source>Show the loading frame (useful for debugging)</source></trans-unit>
+      <trans-unit id="discover.log"><source>Activity log</source></trans-unit>
+      <trans-unit id="discover.log.empty"><source>The log will fill up as the discovery runs.</source></trans-unit>
+      <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source></trans-unit>
+      <trans-unit id="discover.secretMissing.body"><source>Discovery can't run until you turn detection on. Go back to the detections tab and click "Turn on detection" first.</source></trans-unit>
     </body>
   </file>
 </xliff>

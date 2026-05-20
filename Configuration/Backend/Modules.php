@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DetectionReviewController;
+use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DiscoveryController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\LibraryBrowserController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\RegistryListController;
 use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
@@ -54,6 +55,10 @@ return [
             RegistryListController::class => [
                 'list',
                 'delete',
+            ],
+            DiscoveryController::class => [
+                'index',
+                'fetchSitemap',
             ],
         ],
     ],

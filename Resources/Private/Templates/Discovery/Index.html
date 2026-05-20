@@ -1,0 +1,135 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:render partial="ModuleNav" arguments="{active: 'detections', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab}" />
+
+    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.title" /></h1>
+    <p class="text-body-secondary">
+        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.intro" />
+    </p>
+
+    <f:if condition="{secretMissing}">
+        <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+            <core:icon identifier="actions-exclamation-triangle" size="medium" />
+            <div>
+                <strong><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.title" /></strong>
+                <div><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.body" /></div>
+            </div>
+        </div>
+    </f:if>
+
+    <div class="row"
+         data-discover-config
+         data-discover-site="{site}"
+         data-discover-fetch-sitemap-url="{uri_fetchSitemap}"
+         data-discover-back-url="{uri_back}">
+        <div class="col-lg-5">
+            <form method="get" action="{uri_index}" class="mb-3">
+                <f:if condition="{availableSites -> f:count()} > 1">
+                    <div class="mb-3">
+                        <label for="discover-site" class="form-label">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.site" />
+                        </label>
+                        <select id="discover-site" name="tx_simplecmptypo3_simplecmpdetections[site]"
+                                class="form-select" data-discover-site>
+                            <f:for each="{availableSites}" as="s">
+                                <option value="{s}" {f:if(condition: '{s} == {site}', then: 'selected')}>{s}</option>
+                            </f:for>
+                        </select>
+                    </div>
+                </f:if>
+            </form>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h5 mb-2">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.sitemap" />
+                    </h2>
+                    <div class="text-body-secondary small mb-2 text-truncate" data-discover-sitemap-url>{sitemapUrl}</div>
+                    <f:if condition="{urls -> f:count()} == 0">
+                        <div class="alert alert-info small mb-2">
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.empty" />
+                        </div>
+                    </f:if>
+                    <label class="form-label small d-flex justify-content-between" for="discover-urls">
+                        <span><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.label" /></span>
+                        <span class="text-body-secondary">
+                            <strong><span data-discover-url-count>{urls -> f:count()}</span></strong>
+                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.found" />
+                        </span>
+                    </label>
+                    <textarea id="discover-urls"
+                              data-discover-urls
+                              class="form-control form-control-sm"
+                              rows="8"
+                              spellcheck="false"
+                              style="font-family:monospace; font-size:0.85rem;"
+                              placeholder="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.placeholder')}"><f:for each="{urls}" as="u">{u}
+</f:for></textarea>
+                    <div class="form-text small">
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.urls.help" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mb-3">
+                <button type="button" class="btn btn-primary" data-discover-start
+                        {f:if(condition: '{secretMissing}', then: 'disabled')}>
+                    <core:icon identifier="actions-play" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.start" />
+                </button>
+                <button type="button" class="btn btn-secondary" data-discover-cancel disabled>
+                    <core:icon identifier="actions-close" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.cancel" />
+                </button>
+                <a href="{uri_back}" class="btn btn-link ms-auto">
+                    <core:icon identifier="actions-arrow-left" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.back" />
+                </a>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="discover-show-iframe" data-discover-show-iframe>
+                <label class="form-check-label small" for="discover-show-iframe">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.showIframe" />
+                </label>
+            </div>
+
+            <div class="mb-3" data-discover-progress hidden>
+                <div class="d-flex justify-content-between mb-1 small">
+                    <span data-discover-progress-label></span>
+                    <span data-discover-progress-counter></span>
+                </div>
+                <div class="progress" role="progressbar">
+                    <div class="progress-bar" data-discover-progress-bar style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <h2 class="h5 mb-2">
+                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log" />
+            </h2>
+            <div class="border rounded p-2 mb-3" data-discover-log
+                 style="height:300px; overflow:auto; font-family:monospace; font-size:0.85rem; background:var(--token-color-background-content, #fafafa);">
+                <em class="text-body-secondary">
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.empty" />
+                </em>
+            </div>
+
+            <div data-discover-iframe-wrap hidden>
+                <iframe data-discover-iframe
+                        src="about:blank"
+                        sandbox="allow-scripts allow-same-origin allow-forms"
+                        style="width:100%; height:400px; border:1px solid var(--token-color-border, #ccc); border-radius:4px; background:#fff;">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+</f:section>
+</html>

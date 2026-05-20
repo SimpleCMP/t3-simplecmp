@@ -51,12 +51,16 @@
             </div>
         </f:then>
         <f:else>
-            <p class="mb-3">
+            <p class="mb-3 d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-success" disabled
                         title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured.tooltip')}">
                     <core:icon identifier="actions-check" size="small" />
                     <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured" />
                 </button>
+                <a href="{uri_discover}" class="btn btn-primary">
+                    <core:icon identifier="actions-search" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:list.discover" />
+                </a>
             </p>
         </f:else>
     </f:if>

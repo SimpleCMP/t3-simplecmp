@@ -210,6 +210,25 @@
       <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source><target>Erfassung aktivieren</target></trans-unit>
       <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source><target>Tracker-Erfassung ist aktiv</target></trans-unit>
       <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list. Run simplecmp:generate-bridge-secret on the command line to rotate the secret if needed.</source><target>Browser von Besuchern können Tracker-Berichte an diese Liste senden. Mit dem CLI-Befehl simplecmp:generate-bridge-secret kann das Secret bei Bedarf rotiert werden.</target></trans-unit>
+
+      <trans-unit id="list.discover"><source>Discover trackers</source><target>Tracker entdecken</target></trans-unit>
+      <trans-unit id="discover.title"><source>Discover trackers across this site</source><target>Tracker auf dieser Website entdecken</target></trans-unit>
+      <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source><target>Lädt die Sitemap der Website in Ihrem Browser. Jede Seite wird in einem versteckten Frame geladen; die Erfassungskette zeichnet Cookies und externe Dienste auf, wie sie es bei jedem Besucher tun würde. Sie können diesen Tab laufen lassen und später wiederkommen.</target></trans-unit>
+      <trans-unit id="discover.site"><source>Site</source><target>Website</target></trans-unit>
+      <trans-unit id="discover.sitemap"><source>Sitemap</source><target>Sitemap</target></trans-unit>
+      <trans-unit id="discover.urls.found"><source>URLs found</source><target>URLs gefunden</target></trans-unit>
+      <trans-unit id="discover.urls.label"><source>URLs to visit</source><target>Zu besuchende URLs</target></trans-unit>
+      <trans-unit id="discover.urls.empty"><source>The sitemap didn't return any URLs. Paste the URLs you want to check into the box below — one per line — or install EXT:seo so the sitemap can be auto-discovered.</source><target>Die Sitemap hat keine URLs zurückgegeben. Fügen Sie die zu prüfenden URLs unten ein — eine pro Zeile — oder installieren Sie EXT:seo, damit die Sitemap automatisch erkannt wird.</target></trans-unit>
+      <trans-unit id="discover.urls.placeholder"><source>https://example.com/about&#10;https://example.com/contact</source><target>https://example.com/about&#10;https://example.com/contact</target></trans-unit>
+      <trans-unit id="discover.urls.help"><source>One URL per line. Lines starting with # are ignored. Edits are local to this run — they don't change the sitemap.</source><target>Eine URL pro Zeile. Zeilen, die mit # beginnen, werden ignoriert. Änderungen gelten nur für diesen Lauf — die Sitemap wird nicht verändert.</target></trans-unit>
+      <trans-unit id="discover.start"><source>Start discovery</source><target>Erfassung starten</target></trans-unit>
+      <trans-unit id="discover.cancel"><source>Cancel</source><target>Abbrechen</target></trans-unit>
+      <trans-unit id="discover.back"><source>Back to detections</source><target>Zurück zu den Detektionen</target></trans-unit>
+      <trans-unit id="discover.showIframe"><source>Show the loading frame (useful for debugging)</source><target>Ladeframe anzeigen (zur Fehlersuche)</target></trans-unit>
+      <trans-unit id="discover.log"><source>Activity log</source><target>Aktivitätsprotokoll</target></trans-unit>
+      <trans-unit id="discover.log.empty"><source>The log will fill up as the discovery runs.</source><target>Das Protokoll füllt sich während der Erfassung.</target></trans-unit>
+      <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source><target>Tracker-Erfassung ist deaktiviert</target></trans-unit>
+      <trans-unit id="discover.secretMissing.body"><source>Discovery can't run until you turn detection on. Go back to the detections tab and click "Turn on detection" first.</source><target>Die Erfassung kann erst starten, wenn die Tracker-Erfassung aktiviert ist. Gehen Sie zurück zum Reiter Detektionen und klicken Sie zunächst auf „Erfassung aktivieren“.</target></trans-unit>
     </body>
   </file>
 </xliff>

@@ -10,6 +10,40 @@ development.
 
 ## Unreleased
 
+### Added — Discover trackers (sitemap sweep in the admin's browser)
+
+- **New BE action *Tracker entdecken*** linked from the Detektionen
+  list toolbar (visible when the bridge is configured). Opens a
+  dedicated discovery page that walks a list of FE URLs in a hidden
+  iframe inside the admin's own tab. Each iframe load gets
+  `?simplecmp_discover=1` appended; the FE recorder + bridge inside
+  fire exactly as for a real visitor, so the existing webhook + ingest
+  pipeline populates `tx_simplecmptypo3_detection` with no new
+  server-side code path. After ~3 s dwell per page the iframe
+  navigates on, triggering pagehide → `navigator.sendBeacon` flush.
+  See upstream `simplecmp` CHANGELOG for the matching
+  `?simplecmp_discover=1` override.
+- **`SitemapFetcher` service** — fetches `<baseUrl>/sitemap.xml` via
+  TYPO3's `RequestFactory`, parses sitemap and sitemap-index XML
+  shapes, recurses one level into sub-sitemaps, de-duplicates, caps
+  at 5000 URLs. Failures log a warning and degrade to "no URLs found"
+  so the manual textarea fallback takes over.
+- **`DiscoveryController`** with `indexAction` (renders the page,
+  fetches sitemap for the chosen site) and `fetchSitemapAction` (JSON
+  endpoint used by the site-picker to repaint without a full reload).
+  Same site-resolution path as the Banner Designer module: only sites
+  whose Site Set list includes `wapplersystems/simplecmp` are eligible.
+- **Editable URL list (textarea, one per line, `#` comments
+  ignored).** Pre-filled from the sitemap when EXT:seo is installed,
+  but always present as a fallback for sites without a working sitemap
+  (or for ad-hoc one-page checks). Counter live-updates as the admin
+  edits.
+- **`Discovery.js` walker** drives the iframe sequentially with a
+  cancellable progress UI, per-page log lines, and a debug toggle to
+  show the iframe while it runs.
+- **i18n strings** for the EN + DE locallang files. 17 new units
+  covering title, intro, controls, progress, log, fallback alert.
+
 ### Added — Dienste tab (registry index, source-tagged)
 
 - **New BE tab "Dienste"** between Detektionen and Bibliothek. Lists
