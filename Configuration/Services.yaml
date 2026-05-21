@@ -19,3 +19,7 @@ services:
   # the middleware crashes with "Too few arguments to __construct".
   WapplerSystems\SimpleCmpTypo3\Middleware\ServiceDbApi:
     public: true
+
+  # ADR-0013 — universal-blocking HTML rewriter (Phase 0 prototype).
+  WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware\HtmlRewriter:
+    public: true

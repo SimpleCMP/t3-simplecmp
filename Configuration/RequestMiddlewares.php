@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use WapplerSystems\SimpleCmpTypo3\Middleware\ServiceDbApi;
+use WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware\HtmlRewriter;
 
 return [
     'frontend' => [
@@ -16,6 +17,18 @@ return [
             ],
             'after' => [
                 'typo3/cms-frontend/normalized-params-attribute',
+            ],
+        ],
+        // ADR-0013 — universal-blocking HTML rewriter (Phase 0
+        // prototype). Activated per-request via
+        // `?_simplecmp_rewrite=1` or shell-wide via env var
+        // `SIMPLECMP_REWRITER_ENABLED=1`. Runs after every other
+        // frontend middleware so the response body is fully rendered
+        // HTML by the time we see it.
+        'wapplersystems/simplecmp/universal-blocking-rewriter' => [
+            'target' => HtmlRewriter::class,
+            'after' => [
+                'typo3/cms-frontend/content-length-headers',
             ],
         ],
     ],
