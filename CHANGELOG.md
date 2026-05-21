@@ -10,6 +10,38 @@ development.
 
 ## Unreleased
 
+### Added — Universal pre-consent blocking (Phase 1, ADR-0013)
+
+- **New PSR-15 frontend middleware
+  `WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware\HtmlRewriter`.**
+  When enabled, scans the rendered HTML response for third-party
+  `<script src>`, `<iframe src>`, `<img src>`, and `<link href>`
+  references and rewrites them into the SimpleCMP engine's gate
+  shape (`data-name + data-src + src="about:blank"`) before the
+  response is flushed. The engine's existing handling takes it from
+  there — consent granted swaps the real `src` back in, consent
+  denied auto-inserts the click-to-enable placeholder. Hosts are
+  recognised via the bundled `simplecmp/services-library` origin
+  matchers, so the rewriter and the recorder agree on what counts as
+  third-party.
+- **Per-Site-Set toggle.** Two new settings on the `SimpleCmp` Site
+  Set:
+  - `simplecmp.universalBlocking.enabled` (bool, default `false`) —
+    master switch.
+  - `simplecmp.universalBlocking.allowlist` (stringlist, default
+    `[]`) — admin-curated hosts that should pass through (exact host
+    or `*.example.com` wildcard). The site's own host is allowlisted
+    automatically.
+- **`Server-Timing: rewriter;dur=NN;desc="scanned=N,rewritten=N"`**
+  header emitted on every response the rewriter touches, so DevTools
+  / synthetic monitors can read the cost without page instrumentation.
+- **Escape hatches.** Elements that already carry `data-name`
+  (integrator-marked) are skipped untouched; elements with
+  `data-no-rewrite` opt out entirely.
+- Phase 0 perf numbers carried over: ~5 ms p50 on the worst-case page
+  (30 third-party iframes) measured on a clean dev14 install, well
+  under ADR-0013's <30 ms typical / <80 ms worst-case budget.
+
 ### Added — Click-to-enable on blocked embeds
 
 - **Library placeholder copy flows through to the FE banner.** Adopting

@@ -248,6 +248,20 @@ Iterations shipped:
     drift: a previously-adopted service the bundled library no longer
     contains is flagged as Verwaist with an orange callout + inline
     alert in the TCA edit form.
+11. **Universal pre-consent blocking** (off by default). The
+    `HtmlRewriter` frontend middleware rewrites every third-party
+    `<script src>` / `<iframe src>` / `<img src>` / `<link href>` to
+    the engine's `data-name + data-src + src="about:blank"` gate
+    shape before the response is flushed — no integrator markup
+    required. Toggle on per Site Set via
+    `simplecmp.universalBlocking.enabled`; exempt vendor CDNs and
+    your own infrastructure via the
+    `simplecmp.universalBlocking.allowlist` stringlist
+    (`cdn.example.com` or `*.example.com` wildcards). Recognises hosts
+    via the bundled `simplecmp/services-library`; emits a
+    `Server-Timing: rewriter` header so cost is visible per request.
+    See [ADR-0013](https://github.com/SimpleCMP/simplecmp/blob/main/docs/adr/0013-universal-blocking-implementation-plan.md)
+    for design.
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)

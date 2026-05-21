@@ -58,3 +58,15 @@ settings:
     description: 'Maximum number of /api/simplecmp/webhook POSTs accepted from a single IP within a sliding 1-hour bucket. Set to 0 to disable. Default 500 comfortably covers a normal visitor session (most sites generate 20-30 unique detections per visit).'
     type: int
     default: 500
+
+  simplecmp.universalBlocking.enabled:
+    label: 'Universal pre-consent blocking'
+    description: 'When on, the FE pipeline rewrites every third-party <script src> / <iframe src> / <img src> / <link href> on the page to the engine''s data-name + data-src + src="about:blank" gate shape before the response is flushed. Visitors then see the click-to-enable placeholder for each blocked embed until consent is granted. Recognises hosts via the bundled simplecmp/services-library origin matchers. Off by default. See ADR-0013 for the design.'
+    type: bool
+    default: false
+
+  simplecmp.universalBlocking.allowlist:
+    label: 'Universal blocking host allowlist'
+    description: 'Hosts the rewriter should pass through without gating, in addition to the site''s own host. One per line. Exact match (e.g. `cdn.example.com`) or wildcard form `*.example.com` matching the apex + every subdomain. The site''s own host is always allowlisted automatically. Use this for vendor CDNs, your own infrastructure, or known-safe hosts you don''t want to surface as consent decisions.'
+    type: stringlist
+    default: []

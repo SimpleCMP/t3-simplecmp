@@ -19,12 +19,11 @@ return [
                 'typo3/cms-frontend/normalized-params-attribute',
             ],
         ],
-        // ADR-0013 — universal-blocking HTML rewriter (Phase 0
-        // prototype). Activated per-request via
-        // `?_simplecmp_rewrite=1` or shell-wide via env var
-        // `SIMPLECMP_REWRITER_ENABLED=1`. Runs after every other
-        // frontend middleware so the response body is fully rendered
-        // HTML by the time we see it.
+        // ADR-0013 — universal-blocking HTML rewriter. Activated per
+        // site via the Site Set setting `simplecmp.universalBlocking.
+        // enabled` (off by default). Runs after every other frontend
+        // middleware so the response body is fully rendered HTML by
+        // the time we see it.
         'wapplersystems/simplecmp/universal-blocking-rewriter' => [
             'target' => HtmlRewriter::class,
             'after' => [

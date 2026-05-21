@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\Stream;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Service\HostMatcher;
 
 /**
@@ -23,27 +24,29 @@ use WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Service\HostMatcher;
  * granted → `src` swapped in; consent denied → contextual-notice auto-
  * inserts next to the placeholder.
  *
- * Phase 0 prototype — opt-in via the env var
- * `SIMPLECMP_REWRITER_ENABLED=1` or the per-request query string
- * `?_simplecmp_rewrite=1` so dev14's regular pages aren't disrupted
- * unless we explicitly opt in. Emits a `Server-Timing: rewriter;dur=NN`
- * header on every request where the rewriter ran so the benchmark
- * script can pull cost numbers from headers without instrumenting page
+ * Activation per Site Set: turn on via
+ * `simplecmp.universalBlocking.enabled` in the site's settings. The
+ * companion `simplecmp.universalBlocking.allowlist` stringlist lets
+ * admins exempt hosts (exact `cdn.example.com` or wildcard
+ * `*.example.com`); the site's own host is allowlisted automatically.
+ *
+ * Emits a `Server-Timing: rewriter;dur=NN;desc="scanned=N,rewritten=N"`
+ * header on every request where the rewriter ran so dev tools / the
+ * benchmark script can read cost numbers without instrumenting page
  * content.
  *
- * Parser: native `DOMDocument` with the HTML5-tolerant flag mask. Zero
- * extra deps; if perf is bad on real pages we'll swap to Masterminds/
- * HTML5 in a follow-up. Phase 0's whole point is to find out.
+ * Parser: native `DOMDocument` with the HTML5-tolerant flag mask. Phase
+ * 0 measurement on a 30-iframe worst-case page came in at <5 ms p50, so
+ * no dependency on `Masterminds/HTML5` was needed.
  *
  * Design call defaults from ADR-0013:
  * - Tag scope (#4): iframe + script + img + link only for now; source/
- *   video/audio added if benchmarks allow.
- * - Inline scripts (#5): skipped — runtime monkey-patches (#26) handle
- *   JS-injected calls.
- * - Module scripts (#6): rewritten same as regular `<script src>`;
- *   compatibility verified later.
- * - Per-element override (#11): `data-no-rewrite` on the element opts
- *   it out (so integrators can keep one specific embed pre-marked).
+ *   video/audio added if a real site needs them.
+ * - Inline scripts (#5): skipped — runtime monkey-patches handle JS-
+ *   injected calls.
+ * - Module scripts (#6): rewritten same as regular `<script src>`.
+ * - Per-element override (#11): `data-no-rewrite` opts an element out
+ *   (escape hatch for integrator-marked exceptions).
  */
 final class HtmlRewriter implements MiddlewareInterface
 {
@@ -61,27 +64,31 @@ final class HtmlRewriter implements MiddlewareInterface
         'link'   => 'href',
     ];
 
-    private HostMatcher $matcher;
-
     /** @var list<string> site's own hosts — never rewritten */
     private array $sameOriginHosts = [];
 
-    public function __construct(?HostMatcher $matcher = null)
-    {
-        $this->matcher = $matcher ?? new HostMatcher();
-    }
-
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // Phase 0 gating — activate either via the env var (so a shell-
-        // wide opt-in is possible) or via a per-request query string
-        // (`?_simplecmp_rewrite=1`) so the benchmark script can A/B
-        // back-to-back without restarting the stack.
-        $envFlag = ($_ENV['SIMPLECMP_REWRITER_ENABLED'] ?? getenv('SIMPLECMP_REWRITER_ENABLED')) === '1';
-        $queryFlag = ($request->getQueryParams()['_simplecmp_rewrite'] ?? null) === '1';
-        if (!$envFlag && !$queryFlag) {
+        $site = $request->getAttribute('site');
+        if (!$site instanceof Site) {
             return $handler->handle($request);
         }
+        $settings = $site->getSettings();
+        if (!$settings->get('simplecmp.universalBlocking.enabled')) {
+            return $handler->handle($request);
+        }
+
+        $allowlistRaw = $settings->get('simplecmp.universalBlocking.allowlist');
+        $allowlist = [];
+        if (is_array($allowlistRaw)) {
+            foreach ($allowlistRaw as $entry) {
+                if (is_string($entry) && $entry !== '') {
+                    $allowlist[] = $entry;
+                }
+            }
+        }
+        $matcher = new HostMatcher($allowlist);
+
         $response = $handler->handle($request);
         $contentType = $response->getHeaderLine('Content-Type');
         if (!str_contains(strtolower($contentType), 'text/html')) {
@@ -97,7 +104,7 @@ final class HtmlRewriter implements MiddlewareInterface
 
         $start = hrtime(true);
         $stats = ['scanned' => 0, 'rewritten' => 0];
-        $rewritten = $this->rewriteHtml($body, $stats);
+        $rewritten = $this->rewriteHtml($body, $matcher, $stats);
         $elapsedMs = (hrtime(true) - $start) / 1e6;
 
         $newBody = new Stream('php://temp', 'r+');
@@ -123,7 +130,7 @@ final class HtmlRewriter implements MiddlewareInterface
     /**
      * @param array{scanned: int, rewritten: int} $stats updated in-place
      */
-    private function rewriteHtml(string $html, array &$stats): string
+    private function rewriteHtml(string $html, HostMatcher $matcher, array &$stats): string
     {
         $dom = new \DOMDocument();
         // Real-world HTML is messy; suppress the libxml warning noise
@@ -160,7 +167,7 @@ final class HtmlRewriter implements MiddlewareInterface
                 if (in_array($host, $this->sameOriginHosts, true)) {
                     continue;
                 }
-                $service = $this->matcher->match($host);
+                $service = $matcher->match($host);
                 if ($service === null) {
                     continue;
                 }

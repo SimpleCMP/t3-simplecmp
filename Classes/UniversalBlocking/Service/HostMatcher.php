@@ -15,20 +15,22 @@ use SimpleCMP\ServicesLibrary\ServicesLibrary;
  * suffix walks, where W is the small number of wildcard patterns the
  * library carries (~few hundred in total across 369 services).
  *
- * Two layers of resolution, returned as the first hit:
+ * Three layers of resolution, returned as the first hit:
  *
- * 1. **Exact host** — `youtube.com` → `youtube`. Hash table.
- * 2. **Wildcard suffix** — `*.youtube.com` matches `youtube.com` (apex)
- *    AND every subdomain (`www.youtube.com`, `m.youtube.com`, …). Walk
- *    until first match. Semantics deliberately mirror the recorder's
- *    JS classifier and `ClassifierLookup::originMatches` so the rewriter
- *    and the recorder agree on what's third-party.
+ * 1. **Admin allowlist** — passed in via constructor. Highest
+ *    priority. Returns null for matched hosts so the rewriter passes
+ *    them through. Supports exact hosts and `*.suffix` wildcards.
+ * 2. **Exact library host** — `youtube.com` → `youtube`. Hash table.
+ * 3. **Wildcard library suffix** — `*.youtube.com` matches
+ *    `youtube.com` (apex) AND every subdomain (`www.youtube.com`,
+ *    `m.youtube.com`, …). Walk until first match. Semantics
+ *    deliberately mirror the recorder's JS classifier and
+ *    `ClassifierLookup::originMatches` so the rewriter and the
+ *    recorder agree on what's third-party.
  *
  * Same-origin handling lives at the caller — the rewriter feeds in the
- * site's own host(s) as an allowlist and HostMatcher returns null for
- * those so they aren't rewritten.
- *
- * Sandbox-only; not yet wired into anything that ships.
+ * site's own host as a separate input and HostMatcher::match returns
+ * null for it.
  */
 final class HostMatcher
 {
@@ -38,8 +40,36 @@ final class HostMatcher
     /** @var list<array{suffix: string, apex: string, service: string}> */
     private array $wildcards = [];
 
-    public function __construct()
+    /** @var array<string, true> exact hosts the admin marked as allowed */
+    private array $allowExact = [];
+
+    /** @var list<array{suffix: string, apex: string}> allow-wildcards */
+    private array $allowWildcards = [];
+
+    /**
+     * @param list<string> $allowlist admin-curated hosts that should
+     *                                pass through (per `simplecmp.
+     *                                universalBlocking.allowlist`).
+     *                                Each entry is either an exact host
+     *                                (`cdn.example.com`) or a wildcard
+     *                                (`*.example.com`).
+     */
+    public function __construct(array $allowlist = [])
     {
+        foreach ($allowlist as $entry) {
+            if (!is_string($entry) || $entry === '') {
+                continue;
+            }
+            if (str_starts_with($entry, '*.')) {
+                $apex = substr($entry, 2);
+                $this->allowWildcards[] = [
+                    'suffix' => substr($entry, 1),
+                    'apex'   => $apex,
+                ];
+                continue;
+            }
+            $this->allowExact[$entry] = true;
+        }
         foreach (ServicesLibrary::services() as $service) {
             $id = (string) ($service['id'] ?? '');
             if ($id === '') {
@@ -68,13 +98,22 @@ final class HostMatcher
     }
 
     /**
-     * Returns the service id that owns this host, or null if no library
-     * service matches.
+     * Returns the service id that owns this host, or null if the host
+     * should pass through (allowlisted, same-origin, or no library
+     * service matches).
      */
     public function match(string $host): ?string
     {
         if ($host === '') {
             return null;
+        }
+        if (isset($this->allowExact[$host])) {
+            return null;
+        }
+        foreach ($this->allowWildcards as $w) {
+            if ($host === $w['apex'] || str_ends_with($host, $w['suffix'])) {
+                return null;
+            }
         }
         if (isset($this->exact[$host])) {
             return $this->exact[$host];
