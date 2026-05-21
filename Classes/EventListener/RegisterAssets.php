@@ -327,25 +327,31 @@ final readonly class RegisterAssets
             if (isset($row['vendorCountry'])) {
                 $service['vendorCountry'] = (string) $row['vendorCountry'];
             }
-            // Click-to-enable placeholder copy — read from the library
-            // entry adopted into this registry row. The engine
-            // (`ConsentManager._toggleAutoPlaceholder` +
-            // `<simplecmp-contextual-notice>`) falls back to title /
-            // default i18n description if either is unset.
-            if (isset($row['placeholderTitle']) && is_string($row['placeholderTitle'])) {
-                $service['placeholderTitle'] = $row['placeholderTitle'];
-            }
-            if (isset($row['placeholderDescription']) && is_string($row['placeholderDescription'])) {
-                $service['placeholderDescription'] = $row['placeholderDescription'];
-            }
+            // Click-to-enable placeholder copy. The component (engine
+            // side) resolves in this order:
+            //   service.placeholderTitle (JS-config override) →
+            //   translations[lang]<service>.placeholderTitle? →
+            //   translations[lang]<service>.title? → asTitle(name)
+            // We surface the library's canonical English string through
+            // the translations table (under `zz`, the engine's fallback
+            // language) instead of setting it as a service property —
+            // that lets per-language overlays from `i18n.placeholderX`
+            // actually win when the active language differs from the
+            // fallback. Same pattern as title / description above.
             $services[] = $service;
 
             $translations['zz'][$id]['title'] = (string) $row['name'];
             if (isset($row['description'])) {
                 $translations['zz'][$id]['description'] = (string) $row['description'];
             }
+            if (isset($row['placeholderTitle']) && is_string($row['placeholderTitle'])) {
+                $translations['zz'][$id]['placeholderTitle'] = $row['placeholderTitle'];
+            }
+            if (isset($row['placeholderDescription']) && is_string($row['placeholderDescription'])) {
+                $translations['zz'][$id]['placeholderDescription'] = $row['placeholderDescription'];
+            }
             $i18n = is_array($row['i18n'] ?? null) ? $row['i18n'] : [];
-            foreach (['title', 'description'] as $field) {
+            foreach (['title', 'description', 'placeholderTitle', 'placeholderDescription'] as $field) {
                 $perLang = $i18n[$field] ?? null;
                 if (!is_array($perLang)) {
                     continue;
