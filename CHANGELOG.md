@@ -10,6 +10,33 @@ development.
 
 ## Unreleased
 
+### Added — Click-to-enable on blocked embeds
+
+- **Library placeholder copy flows through to the FE banner.** Adopting
+  a service from the Bibliothek tab now carries the optional
+  `placeholderTitle` / `placeholderDescription` fields from the
+  bundled `simplecmp/services-library` entry through to the JS init
+  config. The upstream SimpleCMP engine reads them as service
+  properties and uses them in the auto-inserted contextual notice
+  next to blocked third-party embeds. Curated copy ships for 15
+  high-value embeds (YouTube, Vimeo, Maps, Spotify, etc.) — admins
+  get the right placeholder text without writing any.
+- **New columns** `placeholder_title` (varchar) +
+  `placeholder_description` (text) on `tx_simplecmptypo3_service`.
+  No TCA fields — deliberately deferred (the fallback chain produces
+  reasonable defaults; admins who want override-per-site can use the
+  description field). When library curators add good copy, every
+  adopted site benefits with zero admin work.
+- `ServiceRepository::upsert()` writes the new fields on adoption;
+  `rowToProtocol()` reads them; `RegisterAssets::buildRuntimeServices()`
+  passes them through to the FE init config.
+- Bundle sync from upstream ships the engine-side auto-placeholder
+  insertion + the `<simplecmp-contextual-notice>` custom-element
+  registration that was previously test-only. The
+  `simplecmp:configure` event now opens the modal regardless of which
+  widget emits it (the click-to-enable notice's *Open settings*
+  button now works alongside the banner's).
+
 ### Added — Discover trackers (sitemap sweep in the admin's browser)
 
 - **New BE action *Tracker entdecken*** linked from the Detektionen

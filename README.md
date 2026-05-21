@@ -106,6 +106,19 @@ filter and excluded from this default actionable view.*
   updates as you type. Tokens persist in `tx_simplecmptypo3_theme` per
   site; deleting a row resets that site to defaults.
 
+- **Click-to-enable on blocked embeds** — when a content editor pastes
+  a third-party embed with the standard `data-name="<service>"
+  data-src="..."` pattern (YouTube, Spotify, Vimeo, Maps, etc.), the
+  upstream SimpleCMP engine auto-inserts a small placeholder card
+  next to the blocked iframe with *Show once*, *Always show*, and
+  *Open settings* buttons. Adopted library services carry their
+  curated `placeholderDescription` automatically — admins don't have
+  to write per-service copy unless they want to override the bundled
+  text. Two new optional columns on `tx_simplecmptypo3_service`
+  (`placeholder_title`, `placeholder_description`) store any
+  overrides the adoption flow brings in from
+  [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library).
+
 ## Screenshots
 
 ### The three row states
