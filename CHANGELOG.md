@@ -39,10 +39,30 @@ development.
   (or for ad-hoc one-page checks). Counter live-updates as the admin
   edits.
 - **`Discovery.js` walker** drives the iframe sequentially with a
-  cancellable progress UI, per-page log lines, and a debug toggle to
-  show the iframe while it runs.
-- **i18n strings** for the EN + DE locallang files. 17 new units
-  covering title, intro, controls, progress, log, fallback alert.
+  morphing Start / Stop / Continue button. Stop pauses after the
+  current URL completes; Continue resumes from the next one. The
+  log records the estimated wall-clock duration on Start and the
+  updated remaining time on Continue.
+- **State persistence** in localStorage (`simplecmp-discover-state:
+  <site>`, capped at 200 log entries FIFO). Saved on every visit /
+  Start / Stop / Done / Refetch / textarea input. Restored in
+  `initialize()` — paused runs come back as Continue after a BE
+  reload, with the full log replayed. Per-site keying so switching
+  the picker swaps state cleanly.
+- **Reset button** (`btn-outline-secondary`, refresh icon) — clears
+  localStorage + log + snapshot, re-enables the textarea / site
+  picker / refetch, triggers a fresh sitemap fetch. Disabled while
+  running.
+- **Refetch implicitly clears any paused snapshot** so a fresh URL
+  list never coexists with a stale Continue button. The new
+  "Sitemap X → N URLs" line replaces the abandoned run's log.
+  Paused state explicitly re-enables the Refetch button so the
+  admin has a way to escape Continue without going through Reset.
+- **i18n strings** for the EN + DE locallang files. 22 new units
+  covering title, intro, controls (Start / Stop / Continue / Reset
+  / Refetch), progress, log lines (including the ETA template
+  *"Geschätzte Zeit bis alle URL's durchgelaufen sind: {eta}"*),
+  and the fallback alert.
 
 ### Added — Dienste tab (registry index, source-tagged)
 

@@ -79,10 +79,18 @@ filter and excluded from this default actionable view.*
   toolbar. Each iframe load gets `?simplecmp_discover=1` appended, which
   the upstream bridge honours by suspending cross-session dedup, DNT,
   and sampling for that page load only — visitor traffic is unaffected.
-  Pre-fills URLs from `<baseUrl>/sitemap.xml` when EXT:seo is installed;
-  an editable textarea (one URL per line, `#` comments ignored) is the
-  fallback for sites without a sitemap. No Node, no headless browser,
-  no production-server changes — uses the browser the admin already has
+  Pre-fills URLs from `<baseUrl>/sitemap.xml` when EXT:seo is installed
+  (auto-detect tries each language base for multilingual sites); an
+  editable textarea (one URL per line, `#` comments ignored) is the
+  fallback for sites without a sitemap. The single morphing
+  Start / Stop / Continue button makes the run interruptible — Stop
+  pauses after the current URL, Continue resumes from the next one.
+  Discovery state (snapshot, currentIndex, log) persists in
+  localStorage per site, so a paused run survives a BE reload. A
+  Reset button clears state and re-fetches the sitemap; the activity
+  log shows the estimated total time on Start and the updated
+  remaining time on Continue. No Node, no headless browser, no
+  production-server changes — uses the browser the admin already has
   open.
 
 - **Multisite support** — one TYPO3 install can serve as the central
