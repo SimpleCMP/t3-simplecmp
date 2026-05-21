@@ -1,37 +1,77 @@
 /**
- * Auto-submit handling for the detection list's select-based filters
- * and pagination size:
+ * Auto-submit handling for the detection list's filters + pagination
+ * size.
  *
- * - `[data-per-page]` — sets `perPage` and clears `page` (= jump to
- *   page 1 of the new size).
- * - `<select|input data-list-filter="<name>">` — sets `<name>` in the
- *   URL (or removes it when empty), and clears `page` so the user
- *   lands on page 1 of the filtered view. For text inputs, `change`
- *   fires on blur or Enter.
+ * - `[data-per-page]` — select that sets `perPage` and clears `page`
+ *   (= jump to page 1 of the new size).
+ * - `<select data-list-filter="<name>">` — fires on change.
+ * - `<input data-list-filter="<name>">` — fires on Enter or on a
+ *   400 ms debounce after the last keystroke. Relying on `change`
+ *   alone (which only fires on blur for text inputs) made search
+ *   feel unresponsive — the user had to tab away to trigger a
+ *   filter, and the field never reacted to typing.
  *
- * Both flows rewrite `location` directly. A <form method="get"> would
- * also work, but TYPO3's BE-module token sits in the URL and weaving
- * it back into a form action is more code than this.
+ * All flows rewrite `location` directly. A `<form method="get">`
+ * would also work, but TYPO3's BE-module token sits in the URL and
+ * weaving it back into a form action is more code than this.
  */
+
+const INPUT_DEBOUNCE_MS = 400;
+
 class Pagination {
-  initialize() {
-    document.addEventListener('change', this.onChange);
+  constructor() {
+    /** @type {Map<HTMLInputElement, number>} */
+    this._inputTimers = new Map();
   }
 
-  onChange(event) {
+  initialize() {
+    document.addEventListener('change', this.onChange);
+    document.addEventListener('input', this.onInput);
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  onChange = (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLSelectElement) && !(target instanceof HTMLInputElement)) {
-      return;
-    }
     if (target instanceof HTMLSelectElement && target.matches('[data-per-page]')) {
       Pagination.navigate(target, { perPage: target.value, page: null });
       return;
     }
-    const filterName = target.getAttribute('data-list-filter');
-    if (filterName) {
+    if (target instanceof HTMLSelectElement && target.hasAttribute('data-list-filter')) {
+      const filterName = target.getAttribute('data-list-filter');
       Pagination.navigate(target, { [filterName]: target.value || null, page: null });
     }
-  }
+  };
+
+  onInput = (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || !target.hasAttribute('data-list-filter')) {
+      return;
+    }
+    const previous = this._inputTimers.get(target);
+    if (previous !== undefined) clearTimeout(previous);
+    const handle = setTimeout(() => {
+      this._inputTimers.delete(target);
+      const filterName = target.getAttribute('data-list-filter');
+      Pagination.navigate(target, { [filterName]: target.value || null, page: null });
+    }, INPUT_DEBOUNCE_MS);
+    this._inputTimers.set(target, handle);
+  };
+
+  onKeydown = (event) => {
+    if (event.key !== 'Enter') return;
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || !target.hasAttribute('data-list-filter')) {
+      return;
+    }
+    event.preventDefault();
+    const previous = this._inputTimers.get(target);
+    if (previous !== undefined) {
+      clearTimeout(previous);
+      this._inputTimers.delete(target);
+    }
+    const filterName = target.getAttribute('data-list-filter');
+    Pagination.navigate(target, { [filterName]: target.value || null, page: null });
+  };
 
   static navigate(target, paramUpdates) {
     const url = new URL(target.ownerDocument.location);
