@@ -223,11 +223,26 @@
       <trans-unit id="discover.urls.placeholder"><source>https://example.com/about&#10;https://example.com/contact</source><target>https://example.com/about&#10;https://example.com/contact</target></trans-unit>
       <trans-unit id="discover.urls.help"><source>One URL per line. Lines starting with # are ignored. Edits are local to this run — they don't change the sitemap.</source><target>Eine URL pro Zeile. Zeilen, die mit # beginnen, werden ignoriert. Änderungen gelten nur für diesen Lauf — die Sitemap wird nicht verändert.</target></trans-unit>
       <trans-unit id="discover.start"><source>Start discovery</source><target>Erfassung starten</target></trans-unit>
+      <trans-unit id="discover.stop"><source>Stop</source><target>Anhalten</target></trans-unit>
+      <trans-unit id="discover.continue"><source>Continue discovery</source><target>Erfassung fortsetzen</target></trans-unit>
       <trans-unit id="discover.cancel"><source>Cancel</source><target>Abbrechen</target></trans-unit>
+      <trans-unit id="discover.reset"><source>Reset</source><target>Zurücksetzen</target></trans-unit>
+      <trans-unit id="discover.reset.title"><source>Clear the saved discovery state and start fresh.</source><target>Den gespeicherten Erfassungsstand löschen und neu beginnen.</target></trans-unit>
+      <trans-unit id="discover.log.cleared"><source>Discovery state cleared.</source><target>Erfassungsstand zurückgesetzt.</target></trans-unit>
+      <trans-unit id="discover.log.restored"><source>Restored: {current} of {total} URLs already visited.</source><target>Wiederhergestellt: {current} von {total} URLs bereits besucht.</target></trans-unit>
+      <trans-unit id="discover.log.eta"><source>Estimated time to walk all URLs: {eta}</source><target>Geschätzte Zeit bis alle URL's durchgelaufen sind: {eta}</target></trans-unit>
       <trans-unit id="discover.back"><source>Back to detections</source><target>Zurück zu den Detektionen</target></trans-unit>
       <trans-unit id="discover.showIframe"><source>Show the loading frame (useful for debugging)</source><target>Ladeframe anzeigen (zur Fehlersuche)</target></trans-unit>
       <trans-unit id="discover.log"><source>Activity log</source><target>Aktivitätsprotokoll</target></trans-unit>
       <trans-unit id="discover.log.empty"><source>The log will fill up as the discovery runs.</source><target>Das Protokoll füllt sich während der Erfassung.</target></trans-unit>
+      <trans-unit id="discover.log.starting"><source>Starting discovery for {count} URLs.</source><target>Erfassung startet für {count} URLs.</target></trans-unit>
+      <trans-unit id="discover.log.stopping"><source>Stopping after current URL…</source><target>Anhalten nach aktueller URL…</target></trans-unit>
+      <trans-unit id="discover.log.paused"><source>Paused at {current} of {total}. Click Continue to resume.</source><target>Pausiert bei {current} von {total}. Klicken Sie auf „Erfassung fortsetzen“, um weiterzumachen.</target></trans-unit>
+      <trans-unit id="discover.log.done"><source>Done. Visited {current} of {total} URLs.</source><target>Fertig. {current} von {total} URLs besucht.</target></trans-unit>
+      <trans-unit id="discover.log.noUrls"><source>No URLs to visit. Paste at least one URL and try again.</source><target>Keine URLs zu besuchen. Bitte mindestens eine URL einfügen und erneut versuchen.</target></trans-unit>
+      <trans-unit id="discover.log.sitemapResult"><source>Sitemap {url} → {count} URLs</source><target>Sitemap {url} → {count} URLs</target></trans-unit>
+      <trans-unit id="discover.log.sitemapError"><source>Failed to fetch sitemap: {error}</source><target>Sitemap konnte nicht abgerufen werden: {error}</target></trans-unit>
+      <trans-unit id="discover.log.iframeError"><source>iframe load error</source><target>Fehler beim Laden im Frame</target></trans-unit>
       <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source><target>Tracker-Erfassung ist deaktiviert</target></trans-unit>
       <trans-unit id="discover.secretMissing.body"><source>Discovery can't run until you turn detection on. Go back to the detections tab and click "Turn on detection" first.</source><target>Die Erfassung kann erst starten, wenn die Tracker-Erfassung aktiviert ist. Gehen Sie zurück zum Reiter Detektionen und klicken Sie zunächst auf „Erfassung aktivieren“.</target></trans-unit>
     </body>

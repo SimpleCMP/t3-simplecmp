@@ -24,9 +24,20 @@
 
     <div class="row"
          data-discover-config
-         data-discover-site="{site}"
          data-discover-fetch-sitemap-url="{uri_fetchSitemap}"
-         data-discover-back-url="{uri_back}">
+         data-discover-back-url="{uri_back}"
+         data-i18n-starting="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.starting')}"
+         data-i18n-stopping="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.stopping')}"
+         data-i18n-paused="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.paused')}"
+         data-i18n-done="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.done')}"
+         data-i18n-no-urls="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.noUrls')}"
+         data-i18n-sitemap-result="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapResult')}"
+         data-i18n-sitemap-error="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapError')}"
+         data-i18n-iframe-error="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.iframeError')}"
+         data-i18n-cleared="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.cleared')}"
+         data-i18n-restored="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.restored')}"
+         data-i18n-eta="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.log.eta')}"
+         data-discover-current-site="{site}">
         <div class="col-lg-5">
             <form method="get" action="{uri_index}" class="mb-3">
                 <f:if condition="{availableSites -> f:count()} > 1">
@@ -89,13 +100,20 @@
 
             <div class="d-flex gap-2 mb-3">
                 <button type="button" class="btn btn-primary" data-discover-start
+                        data-label-start="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.start')}"
+                        data-label-stop="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.stop')}"
+                        data-label-continue="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.continue')}"
                         {f:if(condition: '{secretMissing}', then: 'disabled')}>
-                    <core:icon identifier="actions-play" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.start" />
+                    <span data-discover-icon-play><core:icon identifier="actions-play" size="small" /></span>
+                    <span data-discover-icon-pause hidden><core:icon identifier="actions-pause" size="small" /></span>
+                    <span data-discover-start-label>
+                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.start" />
+                    </span>
                 </button>
-                <button type="button" class="btn btn-secondary" data-discover-cancel disabled>
-                    <core:icon identifier="actions-close" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.cancel" />
+                <button type="button" class="btn btn-outline-secondary" data-discover-reset
+                        title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.reset.title')}">
+                    <core:icon identifier="actions-refresh" size="small" />
+                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:discover.reset" />
                 </button>
                 <a href="{uri_back}" class="btn btn-link ms-auto">
                     <core:icon identifier="actions-arrow-left" size="small" />

@@ -223,11 +223,26 @@
       <trans-unit id="discover.urls.placeholder"><source>https://example.com/about&#10;https://example.com/contact</source></trans-unit>
       <trans-unit id="discover.urls.help"><source>One URL per line. Lines starting with # are ignored. Edits are local to this run — they don't change the sitemap.</source></trans-unit>
       <trans-unit id="discover.start"><source>Start discovery</source></trans-unit>
+      <trans-unit id="discover.stop"><source>Stop</source></trans-unit>
+      <trans-unit id="discover.continue"><source>Continue discovery</source></trans-unit>
       <trans-unit id="discover.cancel"><source>Cancel</source></trans-unit>
+      <trans-unit id="discover.reset"><source>Reset</source></trans-unit>
+      <trans-unit id="discover.reset.title"><source>Clear the saved discovery state and start fresh.</source></trans-unit>
+      <trans-unit id="discover.log.cleared"><source>Discovery state cleared.</source></trans-unit>
+      <trans-unit id="discover.log.restored"><source>Restored: {current} of {total} URLs already visited.</source></trans-unit>
+      <trans-unit id="discover.log.eta"><source>Estimated time to walk all URLs: {eta}</source></trans-unit>
       <trans-unit id="discover.back"><source>Back to detections</source></trans-unit>
       <trans-unit id="discover.showIframe"><source>Show the loading frame (useful for debugging)</source></trans-unit>
       <trans-unit id="discover.log"><source>Activity log</source></trans-unit>
       <trans-unit id="discover.log.empty"><source>The log will fill up as the discovery runs.</source></trans-unit>
+      <trans-unit id="discover.log.starting"><source>Starting discovery for {count} URLs.</source></trans-unit>
+      <trans-unit id="discover.log.stopping"><source>Stopping after current URL…</source></trans-unit>
+      <trans-unit id="discover.log.paused"><source>Paused at {current} of {total}. Click Continue to resume.</source></trans-unit>
+      <trans-unit id="discover.log.done"><source>Done. Visited {current} of {total} URLs.</source></trans-unit>
+      <trans-unit id="discover.log.noUrls"><source>No URLs to visit. Paste at least one URL and try again.</source></trans-unit>
+      <trans-unit id="discover.log.sitemapResult"><source>Sitemap {url} → {count} URLs</source></trans-unit>
+      <trans-unit id="discover.log.sitemapError"><source>Failed to fetch sitemap: {error}</source></trans-unit>
+      <trans-unit id="discover.log.iframeError"><source>iframe load error</source></trans-unit>
       <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source></trans-unit>
       <trans-unit id="discover.secretMissing.body"><source>Discovery can't run until you turn detection on. Go back to the detections tab and click "Turn on detection" first.</source></trans-unit>
     </body>
