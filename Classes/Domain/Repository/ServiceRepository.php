@@ -153,6 +153,10 @@ final readonly class ServiceRepository
             'extensions' => isset($serviceData['extensions'])
                 ? json_encode($serviceData['extensions'], JSON_THROW_ON_ERROR)
                 : null,
+            'placeholder_title' => $this->stringOrNull($serviceData['placeholderTitle'] ?? null),
+            'placeholder_description' => $this->stringOrNull(
+                $serviceData['placeholderDescription'] ?? null,
+            ),
         ];
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
@@ -345,7 +349,21 @@ final readonly class ServiceRepository
         if ($extensions !== null) {
             $out['extensions'] = $extensions;
         }
+        if (isset($row['placeholder_title']) && $row['placeholder_title'] !== null && $row['placeholder_title'] !== '') {
+            $out['placeholderTitle'] = (string) $row['placeholder_title'];
+        }
+        if (isset($row['placeholder_description']) && $row['placeholder_description'] !== null && $row['placeholder_description'] !== '') {
+            $out['placeholderDescription'] = (string) $row['placeholder_description'];
+        }
         return $out;
+    }
+
+    private function stringOrNull(mixed $value): ?string
+    {
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+        return null;
     }
 
     private function decodeJson(?string $value): mixed

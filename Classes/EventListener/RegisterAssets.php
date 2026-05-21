@@ -327,6 +327,17 @@ final readonly class RegisterAssets
             if (isset($row['vendorCountry'])) {
                 $service['vendorCountry'] = (string) $row['vendorCountry'];
             }
+            // Click-to-enable placeholder copy — read from the library
+            // entry adopted into this registry row. The engine
+            // (`ConsentManager._toggleAutoPlaceholder` +
+            // `<simplecmp-contextual-notice>`) falls back to title /
+            // default i18n description if either is unset.
+            if (isset($row['placeholderTitle']) && is_string($row['placeholderTitle'])) {
+                $service['placeholderTitle'] = $row['placeholderTitle'];
+            }
+            if (isset($row['placeholderDescription']) && is_string($row['placeholderDescription'])) {
+                $service['placeholderDescription'] = $row['placeholderDescription'];
+            }
             $services[] = $service;
 
             $translations['zz'][$id]['title'] = (string) $row['name'];

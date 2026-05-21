@@ -16,6 +16,8 @@ CREATE TABLE tx_simplecmptypo3_service (
     cookies text,
     origins text,
     extensions text,
+    placeholder_title varchar(255) DEFAULT NULL,
+    placeholder_description text,
     library_adopted_at int(11) unsigned DEFAULT '0' NOT NULL,
 
     PRIMARY KEY (uid),
