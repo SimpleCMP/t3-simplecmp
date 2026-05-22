@@ -112,12 +112,39 @@ final class HostMatcher
      * Returns the service id that owns this host, or null if the host
      * should pass through (allowlisted or empty).
      *
-     * In universal-blocking mode (the default, see constructor), hosts
-     * not in the library fall back to the host itself as the synthetic
-     * service id — so the rewriter still rewrites them and the
-     * admin can later Kuratieren the unknown service from the BE.
+     * Thin wrapper over `resolve()` — kept for the existing test
+     * surface that asserts on a plain string return. New callers
+     * (HtmlRewriter, audit tooling) should prefer `resolve()` so they
+     * also get the `source` field needed to drive the FE notice's
+     * library-known-vs-host-derived rendering.
      */
     public function match(string $host): ?string
+    {
+        return $this->resolve($host)['service'] ?? null;
+    }
+
+    /**
+     * Resolve a host to both its service id AND the source of the
+     * resolution, so callers can distinguish:
+     *
+     * - `source: 'library'` — the host matched a curated origin in
+     *   the `simplecmp/services-library` bundle. The service id is
+     *   the library entry's id (e.g. `youtube`, `facebook`). FE
+     *   contextual-notice can offer "Ja" (one-time accept) safely
+     *   because the visitor recognises the brand.
+     * - `source: 'host'` — universal-blocking mode caught an
+     *   otherwise-unknown third-party host. The service id IS the
+     *   host (e.g. `random-tracker.example`). FE contextual-notice
+     *   should render an informational-only state (no consent
+     *   button) because the visitor has no basis to make an informed
+     *   decision and the admin hasn't reviewed it.
+     *
+     * Returns null when the host should pass through (allowlisted,
+     * empty, or `blockAllThirdParty: false` + no library match).
+     *
+     * @return array{service: string, source: 'library'|'host'}|null
+     */
+    public function resolve(string $host): ?array
     {
         if ($host === '') {
             return null;
@@ -131,15 +158,17 @@ final class HostMatcher
             }
         }
         if (isset($this->exact[$host])) {
-            return $this->exact[$host];
+            return ['service' => $this->exact[$host], 'source' => 'library'];
         }
         foreach ($this->wildcards as $w) {
             // `*.youtube.com` matches both the apex and any subdomain.
             if ($host === $w['apex'] || str_ends_with($host, $w['suffix'])) {
-                return $w['service'];
+                return ['service' => $w['service'], 'source' => 'library'];
             }
         }
-        return $this->blockAllThirdParty ? $host : null;
+        return $this->blockAllThirdParty
+            ? ['service' => $host, 'source' => 'host']
+            : null;
     }
 
     /**

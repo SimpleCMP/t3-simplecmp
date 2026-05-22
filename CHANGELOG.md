@@ -10,6 +10,23 @@ development.
 
 ## Unreleased
 
+### Added — `data-blocked-source` attribute drives three-state FE notice
+
+- **`HtmlRewriter` now emits `data-blocked-source="library"` or
+  `data-blocked-source="host"`** on every element it rewrites. The FE
+  contextual-notice component reads this to pick its render mode:
+  - `library` → state 2 — visitor sees only the "Ja" (accept-once)
+    button (no Immer/Settings because the service isn't in
+    `config.services`).
+  - `host` → state 3 — informational-only notice, no consent buttons
+    (visitor has no basis to grant informed consent to an unknown
+    vendor, admin contact is the only path).
+  See `simplecmp` CHANGELOG for the FE side of the wiring.
+- **`HostMatcher::resolve()`** — new method returning
+  `['service' => string, 'source' => 'library'|'host']` so callers can
+  drive the FE state. `match()` is preserved as a thin wrapper for
+  the existing test surface that asserts on a plain string return.
+
 ### Added — Universal pre-consent blocking (Phase 1, ADR-0013)
 
 - **New PSR-15 frontend middleware

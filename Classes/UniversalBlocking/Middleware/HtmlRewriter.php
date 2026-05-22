@@ -167,13 +167,18 @@ final class HtmlRewriter implements MiddlewareInterface
                 if (in_array($host, $this->sameOriginHosts, true)) {
                     continue;
                 }
-                $service = $matcher->match($host);
-                if ($service === null) {
+                $resolution = $matcher->resolve($host);
+                if ($resolution === null) {
                     continue;
                 }
-                // Rewrite to the engine's gate shape.
-                $node->setAttribute('data-name', $service);
+                // Rewrite to the engine's gate shape. `data-blocked-source`
+                // tells the FE engine which contextual-notice render mode
+                // to use: `library` → visitor sees a "Ja" (one-time accept)
+                // button; `host` → informational-only notice because the
+                // visitor has no basis to consent to an unknown vendor.
+                $node->setAttribute('data-name', $resolution['service']);
                 $node->setAttribute('data-src', $url);
+                $node->setAttribute('data-blocked-source', $resolution['source']);
                 if ($tagName === 'iframe' || $tagName === 'img') {
                     $node->setAttribute($attr, 'about:blank');
                 } elseif ($tagName === 'script') {

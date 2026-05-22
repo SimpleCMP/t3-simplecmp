@@ -54,6 +54,47 @@ final class HostMatcherTest extends TestCase
     }
 
     #[Test]
+    public function resolveReturnsLibrarySourceForKnownHosts(): void
+    {
+        // `data-blocked-source: library` drives the FE contextual-notice
+        // into its "Ja" mode — visitor recognises the brand from the
+        // library entry, can grant one-time consent.
+        $matcher = new HostMatcher();
+
+        self::assertSame(
+            ['service' => 'vimeo', 'source' => 'library'],
+            $matcher->resolve('player.vimeo.com'),
+        );
+        self::assertSame(
+            ['service' => 'google-tag-manager', 'source' => 'library'],
+            $matcher->resolve('www.googletagmanager.com'),
+        );
+    }
+
+    #[Test]
+    public function resolveReturnsHostSourceForUnknownThirdParty(): void
+    {
+        // `data-blocked-source: host` drives the FE notice into
+        // informational-only mode — no buttons because visitor has no
+        // basis to grant informed consent to an unknown vendor.
+        $matcher = new HostMatcher();
+
+        self::assertSame(
+            ['service' => 'example.invalid', 'source' => 'host'],
+            $matcher->resolve('example.invalid'),
+        );
+    }
+
+    #[Test]
+    public function resolveReturnsNullForAllowlistedAndEmptyHosts(): void
+    {
+        $matcher = new HostMatcher(['cdn.example.com']);
+
+        self::assertNull($matcher->resolve(''));
+        self::assertNull($matcher->resolve('cdn.example.com'));
+    }
+
+    #[Test]
     public function legacyNarrowModeReturnsNullForUnknownHosts(): void
     {
         // The legacy library-only behaviour stays available behind an
