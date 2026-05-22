@@ -16,6 +16,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use WapplerSystems\SimpleCmpTypo3\Service\DetectionListFilter;
 use WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter;
 use WapplerSystems\SimpleCmpTypo3\Service\ServiceCurator;
 use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
@@ -69,6 +70,7 @@ final class DetectionReviewController extends ActionController
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
         private readonly DetectionListPresenter $listPresenter,
+        private readonly DetectionListFilter $listFilter,
         private readonly ServiceCurator $serviceCurator,
         private readonly StoragePidResolver $storagePidResolver,
         private readonly BridgeSecretProvider $bridgeSecretProvider,
@@ -101,7 +103,7 @@ final class DetectionReviewController extends ActionController
         $qb->select('*')
             ->from(self::DETECTION_TABLE)
             ->orderBy('received_at', 'DESC');
-        $this->applyNonStateFilters($qb, $filters);
+        $this->listFilter->apply($qb, $filters);
         $allRows = $qb->executeQuery()->fetchAllAssociative();
 
         $decorated = [];
@@ -217,33 +219,6 @@ final class DetectionReviewController extends ActionController
             'kind' => in_array($kind, self::KIND_OPTIONS, true) ? $kind : '',
             'confidence' => in_array($confidence, self::CONFIDENCE_OPTIONS, true) ? $confidence : '',
         ];
-    }
-
-    /**
-     * SQL-expressible filters only. The status filter is applied in
-     * PHP after state derivation.
-     *
-     * @param array<string, string> $filters
-     */
-    private function applyNonStateFilters(\TYPO3\CMS\Core\Database\Query\QueryBuilder $qb, array $filters): void
-    {
-        if ($filters['source'] !== '') {
-            $qb->andWhere($qb->expr()->eq('source', $qb->createNamedParameter($filters['source'])));
-        }
-        if ($filters['kind'] !== '') {
-            $qb->andWhere($qb->expr()->eq('kind', $qb->createNamedParameter($filters['kind'])));
-        }
-        if ($filters['confidence'] === 'low') {
-            $qb->andWhere($qb->expr()->eq('occurrences', $qb->createNamedParameter(1, ParameterType::INTEGER)));
-        } elseif ($filters['confidence'] === 'medium') {
-            $qb->andWhere($qb->expr()->between(
-                'occurrences',
-                $qb->createNamedParameter(2, ParameterType::INTEGER),
-                $qb->createNamedParameter(4, ParameterType::INTEGER),
-            ));
-        } elseif ($filters['confidence'] === 'high') {
-            $qb->andWhere($qb->expr()->gte('occurrences', $qb->createNamedParameter(5, ParameterType::INTEGER)));
-        }
     }
 
     /**
