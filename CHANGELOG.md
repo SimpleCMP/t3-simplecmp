@@ -42,6 +42,19 @@ development.
   (30 third-party iframes) measured on a clean dev14 install, well
   under ADR-0013's <30 ms typical / <80 ms worst-case budget.
 
+### Added — Universal pre-consent blocking (Phase 2 wiring, ADR-0013)
+
+- **`simplecmp.universalBlocking.enabled` now activates both blocking
+  layers from a single toggle.** Previously the setting flipped only
+  the server-side `HtmlRewriter` middleware; the FE bundle's runtime
+  monkey-patches (upstream `interceptRuntime` option, shipped in
+  SimpleCMP commit `6134463`) had no TYPO3 wiring, so JS-injected
+  scripts / iframes / pixels stayed unblocked when the toggle was on.
+  `RegisterAssets::buildInitConfig()` now emits `interceptRuntime: true`
+  into the JSON init payload when the setting is on. Server-side
+  catches declarative tags; runtime patches catch JS-injected calls.
+  No new setting — the existing toggle is the single source of truth.
+
 ### Added — Click-to-enable on blocked embeds
 
 - **Library placeholder copy flows through to the FE banner.** Adopting
