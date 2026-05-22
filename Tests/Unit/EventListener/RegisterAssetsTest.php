@@ -351,12 +351,15 @@ final class RegisterAssetsTest extends TestCase
     // --- universal blocking ------------------------------------------------
 
     #[Test]
-    public function interceptRuntimeEmittedWhenUniversalBlockingEnabled(): void
+    public function interceptRuntimeEmittedAsUniversalBlockObjectWhenEnabled(): void
     {
-        // Closes the Phase 2 ↔ Phase 1 wiring gap (ADR-0013): the same
-        // site-setting must flip BOTH the server-side HtmlRewriter and
-        // the FE runtime patches — otherwise admin gets only half the
-        // protection from one toggle.
+        // Closes the Phase 2 ↔ Phase 1 wiring gap AND lifts the
+        // asymmetric-coverage gap (ADR-0013): the same site-setting
+        // activates both the server-side rewriter and the FE patches
+        // in the strict "block everything third-party" posture.
+        // `universalBlock: true` widens the FE matcher to gate hosts
+        // outside config.services[] too (using the host as synthetic
+        // service id).
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
             'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
             'simplecmp.universalBlocking.enabled' => true,
@@ -371,7 +374,44 @@ final class RegisterAssetsTest extends TestCase
         $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
 
         $config = $this->extractConfig($captured);
-        self::assertTrue($config['interceptRuntime']);
+        self::assertIsArray($config['interceptRuntime']);
+        self::assertTrue($config['interceptRuntime']['universalBlock']);
+        // No allowlist configured → empty extras; window.location.host
+        // is added implicitly by the runtime patches.
+        self::assertSame([], $config['interceptRuntime']['sameOriginHosts']);
+    }
+
+    #[Test]
+    public function interceptRuntimeForwardsAllowlistAsSameOriginHosts(): void
+    {
+        // The admin's `simplecmp.universalBlocking.allowlist` flows
+        // through to the FE patches as `sameOriginHosts` so trusted
+        // CDNs / vendor hosts pass through both layers without manual
+        // FE config duplication. Empty / non-string entries are
+        // filtered to match the HtmlRewriter's allowlist normalisation.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.universalBlocking.enabled' => true,
+            'simplecmp.universalBlocking.allowlist' => [
+                'cdn.example.com',
+                '*.vendor.example',
+                '',  // skipped
+            ],
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertSame(
+            ['cdn.example.com', '*.vendor.example'],
+            $config['interceptRuntime']['sameOriginHosts'],
+        );
     }
 
     #[Test]

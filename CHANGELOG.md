@@ -55,6 +55,36 @@ development.
   catches declarative tags; runtime patches catch JS-injected calls.
   No new setting — the existing toggle is the single source of truth.
 
+### Changed — Universal blocking now blocks ALL third-party (not just library-known)
+
+- **`simplecmp.universalBlocking.enabled` semantics widened.** When on,
+  both Phase 1 (server-side `HtmlRewriter`) and Phase 2 (FE runtime
+  patches) now gate ANY non-same-origin host — not just hosts in the
+  bundled `simplecmp/services-library`. Hosts the library recognises
+  keep their canonical service id (`youtube`, `stripe`, …); unknowns
+  fall back to the host itself as a synthetic service id. The intent:
+  when an admin opts into universal blocking they're committing to
+  the strict CCM19-style posture — broken-until-curated is the
+  intentional default, admin Kuratieren unknowns from the BE
+  detection log as usual.
+- **Phase 2 plumbing.** `RegisterAssets::buildInitConfig()` now emits
+  `interceptRuntime: { universalBlock: true, sameOriginHosts: [...allowlist] }`
+  instead of plain `interceptRuntime: true`. The
+  `simplecmp.universalBlocking.allowlist` Site Set flows through to
+  the FE as additional same-origin hosts; `window.location.host` is
+  added implicitly by the runtime patches so admins can't accidentally
+  strip own-host protection.
+- **Phase 1 plumbing.** `HostMatcher` gains a `bool $blockAllThirdParty`
+  constructor flag (default `true`). When set, unknown hosts return
+  the host itself as the synthetic service id, so the `HtmlRewriter`
+  rewrites them too. Pass `false` for the legacy library-only narrow
+  behaviour.
+- **Closes the asymmetric-coverage gap** documented in
+  ADR-0013 Phase 2: Phase 1 was already library-wide; Phase 2 was
+  narrowed to configured services to avoid silently-broken embeds.
+  With the toggle as an explicit opt-in for universal protection,
+  that trade-off no longer applies.
+
 ### Changed — Bundle + init now emit in `<head>` (priority asset)
 
 - **The SimpleCMP bundle and the inline `SimpleCMP.init(...)` call

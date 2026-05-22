@@ -262,10 +262,29 @@ final readonly class RegisterAssets
             // Pair with the Phase 1 server-side HtmlRewriter activated
             // by the same setting. Server-side covers declarative tags;
             // this opts the FE bundle into the runtime monkey-patches
-            // that gate JS-injected scripts / iframes / pixels. Without
-            // this, the admin toggle would protect only half the surface.
-            // See ADR-0013 Phase 2.
-            $config['interceptRuntime'] = true;
+            // that gate JS-injected scripts / iframes / pixels.
+            //
+            // `universalBlock: true` switches the FE matcher into the
+            // strict "block everything third-party" posture — any host
+            // not in config.services AND not in the admin allowlist is
+            // gated using the host itself as a synthetic service id.
+            // Same admin-curated allowlist that the HtmlRewriter uses
+            // (`simplecmp.universalBlocking.allowlist`) flows through
+            // as `sameOriginHosts`; window.location.host is added
+            // implicitly by the runtime patches.
+            $allowlistRaw = $settings->get('simplecmp.universalBlocking.allowlist');
+            $sameOriginExtras = [];
+            if (is_array($allowlistRaw)) {
+                foreach ($allowlistRaw as $entry) {
+                    if (is_string($entry) && $entry !== '') {
+                        $sameOriginExtras[] = $entry;
+                    }
+                }
+            }
+            $config['interceptRuntime'] = [
+                'universalBlock' => true,
+                'sameOriginHosts' => $sameOriginExtras,
+            ];
         }
 
         if ($privacy === '' && $config['services'] === []) {

@@ -53,9 +53,20 @@ final class HostMatcher
      *                                Each entry is either an exact host
      *                                (`cdn.example.com`) or a wildcard
      *                                (`*.example.com`).
+     * @param bool $blockAllThirdParty when true (default), hosts not
+     *                                found in the library and not in
+     *                                the allowlist return the host
+     *                                itself as a synthetic service id
+     *                                so the rewriter still rewrites
+     *                                them. Pass `false` for the legacy
+     *                                library-only narrow behaviour
+     *                                (used by tests that pre-date the
+     *                                strict universal-blocking posture).
      */
-    public function __construct(array $allowlist = [])
-    {
+    public function __construct(
+        array $allowlist = [],
+        private readonly bool $blockAllThirdParty = true,
+    ) {
         foreach ($allowlist as $entry) {
             if (!is_string($entry) || $entry === '') {
                 continue;
@@ -99,8 +110,12 @@ final class HostMatcher
 
     /**
      * Returns the service id that owns this host, or null if the host
-     * should pass through (allowlisted, same-origin, or no library
-     * service matches).
+     * should pass through (allowlisted or empty).
+     *
+     * In universal-blocking mode (the default, see constructor), hosts
+     * not in the library fall back to the host itself as the synthetic
+     * service id — so the rewriter still rewrites them and the
+     * admin can later Kuratieren the unknown service from the BE.
      */
     public function match(string $host): ?string
     {
@@ -124,7 +139,7 @@ final class HostMatcher
                 return $w['service'];
             }
         }
-        return null;
+        return $this->blockAllThirdParty ? $host : null;
     }
 
     /**

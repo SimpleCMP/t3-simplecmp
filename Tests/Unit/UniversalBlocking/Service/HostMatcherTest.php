@@ -40,11 +40,31 @@ final class HostMatcherTest extends TestCase
     }
 
     #[Test]
-    public function unknownHostReturnsNull(): void
+    public function unknownHostFallsBackToHostAsSyntheticServiceId(): void
     {
+        // Default mode is `blockAllThirdParty = true` — hosts the
+        // library doesn't recognise still get rewritten, with the
+        // host itself standing in as the synthetic service id. Admin
+        // surfaces them in the detection table and Kuratieren'd them
+        // from there.
         $matcher = new HostMatcher();
 
+        self::assertSame('example.invalid', $matcher->match('example.invalid'));
+        self::assertSame('analytics.megacorp.io', $matcher->match('analytics.megacorp.io'));
+    }
+
+    #[Test]
+    public function legacyNarrowModeReturnsNullForUnknownHosts(): void
+    {
+        // The legacy library-only behaviour stays available behind an
+        // explicit constructor flag for callers that want the narrower
+        // semantics (e.g. a future "only block library-known"
+        // posture).
+        $matcher = new HostMatcher([], blockAllThirdParty: false);
+
         self::assertNull($matcher->match('example.invalid'));
+        // Library hits still resolve.
+        self::assertSame('vimeo', $matcher->match('player.vimeo.com'));
     }
 
     #[Test]
