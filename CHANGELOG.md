@@ -55,6 +55,23 @@ development.
   catches declarative tags; runtime patches catch JS-injected calls.
   No new setting — the existing toggle is the single source of truth.
 
+### Changed — Bundle + init now emit in `<head>` (priority asset)
+
+- **The SimpleCMP bundle and the inline `SimpleCMP.init(...)` call
+  switched from end-of-`<body>` to head-priority via `['priority'
+  => true]` on the AssetCollector.** Universal pre-consent blocking
+  (Phase 2 runtime patches) needs the patches installed BEFORE any
+  inline body script can dispatch third-party requests. Previously
+  the bundle landed after body content, so GTM-style inline IIFEs
+  did their `document.createElement('script').src = '...'` work
+  before the prototype patches ever installed. Combined with the
+  upstream change shipping the body-aware `init()` (SimpleCMP commit
+  `90b46c4`), patches install in the DOM-free phase and the
+  banner/modal mount is deferred to `DOMContentLoaded` automatically.
+- Theme injection stays at end-of-body — its MutationObserver
+  attaches to `document.body`, which only exists once parsing has
+  progressed past `<head>`.
+
 ### Added — Click-to-enable on blocked embeds
 
 - **Library placeholder copy flows through to the FE banner.** Adopting
