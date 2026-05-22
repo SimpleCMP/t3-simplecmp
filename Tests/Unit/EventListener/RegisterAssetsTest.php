@@ -305,6 +305,74 @@ final class RegisterAssetsTest extends TestCase
         self::assertSame('simplecmp-corporate', $config['storageName']);
     }
 
+    // --- universal blocking ------------------------------------------------
+
+    #[Test]
+    public function interceptRuntimeEmittedWhenUniversalBlockingEnabled(): void
+    {
+        // Closes the Phase 2 ↔ Phase 1 wiring gap (ADR-0013): the same
+        // site-setting must flip BOTH the server-side HtmlRewriter and
+        // the FE runtime patches — otherwise admin gets only half the
+        // protection from one toggle.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.universalBlocking.enabled' => true,
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertTrue($config['interceptRuntime']);
+    }
+
+    #[Test]
+    public function interceptRuntimeAbsentWhenUniversalBlockingDisabled(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.universalBlocking.enabled' => false,
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertArrayNotHasKey('interceptRuntime', $config);
+    }
+
+    #[Test]
+    public function interceptRuntimeAbsentWhenUniversalBlockingUnset(): void
+    {
+        // Site Set default is `false`; sites that haven't been touched
+        // since v0.2 don't have the key at all. Both shapes must read
+        // as "off" with no FE-config trace.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertArrayNotHasKey('interceptRuntime', $config);
+    }
+
     // --- theme injection ---------------------------------------------------
 
     #[Test]

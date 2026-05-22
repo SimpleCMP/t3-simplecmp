@@ -243,6 +243,16 @@ final readonly class RegisterAssets
             }
         }
 
+        if ((bool) $get('simplecmp.universalBlocking.enabled', false)) {
+            // Pair with the Phase 1 server-side HtmlRewriter activated
+            // by the same setting. Server-side covers declarative tags;
+            // this opts the FE bundle into the runtime monkey-patches
+            // that gate JS-injected scripts / iframes / pixels. Without
+            // this, the admin toggle would protect only half the surface.
+            // See ADR-0013 Phase 2.
+            $config['interceptRuntime'] = true;
+        }
+
         if ($privacy === '' && $config['services'] === []) {
             // Nothing useful to mount — skip the asset registration so
             // we don't ship dead JS on every page.
