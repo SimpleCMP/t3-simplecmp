@@ -105,20 +105,63 @@ final class RegisterAssetsTest extends TestCase
         ]);
         $this->assetCollector->expects(self::once())
             ->method('addJavaScript')
-            ->with('simplecmp-bundle', self::stringContains('simplecmp.global.js'));
+            ->with(
+                'simplecmp-bundle',
+                self::stringContains('simplecmp.global.js'),
+                self::anything(),
+                self::anything(),
+            );
         $captured = null;
         $this->assetCollector->expects(self::once())
             ->method('addInlineJavaScript')
-            ->with('simplecmp-init', self::callback(function (string $payload) use (&$captured): bool {
-                $captured = $payload;
-                return true;
-            }));
+            ->with(
+                'simplecmp-init',
+                self::callback(function (string $payload) use (&$captured): bool {
+                    $captured = $payload;
+                    return true;
+                }),
+                self::anything(),
+                self::anything(),
+            );
         $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
 
         $config = $this->extractConfig($captured);
         self::assertSame('https://example.com/privacy', $config['privacyPolicy']);
         self::assertArrayNotHasKey('cmsBridgeUrl', $config);
         self::assertArrayNotHasKey('cmsBridgeAuth', $config);
+    }
+
+    #[Test]
+    public function bundleAndInitRenderWithHeadPriority(): void
+    {
+        // Universal pre-consent blocking (ADR-0013 Phase 4) needs the
+        // runtime patches installed BEFORE any inline body script can
+        // dispatch third-party requests. Achieved by emitting the bundle
+        // + init in the AssetCollector's "priority" (head) bucket. This
+        // test locks the option flag so the regression has unit coverage.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $isPriority = static fn (mixed $options): bool =>
+            is_array($options) && ($options['priority'] ?? false) === true;
+        $this->assetCollector->expects(self::once())
+            ->method('addJavaScript')
+            ->with(
+                'simplecmp-bundle',
+                self::anything(),
+                self::anything(),
+                self::callback($isPriority),
+            );
+        $this->assetCollector->expects(self::once())
+            ->method('addInlineJavaScript')
+            ->with(
+                'simplecmp-init',
+                self::anything(),
+                self::anything(),
+                self::callback($isPriority),
+            );
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
     }
 
     #[Test]

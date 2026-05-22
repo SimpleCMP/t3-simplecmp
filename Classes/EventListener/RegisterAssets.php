@@ -98,22 +98,37 @@ final readonly class RegisterAssets
             return;
         }
 
-        // Bundle first — the IIFE exposes `window.SimpleCMP`.
+        // Bundle + init render in <head> via `priority => true`. Universal
+        // pre-consent blocking (ADR-0013 Phase 2) needs the runtime
+        // monkey-patches installed BEFORE any inline body script can
+        // dispatch third-party requests — otherwise GTM-style loaders
+        // race ahead of us. Upstream `init()` is body-aware: it installs
+        // patches + creates the manager immediately, then defers the
+        // banner/modal mount to DOMContentLoaded. So head-priority is
+        // safe regardless of whether universalBlocking is on.
         $this->assetCollector->addJavaScript(
             'simplecmp-bundle',
             'EXT:simplecmp_typo3/Resources/Public/JavaScript/simplecmp.global.js',
+            [],
+            ['priority' => true],
         );
 
         // Inline init right after — AssetCollector preserves insertion order
-        // within each category.
+        // within each category, so the init call lands AFTER the bundle in
+        // the head's priority bucket.
         $this->assetCollector->addInlineJavaScript(
             'simplecmp-init',
             sprintf(
                 'window.SimpleCMP && window.SimpleCMP.init(%s);',
                 json_encode($config, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
             ),
+            [],
+            ['priority' => true],
         );
 
+        // Theme injection stays at the default (end of body) — its
+        // MutationObserver attaches to `document.body`, which only
+        // exists once parsing has progressed past <head>.
         $this->injectTheme($site);
     }
 
