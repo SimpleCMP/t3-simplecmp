@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
 use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
+use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
 use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
 
@@ -285,6 +286,19 @@ final readonly class RegisterAssets
                 'universalBlock' => true,
                 'sameOriginHosts' => $sameOriginExtras,
             ];
+
+            // `libraryFallback` carries minimal per-service metadata
+            // (currently just `purposes`) for library entries the
+            // admin hasn't curated into `config.services`. The FE
+            // contextual-notice's state-2 render mode (library-known,
+            // not configured) reads this to surface the "Zwecke:
+            // Marketing, Statistik" line under the description so
+            // visitors see WHY they'd be loading the content — without
+            // shipping the entire library to FE.
+            //
+            // Only emitted under universalBlocking because that's the
+            // only path that produces state-2 notices.
+            $config['libraryFallback'] = $this->buildLibraryFallback();
         }
 
         if ($privacy === '' && $config['services'] === []) {
@@ -306,6 +320,48 @@ final readonly class RegisterAssets
      * 404s. Strip trailing slashes and a trailing `/v1` and warn so
      * the auto-correction is visible in the TYPO3 log.
      */
+    /**
+     * Build the `libraryFallback` map for the FE notice's state-2
+     * render mode. Keyed by library service id (matches what
+     * `HtmlRewriter` puts in `data-name` for library-recognised
+     * hosts). Currently only `purposes` is included — that's all
+     * the notice needs right now. Additional fields (vendor, privacy
+     * URL, …) can be added later if the notice UI grows.
+     *
+     * Iterating the whole library (~369 entries) on every page
+     * render is acceptable: `ServicesLibrary::services()` is a
+     * Generator, the per-entry projection is cheap, and the gzipped
+     * payload size is ~1-2 KB — paid only on pages where universal
+     * blocking is active.
+     *
+     * @return array<string, array{purposes: list<string>}>
+     */
+    private function buildLibraryFallback(): array
+    {
+        $fallback = [];
+        foreach (ServicesLibrary::services() as $service) {
+            $id = (string) ($service['id'] ?? '');
+            if ($id === '') {
+                continue;
+            }
+            $purposes = $service['purposes'] ?? [];
+            if (!is_array($purposes) || $purposes === []) {
+                continue;
+            }
+            $clean = [];
+            foreach ($purposes as $p) {
+                if (is_string($p) && $p !== '') {
+                    $clean[] = $p;
+                }
+            }
+            if ($clean === []) {
+                continue;
+            }
+            $fallback[$id] = ['purposes' => $clean];
+        }
+        return $fallback;
+    }
+
     private function normalizeServiceDbUrl(string $url): string
     {
         $stripped = rtrim($url, '/');

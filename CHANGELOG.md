@@ -10,6 +10,20 @@ development.
 
 ## Unreleased
 
+### Added — `libraryFallback` carries per-service purposes to FE
+
+- **`RegisterAssets` emits a `libraryFallback` map** in the JS init
+  config when `simplecmp.universalBlocking.enabled` is on. Keyed by
+  library service id (matches `data-name` on rewritten elements),
+  each entry currently carries `{ purposes: [...] }` sourced from
+  `SimpleCMP\ServicesLibrary\ServicesLibrary::services()`. The FE
+  contextual-notice's state-2 render mode (library-known but not in
+  `config.services`) reads this to surface the "Zwecke: …" line
+  under the description — visitor sees WHY they'd be loading the
+  content without the library getting shipped to FE in full.
+  Payload cost: ~1-2 KB gzipped over the init JSON, paid only on
+  pages with universal blocking active.
+
 ### Added — `data-blocked-source` attribute drives three-state FE notice
 
 - **`HtmlRewriter` now emits `data-blocked-source="library"` or
