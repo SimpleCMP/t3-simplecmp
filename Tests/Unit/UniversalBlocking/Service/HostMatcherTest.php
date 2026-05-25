@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\UniversalBlocking\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Service\HostMatcher;
+use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
 
 /**
  * Locks the lookup semantics of the universal-blocking host matcher.

@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
-  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="simplecmp_typo3">
+  <file source-language="en" datatype="plaintext" original="messages" date="2026-05-14T00:00:00Z" product-name="t3_simplecmp">
     <header/>
     <body>
       <!-- Service table -->
-      <trans-unit id="tx_simplecmptypo3_service"><source>SimpleCMP service</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.service_id"><source>Service ID (slug)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.service_id.description"><source>Stable kebab-case identifier, e.g. "google-analytics". Lower-case, no spaces.</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.name"><source>Display name</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.vendor"><source>Vendor</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.vendor_country"><source>Vendor country (ISO 3166)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes"><source>Purposes</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.description"><source>What this service is used for. Choices come from the bundled tracker library and grow as new categories appear in it.</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.advertising"><source>Advertising</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.analytics"><source>Analytics</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.functional"><source>Functional</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.marketing"><source>Marketing</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.personalization"><source>Personalization</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.purposes.item.security"><source>Security</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.privacy_policy_url"><source>Privacy policy URL</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.description"><source>Description</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.retention"><source>Retention (JSON)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.i18n"><source>Translations (JSON)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.cookies"><source>Cookie matchers (JSON array)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.cookies.description"><source>Strings (exact match) or /regex/ (slash-bounded), e.g. ["_ga", "/^_ga_/", "_gid"].</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.origins"><source>Origin matchers (JSON array)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.origins.description"><source>Host strings or wildcards, e.g. ["www.google-analytics.com", "*.doubleclick.net"].</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.extensions"><source>Extensions (JSON)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.palette.protocol"><source>Protocol contract</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.palette.classification"><source>Classification (cookies + origins)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.palette.metadata"><source>Metadata</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.orphanCallout.title"><source>This service is no longer in the bundled library</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_service.orphanCallout.body"><source>You adopted this service from the bundled simplecmp/services-library on %s. A later library release removed or renamed it, so this row is no longer library-backed. The service still works in your banner — you can keep editing it as a custom entry, search the Library tab for a possible replacement, or delete it from the Services tab if it's truly obsolete.</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service"><source>SimpleCMP service</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.service_id"><source>Service ID (slug)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.service_id.description"><source>Stable kebab-case identifier, e.g. "google-analytics". Lower-case, no spaces.</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.name"><source>Display name</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor"><source>Vendor</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_country"><source>Vendor country (ISO 3166)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes"><source>Purposes</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.description"><source>What this service is used for. Choices come from the bundled tracker library and grow as new categories appear in it.</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.advertising"><source>Advertising</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.analytics"><source>Analytics</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.functional"><source>Functional</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.marketing"><source>Marketing</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.personalization"><source>Personalization</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.purposes.item.security"><source>Security</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.privacy_policy_url"><source>Privacy policy URL</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.description"><source>Description</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.retention"><source>Retention (JSON)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.i18n"><source>Translations (JSON)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.cookies"><source>Cookie matchers (JSON array)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.cookies.description"><source>Strings (exact match) or /regex/ (slash-bounded), e.g. ["_ga", "/^_ga_/", "_gid"].</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.origins"><source>Origin matchers (JSON array)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.origins.description"><source>Host strings or wildcards, e.g. ["www.google-analytics.com", "*.doubleclick.net"].</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.extensions"><source>Extensions (JSON)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.palette.protocol"><source>Protocol contract</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.palette.classification"><source>Classification (cookies + origins)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.palette.metadata"><source>Metadata</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.orphanCallout.title"><source>This service is no longer in the bundled library</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.orphanCallout.body"><source>You adopted this service from the bundled simplecmp/services-library on %s. A later library release removed or renamed it, so this row is no longer library-backed. The service still works in your banner — you can keep editing it as a custom entry, search the Library tab for a possible replacement, or delete it from the Services tab if it's truly obsolete.</source></trans-unit>
 
       <!-- Detection table -->
-      <trans-unit id="tx_simplecmptypo3_detection"><source>SimpleCMP detection</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.source"><source>Source</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.kind"><source>Kind</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.identifier"><source>Identifier (cookie name / URL)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.origin"><source>Origin (host)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.page_url"><source>Page URL</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.first_seen_on"><source>First seen on (path)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.sent_at"><source>Sent at (ISO timestamp)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.first_seen"><source>First seen (epoch ms)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.last_seen"><source>Last seen (epoch ms)</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.received_at"><source>Received at</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.occurrences"><source>Occurrences</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.library_version"><source>Library version</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.user_agent"><source>User agent</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.referrer"><source>Referrer</source></trans-unit>
-      <trans-unit id="tx_simplecmptypo3_detection.payload"><source>Raw payload (JSON)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.kind"><source>Kind</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.identifier"><source>Identifier (cookie name / URL)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.origin"><source>Origin (host)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.page_url"><source>Page URL</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.first_seen_on"><source>First seen on (path)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.sent_at"><source>Sent at (ISO timestamp)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.first_seen"><source>First seen (epoch ms)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.last_seen"><source>Last seen (epoch ms)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.received_at"><source>Received at</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.occurrences"><source>Occurrences</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.library_version"><source>Library version</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.user_agent"><source>User agent</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.referrer"><source>Referrer</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_detection.payload"><source>Raw payload (JSON)</source></trans-unit>
     </body>
   </file>
 </xliff>

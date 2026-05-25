@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\EventListener;
+namespace SimpleCMP\T3SimpleCmp\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -11,11 +11,11 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 
 /**
  * Registers the SimpleCMP JS bundle + inline init call on every TYPO3
@@ -109,7 +109,7 @@ final readonly class RegisterAssets
         // safe regardless of whether universalBlocking is on.
         $this->assetCollector->addJavaScript(
             'simplecmp-bundle',
-            'EXT:simplecmp_typo3/Resources/Public/JavaScript/simplecmp.global.js',
+            'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js',
             [],
             ['priority' => true],
         );

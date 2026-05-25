@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 
 final class BridgeSecretProviderTest extends TestCase
 {
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
     }
 
     #[Test]
@@ -26,7 +26,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForEmptyString(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret'] = '';
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = '';
         $provider = new BridgeSecretProvider();
         self::assertNull($provider->get());
     }
@@ -34,7 +34,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForNonString(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret'] = 12345;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = 12345;
         $provider = new BridgeSecretProvider();
         self::assertNull($provider->get());
     }
@@ -42,7 +42,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForTooShortSecret(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret'] = 'too-short';
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = 'too-short';
         $provider = new BridgeSecretProvider();
         self::assertNull($provider->get());
     }
@@ -51,7 +51,7 @@ final class BridgeSecretProviderTest extends TestCase
     public function returnsConfiguredSecret(): void
     {
         $secret = base64_encode(random_bytes(32));
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret'] = $secret;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = $secret;
         $provider = new BridgeSecretProvider();
         self::assertSame($secret, $provider->get());
         self::assertTrue($provider->isConfigured());

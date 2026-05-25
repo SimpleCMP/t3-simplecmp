@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Hooks\DataHandler;
+namespace SimpleCMP\T3SimpleCmp\Hooks\DataHandler;
 
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 
 /**
  * Inverse of
- * {@see \WapplerSystems\SimpleCmpTypo3\Backend\FormDataProvider\DecodePurposesJson}:
- * intercepts the BE edit-form save for `tx_simplecmptypo3_service` and
+ * {@see \SimpleCMP\T3SimpleCmp\Backend\FormDataProvider\DecodePurposesJson}:
+ * intercepts the BE edit-form save for `tx_t3simplecmp_service` and
  * converts the comma-separated `purposes` value (`"analytics,marketing"`)
  * back into the JSON shape (`["analytics","marketing"]`) that the rest
  * of the protocol expects.
@@ -35,7 +35,7 @@ final class EncodePurposesJson
         DataHandler $dataHandler,
     ): void {
         unset($status, $id, $dataHandler);
-        if ($table !== 'tx_simplecmptypo3_service') {
+        if ($table !== 'tx_t3simplecmp_service') {
             return;
         }
         if (!array_key_exists('purposes', $fieldArray)) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Domain\Repository;
+namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ThemeRepository
 {
-    private const string TABLE = 'tx_simplecmptypo3_theme';
+    private const string TABLE = 'tx_t3simplecmp_theme';
 
     public function __construct(
         private ConnectionPool $connectionPool,

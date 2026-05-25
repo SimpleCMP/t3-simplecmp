@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
  * View-layer helpers for the detection list BE module.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
+use SimpleCMP\T3SimpleCmp\Service\BridgeRateLimiter;
 
 final class BridgeRateLimiterTest extends TestCase
 {

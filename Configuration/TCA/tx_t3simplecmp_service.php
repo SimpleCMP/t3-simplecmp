@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 return [
     'ctrl' => [
-        'title' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service',
+        'title' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service',
         'label' => 'name',
         'label_alt' => 'service_id',
         'label_alt_force' => true,
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'iconfile' => 'EXT:simplecmp_typo3/Resources/Public/Icons/simplecmp.svg',
+        'iconfile' => 'EXT:t3_simplecmp/Resources/Public/Icons/simplecmp.svg',
         'searchFields' => 'service_id,name,vendor',
         'rootLevel' => -1,
         'security' => [
@@ -44,8 +44,8 @@ return [
             ],
         ],
         'service_id' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id',
-            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.service_id.description',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.service_id',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.service_id.description',
             'config' => [
                 // TCA `slug` (v14-native) — designed exactly for stable, unique
                 // kebab-case identifiers. Two advantages over `input` +
@@ -78,7 +78,7 @@ return [
             ],
         ],
         'name' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.name',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.name',
             'config' => [
                 'type' => 'input',
                 'size' => 30,
@@ -87,16 +87,16 @@ return [
             ],
         ],
         'vendor' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.vendor',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor',
             'config' => ['type' => 'input', 'size' => 30, 'eval' => 'trim'],
         ],
         'vendor_country' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.vendor_country',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_country',
             'config' => ['type' => 'input', 'size' => 4, 'eval' => 'trim,upper', 'max' => 8],
         ],
         'purposes' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.purposes',
-            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.purposes.description',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.description',
             'config' => [
                 // Multi-select checkbox group; items list is built at
                 // render time from whatever purposes the bundled
@@ -110,7 +110,7 @@ return [
                 'type' => 'select',
                 'renderType' => 'selectMultipleSideBySide',
                 'items' => [],
-                'itemsProcFunc' => \WapplerSystems\SimpleCmpTypo3\Backend\TcaItemsProc\PurposeItems::class . '->items',
+                'itemsProcFunc' => \SimpleCMP\T3SimpleCmp\Backend\TcaItemsProc\PurposeItems::class . '->items',
                 'size' => 6,
                 'enableMultiSelectFilterTextfield' => true,
                 'default' => '[]',
@@ -122,47 +122,47 @@ return [
             ],
         ],
         'privacy_policy_url' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.privacy_policy_url',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.privacy_policy_url',
             'config' => ['type' => 'link', 'allowedTypes' => ['url']],
         ],
         'description' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.description',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.description',
             'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40, 'required' => true],
         ],
         'retention' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.retention',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.retention',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
         'i18n' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.i18n',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.i18n',
             'config' => ['type' => 'text', 'rows' => 5, 'cols' => 40],
         ],
         'cookies' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.cookies',
-            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.cookies.description',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.cookies',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.cookies.description',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
         'origins' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.origins',
-            'description' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.origins.description',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.origins',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.origins.description',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
         'extensions' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.extensions',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.extensions',
             'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
         ],
     ],
     'palettes' => [
         'protocol' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.palette.protocol',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.palette.protocol',
             'showitem' => 'service_id, name, vendor, vendor_country',
         ],
         'classification' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.palette.classification',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.palette.classification',
             'showitem' => 'cookies, --linebreak--, origins',
         ],
         'metadata' => [
-            'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.palette.metadata',
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.palette.metadata',
             // `purposes` on its own row so the side-by-side dual-listbox
             // gets the full palette width; the other fields share the
             // row below it.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Backend\TcaItemsProc;
+namespace SimpleCMP\T3SimpleCmp\Backend\TcaItemsProc;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
 
@@ -50,7 +50,7 @@ final class PurposeItems
 
         foreach ($keys as $key) {
             $config['items'][] = [
-                'label' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.purposes.item.'
+                'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.item.'
                     . $key,
                 'value' => $key,
             ];

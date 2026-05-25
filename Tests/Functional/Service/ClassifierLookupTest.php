@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Functional\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\ClassifierLookup;
 
 /**
  * Lookups against an empty registry MUST still return library coverage.
@@ -17,7 +17,7 @@ use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
  */
 final class ClassifierLookupTest extends FunctionalTestCase
 {
-    protected array $testExtensionsToLoad = ['wapplersystems/simplecmp-typo3'];
+    protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 
     private ClassifierLookup $classifier;
     private ServiceRepository $registry;

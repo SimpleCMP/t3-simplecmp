@@ -1,8 +1,8 @@
 {
-  "name": "@wapplersystems/simplecmp-typo3-tests",
+  "name": "@simplecmp/t3-simplecmp-tests",
   "version": "0.0.0",
   "private": true,
-  "description": "Playwright BE tests for the simplecmp_typo3 extension. Drives the real TYPO3 v14 backend against a ddev instance — login, library browser, detection log, classifier state derivation.",
+  "description": "Playwright BE tests for the t3_simplecmp extension. Drives the real TYPO3 v14 backend against a ddev instance — login, library browser, detection log, classifier state derivation.",
   "scripts": {
     "test:be": "playwright test",
     "test:be:ui": "playwright test --ui",

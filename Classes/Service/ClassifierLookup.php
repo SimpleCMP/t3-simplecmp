@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
  * Unified cookie/origin lookup that consults BOTH the admin-curated
- * registry (`tx_simplecmptypo3_service`) and the bundled
+ * registry (`tx_t3simplecmp_service`) and the bundled
  * `simplecmp/services-library` JSON catalog.
  *
  * The two sources play distinct roles in the new (post-fe_visible)

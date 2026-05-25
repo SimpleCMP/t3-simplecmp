@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Hooks\DataHandler;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Hooks\DataHandler;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use WapplerSystems\SimpleCmpTypo3\Hooks\DataHandler\EncodePurposesJson;
+use SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson;
 
 final class EncodePurposesJsonTest extends TestCase
 {
@@ -35,7 +35,7 @@ final class EncodePurposesJsonTest extends TestCase
     public function leavesFieldsAloneWhenPurposesAbsent(): void
     {
         $fields = ['name' => 'Google Analytics'];
-        $this->invoke('tx_simplecmptypo3_service', $fields);
+        $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertArrayNotHasKey('purposes', $fields);
     }
 
@@ -46,7 +46,7 @@ final class EncodePurposesJsonTest extends TestCase
     public function encodesCsvIntoJsonArray(string $csv, string $expected): void
     {
         $fields = ['purposes' => $csv];
-        $this->invoke('tx_simplecmptypo3_service', $fields);
+        $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertSame($expected, $fields['purposes']);
     }
 
@@ -56,7 +56,7 @@ final class EncodePurposesJsonTest extends TestCase
         // The importer command writes purposes already as a JSON array
         // when going through DataHandler — the hook must not re-wrap it.
         $fields = ['purposes' => '["analytics","marketing"]'];
-        $this->invoke('tx_simplecmptypo3_service', $fields);
+        $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertSame('["analytics","marketing"]', $fields['purposes']);
     }
 
@@ -64,7 +64,7 @@ final class EncodePurposesJsonTest extends TestCase
     public function dedupesAndTrimsCsvEntries(): void
     {
         $fields = ['purposes' => ' analytics , analytics ,marketing,'];
-        $this->invoke('tx_simplecmptypo3_service', $fields);
+        $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertSame('["analytics","marketing"]', $fields['purposes']);
     }
 
@@ -72,7 +72,7 @@ final class EncodePurposesJsonTest extends TestCase
     public function acceptsArrayValueIfDataHandlerEverHandsOne(): void
     {
         $fields = ['purposes' => ['analytics', 'marketing', '', 'marketing']];
-        $this->invoke('tx_simplecmptypo3_service', $fields);
+        $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertSame('["analytics","marketing"]', $fields['purposes']);
     }
 }

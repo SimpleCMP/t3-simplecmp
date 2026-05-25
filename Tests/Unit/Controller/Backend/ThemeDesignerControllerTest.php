@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Controller\Backend;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController;
 
 /**
  * Unit tests for the pure `sanitizeTokens` transformation.

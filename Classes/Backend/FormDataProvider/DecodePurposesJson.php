@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Backend\FormDataProvider;
+namespace SimpleCMP\T3SimpleCmp\Backend\FormDataProvider;
 
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 
 /**
  * Translates the JSON-encoded `purposes` column of
- * `tx_simplecmptypo3_service` into the comma-separated string that
+ * `tx_t3simplecmp_service` into the comma-separated string that
  * TYPO3's `type: select` / `renderType: selectCheckBox` expects.
  *
  * The DB column is intentionally a TEXT column holding JSON
@@ -21,7 +21,7 @@ use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
  *
  * The CSV pivot lives entirely in the BE form pipeline — DB and JS
  * consumers see JSON throughout. The companion writer is
- * {@see \WapplerSystems\SimpleCmpTypo3\Hooks\DataHandler\EncodePurposesJson}.
+ * {@see \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson}.
  *
  * Registered in `ext_localconf.php` with `depends` on
  * `DatabaseRowInitializeNew` (so the row exists) and `before` on
@@ -35,7 +35,7 @@ final class DecodePurposesJson implements FormDataProviderInterface
      */
     public function addData(array $result): array
     {
-        if (($result['tableName'] ?? '') !== 'tx_simplecmptypo3_service') {
+        if (($result['tableName'] ?? '') !== 'tx_t3simplecmp_service') {
             return $result;
         }
         if (!array_key_exists('purposes', $result['databaseRow'] ?? [])) {

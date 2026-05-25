@@ -5,7 +5,7 @@ import path from 'node:path';
 /**
  * DB helper fixture for BE specs.
  *
- * Resets `tx_simplecmptypo3_*` tables between specs via `ddev mysql`
+ * Resets `tx_t3simplecmp_*` tables between specs via `ddev mysql`
  * so each spec gets a known-empty DB. Tests that need fixtures call
  * `db.insertService(...)` / `db.insertDetection(...)` explicitly.
  *
@@ -35,7 +35,7 @@ function runDdevMysql(sql: string): string {
 }
 
 export interface SimpleCmpDb {
-  /** Truncate every `tx_simplecmptypo3_*` table. */
+  /** Truncate every `tx_t3simplecmp_*` table. */
   truncateAll(): void;
   /**
    * Insert a service registry row. Returns the new uid.
@@ -65,7 +65,7 @@ export interface SimpleCmpDb {
     pageUrl?: string;
     pid?: number;
   }): number;
-  /** Count rows in a `tx_simplecmptypo3_*` table. */
+  /** Count rows in a `tx_t3simplecmp_*` table. */
   count(table: 'service' | 'detection'): number;
   /** Raw SQL escape-hatch for assertions. Returns tab-separated rows. */
   query(sql: string): string;
@@ -83,8 +83,8 @@ export const test = base.extend<{ db: SimpleCmpDb }>({
       truncateAll() {
         runDdevMysql(
           'SET FOREIGN_KEY_CHECKS=0; ' +
-            'TRUNCATE TABLE tx_simplecmptypo3_service; ' +
-            'TRUNCATE TABLE tx_simplecmptypo3_detection; ' +
+            'TRUNCATE TABLE tx_t3simplecmp_service; ' +
+            'TRUNCATE TABLE tx_t3simplecmp_detection; ' +
             'SET FOREIGN_KEY_CHECKS=1;',
         );
       },
@@ -98,7 +98,7 @@ export const test = base.extend<{ db: SimpleCmpDb }>({
         const cookiesJson = JSON.stringify(row.cookies ?? []);
         const originsJson = JSON.stringify(row.origins ?? []);
         const sql =
-          'INSERT INTO tx_simplecmptypo3_service ' +
+          'INSERT INTO tx_t3simplecmp_service ' +
           '(pid, tstamp, crdate, service_id, name, vendor, purposes, ' +
           'privacy_policy_url, description, cookies, origins) VALUES (' +
           [
@@ -126,7 +126,7 @@ export const test = base.extend<{ db: SimpleCmpDb }>({
         const pid = row.pid ?? 0;
         const now = Math.floor(Date.now() / 1000);
         const sql =
-          'INSERT INTO tx_simplecmptypo3_detection ' +
+          'INSERT INTO tx_t3simplecmp_detection ' +
           '(pid, tstamp, crdate, source, kind, identifier, origin, ' +
           'page_url, first_seen, last_seen, received_at, occurrences, payload) VALUES (' +
           [
@@ -153,7 +153,7 @@ export const test = base.extend<{ db: SimpleCmpDb }>({
         return uid;
       },
       count(table) {
-        const fullName = `tx_simplecmptypo3_${table}`;
+        const fullName = `tx_t3simplecmp_${table}`;
         const out = runDdevMysql(`SELECT COUNT(*) FROM ${fullName}`);
         return Number(out.trim());
       },

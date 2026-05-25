@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
  * View-layer helpers for the Dienste BE tab.
  *
- * The tab lists every registry row (`tx_simplecmptypo3_service`)
+ * The tab lists every registry row (`tx_t3simplecmp_service`)
  * regardless of how it got there, and tags each row with a `source`:
  *
  * - **Eigene** (custom-curated) — `library_adopted_at = 0`. Never went

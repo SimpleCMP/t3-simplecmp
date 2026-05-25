@@ -139,7 +139,7 @@ class Discovery {
     const site = this.siteSelect?.value || '';
     const sitemapUrl = resetUrl ? '' : (this.sitemapUrlEl?.value || '');
     // BE module Extbase binds BARE param names to action arguments (NOT
-    // the `tx_simplecmptypo3_*[name]` namespaced form). Mirrors the
+    // the `tx_t3simplecmp_*[name]` namespaced form). Mirrors the
     // existing Pagination.js convention. See memory:
     // `banner_theming.md` decision #6 for the same gotcha.
     const params = new URLSearchParams();

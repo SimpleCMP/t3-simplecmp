@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
@@ -12,8 +12,8 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
-use WapplerSystems\SimpleCmpTypo3\Service\SitemapFetcher;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\SitemapFetcher;
 
 /**
  * BE module action *Discover trackers* — sitemap-driven sweep that runs
@@ -164,7 +164,7 @@ final class DiscoveryController extends ActionController
     }
 
     /**
-     * Sites that have `wapplersystems/simplecmp` in their resolved Site
+     * Sites that have `simplecmp/t3-simplecmp` in their resolved Site
      * Set dependencies. Same selector as the Banner Designer module —
      * crawling a site that doesn't run SimpleCMP would produce no
      * detections.
@@ -175,7 +175,7 @@ final class DiscoveryController extends ActionController
     {
         $ids = [];
         foreach ($this->siteFinder->getAllSites() as $identifier => $site) {
-            if (in_array('wapplersystems/simplecmp', $site->getSets(), true)) {
+            if (in_array('simplecmp/t3-simplecmp', $site->getSets(), true)) {
                 $ids[] = $identifier;
             }
         }
@@ -220,7 +220,7 @@ final class DiscoveryController extends ActionController
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/Discovery.js'
+            '@simplecmp/t3-simplecmp/Backend/Discovery.js'
         );
         return $moduleTemplate;
     }

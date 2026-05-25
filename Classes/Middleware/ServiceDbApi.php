@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Middleware;
+namespace SimpleCMP\T3SimpleCmp\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -10,16 +10,16 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
-use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
-use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
-use WapplerSystems\SimpleCmpTypo3\Service\WebhookPayloadValidator;
-use WapplerSystems\SimpleCmpTypo3\Service\WebhookRequestGuard;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\ClassifierLookup;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification;
+use SimpleCMP\T3SimpleCmp\Service\BridgeRateLimiter;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
+use SimpleCMP\T3SimpleCmp\Service\WebhookPayloadValidator;
+use SimpleCMP\T3SimpleCmp\Service\WebhookRequestGuard;
 
 /**
  * Implements the SimpleCMP Service-DB protocol

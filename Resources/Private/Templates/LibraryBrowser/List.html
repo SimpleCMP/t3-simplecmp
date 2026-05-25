@@ -7,22 +7,22 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'library', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab}" />
 
-    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
+    <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
     <p class="text-body-secondary">
         <strong>{availableCount}</strong>
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.available" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.header.available" />
         · {adoptedCount}
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.adopted" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.header.adopted" />
         · {totalCount}
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.header.total" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.header.total" />
     </p>
 
     <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
         <select data-list-filter="status" class="form-select form-select-sm" style="width: auto;"
-                aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.filter.label')}">
+                aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.filter.label')}">
             <f:for each="{statusOptions}" as="opt">
                 <option value="{opt}" {f:if(condition: '{opt} == {status}', then: 'selected')}>
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.filter.{opt}" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.filter.{opt}" />
                 </option>
             </f:for>
         </select>
@@ -32,13 +32,13 @@
                value="{search}"
                class="form-control form-control-sm flex-grow-1"
                style="max-width: 26rem;"
-               placeholder="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
-               aria-label="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
+               placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
+               aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.search.placeholder')}"
                maxlength="200" />
 
         <f:if condition="{filtersActive}">
             <a href="{uri_resetFilters}" class="btn btn-sm btn-link">
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.search.clear" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.search.clear" />
             </a>
         </f:if>
     </div>
@@ -49,16 +49,16 @@
                 <f:then>
                     <div class="callout callout-info">
                         <h4 class="callout-title">
-                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.title" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.title" />
                         </h4>
                         <p class="callout-body">
-                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.body" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.empty.filtered.body" />
                         </p>
                     </div>
                 </f:then>
                 <f:else>
                     <div class="callout callout-info">
-                        <p><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.empty" /></p>
+                        <p><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.empty" /></p>
                     </div>
                 </f:else>
             </f:if>
@@ -68,12 +68,12 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th style="width: 8rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.status" /></th>
-                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.id" /></th>
-                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.name" /></th>
-                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.vendor" /></th>
-                            <th><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.purposes" /></th>
-                            <th style="width: 14rem;"><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.column.actions" /></th>
+                            <th style="width: 8rem;"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.status" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.id" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.name" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.vendor" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.purposes" /></th>
+                            <th style="width: 14rem;"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.actions" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,13 +84,13 @@
                                         <f:then>
                                             <span class="badge badge-success">
                                                 <core:icon identifier="actions-check" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.adopted" />
+                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.badge.adopted" />
                                             </span>
                                         </f:then>
                                         <f:else>
                                             <span class="badge badge-secondary">
                                                 <core:icon identifier="actions-plus" size="small" />
-                                                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.badge.available" />
+                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.badge.available" />
                                             </span>
                                         </f:else>
                                     </f:if>
@@ -109,11 +109,11 @@
                                             <form method="post" action="{entry.uri_unadopt}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-default">
                                                     <core:icon identifier="actions-minus" size="small" />
-                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.unadopt" />
+                                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.action.unadopt" />
                                                 </button>
                                             </form>
                                             <f:if condition="{entry.uri_edit}">
-                                                <a href="{entry.uri_edit}" class="btn btn-sm btn-link" title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.edit')}">
+                                                <a href="{entry.uri_edit}" class="btn btn-sm btn-link" title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.action.edit')}">
                                                     <core:icon identifier="actions-open" size="small" />
                                                 </a>
                                             </f:if>
@@ -122,7 +122,7 @@
                                             <form method="post" action="{entry.uri_adopt}" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-primary">
                                                     <core:icon identifier="actions-plus" size="small" />
-                                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:library.action.adopt" />
+                                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.action.adopt" />
                                                 </button>
                                             </form>
                                         </f:else>

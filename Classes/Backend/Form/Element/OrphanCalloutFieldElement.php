@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Backend\Form\Element;
+namespace SimpleCMP\T3SimpleCmp\Backend\Form\Element;
 
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use WapplerSystems\SimpleCmpTypo3\Service\RegistryListPresenter;
+use SimpleCMP\T3SimpleCmp\Service\RegistryListPresenter;
 
 /**
  * TCA form element that renders an inline "this service is no longer
  * in the bundled library" callout at the top of the
- * `tx_simplecmptypo3_service` edit form — but only when the row is
+ * `tx_t3simplecmp_service` edit form — but only when the row is
  * actually orphaned (Verwaist):
  *
  * - `library_adopted_at = 0` → Eigene (custom-curated) → render nothing.
@@ -48,10 +48,10 @@ final class OrphanCalloutFieldElement extends AbstractFormElement
 
         $lang = $this->getLanguageService();
         $title = $lang->sL(
-            'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.orphanCallout.title',
+            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.title',
         );
         $bodyTemplate = $lang->sL(
-            'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_db.xlf:tx_simplecmptypo3_service.orphanCallout.body',
+            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.body',
         );
         $adoptedDate = date('Y-m-d', $adoptedAt);
         // The translation source carries a literal `%s` we splice the

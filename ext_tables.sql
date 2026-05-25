@@ -1,4 +1,4 @@
-CREATE TABLE tx_simplecmptypo3_service (
+CREATE TABLE tx_t3simplecmp_service (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,
     tstamp int(11) unsigned DEFAULT '0' NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE tx_simplecmptypo3_service (
     KEY library_adopted_at (library_adopted_at)
 );
 
-CREATE TABLE tx_simplecmptypo3_theme (
+CREATE TABLE tx_t3simplecmp_theme (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,
     tstamp int(11) unsigned DEFAULT '0' NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE tx_simplecmptypo3_theme (
     UNIQUE KEY site (site)
 );
 
-CREATE TABLE tx_simplecmptypo3_detection (
+CREATE TABLE tx_t3simplecmp_detection (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,
     tstamp int(11) unsigned DEFAULT '0' NOT NULL,

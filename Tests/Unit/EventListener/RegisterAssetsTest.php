@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\EventListener;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\EventListener;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,11 +14,11 @@ use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteSettings;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
-use WapplerSystems\SimpleCmpTypo3\EventListener\RegisterAssets;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 
 /**
  * Locks the asset-emission behaviour of the SimpleCMP frontend

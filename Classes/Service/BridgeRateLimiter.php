@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
@@ -33,7 +33,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class BridgeRateLimiter
 {
-    public const string CACHE_IDENTIFIER = 'simplecmp_typo3_bridge_ratelimit';
+    public const string CACHE_IDENTIFIER = 't3_simplecmp_bridge_ratelimit';
     private const string SETTING_KEY = 'simplecmp.bridgeRateLimit';
     private const int DEFAULT_LIMIT = 500;
     private const int BUCKET_SECONDS = 3600;

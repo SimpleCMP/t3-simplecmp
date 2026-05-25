@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -14,16 +14,16 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
-use WapplerSystems\SimpleCmpTypo3\Service\DetectionListFilter;
-use WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter;
-use WapplerSystems\SimpleCmpTypo3\Service\ServiceCurator;
-use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\DetectionListFilter;
+use SimpleCMP\T3SimpleCmp\Service\DetectionListPresenter;
+use SimpleCMP\T3SimpleCmp\Service\ServiceCurator;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 
 /**
  * Backend module: review unknown-tracker detections that the SimpleCMP
- * CMS bridge posted into `tx_simplecmptypo3_detection`.
+ * CMS bridge posted into `tx_t3simplecmp_detection`.
  *
  * The list is driven by a three-state model derived per-row at view
  * time — no `reviewed` flag, no "dismiss" escape hatch:
@@ -47,8 +47,8 @@ use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
  */
 final class DetectionReviewController extends ActionController
 {
-    private const string DETECTION_TABLE = 'tx_simplecmptypo3_detection';
-    private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
+    private const string DETECTION_TABLE = 'tx_t3simplecmp_detection';
+    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
     private const array STATUS_OPTIONS = [
@@ -336,7 +336,7 @@ final class DetectionReviewController extends ActionController
         try {
             GeneralUtility::makeInstance(ConfigurationManager::class)
                 ->setLocalConfigurationValueByPath(
-                    'EXTENSIONS/simplecmp_typo3/bridgeSecret',
+                    'EXTENSIONS/t3_simplecmp/bridgeSecret',
                     $secret,
                 );
         } catch (\Throwable) {
@@ -741,16 +741,16 @@ final class DetectionReviewController extends ActionController
         $moduleTemplate->setTitle('SimpleCMP');
         // CSP-safe handlers loaded from the extension's JS module map.
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/ConfirmForm.js'
+            '@simplecmp/t3-simplecmp/Backend/ConfirmForm.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/BulkSelect.js'
+            '@simplecmp/t3-simplecmp/Backend/BulkSelect.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/Pagination.js'
+            '@simplecmp/t3-simplecmp/Backend/Pagination.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/ApproveModal.js'
+            '@simplecmp/t3-simplecmp/Backend/ApproveModal.js'
         );
         return $moduleTemplate;
     }
@@ -762,7 +762,7 @@ final class DetectionReviewController extends ActionController
             return null;
         }
         $translated = $lang->sL(
-            'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf:' . $key
+            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key
         );
         return $translated !== '' ? $translated : null;
     }

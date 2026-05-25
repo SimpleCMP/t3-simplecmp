@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Functional\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\ServiceCurator;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\ServiceCurator;
 
 /**
  * Exercises the smart-redirect lookup that the "Convert to service"
@@ -18,9 +18,9 @@ use WapplerSystems\SimpleCmpTypo3\Service\ServiceCurator;
  */
 final class ServiceCuratorTest extends FunctionalTestCase
 {
-    private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
+    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
 
-    protected array $testExtensionsToLoad = ['wapplersystems/simplecmp-typo3'];
+    protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 
     private ServiceCurator $curator;
 

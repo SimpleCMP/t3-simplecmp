@@ -28,7 +28,7 @@ into a full consent-management toolchain:
 *   **CMS-bridge receiver.** Production sites can report unknown
     trackers back to the same TYPO3 install via a JSON webhook at
     :file:`/api/simplecmp/webhook`. Reports land in a
-    :sql:`tx_simplecmptypo3_detection` table; the BE module surfaces
+    :sql:`tx_t3simplecmp_detection` table; the BE module surfaces
     them for admin review and one-click conversion into curated
     services.
 
@@ -44,7 +44,7 @@ into a full consent-management toolchain:
     *   *SimpleCMP banner design* — per-site theme editor for the
         consent banner. Colors, typography, and corner radius are
         edited in a form with a live preview iframe; tokens persist
-        in :sql:`tx_simplecmptypo3_theme` (one row per Site Set).
+        in :sql:`tx_t3simplecmp_theme` (one row per Site Set).
 
 Who it's for
 ============
@@ -77,6 +77,6 @@ See also
 ========
 
 *   `SimpleCMP on GitHub <https://github.com/SimpleCMP/simplecmp>`__
-*   `simplecmp-typo3 on GitHub <https://github.com/WapplerSystems/simplecmp-typo3>`__
+*   `simplecmp-typo3 on GitHub <https://github.com/SimpleCMP/t3-simplecmp>`__
 *   `Service-DB protocol spec <https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md>`__
 *   `CMS-bridge webhook spec <https://github.com/SimpleCMP/simplecmp/blob/main/docs/cms-bridge-webhook.md>`__

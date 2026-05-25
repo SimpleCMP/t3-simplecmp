@@ -113,8 +113,8 @@ Site Settings reference
     :type: integer
     :Default: 0
 
-    TYPO3 page UID under which new :sql:`tx_simplecmptypo3_service`
-    and :sql:`tx_simplecmptypo3_detection` records are created.
+    TYPO3 page UID under which new :sql:`tx_t3simplecmp_service`
+    and :sql:`tx_t3simplecmp_detection` records are created.
     Typically a dedicated SysFolder. Records created before this
     setting was changed are **not** moved.
 
@@ -122,7 +122,7 @@ Service registry
 ================
 
 Services are managed as TYPO3 records in
-:sql:`tx_simplecmptypo3_service`. The standard way to edit them is
+:sql:`tx_t3simplecmp_service`. The standard way to edit them is
 *Web → List* on the page selected by :confval:`simplecmp.storagePid`.
 
 Each service represents one third-party service and carries:

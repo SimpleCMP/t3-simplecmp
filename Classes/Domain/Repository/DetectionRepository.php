@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Domain\Repository;
+namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
@@ -17,11 +17,11 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  * same thing.
  *
  * Resolution state is derived per-row at view time from registry
- * coverage — see {@see \WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter}.
+ * coverage — see {@see \SimpleCMP\T3SimpleCmp\Service\DetectionListPresenter}.
  */
 final readonly class DetectionRepository
 {
-    private const string TABLE = 'tx_simplecmptypo3_detection';
+    private const string TABLE = 'tx_t3simplecmp_detection';
 
     public function __construct(
         private ConnectionPool $connectionPool,

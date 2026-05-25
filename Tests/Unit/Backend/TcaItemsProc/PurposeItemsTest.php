@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Backend\TcaItemsProc;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Backend\TcaItemsProc;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\Backend\TcaItemsProc\PurposeItems;
+use SimpleCMP\T3SimpleCmp\Backend\TcaItemsProc\PurposeItems;
 
 /**
  * Smoke-tests the items-discovery pass against the actual bundled
@@ -57,7 +57,7 @@ final class PurposeItemsTest extends TestCase
 
         foreach ($config['items'] as $item) {
             self::assertStringStartsWith(
-                'LLL:EXT:simplecmp_typo3/',
+                'LLL:EXT:t3_simplecmp/',
                 $item['label'],
                 'Items must use LLL labels so locallang stays the single source for translations.',
             );

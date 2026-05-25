@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Classifier;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Classifier;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
-use WapplerSystems\SimpleCmpTypo3\Service\DetectionListPresenter;
+use SimpleCMP\T3SimpleCmp\Service\DetectionListPresenter;
 
 /**
  * Library-walk determinism — for cookies covered by multiple library

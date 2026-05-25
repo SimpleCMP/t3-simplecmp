@@ -1,4 +1,4 @@
-name: wapplersystems/simplecmp
+name: simplecmp/t3-simplecmp
 label: SimpleCMP — consent manager
 dependencies:
   - typo3/fluid-styled-content

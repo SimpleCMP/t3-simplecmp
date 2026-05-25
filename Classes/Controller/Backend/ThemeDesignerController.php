@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -10,14 +10,14 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 
 /**
  * BE module *Websites → SimpleCMP → Banner design*.
  *
  * Lets admins customize the FE consent banner's colors, typography,
  * and shape per Site Set without editing YAML or PHP. Tokens persist
- * in `tx_simplecmptypo3_theme` (one row per site identifier); the FE
+ * in `tx_t3simplecmp_theme` (one row per site identifier); the FE
  * asset listener emits them as inline CSS custom property overrides
  * before the banner mounts.
  *
@@ -189,7 +189,7 @@ final class ThemeDesignerController extends ActionController
 
     /**
      * Sites that actually run SimpleCMP — i.e. have the
-     * `wapplersystems/simplecmp` Site Set among their resolved
+     * `simplecmp/t3-simplecmp` Site Set among their resolved
      * dependencies. Theming any other site is moot because the FE
      * bundle never loads there.
      *
@@ -203,7 +203,7 @@ final class ThemeDesignerController extends ActionController
     {
         $ids = [];
         foreach ($this->siteFinder->getAllSites() as $identifier => $site) {
-            if (in_array('wapplersystems/simplecmp', $site->getSets(), true)) {
+            if (in_array('simplecmp/t3-simplecmp', $site->getSets(), true)) {
                 $ids[] = $identifier;
             }
         }
@@ -241,16 +241,16 @@ final class ThemeDesignerController extends ActionController
         // site picker uses `data-list-filter="site"` so Pagination.js
         // navigates to the index action with the chosen site on change.
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/Pagination.js'
+            '@simplecmp/t3-simplecmp/Backend/Pagination.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/ConfirmForm.js'
+            '@simplecmp/t3-simplecmp/Backend/ConfirmForm.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/ThemePreview.js'
+            '@simplecmp/t3-simplecmp/Backend/ThemePreview.js'
         );
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/DetectFonts.js'
+            '@simplecmp/t3-simplecmp/Backend/DetectFonts.js'
         );
         return $moduleTemplate;
     }

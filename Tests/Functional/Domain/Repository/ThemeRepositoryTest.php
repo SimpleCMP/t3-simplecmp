@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Functional\Domain\Repository;
+namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Domain\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 
 final class ThemeRepositoryTest extends FunctionalTestCase
 {
-    protected array $testExtensionsToLoad = ['wapplersystems/simplecmp-typo3'];
+    protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 
     private ThemeRepository $repository;
 

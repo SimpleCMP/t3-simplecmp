@@ -49,7 +49,7 @@ settings:
 
   simplecmp.storagePid:
     label: 'Storage page ID for service + detection records'
-    description: 'TYPO3 page UID under which new `tx_simplecmptypo3_service` and `tx_simplecmptypo3_detection` rows are created (typically a dedicated SysFolder). Defaults to 0 (site root). Records created before changing this setting are NOT moved.'
+    description: 'TYPO3 page UID under which new `tx_t3simplecmp_service` and `tx_t3simplecmp_detection` rows are created (typically a dedicated SysFolder). Defaults to 0 (site root). Records created before changing this setting are NOT moved.'
     type: int
     default: 0
 

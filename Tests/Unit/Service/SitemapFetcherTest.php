@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Http\RequestFactory;
-use WapplerSystems\SimpleCmpTypo3\Service\SitemapFetcher;
+use SimpleCMP\T3SimpleCmp\Service\SitemapFetcher;
 
 /**
  * Parser-level coverage for SitemapFetcher. The network path is

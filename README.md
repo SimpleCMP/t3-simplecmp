@@ -18,7 +18,7 @@ filter and excluded from this default actionable view.*
 
 - **Frontend integration** — embeds the SimpleCMP JS bundle on every TYPO3
   frontend page, sourcing its `init({...})` config from the active Site
-  Set's settings. The service registry (`tx_simplecmptypo3_service`)
+  Set's settings. The service registry (`tx_t3simplecmp_service`)
   drives the runtime services array and a per-language `translations`
   block.
 
@@ -26,7 +26,7 @@ filter and excluded from this default actionable view.*
   implements the upstream
   [Service-DB protocol](https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md).
   Classifier coverage comes from two sources unioned at lookup time:
-  the admin-curated registry (`tx_simplecmptypo3_service`) plus the
+  the admin-curated registry (`tx_t3simplecmp_service`) plus the
   bundled [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
   composer package (Hotjar, Stripe, Intercom, TikTok Pixel, hCaptcha,
   Mailchimp, and hundreds more — read-only reference, no DB mirror).
@@ -103,7 +103,7 @@ filter and excluded from this default actionable view.*
   surface colors, typography (body + heading font + size, with a
   "Detect fonts from active site" button), and corner radius without
   editing YAML or PHP. Live preview iframe on the right of the form
-  updates as you type. Tokens persist in `tx_simplecmptypo3_theme` per
+  updates as you type. Tokens persist in `tx_t3simplecmp_theme` per
   site; deleting a row resets that site to defaults.
 
 - **Click-to-enable on blocked embeds** — when a content editor pastes
@@ -114,7 +114,7 @@ filter and excluded from this default actionable view.*
   *Open settings* buttons. Adopted library services carry their
   curated `placeholderDescription` automatically — admins don't have
   to write per-service copy unless they want to override the bundled
-  text. Two new optional columns on `tx_simplecmptypo3_service`
+  text. Two new optional columns on `tx_t3simplecmp_service`
   (`placeholder_title`, `placeholder_description`) store any
   overrides the adoption flow brings in from
   [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library).
@@ -173,13 +173,13 @@ hidden iframe:
 ## Installation
 
 ```bash
-composer require wapplersystems/simplecmp-typo3
+composer require simplecmp/t3-simplecmp
 ```
 
 In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
 dependency. Configure under Site → Settings.
 
-The registry (`tx_simplecmptypo3_service`) starts empty and only ever
+The registry (`tx_t3simplecmp_service`) starts empty and only ever
 holds admin-curated entries. The bundled
 [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)
 is consulted at classifier-lookup time directly (no DB mirror), so

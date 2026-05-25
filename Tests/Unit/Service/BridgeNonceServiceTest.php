@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 
 final class BridgeNonceServiceTest extends TestCase
 {
@@ -18,14 +18,14 @@ final class BridgeNonceServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
             = base64_encode(random_bytes(32));
         $this->service = new BridgeNonceService(new BridgeSecretProvider());
     }
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
     }
 
     #[Test]
@@ -99,7 +99,7 @@ final class BridgeNonceServiceTest extends TestCase
     {
         $nonce = $this->service->issue(self::SOURCE);
         // Rotate the secret.
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
             = base64_encode(random_bytes(32));
         $other = new BridgeNonceService(new BridgeSecretProvider());
         $result = $other->verify($nonce, self::SOURCE);
@@ -109,7 +109,7 @@ final class BridgeNonceServiceTest extends TestCase
     #[Test]
     public function issueThrowsWhenSecretMissing(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
         $service = new BridgeNonceService(new BridgeSecretProvider());
         $this->expectException(\RuntimeException::class);
         $service->issue(self::SOURCE);

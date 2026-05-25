@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 /**
  * Single source of truth for the HMAC secret that signs bridge nonces.
  *
- * Reads from `$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']`.
+ * Reads from `$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']`.
  * Typical deployment uses env interpolation in `additional.php`:
  *
- *     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']
+ *     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
  *         = getenv('SIMPLECMP_BRIDGE_SECRET') ?: null;
  *
  * The secret is shared between bridge sender (`RegisterAssets` issuing
@@ -26,7 +26,7 @@ namespace WapplerSystems\SimpleCmpTypo3\Service;
 final readonly class BridgeSecretProvider
 {
     private const string CONFIG_KEY = 'bridgeSecret';
-    private const string EXTENSION_KEY = 'simplecmp_typo3';
+    private const string EXTENSION_KEY = 't3_simplecmp';
     private const int MIN_SECRET_BYTES = 32;
 
     /**

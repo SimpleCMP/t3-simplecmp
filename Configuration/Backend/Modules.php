@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DetectionReviewController;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\DiscoveryController;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\LibraryBrowserController;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\RegistryListController;
-use WapplerSystems\SimpleCmpTypo3\Controller\Backend\ThemeDesignerController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\DetectionReviewController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\DiscoveryController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\LibraryBrowserController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\RegistryListController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController;
 
 /**
  * Backend module registration.
@@ -30,7 +30,7 @@ return [
         'access' => 'admin',
         'path' => '/module/simplecmp/detections',
         'iconIdentifier' => 'simplecmp-module',
-        'labels' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_mod.xlf',
+        'labels' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf',
         'extensionName' => 'SimpleCmpTypo3',
         'controllerActions' => [
             DetectionReviewController::class => [
@@ -68,7 +68,7 @@ return [
         'access' => 'admin',
         'path' => '/module/simplecmp/design',
         'iconIdentifier' => 'simplecmp-module',
-        'labels' => 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf',
+        'labels' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf',
         'extensionName' => 'SimpleCmpTypo3',
         'controllerActions' => [
             ThemeDesignerController::class => [

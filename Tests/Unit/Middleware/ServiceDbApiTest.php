@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Middleware;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Middleware;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,18 +12,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Middleware\ServiceDbApi;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceService;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeNonceVerification;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeRateLimiter;
-use WapplerSystems\SimpleCmpTypo3\Service\BridgeSecretProvider;
-use WapplerSystems\SimpleCmpTypo3\Service\ClassifierLookup;
-use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
-use WapplerSystems\SimpleCmpTypo3\Service\WebhookPayloadValidator;
-use WapplerSystems\SimpleCmpTypo3\Service\WebhookRequestGuard;
-use WapplerSystems\SimpleCmpTypo3\Service\WebhookValidationResult;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Middleware\ServiceDbApi;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification;
+use SimpleCMP\T3SimpleCmp\Service\BridgeRateLimiter;
+use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\ClassifierLookup;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
+use SimpleCMP\T3SimpleCmp\Service\WebhookPayloadValidator;
+use SimpleCMP\T3SimpleCmp\Service\WebhookRequestGuard;
+use SimpleCMP\T3SimpleCmp\Service\WebhookValidationResult;
 
 /**
  * Locks the routing + orchestration behaviour of the SimpleCMP API

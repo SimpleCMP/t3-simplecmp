@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -11,11 +11,11 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\RegistryListPresenter;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\RegistryListPresenter;
 
 /**
- * Backend module tab: list every row in `tx_simplecmptypo3_service`
+ * Backend module tab: list every row in `tx_t3simplecmp_service`
  * regardless of source, tagged with `Eigene` / `Aus Bibliothek` /
  * `Verwaist`. Renders as the "Dienste" tab between Detections and
  * Bibliothek.
@@ -181,10 +181,10 @@ final class RegistryListController extends ActionController
 
     private function fetchLibraryAdoptedAt(string $serviceId): int
     {
-        $qb = $this->connectionPool->getQueryBuilderForTable('tx_simplecmptypo3_service');
+        $qb = $this->connectionPool->getQueryBuilderForTable('tx_t3simplecmp_service');
         $qb->getRestrictions()->removeAll();
         $value = $qb->select('library_adopted_at')
-            ->from('tx_simplecmptypo3_service')
+            ->from('tx_t3simplecmp_service')
             ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
             ->setMaxResults(1)
             ->executeQuery()
@@ -255,7 +255,7 @@ final class RegistryListController extends ActionController
         }
         $returnUrl = $this->uri('list');
         return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => ['tx_simplecmptypo3_service' => [$uid => 'edit']],
+            'edit' => ['tx_t3simplecmp_service' => [$uid => 'edit']],
             'returnUrl' => $returnUrl,
         ]);
     }
@@ -275,7 +275,7 @@ final class RegistryListController extends ActionController
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
-        $this->pageRenderer->loadJavaScriptModule('@wapplersystems/simplecmp-typo3/Backend/Pagination.js');
+        $this->pageRenderer->loadJavaScriptModule('@simplecmp/t3-simplecmp/Backend/Pagination.js');
         return $moduleTemplate;
     }
 }

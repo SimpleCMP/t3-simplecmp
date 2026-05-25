@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Service;
+namespace SimpleCMP\T3SimpleCmp\UniversalBlocking\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
 

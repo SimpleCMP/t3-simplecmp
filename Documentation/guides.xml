@@ -8,16 +8,16 @@
 >
     <project
         title="SimpleCMP for TYPO3"
-        copyright="WapplerSystems"
+        copyright="SimpleCMP"
     />
     <extension
         class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
-        project-issues="https://github.com/WapplerSystems/simplecmp-typo3/issues"
-        project-repository="https://github.com/WapplerSystems/simplecmp-typo3"
-        project-discussions="https://github.com/WapplerSystems/simplecmp-typo3/discussions"
-        project-home="https://github.com/WapplerSystems/simplecmp-typo3"
+        project-issues="https://github.com/SimpleCMP/t3-simplecmp/issues"
+        project-repository="https://github.com/SimpleCMP/t3-simplecmp"
+        project-discussions="https://github.com/SimpleCMP/t3-simplecmp/discussions"
+        project-home="https://github.com/SimpleCMP/t3-simplecmp"
         project-contact="wappler@wappler.systems"
-        edit-on-github="WapplerSystems/simplecmp-typo3"
+        edit-on-github="SimpleCMP/t3-simplecmp"
         edit-on-github-branch="main"
         typo3-core-preferred="main"
     />

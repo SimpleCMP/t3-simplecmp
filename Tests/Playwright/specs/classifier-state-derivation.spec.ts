@@ -3,12 +3,12 @@
  * architecture.
  *
  * The BE never stores `kuratiert | erkannt | unbekannt` in the
- * `tx_simplecmptypo3_detection` row. The state is derived at view
+ * `tx_t3simplecmp_detection` row. The state is derived at view
  * time by `DetectionListPresenter::deriveState()` from three inputs:
  *
  * - The detection itself (kind + identifier).
  * - The bundled service library (read via `ServicesLibrary`).
- * - The admin-curated registry (`tx_simplecmptypo3_service`).
+ * - The admin-curated registry (`tx_t3simplecmp_service`).
  *
  * Order matters: registry > library > unknown. This spec plants a
  * detection in each of those three classes and asserts the rendered

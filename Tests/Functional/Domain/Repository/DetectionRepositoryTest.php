@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Functional\Domain\Repository;
+namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Domain\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
 
 final class DetectionRepositoryTest extends FunctionalTestCase
 {
-    private const string TABLE = 'tx_simplecmptypo3_detection';
+    private const string TABLE = 'tx_t3simplecmp_detection';
 
-    protected array $testExtensionsToLoad = ['wapplersystems/simplecmp-typo3'];
+    protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 
     private DetectionRepository $repository;
 

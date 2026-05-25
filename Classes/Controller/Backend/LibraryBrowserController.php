@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
@@ -12,8 +12,8 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
-use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 
 /**
  * Backend module tab: browse the bundled
@@ -26,7 +26,7 @@ use WapplerSystems\SimpleCmpTypo3\Service\StoragePidResolver;
  *
  * The library is a read-only reference: this controller never modifies
  * the JSON files. The only write path is `adoptAction`, which copies
- * one library entry into `tx_simplecmptypo3_service` via the existing
+ * one library entry into `tx_t3simplecmp_service` via the existing
  * upsert flow. After adoption the service appears on the visitor's
  * banner (every registry row is on the banner post-fe_visible
  * architecture).
@@ -233,10 +233,10 @@ final class LibraryBrowserController extends ActionController
 
     private function editServiceUri(string $serviceId): ?string
     {
-        $qb = $this->connectionPool->getQueryBuilderForTable('tx_simplecmptypo3_service');
+        $qb = $this->connectionPool->getQueryBuilderForTable('tx_t3simplecmp_service');
         $qb->getRestrictions()->removeAll();
         $uid = $qb->select('uid')
-            ->from('tx_simplecmptypo3_service')
+            ->from('tx_t3simplecmp_service')
             ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
             ->setMaxResults(1)
             ->executeQuery()
@@ -246,7 +246,7 @@ final class LibraryBrowserController extends ActionController
         }
         $returnUrl = $this->uri('list');
         return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => ['tx_simplecmptypo3_service' => [(int) $uid => 'edit']],
+            'edit' => ['tx_t3simplecmp_service' => [(int) $uid => 'edit']],
             'returnUrl' => $returnUrl,
         ]);
     }
@@ -282,7 +282,7 @@ final class LibraryBrowserController extends ActionController
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
         $this->pageRenderer->loadJavaScriptModule(
-            '@wapplersystems/simplecmp-typo3/Backend/Pagination.js'
+            '@simplecmp/t3-simplecmp/Backend/Pagination.js'
         );
         return $moduleTemplate;
     }

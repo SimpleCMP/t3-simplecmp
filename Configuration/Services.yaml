@@ -4,10 +4,10 @@ services:
     autoconfigure: true
     public: false
 
-  WapplerSystems\SimpleCmpTypo3\:
+  SimpleCMP\T3SimpleCmp\:
     resource: '../Classes/*'
 
-  WapplerSystems\SimpleCmpTypo3\Command\GenerateBridgeSecretCommand:
+  SimpleCMP\T3SimpleCmp\Command\GenerateBridgeSecretCommand:
     tags:
       - name: 'console.command'
         command: 'simplecmp:generate-bridge-secret'
@@ -17,9 +17,9 @@ services:
   # only reads from public services in the DI container. Without `public:
   # true` the autowired constructor args (repositories) silently fail and
   # the middleware crashes with "Too few arguments to __construct".
-  WapplerSystems\SimpleCmpTypo3\Middleware\ServiceDbApi:
+  SimpleCMP\T3SimpleCmp\Middleware\ServiceDbApi:
     public: true
 
   # ADR-0013 — universal-blocking HTML rewriter (Phase 0 prototype).
-  WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware\HtmlRewriter:
+  SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter:
     public: true

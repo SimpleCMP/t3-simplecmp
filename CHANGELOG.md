@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `wapplersystems/simplecmp-typo3` are recorded here.
+All notable changes to `simplecmp/t3-simplecmp` are recorded here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 This extension is **pre-1.0**. The API may shift between minor versions in
@@ -44,7 +44,7 @@ development.
 ### Added — Universal pre-consent blocking (Phase 1, ADR-0013)
 
 - **New PSR-15 frontend middleware
-  `WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware\HtmlRewriter`.**
+  `SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter`.**
   When enabled, scans the rendered HTML response for third-party
   `<script src>`, `<iframe src>`, `<img src>`, and `<link href>`
   references and rewrites them into the SimpleCMP engine's gate
@@ -145,7 +145,7 @@ development.
   high-value embeds (YouTube, Vimeo, Maps, Spotify, etc.) — admins
   get the right placeholder text without writing any.
 - **New columns** `placeholder_title` (varchar) +
-  `placeholder_description` (text) on `tx_simplecmptypo3_service`.
+  `placeholder_description` (text) on `tx_t3simplecmp_service`.
   No TCA fields — deliberately deferred (the fallback chain produces
   reasonable defaults; admins who want override-per-site can use the
   description field). When library curators add good copy, every
@@ -168,7 +168,7 @@ development.
   iframe inside the admin's own tab. Each iframe load gets
   `?simplecmp_discover=1` appended; the FE recorder + bridge inside
   fire exactly as for a real visitor, so the existing webhook + ingest
-  pipeline populates `tx_simplecmptypo3_detection` with no new
+  pipeline populates `tx_t3simplecmp_detection` with no new
   server-side code path. After ~3 s dwell per page the iframe
   navigates on, triggering pagehide → `navigator.sendBeacon` flush.
   See upstream `simplecmp` CHANGELOG for the matching
@@ -182,7 +182,7 @@ development.
   fetches sitemap for the chosen site) and `fetchSitemapAction` (JSON
   endpoint used by the site-picker to repaint without a full reload).
   Same site-resolution path as the Banner Designer module: only sites
-  whose Site Set list includes `wapplersystems/simplecmp` are eligible.
+  whose Site Set list includes `simplecmp/t3-simplecmp` are eligible.
 - **Editable URL list (textarea, one per line, `#` comments
   ignored).** Pre-filled from the sitemap when EXT:seo is installed,
   but always present as a fallback for sites without a working sitemap
@@ -217,7 +217,7 @@ development.
 ### Added — Dienste tab (registry index, source-tagged)
 
 - **New BE tab "Dienste"** between Detektionen and Bibliothek. Lists
-  every row in `tx_simplecmptypo3_service` regardless of origin, with
+  every row in `tx_t3simplecmp_service` regardless of origin, with
   filter / search / per-row actions. Closes the UX gap where adopted
   library entries weren't visible together with custom-curated
   services anywhere in the SimpleCMP module — admins previously had
@@ -233,7 +233,7 @@ development.
     only orphans* shortcut, and Delete is unlocked (because the
     library no longer claims the row).
   Source is derived at view time from a new
-  `tx_simplecmptypo3_service.library_adopted_at` column compared
+  `tx_t3simplecmp_service.library_adopted_at` column compared
   against the current `ServicesLibrary::services()` ID set, so a
   `composer update` that drops a service flips affected rows from
   Aus-Bibliothek → Verwaist with no migration step.
@@ -247,11 +247,11 @@ development.
   library symmetry. The controller re-derives the source server-side
   before deleting, so a forged URL pointing at an Aus-Bibliothek row
   is a no-op rather than a quiet bypass.
-- **Upgrade wizard** `simplecmpTypo3BackfillLibraryAdoptedAt`
+- **Upgrade wizard** `t3SimplecmpBackfillLibraryAdoptedAt`
   back-fills `library_adopted_at = NOW()` for rows that pre-date the
   column whose `service_id` is in the currently-bundled library.
   Idempotent; runs once via Install Tool's Upgrade module or
-  `vendor/bin/typo3 upgrade:run simplecmpTypo3BackfillLibraryAdoptedAt`.
+  `vendor/bin/typo3 upgrade:run t3SimplecmpBackfillLibraryAdoptedAt`.
 - **`ServiceRepository::upsert()` gained `bool $fromLibrary` (default
   false).** Adoption paths
   (`LibraryBrowserController::adoptAction`,
@@ -270,7 +270,7 @@ development.
 
 - **`Verwerfen` (dismiss) replaces destructive Delete on the actionable
   list.** Clicking the row's dismiss icon now sets a new
-  `tx_simplecmptypo3_detection.dismissed_at` timestamp rather than
+  `tx_t3simplecmp_detection.dismissed_at` timestamp rather than
   deleting the row. The detection vanishes from the Needs-action view
   but survives in the new *Verworfen* filter; the dismissal is
   durable across visitors because the bridge receiver's `ingest()`
@@ -325,15 +325,15 @@ development.
 - **The registry is now admin-curated only.** Bulk classifier
   pre-fill is handled by reading the bundled
   `simplecmp/services-library` JSON files directly at lookup time, not
-  by mirroring them into `tx_simplecmptypo3_service`. The two roles
+  by mirroring them into `tx_t3simplecmp_service`. The two roles
   the registry used to conflate (classifier dictionary + banner
   surface) are now in separate places:
   - **Library** (`vendor/simplecmp/services-library/data/services/*.json`)
     — read-only reference, consulted by the new `ClassifierLookup`
     service.
-  - **Registry** (`tx_simplecmptypo3_service`) — admin-curated services
+  - **Registry** (`tx_t3simplecmp_service`) — admin-curated services
     only. Every row appears on the FE banner.
-  - **Detection log** (`tx_simplecmptypo3_detection`) — unchanged.
+  - **Detection log** (`tx_t3simplecmp_detection`) — unchanged.
 - **New `ClassifierLookup` service.** Wraps `ServiceRepository::lookup()`
   and `SimpleCMP\ServicesLibrary` in one call; returns the union of
   matches, deduplicated by `service_id` (admin's curated row wins on
@@ -346,7 +346,7 @@ development.
 - **`simplecmp:import-known-trackers` command removed.** The bundled
   library is consulted directly; bulk-mirroring into the registry no
   longer makes sense. Existing installs need to truncate
-  `tx_simplecmptypo3_service` once to drop the stale library copies.
+  `tx_t3simplecmp_service` once to drop the stale library copies.
 
 ### Changed
 
@@ -355,7 +355,7 @@ development.
   `available` / `adopted` / `all` filter, search, and per-row
   *Übernehmen* (adopt → copy into registry) / *Aus Registry
   entfernen* (unadopt → delete from registry) actions. The catalog
-  is no longer a view over `tx_simplecmptypo3_service` rows.
+  is no longer a view over `tx_t3simplecmp_service` rows.
 - `ServiceRepository`: simplified — `setVisibility()`,
   `findAllVisibleOnFe()`, `findAllForCatalog()` and the
   `feVisibleOnInsert` parameter on `upsert()` are gone. Added
@@ -382,7 +382,7 @@ development.
 - **BE service catalog tab.** New "Dienste" tab inside the existing
   SimpleCMP module (sibling of "Detektionen"), backed by
   `ServiceCatalogController`. Lists every row in
-  `tx_simplecmptypo3_service` with: visibility badge (Sichtbar /
+  `tx_t3simplecmp_service` with: visibility badge (Sichtbar /
   Verborgen), service id, name, vendor, purposes, and per-row actions.
   Filter dropdown (Alle / Sichtbar / Verborgen, default Alle), search
   across service_id / name / vendor / matchers (PHP-side substring,
@@ -409,7 +409,7 @@ development.
 
 ### Changed
 
-- **TCA default for `tx_simplecmptypo3_service.fe_visible` flipped
+- **TCA default for `tx_t3simplecmp_service.fe_visible` flipped
   from `0` to `1`.** Applies to new records created via the TCA edit
   form (Anpassen / Kuratieren flows on a detection row). The admin
   reviewing the pre-filled form and clicking Save is the per-entry
@@ -431,7 +431,7 @@ development.
 ### Changed (breaking, pre-1.0)
 
 - **Service registry splits into classifier dictionary + banner surface.**
-  New `tx_simplecmptypo3_service.fe_visible` column controls whether a
+  New `tx_t3simplecmp_service.fe_visible` column controls whether a
   service appears in the visitor's banner. Library imports
   (`simplecmp:import-known-trackers`) default to **hidden** (`0`); they
   pre-fill the classifier server-side so the recorder and Service-DB
@@ -516,7 +516,7 @@ development.
   is also loaded on the page. Companion to `simplecmp@5358528`.
 
 - **Purposes multi-select widget** in the service TCA. Replaces the
-  JSON textarea on `tx_simplecmptypo3_service.purposes` with a
+  JSON textarea on `tx_t3simplecmp_service.purposes` with a
   side-by-side dual-listbox + filter textbox
   (`selectMultipleSideBySide` + `enableMultiSelectFilterTextfield`).
   Available items are auto-discovered from the bundled
@@ -551,7 +551,7 @@ schema analyzer to drop the obsolete `reviewed` column.
   preview iframe on the right of the form that updates as you type.
   A "Detect fonts from active site" button reads computed body + h1
   font-family + font-size from the FE via a hidden iframe (same-origin
-  only). Tokens persist in a new `tx_simplecmptypo3_theme` table —
+  only). Tokens persist in a new `tx_t3simplecmp_theme` table —
   one row per Site Set, deleting resets that site to defaults.
 - **Three-state detection model** (kuratiert / erkannt / unbekannt).
   Replaces the manual `reviewed` flag with state derived per row at
@@ -603,7 +603,7 @@ schema analyzer to drop the obsolete `reviewed` column.
 
 ### Removed (breaking)
 
-- **`tx_simplecmptypo3_detection.reviewed` column dropped.** Run the
+- **`tx_t3simplecmp_detection.reviewed` column dropped.** Run the
   TYPO3 schema analyzer after upgrading, or `ALTER TABLE ... DROP
   COLUMN reviewed` manually. Detection state is now derived at view
   time from registry + library coverage.
@@ -659,7 +659,7 @@ the bridge-secret bootstrap.
   `vendor/bin/typo3 simplecmp:seed`.
 - **CMS-bridge receiver** at `/api/simplecmp/webhook`. Idempotently
   ingests unknown-tracker reports from the SimpleCMP frontend into
-  `tx_simplecmptypo3_detection`. Repeat hits of the same
+  `tx_t3simplecmp_detection`. Repeat hits of the same
   `(source, kind, identifier)` triple bump `occurrences` rather than
   inserting duplicates.
 - **Backend module** at *Site Management → SimpleCMP detections*.

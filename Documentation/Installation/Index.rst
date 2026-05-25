@@ -18,7 +18,7 @@ Composer install
 
 ..  code-block:: bash
 
-    composer require wapplersystems/simplecmp-typo3
+    composer require simplecmp/t3-simplecmp
 
 Until the package is registered on Packagist, point composer at the
 GitHub repository in your project's :file:`composer.json`:
@@ -29,7 +29,7 @@ GitHub repository in your project's :file:`composer.json`:
         "repositories": [
             {
                 "type": "vcs",
-                "url": "https://github.com/WapplerSystems/simplecmp-typo3"
+                "url": "https://github.com/SimpleCMP/t3-simplecmp"
             }
         ]
     }
@@ -56,7 +56,7 @@ bootstrap one:
 detections*. When no secret is configured, the page shows a
 yellow callout with a *Generate bridge secret* button. Clicking
 it writes a fresh value into :file:`config/system/settings.php`
-under :php:`$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']`.
+under :php:`$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']`.
 
 **Option 2 — CLI.** Run:
 
@@ -71,7 +71,7 @@ recommended for production deployments:
 ..  code-block:: php
 
     // In config/system/additional.php:
-    $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp_typo3']['bridgeSecret']
+    $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
         = getenv('SIMPLECMP_BRIDGE_SECRET') ?: null;
 
 One secret per TYPO3 installation. If you run multiple installs and
@@ -84,8 +84,8 @@ Database schema
 Two tables ship with the extension and are created automatically by
 TYPO3's database compare on first install:
 
-*   :sql:`tx_simplecmptypo3_service` — the service registry.
-*   :sql:`tx_simplecmptypo3_detection` — the webhook receiver's
+*   :sql:`tx_t3simplecmp_service` — the service registry.
+*   :sql:`tx_t3simplecmp_detection` — the webhook receiver's
     landing table.
 
 The bundled services library
@@ -109,7 +109,7 @@ lookup time via the :code:`ClassifierLookup` service. Cookies covered
 by the library classify as :code:`known` from day one without any
 admin action.
 
-The registry (:code:`tx_simplecmptypo3_service`) starts empty and
+The registry (:code:`tx_t3simplecmp_service`) starts empty and
 only ever holds admin-curated services. Two ways for the admin to
 adopt a library entry into the registry — required so visitors see
 the consent toggle in the banner:

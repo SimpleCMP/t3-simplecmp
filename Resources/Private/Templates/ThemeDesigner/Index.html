@@ -5,9 +5,9 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <h1><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
+    <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
     <p class="text-body-secondary">
-        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.intro" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
     </p>
 
     <form method="post" action="{uri_save}">
@@ -15,7 +15,7 @@
 
         <div class="d-flex align-items-center mb-3 gap-3">
             <label for="simplecmp-designer-site" class="form-label mb-0">
-                <strong><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.label" /></strong>
+                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.label" /></strong>
             </label>
             <select id="simplecmp-designer-site" data-list-filter="site" class="form-select form-select-sm" style="width:auto">
                 <f:for each="{availableSites}" as="opt">
@@ -24,7 +24,7 @@
             </select>
             <f:if condition="{hasCustomTheme}">
                 <span class="badge bg-info text-dark">
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.customBadge" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.customBadge" />
                 </span>
             </f:if>
         </div>
@@ -34,7 +34,7 @@
                 <f:for each="{fieldGroups}" as="fields" key="group">
                     <fieldset class="mb-4">
                         <legend class="h5">
-                            <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
                         <f:render section="Fields" arguments="{fields: fields, tokens: tokens}" />
                         <f:if condition="{group} == 'typography'">
@@ -44,7 +44,7 @@
                                         data-detect-fonts
                                         data-detect-fonts-url="{siteBaseUrl}">
                                     <core:icon identifier="actions-search" size="small" />
-                                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.detectFonts" />
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.detectFonts" />
                                 </button>
                                 <small class="text-body-secondary ms-2 detect-fonts-status" data-detect-fonts-status></small>
                             </div>
@@ -55,13 +55,13 @@
 
             <div class="col-md-6">
                 <div class="sticky-top" style="top:1rem">
-                    <h5><f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
+                    <h5><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
                     <p class="text-body-secondary small mb-2">
-                        <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
                     </p>
                     <iframe data-preview-iframe
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 'simplecmp_typo3')}"
-                            title="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}"
+                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>
                 </div>
@@ -71,14 +71,14 @@
         <div class="btn-toolbar gap-2 mt-3 border-top pt-3">
             <button type="submit" class="btn btn-primary">
                 <core:icon identifier="actions-save" size="small" />
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
             </button>
             <f:if condition="{hasCustomTheme}">
                 <a href="{uri_reset}"
                    class="btn btn-default text-danger"
-                   data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
+                   data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
                     <core:icon identifier="actions-undo" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
                 </a>
             </f:if>
         </div>
@@ -100,7 +100,7 @@
     <f:for each="{fields}" as="key">
         <div class="mb-2">
             <label for="token-{key}" class="form-label">
-                <f:translate key="LLL:EXT:simplecmp_typo3/Resources/Private/Language/locallang_design.xlf:designer.field.{key}" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.{key}" />
             </label>
             <f:switch expression="{key}">
                 <f:case value="font-family">

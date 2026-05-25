@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Functional\Service;
+namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Service;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-use WapplerSystems\SimpleCmpTypo3\Service\DetectionListFilter;
+use SimpleCMP\T3SimpleCmp\Service\DetectionListFilter;
 
 /**
  * Locks the SQL semantics of every filter the detection list view
@@ -25,9 +25,9 @@ use WapplerSystems\SimpleCmpTypo3\Service\DetectionListFilter;
  */
 final class DetectionListFilterTest extends FunctionalTestCase
 {
-    private const string DETECTION_TABLE = 'tx_simplecmptypo3_detection';
+    private const string DETECTION_TABLE = 'tx_t3simplecmp_detection';
 
-    protected array $testExtensionsToLoad = ['wapplersystems/simplecmp-typo3'];
+    protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 
     private DetectionListFilter $filter;
 

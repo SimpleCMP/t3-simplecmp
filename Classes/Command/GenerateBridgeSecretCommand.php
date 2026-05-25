@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Command;
+namespace SimpleCMP\T3SimpleCmp\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,12 +45,12 @@ final class GenerateBridgeSecretCommand extends Command
         $output->writeln('  SIMPLECMP_BRIDGE_SECRET=' . $secret);
         $output->writeln('');
         $output->writeln('  # In config/system/additional.php:');
-        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'simplecmp_typo3\'][\'bridgeSecret\']');
+        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'t3_simplecmp\'][\'bridgeSecret\']');
         $output->writeln('      = getenv(\'SIMPLECMP_BRIDGE_SECRET\') ?: null;');
         $output->writeln('');
         $output->writeln('Or inline (less secure — not recommended for production):');
         $output->writeln('');
-        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'simplecmp_typo3\'][\'bridgeSecret\']');
+        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'t3_simplecmp\'][\'bridgeSecret\']');
         $output->writeln('      = \'' . $secret . '\';');
         $output->writeln('');
         $output->writeln('If you run multiple TYPO3 installs and one POSTs bridge webhooks to');

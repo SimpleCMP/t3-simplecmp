@@ -171,7 +171,7 @@ the upstream default ever changes, sites that never customised
 that token automatically move to the new default.
 
 *Reset to defaults* (red button, confirmed) deletes the site's
-row from :sql:`tx_simplecmptypo3_theme`. Missing row = upstream
+row from :sql:`tx_t3simplecmp_theme`. Missing row = upstream
 defaults; this is how a fresh site renders.
 
 Bridge-secret rotation

@@ -3,7 +3,7 @@
  *
  * - The storage state loads (we're logged in without a manual login).
  * - The Detections BE module renders inside its iframe.
- * - The DB fixture truncates `tx_simplecmptypo3_*` and `insertService`
+ * - The DB fixture truncates `tx_t3simplecmp_*` and `insertService`
  *   round-trips through `ddev mysql`.
  */
 import { test, expect } from '../fixtures/db.js';

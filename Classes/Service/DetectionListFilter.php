@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -21,8 +21,8 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
  *
  * Filter keys handled (all optional, empty string = skip):
  *
- * - `source`   — `tx_simplecmptypo3_detection.source` exact match
- * - `kind`     — `tx_simplecmptypo3_detection.kind` exact match
+ * - `source`   — `tx_t3simplecmp_detection.source` exact match
+ * - `kind`     — `tx_t3simplecmp_detection.kind` exact match
  * - `confidence` — one of `low` (occurrences = 1),
  *                  `medium` (occurrences 2..4),
  *                  `high` (occurrences >= 5).

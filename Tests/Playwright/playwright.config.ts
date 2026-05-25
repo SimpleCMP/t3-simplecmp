@@ -2,10 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
 
 /**
- * Playwright config for the simplecmp_typo3 BE suite.
+ * Playwright config for the t3_simplecmp BE suite.
  *
  * Drives the real TYPO3 v14 backend against a local ddev instance.
- * Mutates the database — each test resets `tx_simplecmptypo3_*` tables
+ * Mutates the database — each test resets `tx_t3simplecmp_*` tables
  * via the `db` fixture in `fixtures/db.ts` so specs are independent.
  *
  * Auth: a single login at startup writes a Playwright `storageState`
@@ -24,7 +24,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   // BE tests share the database — running in parallel would step on
-  // each other's `tx_simplecmptypo3_*` rows. One worker, fully serial.
+  // each other's `tx_t3simplecmp_*` rows. One worker, fully serial.
   workers: 1,
   fullyParallel: false,
   retries: 0,

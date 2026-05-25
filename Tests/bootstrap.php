@@ -27,7 +27,7 @@ $functionalDbDefaults = [
     'typo3DatabaseHost' => 'db',
     'typo3DatabaseUsername' => 'root',
     'typo3DatabasePassword' => 'root',
-    'typo3DatabaseName' => 'func_simplecmp_typo3',
+    'typo3DatabaseName' => 'func_t3_simplecmp',
 ];
 foreach ($functionalDbDefaults as $name => $value) {
     if (getenv($name) === false || getenv($name) === '') {

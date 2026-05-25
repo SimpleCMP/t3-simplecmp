@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Tests\Unit\Backend\FormDataProvider;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Backend\FormDataProvider;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use WapplerSystems\SimpleCmpTypo3\Backend\FormDataProvider\DecodePurposesJson;
+use SimpleCMP\T3SimpleCmp\Backend\FormDataProvider\DecodePurposesJson;
 
 final class DecodePurposesJsonTest extends TestCase
 {
@@ -28,7 +28,7 @@ final class DecodePurposesJsonTest extends TestCase
     {
         $provider = new DecodePurposesJson();
         $result = $provider->addData([
-            'tableName' => 'tx_simplecmptypo3_service',
+            'tableName' => 'tx_t3simplecmp_service',
             'databaseRow' => ['uid' => 1],
         ]);
         self::assertArrayNotHasKey('purposes', $result['databaseRow']);
@@ -44,7 +44,7 @@ final class DecodePurposesJsonTest extends TestCase
     {
         $provider = new DecodePurposesJson();
         $result = $provider->addData([
-            'tableName' => 'tx_simplecmptypo3_service',
+            'tableName' => 'tx_t3simplecmp_service',
             'databaseRow' => ['purposes' => $stored],
         ]);
         self::assertSame($expected, $result['databaseRow']['purposes']);
@@ -57,7 +57,7 @@ final class DecodePurposesJsonTest extends TestCase
         // SQL) shouldn't crash the form.
         $provider = new DecodePurposesJson();
         $result = $provider->addData([
-            'tableName' => 'tx_simplecmptypo3_service',
+            'tableName' => 'tx_t3simplecmp_service',
             'databaseRow' => ['purposes' => '["analytics", 42, null, "marketing"]'],
         ]);
         self::assertSame('analytics,marketing', $result['databaseRow']['purposes']);

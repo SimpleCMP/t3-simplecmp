@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Middleware;
+namespace SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -10,7 +10,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Site\Entity\Site;
-use WapplerSystems\SimpleCmpTypo3\UniversalBlocking\Service\HostMatcher;
+use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
 
 /**
  * Universal-blocking HTML rewriter for TYPO3 (ADR-0013).

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Updates;
+namespace SimpleCMP\T3SimpleCmp\Updates;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Attribute\Autoconfigure;
 use TYPO3\CMS\Install\Attribute\UpgradeWizard;
 use TYPO3\CMS\Install\Updates\ChattyInterface;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
  * Backfill `library_adopted_at` for registry rows that pre-date the
@@ -28,7 +28,7 @@ use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
  * Idempotent: only touches rows where `library_adopted_at = 0`. Safe
  * to re-run.
  */
-#[UpgradeWizard('simplecmpTypo3BackfillLibraryAdoptedAt')]
+#[UpgradeWizard('t3SimplecmpBackfillLibraryAdoptedAt')]
 #[Autoconfigure(public: true)]
 final class BackfillLibraryAdoptedAtUpgrade implements UpgradeWizardInterface, ChattyInterface
 {
@@ -46,7 +46,7 @@ final class BackfillLibraryAdoptedAtUpgrade implements UpgradeWizardInterface, C
 
     public function getDescription(): string
     {
-        return 'Stamps tx_simplecmptypo3_service.library_adopted_at = NOW() for rows whose '
+        return 'Stamps tx_t3simplecmp_service.library_adopted_at = NOW() for rows whose '
             . 'service_id is in the bundled simplecmp/services-library. Without this, the new '
             . 'Dienste BE tab would classify previously-adopted services as "Eigene" instead '
             . 'of "Aus Bibliothek". Idempotent — safe to re-run.';
@@ -57,7 +57,7 @@ final class BackfillLibraryAdoptedAtUpgrade implements UpgradeWizardInterface, C
         $libraryIds = $this->libraryIds();
         $updated = $this->serviceRepository->backfillLibraryAdoptedAt($libraryIds);
         $this->output?->writeln(sprintf(
-            'simplecmp_typo3: backfilled library_adopted_at on %d row(s).',
+            't3_simplecmp: backfilled library_adopted_at on %d row(s).',
             $updated,
         ));
         return true;

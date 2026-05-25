@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace WapplerSystems\SimpleCmpTypo3\Service;
+namespace SimpleCMP\T3SimpleCmp\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
  * Bridges the gap between an unknown-tracker detection and a curated
@@ -41,7 +41,7 @@ use WapplerSystems\SimpleCmpTypo3\Domain\Repository\ServiceRepository;
  */
 final readonly class ServiceCurator
 {
-    private const string SERVICE_TABLE = 'tx_simplecmptypo3_service';
+    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
 
     public function __construct(
         private ServiceRepository $serviceRepository,

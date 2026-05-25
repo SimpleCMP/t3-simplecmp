@@ -7,10 +7,10 @@ SimpleCMP for TYPO3
 ==================
 
 :Extension key:
-    simplecmp_typo3
+    t3_simplecmp
 
 :Package name:
-    wapplersystems/simplecmp-typo3
+    simplecmp/t3-simplecmp
 
 :Version:
     |release|

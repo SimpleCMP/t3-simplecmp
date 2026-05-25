@@ -37,7 +37,7 @@ test('dismissing a detection removes it from the default view but keeps the row'
   // write so we don't depend on the button-click DOM finding logic;
   // the button-click path is exercised manually via the BE.
   db.query(
-    `UPDATE tx_simplecmptypo3_detection SET dismissed_at=${Math.floor(Date.now() / 1000)} WHERE uid=${uid}`,
+    `UPDATE tx_t3simplecmp_detection SET dismissed_at=${Math.floor(Date.now() / 1000)} WHERE uid=${uid}`,
   );
 
   // Default Needs-action view no longer shows the row.
@@ -63,7 +63,7 @@ test('re-ingesting a dismissed row preserves dismissed_at (no resurrection)', as
   });
   const dismissedAt = Math.floor(Date.now() / 1000);
   db.query(
-    `UPDATE tx_simplecmptypo3_detection SET dismissed_at=${dismissedAt} WHERE uid=${uid}`,
+    `UPDATE tx_t3simplecmp_detection SET dismissed_at=${dismissedAt} WHERE uid=${uid}`,
   );
 
   // Step 2: simulate a fresh-browser re-ingest. The bridge would POST
@@ -74,7 +74,7 @@ test('re-ingesting a dismissed row preserves dismissed_at (no resurrection)', as
   // — bumping `occurrences` + `last_seen` only, never touching
   // `dismissed_at`.
   db.query(
-    `UPDATE tx_simplecmptypo3_detection
+    `UPDATE tx_t3simplecmp_detection
        SET occurrences = occurrences + 1, last_seen = ${dismissedAt}
        WHERE uid=${uid}`,
   );
@@ -100,11 +100,11 @@ test('un-dismiss returns the row to the actionable view', async ({ page, db }) =
     identifier: '_will_be_restored',
   });
   db.query(
-    `UPDATE tx_simplecmptypo3_detection SET dismissed_at=${Math.floor(Date.now() / 1000)} WHERE uid=${uid}`,
+    `UPDATE tx_t3simplecmp_detection SET dismissed_at=${Math.floor(Date.now() / 1000)} WHERE uid=${uid}`,
   );
 
   // Clear the flag — simulates clicking "Wieder aufgreifen".
-  db.query(`UPDATE tx_simplecmptypo3_detection SET dismissed_at=0 WHERE uid=${uid}`);
+  db.query(`UPDATE tx_t3simplecmp_detection SET dismissed_at=0 WHERE uid=${uid}`);
 
   const mod = new DetectionsModule(page);
   await mod.open();
