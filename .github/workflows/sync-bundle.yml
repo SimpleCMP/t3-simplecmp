@@ -1,0 +1,242 @@
+name: Sync upstream bundle
+
+# Receives `repository_dispatch` from SimpleCMP/simplecmp when upstream
+# CI passes on main. Rebuilds the bundle from the dispatched SHA, runs
+# Phase 1 gates, and either commits directly to main (all green) or
+# opens a failure PR labelled `needs-triage` with reviewers requested.
+#
+# Phase 1 gates: bundle integrity (exists, size, parses, public exports
+# present), PHPUnit unit suite, PHPUnit functional suite. Playwright BE
+# and FE smoke are Phase 2.
+#
+# Setup once in this repo:
+# 1. Create label `needs-triage` (Settings → Labels → New label).
+# 2. Settings → Actions → General → Workflow permissions: enable
+#    "Read and write permissions" so the default GITHUB_TOKEN can push
+#    to main and open PRs.
+
+on:
+  repository_dispatch:
+    types: [bundle-sync]
+  workflow_dispatch:
+    inputs:
+      upstream_sha:
+        description: Upstream simplecmp SHA to sync from
+        required: true
+        type: string
+
+concurrency:
+  group: sync-bundle
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPSTREAM_SHA: ${{ github.event.client_payload.upstream_sha || inputs.upstream_sha }}
+  UPSTREAM_URL: ${{ github.event.client_payload.upstream_url || '' }}
+  BUNDLE_REL: Resources/Public/JavaScript/simplecmp.global.js
+  BUNDLE_MIN_BYTES: 100000
+  BUNDLE_MAX_BYTES: 250000
+  TRIAGE_REVIEWERS: ille216 # TODO: add Sven's GitHub username, comma-separated
+
+jobs:
+  sync:
+    name: Build + verify + push
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: func_t3_simplecmp
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      typo3DatabaseDriver: mysqli
+      typo3DatabaseHost: 127.0.0.1
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: root
+      typo3DatabaseName: func_t3_simplecmp
+    steps:
+      - name: Checkout ext (main)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout upstream at dispatched SHA
+        uses: actions/checkout@v4
+        with:
+          repository: SimpleCMP/simplecmp
+          ref: ${{ env.UPSTREAM_SHA }}
+          path: _upstream
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: _upstream/pnpm-lock.yaml
+
+      - name: Build upstream bundle
+        working-directory: _upstream
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Verify bundle integrity
+        run: |
+          BUNDLE=_upstream/dist/simplecmp.global.js
+          test -f "$BUNDLE" || { echo "::error::Bundle missing at $BUNDLE"; exit 1; }
+          SIZE=$(stat -c%s "$BUNDLE")
+          echo "Bundle size: $SIZE bytes"
+          if [ "$SIZE" -lt "$BUNDLE_MIN_BYTES" ]; then
+            echo "::error::Bundle suspiciously small ($SIZE bytes); expected >= $BUNDLE_MIN_BYTES"
+            exit 1
+          fi
+          if [ "$SIZE" -gt "$BUNDLE_MAX_BYTES" ]; then
+            echo "::error::Bundle over budget ($SIZE bytes > $BUNDLE_MAX_BYTES); investigate before bumping"
+            exit 1
+          fi
+          node --check "$BUNDLE" || { echo "::error::Bundle has JS syntax errors"; exit 1; }
+          # Symbol-presence check. The bundle is an IIFE for the browser
+          # and won't run cleanly under Node (Lit needs customElements,
+          # HTMLElement, MutationObserver, etc.). Upstream CI's Playwright
+          # bridge suite already validated the bundle in a real browser
+          # before this workflow was dispatched, so this step is a
+          # catastrophic-failure backstop (e.g. tree-shaking accidentally
+          # dropped the public surface), not a behavioral validator.
+          node -e '
+            const fs = require("fs");
+            const src = fs.readFileSync(process.argv[1], "utf8");
+            const required = ["init", "getManager", "getRecorder", "show", "updateConfig", "VERSION"];
+            const missing = required.filter(k => !src.includes(k));
+            if (missing.length) throw new Error("Missing symbol references: " + missing.join(", "));
+            console.log("Bundle contains expected symbols");
+          ' "$BUNDLE"
+
+      - name: Copy bundle into ext
+        run: cp _upstream/dist/simplecmp.global.js "$BUNDLE_REL"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mysqli
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-8.4-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-8.4-
+
+      - name: Composer install
+        run: composer install --no-progress --prefer-dist --no-interaction
+
+      - name: PHPUnit unit suite
+        run: composer test:unit
+
+      - name: PHPUnit functional suite
+        run: composer test:functional
+
+      - name: Compose commit message
+        id: msg
+        run: |
+          SHORT=${UPSTREAM_SHA::7}
+          # Find the previous sync commit on this branch (HEAD~ scan) to
+          # bound the changelog range. Skip the search if none found —
+          # first-ever sync just lists the dispatched commit's subject.
+          LAST_SYNC_HASH=$(git log --grep='chore(bundle): sync upstream' -n 1 --format=%H || true)
+          LAST_UPSTREAM_SHA=""
+          if [ -n "$LAST_SYNC_HASH" ]; then
+            # Extract the upstream SHA from the previous sync's commit body
+            LAST_UPSTREAM_SHA=$(git show -s --format=%B "$LAST_SYNC_HASH" | grep -oE 'SimpleCMP/simplecmp@[0-9a-f]{7,40}' | head -1 | sed 's|.*@||')
+          fi
+          if [ -n "$LAST_UPSTREAM_SHA" ]; then
+            CHANGES=$(cd _upstream && git log --no-merges --format='- %s' "${LAST_UPSTREAM_SHA}..${UPSTREAM_SHA}" 2>/dev/null || true)
+          fi
+          if [ -z "${CHANGES:-}" ]; then
+            CHANGES=$(cd _upstream && git log -1 --format='- %s' "$UPSTREAM_SHA")
+          fi
+          {
+            echo "message<<MSG_EOF"
+            echo "chore(bundle): sync upstream — $SHORT"
+            echo
+            echo "Upstream commits since last sync:"
+            echo
+            echo "$CHANGES"
+            echo
+            echo "Built from SimpleCMP/simplecmp@$UPSTREAM_SHA"
+            echo "MSG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit + push to main
+        id: push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$BUNDLE_REL"
+          if git diff --cached --quiet; then
+            echo "No bundle changes to commit (identical to current)"
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "${{ steps.msg.outputs.message }}"
+          git push origin HEAD:main
+
+      # On any failure above, open a PR carrying whatever state we got
+      # to, labelled needs-triage with reviewers requested.
+      - name: Open failure PR
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHORT=${UPSTREAM_SHA::7}
+          BRANCH="bundle-sync/upstream-${SHORT}-failed-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          if ! git diff --quiet -- "$BUNDLE_REL"; then
+            git add "$BUNDLE_REL"
+            git commit -m "chore(bundle): FAILED sync from upstream@${SHORT}"
+          else
+            git commit --allow-empty -m "chore(bundle): FAILED sync from upstream@${SHORT} (no bundle artifact produced)"
+          fi
+          git push origin "$BRANCH"
+          BODY=$(cat <<EOF
+          Automated sync from upstream commit \`${UPSTREAM_SHA}\` failed before reaching \`main\`.
+
+          - **Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - **Upstream commit:** ${UPSTREAM_URL:-https://github.com/SimpleCMP/simplecmp/commit/$UPSTREAM_SHA}
+
+          Triage steps:
+
+          1. Open the workflow run linked above and identify the failing step.
+          2. If the failure is an upstream issue (build break, bundle invalid, etc.) — close this PR and let the next upstream push re-trigger the sync.
+          3. If the failure is an integration issue between upstream + ext (PHP contract drift, etc.) — push a fix to this branch; CI will re-run; merge when green.
+
+          This PR was opened automatically by the \`sync-bundle\` workflow.
+          EOF
+          )
+          gh pr create \
+            --title "[bundle-sync FAILED] upstream ${SHORT}" \
+            --body "$BODY" \
+            --label "needs-triage" \
+            --reviewer "$TRIAGE_REVIEWERS" \
+            --base main \
+            --head "$BRANCH"
