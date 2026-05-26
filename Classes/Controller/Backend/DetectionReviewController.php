@@ -533,6 +533,16 @@ final class DetectionReviewController extends ActionController
      * Bulk-dismiss every row currently in the actionable filter. Same
      * "are you sure" dropdown affordance as before — just dismisses
      * instead of destroying.
+     *
+     * Race-safety: this is a single UPDATE statement with a WHERE
+     * clause, which is atomic under InnoDB's default REPEATABLE READ
+     * isolation — the read view is established at statement start, so
+     * any INSERT landing after this UPDATE begins is not visible to
+     * its scan and won't be swept up. No explicit BEGIN/COMMIT needed.
+     * (Filter args are not currently passed into the WHERE — the
+     * action dismisses every undismissed row regardless of which
+     * filter the admin was viewing. That's by current design; the
+     * "are you sure" modal carries the burden of communicating scope.)
      */
     public function bulkDismissAllAction(
         string $status = self::DEFAULT_STATUS,
