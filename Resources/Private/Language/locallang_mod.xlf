@@ -205,9 +205,9 @@
       <trans-unit id="show.field.pageUrl"><source>Page URL</source></trans-unit>
       <trans-unit id="show.field.firstSeenOn"><source>First seen on</source></trans-unit>
 
-      <trans-unit id="bridgeSecret.disabled.title"><source>Tracker detection is off</source></trans-unit>
-      <trans-unit id="bridgeSecret.disabled.body"><source>Visitors' browsers detect cookies and external services in real time, but those reports can't appear in this list until you turn detection on. Click the button below to enable it — every cookie, embed, or third-party service loading on your site will then show up here for review.</source></trans-unit>
-      <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.title"><source>Bridge secret missing</source></trans-unit>
+      <trans-unit id="bridgeSecret.disabled.body"><source>The HMAC secret used to authenticate visitor reports is normally generated when you first open this module. The automatic generation didn't succeed — typically because `config/system/settings.php` isn't writable by PHP. Retry with the button below, or run `vendor/bin/typo3 simplecmp:generate-bridge-secret` from a shell and follow its instructions.</source></trans-unit>
+      <trans-unit id="bridgeSecret.generate"><source>Generate secret</source></trans-unit>
       <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source></trans-unit>
       <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list.</source></trans-unit>
       <trans-unit id="bridgeSecret.rotate"><source>Rotate secret</source></trans-unit>
