@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 0.4.1 — 2026-05-26
+
 ### Changed (breaking) — universal blocking ON by default
 
 - **`simplecmp.universalBlocking.enabled` default flipped `false` → `true`**
