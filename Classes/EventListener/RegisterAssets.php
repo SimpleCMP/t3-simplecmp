@@ -251,9 +251,12 @@ final readonly class RegisterAssets
                 // config entirely so the rest of SimpleCMP still works.
                 $this->logger->warning(
                     'SimpleCMP cmsBridgeUrl is configured but bridgeSecret is missing — '
-                    . 'bridge will not be enabled on this site. Run '
-                    . '`vendor/bin/typo3 simplecmp:generate-bridge-secret` and follow '
-                    . 'the printed instructions.',
+                    . 'bridge will not be enabled on this site. The BE module normally '
+                    . 'generates one on first access; if you see this warning, the '
+                    . 'auto-gen path didn\'t run (e.g. config/system/settings.php not '
+                    . 'writable by PHP). Open the SimpleCMP BE module to retry, or run '
+                    . '`vendor/bin/typo3 simplecmp:generate-bridge-secret` and paste '
+                    . 'the printed value into your TYPO3 config.',
                 );
             } else {
                 $config['cmsBridgeUrl'] = $cmsBridgeUrl;

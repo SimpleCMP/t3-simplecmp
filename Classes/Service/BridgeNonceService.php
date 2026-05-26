@@ -86,7 +86,7 @@ final readonly class BridgeNonceService
         $secret = $this->secretProvider->get();
         if ($secret === null) {
             throw new \RuntimeException(
-                'SimpleCMP bridge secret is not configured. Run `vendor/bin/typo3 simplecmp:generate-bridge-secret` and follow the printed instructions.',
+                'SimpleCMP bridge secret is not configured. The BE module normally generates one on first access; if this exception fires, the auto-gen path didn\'t run (e.g. config/system/settings.php not writable by PHP). Open the SimpleCMP BE module to retry, or run `vendor/bin/typo3 simplecmp:generate-bridge-secret` and paste the printed value into your TYPO3 config.',
             );
         }
         return $secret;
