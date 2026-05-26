@@ -63,8 +63,8 @@ final class ClassifierLookupTest extends FunctionalTestCase
         $calls = [];
         $upstreamStub = $this->createMock(LibraryUpstreamClient::class);
         $upstreamStub->method('lookup')
-            ->willReturnCallback(function (?string $url, ?string $cookie, ?string $origin) use (&$calls): ?array {
-                $calls[] = [$url, $cookie, $origin];
+            ->willReturnCallback(function (?string $url, ?string $cookie, ?string $origin, ?int $budget = null) use (&$calls): ?array {
+                $calls[] = [$url, $cookie, $origin, $budget];
                 return $cookie === '_brand_new_2026_tracker'
                     ? [['id' => 'brand-new-2026', 'name' => 'Brand New 2026']]
                     : [];

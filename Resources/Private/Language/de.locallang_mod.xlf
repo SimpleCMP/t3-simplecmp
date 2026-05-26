@@ -71,6 +71,19 @@
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source><target>Kein Bibliothekseintrag entspricht den aktiven Filtern.</target></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full library will show.</source><target>Filter und Suche zurücksetzen, um die gesamte Bibliothek zu sehen.</target></trans-unit>
 
+      <trans-unit id="upstream.title"><source>Library upstream</source><target>Bibliotheks-Upstream</target></trans-unit>
+      <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source><target>Deaktiviert — keine Site-Konfiguration mit libraryUpstreamUrl gesetzt.</target></trans-unit>
+      <trans-unit id="upstream.cache"><source>Cache</source><target>Cache</target></trans-unit>
+      <trans-unit id="upstream.cache.positive"><source>known</source><target>bekannt</target></trans-unit>
+      <trans-unit id="upstream.cache.negative"><source>negative</source><target>negativ</target></trans-unit>
+      <trans-unit id="upstream.todayCalls"><source>Today</source><target>Heute</target></trans-unit>
+      <trans-unit id="upstream.todayFailures"><source>upstream failures today</source><target>Fehlversuche heute</target></trans-unit>
+      <trans-unit id="upstream.lastCall"><source>Last call</source><target>Letzter Abruf</target></trans-unit>
+      <trans-unit id="upstream.lastCall.never"><source>never</source><target>noch nie</target></trans-unit>
+      <trans-unit id="upstream.budget.exhausted"><source>budget reached</source><target>Budget erreicht</target></trans-unit>
+      <trans-unit id="upstream.sites.toggle"><source>Per-site detail (%s sites)</source><target>Pro-Site-Details (%s Sites)</target></trans-unit>
+      <trans-unit id="upstream.site.budget"><source>budget</source><target>Budget</target></trans-unit>
+
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>
       <trans-unit id="list.header.curated"><source>already curated</source><target>bereits kuratiert</target></trans-unit>
@@ -215,6 +228,10 @@
       <trans-unit id="bridgeSecret.rotate.confirm"><source>Rotate the bridge HMAC secret? Visitor pages currently loaded will need one 401 cycle to re-issue their nonce on next render. Continue?</source><target>Bridge-HMAC-Secret rotieren? Aktuell geladene Besucher-Seiten benötigen einen 401-Zyklus, um beim nächsten Rendern ein neues Nonce auszustellen. Fortfahren?</target></trans-unit>
 
       <trans-unit id="list.discover"><source>Discover trackers</source><target>Tracker entdecken</target></trans-unit>
+      <trans-unit id="list.reclassify"><source>Re-classify unknowns</source><target>Unbekannte neu klassifizieren</target></trans-unit>
+      <trans-unit id="list.reclassify.tooltip"><source>Look up every currently-unknown cookie / host in the upstream library and store the matches in the local cache. Unknown rows that match upstream will surface as Erkannt on the next list render.</source><target>Schlägt jeden aktuell unbekannten Cookie/Host in der Upstream-Bibliothek nach und legt die Treffer im lokalen Cache ab. Unbekannte Zeilen, die upstream einen Treffer haben, erscheinen beim nächsten Aufruf als „Erkannt“.</target></trans-unit>
+      <trans-unit id="list.reclassify.flash.disabled"><source>Re-classify needs a Site Set with libraryUpstreamUrl configured. None found.</source><target>Neuklassifizierung benötigt eine Site-Konfiguration mit gesetzter libraryUpstreamUrl. Keine gefunden.</target></trans-unit>
+      <trans-unit id="list.reclassify.flash.summary"><source>Re-classify finished: {matched} new match(es), {unmatched} confirmed unknown, {skipped} skipped (daily budget), {total} candidates total.</source><target>Neuklassifizierung abgeschlossen: {matched} neue Treffer, {unmatched} bestätigt unbekannt, {skipped} übersprungen (Tagesbudget), {total} Kandidaten gesamt.</target></trans-unit>
       <trans-unit id="discover.title"><source>Discover trackers across this site</source><target>Tracker auf dieser Website entdecken</target></trans-unit>
       <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source><target>Lädt die Sitemap der Website in Ihrem Browser. Jede Seite wird in einem versteckten Frame geladen; die Erfassungskette zeichnet Cookies und externe Dienste auf, wie sie es bei jedem Besucher tun würde. Sie können diesen Tab laufen lassen und später wiederkommen.</target></trans-unit>
       <trans-unit id="discover.site"><source>Site</source><target>Website</target></trans-unit>

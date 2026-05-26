@@ -115,4 +115,77 @@ final readonly class LibraryCacheRepository
                 [$now],
             );
     }
+
+    /**
+     * Live positive cache rows as a "cookie:<name>" / "origin:<host>"
+     * → matched-services map. Used by the BE presenter to extend
+     * state derivation with an "upstream-library" tier so that
+     * after admin clicks *Re-classify unknowns* the unbekannt rows
+     * actually flip to erkannt in the list (without forcing the
+     * upstream call back through the FE classifier path).
+     *
+     * Negative cache rows are dropped — they carry no service to
+     * surface as a match. Expired rows are dropped too.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     */
+    public function findLivePositive(int $now): array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('query_type', 'query_value', 'response_json')
+            ->from(self::TABLE)
+            ->where($qb->expr()->gt('expires_at', $qb->createNamedParameter($now, ParameterType::INTEGER)))
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $map = [];
+        foreach ($rows as $row) {
+            $decoded = json_decode((string) $row['response_json'], true);
+            if (!is_array($decoded) || $decoded === []) {
+                continue;
+            }
+            $key = (string) $row['query_type'] . ':' . (string) $row['query_value'];
+            $map[$key] = $decoded;
+        }
+        return $map;
+    }
+
+    /**
+     * Row counts for the BE indicator on the Bibliothek tab. Splits
+     * live (`expires_at > now`) entries into positive (cookies the
+     * upstream classified as known) and negative (upstream said no
+     * match) so admins can see both halves of the cache at a glance.
+     * Expired rows aren't reported because they'll be re-fetched on
+     * next access; counting them would inflate the "we're cached!"
+     * narrative.
+     *
+     * @return array{positive: int, negative: int, expired: int}
+     */
+    public function countLive(int $now): array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('response_json', 'expires_at')
+            ->from(self::TABLE)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $positive = 0;
+        $negative = 0;
+        $expired = 0;
+        foreach ($rows as $row) {
+            if ((int) $row['expires_at'] <= $now) {
+                $expired++;
+                continue;
+            }
+            $decoded = json_decode((string) $row['response_json'], true);
+            if (is_array($decoded) && $decoded !== []) {
+                $positive++;
+            } else {
+                $negative++;
+            }
+        }
+        return ['positive' => $positive, 'negative' => $negative, 'expired' => $expired];
+    }
 }

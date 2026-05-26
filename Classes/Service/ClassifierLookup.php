@@ -48,15 +48,21 @@ final readonly class ClassifierLookup
      *   2. Bundled library (`simplecmp/services-library` JSON
      *      shipped with the ext via composer).
      *   3. Upstream library — only consulted when steps 1+2 both
-     *      miss AND `$libraryUpstreamUrl` is non-empty. The
-     *      upstream call is server-to-server with a 24h local
-     *      cache; visitor IPs never reach the upstream. See
-     *      ADR-0014 for the layering rationale.
+     *      miss AND `$libraryUpstreamUrl` is non-empty AND today's
+     *      upstream call count is below `$libraryUpstreamDailyBudget`
+     *      (or budget is 0/null = unlimited). The upstream call is
+     *      server-to-server with a 24h local cache; visitor IPs
+     *      never reach the upstream. See ADR-0014 for the layering
+     *      rationale.
      *
      * @return list<array<string, mixed>> protocol-shaped rows
      */
-    public function lookup(?string $cookie, ?string $origin, ?string $libraryUpstreamUrl = null): array
-    {
+    public function lookup(
+        ?string $cookie,
+        ?string $origin,
+        ?string $libraryUpstreamUrl = null,
+        ?int $libraryUpstreamDailyBudget = null,
+    ): array {
         if ($cookie === null && $origin === null) {
             return [];
         }
@@ -91,7 +97,12 @@ final readonly class ClassifierLookup
         // we already have at least one match — extra calls would add
         // latency without changing the BE state derivation outcome.
         if ($byId === [] && $this->libraryUpstream !== null) {
-            $upstreamMatches = $this->libraryUpstream->lookup($libraryUpstreamUrl, $cookie, $origin);
+            $upstreamMatches = $this->libraryUpstream->lookup(
+                $libraryUpstreamUrl,
+                $cookie,
+                $origin,
+                $libraryUpstreamDailyBudget,
+            );
             if (is_array($upstreamMatches)) {
                 foreach ($upstreamMatches as $match) {
                     $id = (string) ($match['id'] ?? '');

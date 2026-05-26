@@ -1,0 +1,99 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:render section="upstreamStatus" arguments="{_all}" />
+
+<f:section name="upstreamStatus">
+    <div class="card mb-3 simplecmp-upstream-status {f:if(condition: '{upstreamStatus.budgetExhausted}', then: 'border-warning')}">
+        <div class="card-body py-2">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 me-auto">
+                    <core:icon identifier="actions-cloud" size="medium" />
+                    <strong>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.title" />
+                    </strong>
+                </div>
+
+                <f:if condition="{upstreamStatus.enabled}">
+                    <f:then>
+                        <div>
+                            <span class="text-body-secondary">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache" />:
+                            </span>
+                            <strong>{upstreamStatus.cache.positive}</strong> <span class="text-body-secondary">+</span>
+                            <strong>{upstreamStatus.cache.negative}</strong>
+                            <span class="text-body-secondary">
+                                (<f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.positive" /> / <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.negative" />)
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="text-body-secondary">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayCalls" />:
+                            </span>
+                            <strong>{upstreamStatus.todayCalls}</strong>
+                            <f:if condition="{upstreamStatus.maxBudget} > 0">
+                                <span class="text-body-secondary">/ {upstreamStatus.maxBudget}</span>
+                                <f:if condition="{upstreamStatus.budgetExhausted}">
+                                    <span class="badge badge-warning ms-1">
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.budget.exhausted" />
+                                    </span>
+                                </f:if>
+                            </f:if>
+                            <f:if condition="{upstreamStatus.todayFailures} > 0">
+                                <span class="text-danger ms-2" title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayFailures')}">
+                                    ⚠ {upstreamStatus.todayFailures}
+                                </span>
+                            </f:if>
+                        </div>
+
+                        <div>
+                            <span class="text-body-secondary">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall" />:
+                            </span>
+                            <f:if condition="{upstreamStatus.lastCallAt}">
+                                <f:then>
+                                    <strong>
+                                        <f:format.date format="Y-m-d H:i:s">@{upstreamStatus.lastCallAt}</f:format.date>
+                                    </strong>
+                                </f:then>
+                                <f:else>
+                                    <span class="text-body-secondary">
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall.never" />
+                                    </span>
+                                </f:else>
+                            </f:if>
+                        </div>
+                    </f:then>
+                    <f:else>
+                        <span class="badge badge-secondary">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.disabled" />
+                        </span>
+                    </f:else>
+                </f:if>
+            </div>
+
+            <f:if condition="{upstreamStatus.enabled} && {upstreamStatus.sites -> f:count()} > 1">
+                <details class="mt-2">
+                    <summary class="text-body-secondary small">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.sites.toggle"
+                                     arguments="{0: '{upstreamStatus.sites -> f:count()}'}" />
+                    </summary>
+                    <ul class="list-unstyled mt-2 mb-0 small">
+                        <f:for each="{upstreamStatus.sites}" as="site">
+                            <li>
+                                <code>{site.identifier}</code> &nbsp;
+                                <span class="text-body-secondary">→</span> &nbsp;
+                                <code>{site.url}</code> &nbsp;
+                                <span class="text-body-secondary">
+                                    (<f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.site.budget" />: {site.budget})
+                                </span>
+                            </li>
+                        </f:for>
+                    </ul>
+                </details>
+            </f:if>
+        </div>
+    </div>
+</f:section>
+</html>

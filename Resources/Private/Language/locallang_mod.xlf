@@ -71,6 +71,19 @@
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full library will show.</source></trans-unit>
 
+      <trans-unit id="upstream.title"><source>Library upstream</source></trans-unit>
+      <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source></trans-unit>
+      <trans-unit id="upstream.cache"><source>Cache</source></trans-unit>
+      <trans-unit id="upstream.cache.positive"><source>known</source></trans-unit>
+      <trans-unit id="upstream.cache.negative"><source>negative</source></trans-unit>
+      <trans-unit id="upstream.todayCalls"><source>Today</source></trans-unit>
+      <trans-unit id="upstream.todayFailures"><source>upstream failures today</source></trans-unit>
+      <trans-unit id="upstream.lastCall"><source>Last call</source></trans-unit>
+      <trans-unit id="upstream.lastCall.never"><source>never</source></trans-unit>
+      <trans-unit id="upstream.budget.exhausted"><source>budget reached</source></trans-unit>
+      <trans-unit id="upstream.sites.toggle"><source>Per-site detail (%s sites)</source></trans-unit>
+      <trans-unit id="upstream.site.budget"><source>budget</source></trans-unit>
+
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>
       <trans-unit id="list.header.curated"><source>already curated</source></trans-unit>
@@ -215,6 +228,10 @@
       <trans-unit id="bridgeSecret.rotate.confirm"><source>Rotate the bridge HMAC secret? Visitor pages currently loaded will need one 401 cycle to re-issue their nonce on next render. Continue?</source></trans-unit>
 
       <trans-unit id="list.discover"><source>Discover trackers</source></trans-unit>
+      <trans-unit id="list.reclassify"><source>Re-classify unknowns</source></trans-unit>
+      <trans-unit id="list.reclassify.tooltip"><source>Look up every currently-unknown cookie / host in the upstream library and store the matches in the local cache. Unknown rows that match upstream will surface as Erkannt on the next list render.</source></trans-unit>
+      <trans-unit id="list.reclassify.flash.disabled"><source>Re-classify needs a Site Set with libraryUpstreamUrl configured. None found.</source></trans-unit>
+      <trans-unit id="list.reclassify.flash.summary"><source>Re-classify finished: {matched} new match(es), {unmatched} confirmed unknown, {skipped} skipped (daily budget), {total} candidates total.</source></trans-unit>
       <trans-unit id="discover.title"><source>Discover trackers across this site</source></trans-unit>
       <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source></trans-unit>
       <trans-unit id="discover.site"><source>Site</source></trans-unit>

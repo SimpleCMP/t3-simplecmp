@@ -71,6 +71,12 @@ settings:
     type: string
     default: 'https://library.simplecmp.eu/v1'
 
+  simplecmp.libraryUpstreamDailyBudget:
+    label: 'Library upstream daily call budget'
+    description: 'Maximum number of upstream library calls allowed per UTC day. Cache hits are free and never count against this budget — only fresh lookups (cache miss + URL configured) consume the budget. When today''s count reaches this value, further misses skip the upstream silently (the cookie stays classified as unknown for the day; the bundled library still matches what it can). Set to 0 to disable the budget (unlimited calls). Default 5000 covers most sites comfortably; a busy public site with thousands of unique third-party cookies per day might raise it.'
+    type: int
+    default: 5000
+
   simplecmp.universalBlocking.allowlist:
     label: 'Universal blocking host allowlist'
     description: 'Hosts the rewriter should pass through without gating, in addition to the site''s own host. One per line. Exact match (e.g. `cdn.example.com`) or wildcard form `*.example.com` matching the apex + every subdomain. The site''s own host is always allowlisted automatically. Use this for vendor CDNs, your own infrastructure, or known-safe hosts you don''t want to surface as consent decisions.'

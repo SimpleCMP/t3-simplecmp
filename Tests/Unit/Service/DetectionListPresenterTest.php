@@ -104,7 +104,11 @@ final class DetectionListPresenterTest extends TestCase
         $repo = $this->createMock(DetectionRepository::class);
         $repo->method('countSince')
             ->willReturnOnConsecutiveCalls($today, $sevenDayTotal);
-        return new DetectionListPresenter($repo, $this->createMock(ServiceRepository::class));
+        return new DetectionListPresenter(
+            $repo,
+            $this->createMock(ServiceRepository::class),
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository::class),
+        );
     }
 
     // --- deriveState / decorateState --------------------------------------
@@ -184,6 +188,49 @@ final class DetectionListPresenterTest extends TestCase
         );
         self::assertSame(DetectionListPresenter::STATE_UNKNOWN, $result['state']);
         self::assertNull($result['match']);
+    }
+
+    #[Test]
+    public function upstreamCacheTierLiftsUnknownToRecognized(): void
+    {
+        // Registry empty (uses services() default), library doesn't cover
+        // this cookie. The upstream cache map carries one entry keyed
+        // `cookie:_brand_new_2026` — deriveState must consult it after
+        // registry + library miss.
+        $upstreamCache = [
+            'cookie:_brand_new_2026' => [
+                ['id' => 'brand-new-2026', 'name' => 'Brand New 2026'],
+            ],
+        ];
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => '_brand_new_2026'],
+            $this->services(),
+            $this->library(),
+            $upstreamCache,
+        );
+        self::assertSame(DetectionListPresenter::STATE_RECOGNIZED, $result['state']);
+        self::assertSame('brand-new-2026', $result['match']['id']);
+    }
+
+    #[Test]
+    public function upstreamCacheSkippedWhenRegistryOrLibraryAlreadyMatched(): void
+    {
+        // Registry covers exact name '_curated_*' (from services()) — the
+        // upstream-cache map for the same key MUST be ignored so the
+        // curated state stands.
+        $upstreamCache = [
+            'cookie:_curated_*' => [
+                ['id' => 'should-not-win', 'name' => 'Should not surface'],
+            ],
+        ];
+        $result = DetectionListPresenter::deriveState(
+            ['kind' => 'cookie', 'identifier' => '_curated_*'],
+            $this->services(),
+            $this->library(),
+            $upstreamCache,
+        );
+        self::assertSame(DetectionListPresenter::STATE_CURATED, $result['state']);
+        self::assertSame('curated-service', $result['match']['id']);
     }
 
     #[Test]

@@ -31,6 +31,13 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * negative-cache value `[]`), warning logged to TYPO3 log. The
  * upstream is best-effort by design; the bundled library still
  * covers the canonical-known case offline.
+ *
+ * Bandwidth control: when `$dailyBudget > 0` and today's call count
+ * has already reached it, `lookup()` returns null (tier-skip)
+ * WITHOUT writing the cache. Budget exhaustion mustn't poison the
+ * cache — when the day rolls over the next visitor should retry,
+ * not pull a stale "we ran out yesterday" `[]` from a long-lived
+ * row. Stats are recorded for every actual upstream call.
  */
 final readonly class LibraryUpstreamClient
 {
@@ -40,6 +47,7 @@ final readonly class LibraryUpstreamClient
     public function __construct(
         private RequestFactory $requestFactory,
         private LibraryCacheRepository $cache,
+        private LibraryUpstreamStats $stats,
         private LoggerInterface $logger = new NullLogger(),
     ) {
     }
@@ -48,15 +56,16 @@ final readonly class LibraryUpstreamClient
      * Query upstream for a single cookie or origin. Returns the
      * `matches` array from the upstream response, OR an empty array
      * if upstream confirmed no match. Returns null when no upstream
-     * URL is configured (caller should treat as tier-skip, not as
-     * a no-match answer).
+     * URL is configured OR the daily budget is exhausted (caller
+     * should treat null as tier-skip, not as a no-match answer).
      *
      * Cache is consulted first; only stale/missing entries trigger
-     * a network call.
+     * a network call. Budget enforcement runs only on cache miss —
+     * cache hits are free and never count against the budget.
      *
      * @return list<array<string, mixed>>|null
      */
-    public function lookup(?string $upstreamUrl, ?string $cookie, ?string $origin): ?array
+    public function lookup(?string $upstreamUrl, ?string $cookie, ?string $origin, ?int $dailyBudget = null): ?array
     {
         if ($upstreamUrl === null || $upstreamUrl === '') {
             return null;
@@ -64,9 +73,6 @@ final readonly class LibraryUpstreamClient
         if ($cookie === null && $origin === null) {
             return [];
         }
-        // Single-tier query: this lookup is always for one cookie OR
-        // one origin, never both at once (matches ServiceRepository's
-        // and ClassifierLookup's existing usage pattern).
         $queryType = $cookie !== null ? 'cookie' : 'origin';
         $queryValue = (string) ($cookie ?? $origin);
 
@@ -76,7 +82,19 @@ final readonly class LibraryUpstreamClient
             return $cached;
         }
 
-        $matches = $this->fetchFromUpstream($upstreamUrl, $queryType, $queryValue);
+        if ($dailyBudget !== null && $dailyBudget > 0 && $this->stats->getTodayCalls($now) >= $dailyBudget) {
+            $this->logger->info(
+                'SimpleCMP library upstream call skipped (daily budget {budget} reached).',
+                [
+                    'budget' => $dailyBudget,
+                    'queryType' => $queryType,
+                    'queryValue' => $queryValue,
+                ],
+            );
+            return null;
+        }
+
+        $matches = $this->fetchFromUpstream($upstreamUrl, $queryType, $queryValue, $now);
         $this->cache->put(
             $queryType,
             $queryValue,
@@ -91,7 +109,7 @@ final readonly class LibraryUpstreamClient
      * @return list<array<string, mixed>> matches from upstream, or `[]`
      *     on any failure (silent fallback; warning logged)
      */
-    private function fetchFromUpstream(string $upstreamUrl, string $queryType, string $queryValue): array
+    private function fetchFromUpstream(string $upstreamUrl, string $queryType, string $queryValue, int $now): array
     {
         $endpoint = rtrim($upstreamUrl, '/') . '/lookup';
         $body = json_encode([
@@ -100,6 +118,7 @@ final readonly class LibraryUpstreamClient
             ],
         ]);
         if ($body === false) {
+            $this->stats->recordCall(false, $now);
             return [];
         }
 
@@ -114,6 +133,7 @@ final readonly class LibraryUpstreamClient
                 'connect_timeout' => self::TIMEOUT_SECONDS,
             ]);
         } catch (\Throwable $e) {
+            $this->stats->recordCall(false, $now);
             $this->logger->warning(
                 'SimpleCMP library upstream lookup failed (network): {message}',
                 ['endpoint' => $endpoint, 'message' => $e->getMessage()],
@@ -123,6 +143,7 @@ final readonly class LibraryUpstreamClient
 
         $status = $response->getStatusCode();
         if ($status < 200 || $status >= 300) {
+            $this->stats->recordCall(false, $now);
             $this->logger->warning(
                 'SimpleCMP library upstream returned non-2xx: {status}',
                 ['endpoint' => $endpoint, 'status' => $status],
@@ -132,6 +153,7 @@ final readonly class LibraryUpstreamClient
 
         $payload = json_decode((string) $response->getBody(), true);
         if (!is_array($payload) || !isset($payload['items']) || !is_array($payload['items'])) {
+            $this->stats->recordCall(true, $now);
             $this->logger->warning(
                 'SimpleCMP library upstream returned malformed response (no `items` array).',
                 ['endpoint' => $endpoint],
@@ -139,6 +161,7 @@ final readonly class LibraryUpstreamClient
             return [];
         }
 
+        $this->stats->recordCall(true, $now);
         // Single-item request → single-item response. Pick the first
         // (and only) result item's `matches` array.
         $first = $payload['items'][0] ?? null;

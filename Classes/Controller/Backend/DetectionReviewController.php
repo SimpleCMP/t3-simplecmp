@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\DetectionListFilter;
@@ -74,6 +75,9 @@ final class DetectionReviewController extends ActionController
         private readonly ServiceCurator $serviceCurator,
         private readonly StoragePidResolver $storagePidResolver,
         private readonly BridgeSecretProvider $bridgeSecretProvider,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamClient $libraryUpstream,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats $libraryUpstreamStats,
+        private readonly \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
     ) {
     }
 
@@ -116,7 +120,12 @@ final class DetectionReviewController extends ActionController
 
         $decorated = [];
         foreach ($allRows as $r) {
-            $decorated[] = DetectionListPresenter::decorateState($r, $context['services'], $context['library']);
+            $decorated[] = DetectionListPresenter::decorateState(
+                $r,
+                $context['services'],
+                $context['library'],
+                $context['upstreamCache'] ?? [],
+            );
         }
         $stateFiltered = array_values(array_filter(
             $decorated,
@@ -212,6 +221,7 @@ final class DetectionReviewController extends ActionController
             'uri_discover' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\Discovery_index',
             ),
+            'uri_reclassifyUnknowns' => $this->uri('reclassifyUnknowns'),
         ]);
         return $moduleTemplate->renderResponse('DetectionReview/List');
     }
@@ -276,7 +286,12 @@ final class DetectionReviewController extends ActionController
         $dismissed = 0;
         $affectedByLibraryId = [];
         foreach ($rows as $r) {
-            $derived = DetectionListPresenter::deriveState($r, $context['services'], $context['library']);
+            $derived = DetectionListPresenter::deriveState(
+                $r,
+                $context['services'],
+                $context['library'],
+                $context['upstreamCache'] ?? [],
+            );
             if ($derived['state'] === DetectionListPresenter::STATE_DISMISSED) {
                 $dismissed++;
             } elseif ($derived['state'] === DetectionListPresenter::STATE_CURATED) {
@@ -350,6 +365,146 @@ final class DetectionReviewController extends ActionController
         return $this->redirect('list');
     }
 
+    /**
+     * Walk all current `unbekannt` detections, deduplicate by
+     * (kind, identifier|origin), and run an upstream library lookup
+     * for each unique key. Cache writes happen as a side-effect of
+     * `LibraryUpstreamClient::lookup()`; the BE list's state
+     * derivation picks them up via `loadStateContext()` on the
+     * subsequent render so unbekannt rows flip to erkannt without
+     * any per-row migration.
+     *
+     * Respects the daily budget — entries that would push past the
+     * cap are skipped (counted in the flash summary) and can be
+     * tried again tomorrow.
+     *
+     * Idempotent: cache hits short-circuit upstream calls, so
+     * pressing the button twice in quick succession costs the same
+     * as once.
+     */
+    public function reclassifyUnknownsAction(): ResponseInterface
+    {
+        [$upstreamUrl, $dailyBudget] = $this->resolveLibraryUpstream();
+        if ($upstreamUrl === null) {
+            $this->emitFlash(
+                'list.reclassify.flash.disabled',
+                ContextualFeedbackSeverity::WARNING,
+            );
+            return $this->redirect('list');
+        }
+
+        $context = $this->listPresenter->loadStateContext();
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('kind', 'identifier', 'origin', 'dismissed_at')
+            ->from(self::DETECTION_TABLE)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        // Deduplicate by the cache key the upstream client uses, so a
+        // table with 1000 occurrences of the same unknown cookie costs
+        // exactly one upstream call.
+        $candidates = [];
+        foreach ($rows as $r) {
+            $derived = DetectionListPresenter::deriveState(
+                $r,
+                $context['services'],
+                $context['library'],
+                $context['upstreamCache'] ?? [],
+            );
+            if ($derived['state'] !== DetectionListPresenter::STATE_UNKNOWN) {
+                continue;
+            }
+            $kind = (string) ($r['kind'] ?? '');
+            $identifier = (string) ($r['identifier'] ?? '');
+            $origin = isset($r['origin']) ? (string) $r['origin'] : '';
+            if ($kind === 'cookie' && $identifier !== '') {
+                $candidates['cookie:' . $identifier] = ['cookie' => $identifier, 'origin' => null];
+            } elseif ($origin !== '') {
+                $candidates['origin:' . $origin] = ['cookie' => null, 'origin' => $origin];
+            }
+        }
+
+        $matched = 0;
+        $unmatched = 0;
+        $skipped = 0;
+        foreach ($candidates as $candidate) {
+            $result = $this->libraryUpstream->lookup(
+                $upstreamUrl,
+                $candidate['cookie'],
+                $candidate['origin'],
+                $dailyBudget,
+            );
+            if ($result === null) {
+                // Budget exhausted (or upstream URL got nulled mid-loop, but
+                // that's impossible since we resolved it above).
+                $skipped++;
+                continue;
+            }
+            if ($result === []) {
+                $unmatched++;
+            } else {
+                $matched++;
+            }
+        }
+
+        $this->emitFlash(
+            'list.reclassify.flash.summary',
+            $matched > 0 ? ContextualFeedbackSeverity::OK : ContextualFeedbackSeverity::INFO,
+            [
+                'matched' => $matched,
+                'unmatched' => $unmatched,
+                'skipped' => $skipped,
+                'total' => count($candidates),
+            ],
+        );
+        return $this->redirect('list');
+    }
+
+    /**
+     * BE-module variant of {@see ServiceDbApi::resolveLibraryUpstream()}
+     * — there's no request URI to match here, so we pick the first
+     * Site Set that has the URL configured and read its budget.
+     *
+     * @return array{0: string|null, 1: int}
+     */
+    private function resolveLibraryUpstream(): array
+    {
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $settings = $site->getSettings();
+            $url = $settings->get('simplecmp.libraryUpstreamUrl');
+            if (!is_string($url) || $url === '') {
+                continue;
+            }
+            $budget = $settings->get('simplecmp.libraryUpstreamDailyBudget');
+            return [$url, is_int($budget) ? $budget : (int) $budget];
+        }
+        return [null, 0];
+    }
+
+    /**
+     * Push a localized flash via Extbase's controller helper, which
+     * routes through the controller's own queue identifier (auto-
+     * resolved by the framework) so the next module render picks it
+     * up. Using the raw FlashMessageService with a default queue
+     * identifier doesn't work in Extbase BE modules — the rendered
+     * template reads from the Extbase-specific queue.
+     *
+     * @param array<string, scalar> $arguments
+     */
+    private function emitFlash(string $key, ContextualFeedbackSeverity $severity, array $arguments = []): void
+    {
+        $messageKey = 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key;
+        $message = (string) ($GLOBALS['LANG']->sL($messageKey) ?: $key);
+        if ($arguments !== []) {
+            $message = strtr($message, array_combine(
+                array_map(static fn ($k) => '{' . $k . '}', array_keys($arguments)),
+                array_map(static fn ($v) => (string) $v, array_values($arguments)),
+            ));
+        }
+        $this->addFlashMessage($message, '', $severity);
+    }
+
     public function showAction(
         int $uid,
         string $status = self::DEFAULT_STATUS,
@@ -372,7 +527,12 @@ final class DetectionReviewController extends ActionController
 
         $filterArg = $this->filterArg($filters);
         $context = $this->listPresenter->loadStateContext();
-        $row = DetectionListPresenter::decorateState($row, $context['services'], $context['library']);
+        $row = DetectionListPresenter::decorateState(
+            $row,
+            $context['services'],
+            $context['library'],
+            $context['upstreamCache'] ?? [],
+        );
         $row['uri_createService'] = $this->uri('createService', ['uid' => (int) $row['uid']]);
         $row['uri_approve'] = $this->uri('approve', ['uid' => (int) $row['uid']] + $filterArg);
 

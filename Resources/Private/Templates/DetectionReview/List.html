@@ -7,6 +7,8 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'detections', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab}" />
 
+    <f:flashMessages />
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
     <p class="text-body-secondary">
         <strong>{pendingCount}</strong>
@@ -61,6 +63,13 @@
                     <core:icon identifier="actions-search" size="small" />
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
                 </a>
+                <form method="post" action="{uri_reclassifyUnknowns}" class="m-0">
+                    <button type="submit" class="btn btn-outline-primary"
+                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify.tooltip')}">
+                        <core:icon identifier="actions-cloud" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify" />
+                    </button>
+                </form>
                 <form method="post" action="{uri_generateBridgeSecret}" class="m-0"
                       data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.confirm')}">
                     <button type="submit" class="btn btn-outline-secondary"

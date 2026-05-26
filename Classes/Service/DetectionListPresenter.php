@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
 
 use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**
@@ -44,18 +45,24 @@ final readonly class DetectionListPresenter
     public function __construct(
         private DetectionRepository $detectionRepository,
         private ServiceRepository $serviceRepository,
+        private LibraryCacheRepository $libraryCache,
     ) {
     }
 
     /**
-     * Load the registry once + iterate the library once, then derive
-     * each detection's resolution state without re-querying. Returns
-     * pre-computed match indexes so callers can decorate rows in O(1)
-     * per detection.
+     * Load the registry once + iterate the library once + read the live
+     * positive upstream-library cache once. Returns pre-computed match
+     * indexes so callers can decorate rows in O(1) per detection.
+     *
+     * The `upstreamCache` tier is the third classifier source: when
+     * `Re-classify unknowns` has warmed it (or any visitor's lookup
+     * has populated it), the affected `unbekannt` rows surface as
+     * `erkannt` here without any duplicate upstream calls.
      *
      * @return array{
      *     services: array<array<string, mixed>>,
-     *     library: array<array<string, mixed>>
+     *     library: array<array<string, mixed>>,
+     *     upstreamCache: array<string, list<array<string, mixed>>>
      * }
      */
     public function loadStateContext(): array
@@ -63,6 +70,7 @@ final readonly class DetectionListPresenter
         return [
             'services' => $this->serviceRepository->findAll(),
             'library' => iterator_to_array(ServicesLibrary::services(), false),
+            'upstreamCache' => $this->libraryCache->findLivePositive(time()),
         ];
     }
 
@@ -86,10 +94,15 @@ final readonly class DetectionListPresenter
      * @param array<string, mixed> $detection
      * @param array<array<string, mixed>> $services
      * @param array<array<string, mixed>> $library
+     * @param array<string, list<array<string, mixed>>> $upstreamCache
      * @return array{state: string, match: array<string, mixed>|null}
      */
-    public static function deriveState(array $detection, array $services, array $library): array
-    {
+    public static function deriveState(
+        array $detection,
+        array $services,
+        array $library,
+        array $upstreamCache = [],
+    ): array {
         $kind = (string) ($detection['kind'] ?? '');
         $identifier = (string) ($detection['identifier'] ?? '');
         $origin = isset($detection['origin']) ? (string) $detection['origin'] : '';
@@ -100,6 +113,14 @@ final readonly class DetectionListPresenter
         $libraryMatch = $registryMatch === null
             ? self::firstMatchingService($library, $cookie, $host)
             : null;
+        $upstreamMatch = null;
+        if ($registryMatch === null && $libraryMatch === null && $upstreamCache !== []) {
+            $cacheKey = $cookie !== null ? 'cookie:' . $cookie : ($host !== null ? 'origin:' . $host : null);
+            if ($cacheKey !== null && isset($upstreamCache[$cacheKey])) {
+                $matches = $upstreamCache[$cacheKey];
+                $upstreamMatch = $matches[0] ?? null;
+            }
+        }
 
         // Dismissed wins over everything — but we still surface the
         // underlying match so the row shows "Stripe" / "Google Analytics"
@@ -108,7 +129,7 @@ final readonly class DetectionListPresenter
         if ($dismissedAt > 0) {
             return [
                 'state' => self::STATE_DISMISSED,
-                'match' => $registryMatch ?? $libraryMatch,
+                'match' => $registryMatch ?? $libraryMatch ?? $upstreamMatch,
             ];
         }
 
@@ -117,6 +138,9 @@ final readonly class DetectionListPresenter
         }
         if ($libraryMatch !== null) {
             return ['state' => self::STATE_RECOGNIZED, 'match' => $libraryMatch];
+        }
+        if ($upstreamMatch !== null) {
+            return ['state' => self::STATE_RECOGNIZED, 'match' => $upstreamMatch];
         }
         return ['state' => self::STATE_UNKNOWN, 'match' => null];
     }
@@ -129,11 +153,16 @@ final readonly class DetectionListPresenter
      * @param array<string, mixed> $row
      * @param array<array<string, mixed>> $services
      * @param array<array<string, mixed>> $library
+     * @param array<string, list<array<string, mixed>>> $upstreamCache
      * @return array<string, mixed>
      */
-    public static function decorateState(array $row, array $services, array $library): array
-    {
-        $derived = self::deriveState($row, $services, $library);
+    public static function decorateState(
+        array $row,
+        array $services,
+        array $library,
+        array $upstreamCache = [],
+    ): array {
+        $derived = self::deriveState($row, $services, $library, $upstreamCache);
         $row['state'] = $derived['state'];
         $row['state_class'] = match ($derived['state']) {
             self::STATE_CURATED => 'bg-success',

@@ -46,6 +46,7 @@ return [
                 'bulkPurgeSelected',
                 'createService',
                 'generateBridgeSecret',
+                'reclassifyUnknowns',
             ],
             LibraryBrowserController::class => [
                 'list',

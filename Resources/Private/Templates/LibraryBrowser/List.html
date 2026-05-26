@@ -7,6 +7,8 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'library', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab}" />
 
+    <f:render partial="UpstreamStatus" arguments="{upstreamStatus: upstreamStatus}" />
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
     <p class="text-body-secondary">
         <strong>{availableCount}</strong>

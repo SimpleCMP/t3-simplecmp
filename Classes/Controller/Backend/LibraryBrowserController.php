@@ -11,8 +11,11 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 
 /**
@@ -45,6 +48,9 @@ final class LibraryBrowserController extends ActionController
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
         private readonly StoragePidResolver $storagePidResolver,
+        private readonly LibraryUpstreamStats $upstreamStats,
+        private readonly LibraryCacheRepository $libraryCache,
+        private readonly SiteFinder $siteFinder,
     ) {
     }
 
@@ -98,6 +104,7 @@ final class LibraryBrowserController extends ActionController
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
+            'upstreamStatus' => $this->buildUpstreamStatus(),
             'entries' => $rows,
             'status' => $status,
             'search' => $search,
@@ -156,6 +163,71 @@ final class LibraryBrowserController extends ActionController
     }
 
     // ---------------------------------------------------------------------
+
+    /**
+     * Build the data structure consumed by the `UpstreamStatus` partial
+     * on the Bibliothek tab. Cache rows + stats are system-wide;
+     * upstream URL + daily budget are per-site, so we list one entry
+     * per site that has the URL configured (usually just one).
+     *
+     * @return array{
+     *     enabled: bool,
+     *     cache: array{positive: int, negative: int, expired: int, total: int},
+     *     todayCalls: int,
+     *     todaySuccesses: int,
+     *     todayFailures: int,
+     *     totalCalls: int,
+     *     maxBudget: int,
+     *     budgetExhausted: bool,
+     *     lastCallAt: int|null,
+     *     lastSuccessAt: int|null,
+     *     lastFailureAt: int|null,
+     *     sites: list<array{identifier: string, url: string, budget: int}>,
+     * }
+     */
+    private function buildUpstreamStatus(): array
+    {
+        $now = time();
+        $cache = $this->libraryCache->countLive($now);
+        $cache['total'] = $cache['positive'] + $cache['negative'];
+
+        $snap = $this->upstreamStats->getSnapshot($now);
+
+        $sites = [];
+        $maxBudget = 0;
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $settings = $site->getSettings();
+            $url = $settings->get('simplecmp.libraryUpstreamUrl');
+            if (!is_string($url) || $url === '') {
+                continue;
+            }
+            $budget = $settings->get('simplecmp.libraryUpstreamDailyBudget');
+            $budgetInt = is_int($budget) ? $budget : (int) $budget;
+            $sites[] = [
+                'identifier' => $site->getIdentifier(),
+                'url' => $url,
+                'budget' => $budgetInt,
+            ];
+            if ($budgetInt > $maxBudget) {
+                $maxBudget = $budgetInt;
+            }
+        }
+
+        return [
+            'enabled' => $sites !== [],
+            'cache' => $cache,
+            'todayCalls' => $snap['today_calls'],
+            'todaySuccesses' => $snap['today_successes'],
+            'todayFailures' => $snap['today_failures'],
+            'totalCalls' => $snap['total_calls'],
+            'maxBudget' => $maxBudget,
+            'budgetExhausted' => $maxBudget > 0 && $snap['today_calls'] >= $maxBudget,
+            'lastCallAt' => $snap['last_call_at'],
+            'lastSuccessAt' => $snap['last_success_at'],
+            'lastFailureAt' => $snap['last_failure_at'],
+            'sites' => $sites,
+        ];
+    }
 
     /**
      * @return array<string, true> keyed by service_id
