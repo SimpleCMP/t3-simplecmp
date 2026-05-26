@@ -66,10 +66,10 @@ settings:
     default: true
 
   simplecmp.libraryUpstreamUrl:
-    label: 'Library service upstream URL (optional)'
-    description: 'Base URL of the canonical SimpleCMP services-library endpoint (without the protocol version segment — the client appends `/v1`). When set, ClassifierLookup queries this server as a third tier after the registry and bundled library both miss. Visitor IPs never reach this URL; only this server queries it. Responses are cached locally for 24h (both positive and negative). Leave empty to use only the bundled library that ships with the extension. The canonical endpoint when it goes live will be `https://library.simplecmp.eu`.'
+    label: 'Library service upstream URL'
+    description: 'Base URL of the canonical SimpleCMP services-library endpoint (including the `/v1` version segment). When set, ClassifierLookup queries this server as a third tier after the registry and bundled library both miss — so newly-added trackers get classified correctly without waiting for a composer-update to refresh the bundled snapshot. Visitor IPs never reach this URL; only this server queries it (server-to-server). Responses are cached locally for 24h (both positive and negative). On by default — set to empty string to disable upstream and use only the bundled library that ships with the extension.'
     type: string
-    default: ''
+    default: 'https://library.simplecmp.eu/v1'
 
   simplecmp.universalBlocking.allowlist:
     label: 'Universal blocking host allowlist'
