@@ -435,11 +435,12 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
-    public function interceptRuntimeAbsentWhenUniversalBlockingUnset(): void
+    public function interceptRuntimeDefaultsOnWhenUniversalBlockingUnset(): void
     {
-        // Site Set default is `false`; sites that haven't been touched
-        // since v0.2 don't have the key at all. Both shapes must read
-        // as "off" with no FE-config trace.
+        // Site Set default flipped to `true` in 93a4c9c. Sites that don't
+        // explicitly set the key still get universalBlocking on — the
+        // PHP-layer fallback in buildInitConfig mirrors the YAML default
+        // so behavior stays consistent if the settings registry skips it.
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
             'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
         ]);
@@ -453,7 +454,8 @@ final class RegisterAssetsTest extends TestCase
         $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
 
         $config = $this->extractConfig($captured);
-        self::assertArrayNotHasKey('interceptRuntime', $config);
+        self::assertArrayHasKey('interceptRuntime', $config);
+        self::assertTrue($config['interceptRuntime']['universalBlock']);
     }
 
     // --- theme injection ---------------------------------------------------

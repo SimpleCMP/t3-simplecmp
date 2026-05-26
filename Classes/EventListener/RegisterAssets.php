@@ -199,8 +199,13 @@ final readonly class RegisterAssets
      */
     private function buildInitConfig(object $settings, Site $site): ?array
     {
+        // `??` (null-coalesce), NOT `?:` (truthy-fallback). The Elvis form
+        // swallows an explicit `false` / `0` / `''` and replaces it with the
+        // default — which silently inverted booleans like `respectGPC` and
+        // `universalBlocking.enabled` when their declared defaults disagreed
+        // with what the admin actually set.
         $get = static fn (string $key, mixed $default = null): mixed
-            => $settings->get($key) ?: $default;
+            => $settings->get($key) ?? $default;
 
         [$services, $serviceTranslations] = $this->buildRuntimeServices();
         $config = [
@@ -259,7 +264,7 @@ final readonly class RegisterAssets
             }
         }
 
-        if ((bool) $get('simplecmp.universalBlocking.enabled', false)) {
+        if ((bool) $get('simplecmp.universalBlocking.enabled', true)) {
             // Pair with the Phase 1 server-side HtmlRewriter activated
             // by the same setting. Server-side covers declarative tags;
             // this opts the FE bundle into the runtime monkey-patches
