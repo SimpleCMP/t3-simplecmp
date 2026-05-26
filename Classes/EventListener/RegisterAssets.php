@@ -336,14 +336,25 @@ final readonly class RegisterAssets
      * the notice needs right now. Additional fields (vendor, privacy
      * URL, …) can be added later if the notice UI grows.
      *
-     * Iterating the whole library (~369 entries) on every page
-     * render is acceptable: `ServicesLibrary::services()` is a
-     * Generator, the per-entry projection is cheap, and the gzipped
-     * payload size is ~1-2 KB — paid only on pages where universal
-     * blocking is active.
+     * Size budget (as of 2026-05-26, 368 entries):
+     *   - raw JSON:  ~16 KB
+     *   - gzipped:   ~2.7 KB
+     *
+     * At current density that's roughly 44 raw bytes per entry. The
+     * `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` constant (50 KB raw ≈ 8 KB
+     * gzipped) marks where inlining stops being clearly-better-than-
+     * an-extra-fetch: an additional HTTP roundtrip costs ~30-50ms;
+     * inlined data > ~8 KB gzipped starts pushing past that.
+     *
+     * If the library grows past the budget we log a warning so future-
+     * us knows to consider lazy-loading via a same-origin endpoint
+     * (e.g. `/api/simplecmp/v1/library-fallback.json` cached 24h, plugin
+     * proxies it like everything else). For now: inline is fine.
      *
      * @return array<string, array{purposes: list<string>}>
      */
+    private const int LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 50000;
+
     private function buildLibraryFallback(): array
     {
         $fallback = [];
@@ -367,6 +378,21 @@ final readonly class RegisterAssets
             }
             $fallback[$id] = ['purposes' => $clean];
         }
+
+        $rawSize = strlen((string) json_encode($fallback));
+        if ($rawSize > self::LIBRARY_FALLBACK_RAW_BUDGET_BYTES) {
+            $this->logger->warning(
+                sprintf(
+                    'SimpleCMP libraryFallback payload exceeded inline budget '
+                    . '(%d bytes raw JSON, budget %d). Consider lazy-loading '
+                    . 'via a same-origin endpoint instead of inlining. See '
+                    . 'buildLibraryFallback() docblock.',
+                    $rawSize,
+                    self::LIBRARY_FALLBACK_RAW_BUDGET_BYTES,
+                ),
+            );
+        }
+
         return $fallback;
     }
 
