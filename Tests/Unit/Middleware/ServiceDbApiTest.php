@@ -43,6 +43,7 @@ final class ServiceDbApiTest extends TestCase
     private BridgeSecretProvider&MockObject $secretProvider;
     private BridgeNonceService&MockObject $nonceService;
     private ClassifierLookup&MockObject $classifierLookup;
+    private \TYPO3\CMS\Core\Site\SiteFinder&MockObject $siteFinder;
     private RequestHandlerInterface&MockObject $handler;
 
     protected function setUp(): void
@@ -56,6 +57,8 @@ final class ServiceDbApiTest extends TestCase
         $this->secretProvider = $this->createMock(BridgeSecretProvider::class);
         $this->nonceService = $this->createMock(BridgeNonceService::class);
         $this->classifierLookup = $this->createMock(ClassifierLookup::class);
+        $this->siteFinder = $this->createMock(\TYPO3\CMS\Core\Site\SiteFinder::class);
+        $this->siteFinder->method('getAllSites')->willReturn([]);
         $this->handler = $this->createMock(RequestHandlerInterface::class);
 
         // Defaults: everything passes — individual tests override what they need.
@@ -360,6 +363,7 @@ final class ServiceDbApiTest extends TestCase
             $overrides['secretProvider'] ?? $this->secretProvider,
             $overrides['nonceService'] ?? $this->nonceService,
             $overrides['classifierLookup'] ?? $this->classifierLookup,
+            $overrides['siteFinder'] ?? $this->siteFinder,
         );
     }
 

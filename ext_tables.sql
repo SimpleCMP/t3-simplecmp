@@ -39,6 +39,23 @@ CREATE TABLE tx_t3simplecmp_theme (
     UNIQUE KEY site (site)
 );
 
+CREATE TABLE tx_t3simplecmp_library_cache (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    query_type varchar(16) DEFAULT '' NOT NULL,
+    query_value varchar(255) DEFAULT '' NOT NULL,
+    response_json mediumtext,
+    fetched_at int(11) unsigned DEFAULT '0' NOT NULL,
+    expires_at int(11) unsigned DEFAULT '0' NOT NULL,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY query_key (query_type, query_value),
+    KEY expires_at (expires_at)
+);
+
 CREATE TABLE tx_t3simplecmp_detection (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,

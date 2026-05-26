@@ -1,0 +1,159 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SimpleCMP\T3SimpleCmp\Service;
+
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
+use TYPO3\CMS\Core\Http\RequestFactory;
+
+/**
+ * Server-to-server client for the canonical SimpleCMP services-library
+ * endpoint (typically `https://library.simplecmp.eu`, configurable via
+ * the `simplecmp.libraryUpstreamUrl` Site Set setting).
+ *
+ * Layering posture (ADR-0014): visitor IPs NEVER reach the upstream.
+ * The plugin's PHP queries upstream from server context only; the
+ * detection bridge's FE-driven flow goes through
+ * `ServiceDbApi::webhook()` which calls `ClassifierLookup` which
+ * (when local tiers miss) reaches this client. The visitor talks
+ * only to the plugin's same-origin endpoint.
+ *
+ * Cache posture: 24h TTL for both positive and negative responses.
+ * Negative caching is essential — without it, every visitor's
+ * unknown cookie would hit upstream forever. Synchronous refresh
+ * on stale read (no background worker). See ADR-0014 + the
+ * `services_library_standalone` memory for the rationale.
+ *
+ * Network resilience: 3-second timeout, silent failure (returns the
+ * negative-cache value `[]`), warning logged to TYPO3 log. The
+ * upstream is best-effort by design; the bundled library still
+ * covers the canonical-known case offline.
+ */
+final readonly class LibraryUpstreamClient
+{
+    private const int TIMEOUT_SECONDS = 3;
+    private const int CACHE_TTL_SECONDS = 86400; // 24h, positive + negative
+
+    public function __construct(
+        private RequestFactory $requestFactory,
+        private LibraryCacheRepository $cache,
+        private LoggerInterface $logger = new NullLogger(),
+    ) {
+    }
+
+    /**
+     * Query upstream for a single cookie or origin. Returns the
+     * `matches` array from the upstream response, OR an empty array
+     * if upstream confirmed no match. Returns null when no upstream
+     * URL is configured (caller should treat as tier-skip, not as
+     * a no-match answer).
+     *
+     * Cache is consulted first; only stale/missing entries trigger
+     * a network call.
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    public function lookup(?string $upstreamUrl, ?string $cookie, ?string $origin): ?array
+    {
+        if ($upstreamUrl === null || $upstreamUrl === '') {
+            return null;
+        }
+        if ($cookie === null && $origin === null) {
+            return [];
+        }
+        // Single-tier query: this lookup is always for one cookie OR
+        // one origin, never both at once (matches ServiceRepository's
+        // and ClassifierLookup's existing usage pattern).
+        $queryType = $cookie !== null ? 'cookie' : 'origin';
+        $queryValue = (string) ($cookie ?? $origin);
+
+        $now = time();
+        $cached = $this->cache->get($queryType, $queryValue, $now);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $matches = $this->fetchFromUpstream($upstreamUrl, $queryType, $queryValue);
+        $this->cache->put(
+            $queryType,
+            $queryValue,
+            $matches,
+            $now,
+            $now + self::CACHE_TTL_SECONDS,
+        );
+        return $matches;
+    }
+
+    /**
+     * @return list<array<string, mixed>> matches from upstream, or `[]`
+     *     on any failure (silent fallback; warning logged)
+     */
+    private function fetchFromUpstream(string $upstreamUrl, string $queryType, string $queryValue): array
+    {
+        $endpoint = rtrim($upstreamUrl, '/') . '/lookup';
+        $body = json_encode([
+            'items' => [
+                [$queryType => $queryValue],
+            ],
+        ]);
+        if ($body === false) {
+            return [];
+        }
+
+        try {
+            $response = $this->requestFactory->request($endpoint, 'POST', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'body' => $body,
+                'timeout' => self::TIMEOUT_SECONDS,
+                'connect_timeout' => self::TIMEOUT_SECONDS,
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'SimpleCMP library upstream lookup failed (network): {message}',
+                ['endpoint' => $endpoint, 'message' => $e->getMessage()],
+            );
+            return [];
+        }
+
+        $status = $response->getStatusCode();
+        if ($status < 200 || $status >= 300) {
+            $this->logger->warning(
+                'SimpleCMP library upstream returned non-2xx: {status}',
+                ['endpoint' => $endpoint, 'status' => $status],
+            );
+            return [];
+        }
+
+        $payload = json_decode((string) $response->getBody(), true);
+        if (!is_array($payload) || !isset($payload['items']) || !is_array($payload['items'])) {
+            $this->logger->warning(
+                'SimpleCMP library upstream returned malformed response (no `items` array).',
+                ['endpoint' => $endpoint],
+            );
+            return [];
+        }
+
+        // Single-item request → single-item response. Pick the first
+        // (and only) result item's `matches` array.
+        $first = $payload['items'][0] ?? null;
+        if (!is_array($first) || !isset($first['matches']) || !is_array($first['matches'])) {
+            return [];
+        }
+        // Filter to associative-array entries so the caller can rely
+        // on protocol-shaped rows. Any garbage in the response gets
+        // silently skipped — better than throwing.
+        $matches = [];
+        foreach ($first['matches'] as $match) {
+            if (is_array($match) && isset($match['id'])) {
+                $matches[] = $match;
+            }
+        }
+        return $matches;
+    }
+}

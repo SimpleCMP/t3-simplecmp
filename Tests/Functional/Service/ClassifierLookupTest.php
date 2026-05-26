@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\ClassifierLookup;
+use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamClient;
 
 /**
  * Lookups against an empty registry MUST still return library coverage.
@@ -50,6 +51,41 @@ final class ClassifierLookupTest extends FunctionalTestCase
     {
         $matches = $this->classifier->lookup('_definitely_not_a_real_tracker_cookie_xyz', null);
         self::assertSame([], $matches);
+    }
+
+    #[Test]
+    public function upstreamConsultedOnlyWhenRegistryAndBundledBothMiss(): void
+    {
+        // A cookie name that's NOT in the bundled library + empty
+        // registry. ClassifierLookup must consult upstream as tier 3
+        // and surface the upstream match. For a cookie the bundled
+        // library DOES cover, upstream MUST NOT be called.
+        $calls = [];
+        $upstreamStub = $this->createMock(LibraryUpstreamClient::class);
+        $upstreamStub->method('lookup')
+            ->willReturnCallback(function (?string $url, ?string $cookie, ?string $origin) use (&$calls): ?array {
+                $calls[] = [$url, $cookie, $origin];
+                return $cookie === '_brand_new_2026_tracker'
+                    ? [['id' => 'brand-new-2026', 'name' => 'Brand New 2026']]
+                    : [];
+            });
+        $classifier = new ClassifierLookup($this->registry, $upstreamStub);
+
+        // Tier-3 hit when local tiers miss.
+        $matches = $classifier->lookup('_brand_new_2026_tracker', null, 'https://lib.example/v1');
+        self::assertCount(1, $matches);
+        self::assertSame('brand-new-2026', $matches[0]['id']);
+        self::assertSame(1, count($calls), 'upstream consulted once for the unknown cookie');
+
+        // Bundled-library hit: upstream MUST NOT be called.
+        $callsBefore = count($calls);
+        $stripeMatches = $classifier->lookup('__stripe_mid', null, 'https://lib.example/v1');
+        self::assertNotEmpty($stripeMatches);
+        self::assertSame(
+            $callsBefore,
+            count($calls),
+            'upstream MUST NOT be called when bundled library already matched',
+        );
     }
 
     #[Test]

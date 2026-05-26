@@ -35,16 +35,27 @@ final readonly class ClassifierLookup
 {
     public function __construct(
         private ServiceRepository $registry,
+        private ?LibraryUpstreamClient $libraryUpstream = null,
     ) {
     }
 
     /**
-     * Return services matching the given cookie or origin from registry
-     * + library, deduplicated by `service_id`.
+     * Return services matching the given cookie or origin from
+     * registry + bundled library + upstream library (when
+     * configured), deduplicated by `service_id`. Lookup order:
+     *
+     *   1. Registry (admin-curated) — wins on conflict.
+     *   2. Bundled library (`simplecmp/services-library` JSON
+     *      shipped with the ext via composer).
+     *   3. Upstream library — only consulted when steps 1+2 both
+     *      miss AND `$libraryUpstreamUrl` is non-empty. The
+     *      upstream call is server-to-server with a 24h local
+     *      cache; visitor IPs never reach the upstream. See
+     *      ADR-0014 for the layering rationale.
      *
      * @return list<array<string, mixed>> protocol-shaped rows
      */
-    public function lookup(?string $cookie, ?string $origin): array
+    public function lookup(?string $cookie, ?string $origin, ?string $libraryUpstreamUrl = null): array
     {
         if ($cookie === null && $origin === null) {
             return [];
@@ -58,6 +69,7 @@ final readonly class ClassifierLookup
             }
         }
 
+        $localBundledMatched = false;
         foreach (ServicesLibrary::services() as $entry) {
             $id = (string) ($entry['id'] ?? '');
             if ($id === '' || isset($byId[$id])) {
@@ -70,8 +82,26 @@ final readonly class ClassifierLookup
                 || ($origin !== null && self::originMatches($origin, is_array($origins) ? $origins : []))
             ) {
                 $byId[$id] = $entry;
+                $localBundledMatched = true;
             }
         }
+
+        // Tier 3: consult upstream only when local tiers (registry +
+        // bundled) both missed entirely. Skip the upstream call when
+        // we already have at least one match — extra calls would add
+        // latency without changing the BE state derivation outcome.
+        if ($byId === [] && $this->libraryUpstream !== null) {
+            $upstreamMatches = $this->libraryUpstream->lookup($libraryUpstreamUrl, $cookie, $origin);
+            if (is_array($upstreamMatches)) {
+                foreach ($upstreamMatches as $match) {
+                    $id = (string) ($match['id'] ?? '');
+                    if ($id !== '' && !isset($byId[$id])) {
+                        $byId[$id] = $match;
+                    }
+                }
+            }
+        }
+        unset($localBundledMatched); // unused beyond documenting the gate intent
 
         return array_values($byId);
     }

@@ -1,0 +1,118 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
+
+use Doctrine\DBAL\ParameterType;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+
+/**
+ * 24-hour local cache for upstream library-service lookups.
+ *
+ * Keyed by `(query_type, query_value)` — `query_type` is `'cookie'`
+ * or `'origin'`, `query_value` is the cookie name or origin host.
+ * Stores the full response (array of matched services) as JSON in
+ * `response_json`, or null to express a negative cache ("upstream
+ * confirmed no match"). Negative caching is essential — without
+ * it, unknown cookies hit the upstream on every recorder event.
+ *
+ * Both positive and negative entries get the same 24h TTL. Stale
+ * entries are simply re-fetched the next time they're queried
+ * (synchronous; no background refresh worker).
+ */
+final readonly class LibraryCacheRepository
+{
+    private const string TABLE = 'tx_t3simplecmp_library_cache';
+
+    public function __construct(
+        private ConnectionPool $connectionPool,
+    ) {
+    }
+
+    /**
+     * Return the cached response for the given query, or null if no
+     * cache entry exists or the entry has expired. A non-null array
+     * (including the empty array) means a valid cache HIT — empty
+     * array signals "upstream said no match." Distinguish miss-vs-
+     * negative-hit via `has()`.
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    public function get(string $queryType, string $queryValue, int $now): ?array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        $row = $qb->select('response_json', 'expires_at')
+            ->from(self::TABLE)
+            ->where(
+                $qb->expr()->eq('query_type', $qb->createNamedParameter($queryType)),
+                $qb->expr()->eq('query_value', $qb->createNamedParameter($queryValue)),
+            )
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if ($row === false) {
+            return null;
+        }
+        if ((int) $row['expires_at'] <= $now) {
+            return null;
+        }
+        $decoded = json_decode((string) $row['response_json'], true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Persist a fresh cache entry. Overwrites any existing row for
+     * the same (queryType, queryValue) pair. Stores `[]` for the
+     * negative case.
+     *
+     * @param list<array<string, mixed>> $response
+     */
+    public function put(string $queryType, string $queryValue, array $response, int $fetchedAt, int $expiresAt): void
+    {
+        $connection = $this->connectionPool->getConnectionForTable(self::TABLE);
+        $payload = (string) json_encode($response);
+
+        // Upsert via DELETE-then-INSERT pattern — the unique key on
+        // (query_type, query_value) means a race could collide, but
+        // worst case is one row losing to another, which is fine for
+        // a cache.
+        $connection->executeStatement(
+            'DELETE FROM ' . self::TABLE
+            . ' WHERE query_type = ? AND query_value = ?',
+            [$queryType, $queryValue],
+        );
+        $connection->executeStatement(
+            'INSERT INTO ' . self::TABLE
+            . ' (query_type, query_value, response_json, fetched_at, expires_at, crdate, tstamp)'
+            . ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [$queryType, $queryValue, $payload, $fetchedAt, $expiresAt, $fetchedAt, $fetchedAt],
+            [
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::STRING,
+                ParameterType::INTEGER,
+                ParameterType::INTEGER,
+                ParameterType::INTEGER,
+                ParameterType::INTEGER,
+            ],
+        );
+    }
+
+    /**
+     * Drop expired rows. Cheap to call periodically; the
+     * `expires_at` index makes the scan tight. Not called
+     * automatically anywhere — could be wired into the TYPO3
+     * scheduler later if cache growth becomes a concern.
+     */
+    public function purgeExpired(int $now): int
+    {
+        return (int) $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->executeStatement(
+                'DELETE FROM ' . self::TABLE . ' WHERE expires_at <= ?',
+                [$now],
+            );
+    }
+}

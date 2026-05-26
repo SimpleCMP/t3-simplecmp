@@ -54,7 +54,38 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
         private ClassifierLookup $classifierLookup,
+        private \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
     ) {
+    }
+
+    /**
+     * Resolve the `simplecmp.libraryUpstreamUrl` Site Set setting for
+     * the site whose base host matches the request URI. Returns null
+     * when the setting is empty, the request host doesn't match any
+     * site, or no site is configured.
+     */
+    private function resolveLibraryUpstreamUrl(ServerRequestInterface $request): ?string
+    {
+        $host = $request->getUri()->getHost();
+        if ($host === '') {
+            return null;
+        }
+        // Multiple sites can share a host — TYPO3 creates auto-generated
+        // sites for orphan pages that have the same base host as the
+        // real site. Scan all host-matching sites and pick the first
+        // one with a non-empty libraryUpstreamUrl setting (the real
+        // site, since auto-generated sites don't carry our Site Set).
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $baseHost = parse_url((string) $site->getBase(), PHP_URL_HOST);
+            if (!is_string($baseHost) || strcasecmp($baseHost, $host) !== 0) {
+                continue;
+            }
+            $value = $site->getSettings()->get('simplecmp.libraryUpstreamUrl');
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+        return null;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -210,6 +241,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             return new JsonResponse(['items' => []]);
         }
 
+        $upstreamUrl = $this->resolveLibraryUpstreamUrl($request);
         $results = [];
         foreach ($items as $query) {
             if (!is_array($query)) {
@@ -219,7 +251,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             $cookie = isset($query['cookie']) && is_string($query['cookie']) ? $query['cookie'] : null;
             $origin = isset($query['origin']) && is_string($query['origin']) ? $query['origin'] : null;
 
-            $matches = $this->classifierLookup->lookup($cookie, $origin);
+            $matches = $this->classifierLookup->lookup($cookie, $origin, $upstreamUrl);
             $cleanQuery = [];
             if ($cookie !== null) {
                 $cleanQuery['cookie'] = $cookie;
