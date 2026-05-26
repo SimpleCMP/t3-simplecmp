@@ -85,6 +85,14 @@ final class DetectionReviewController extends ActionController
         int $page = 1,
         int $perPage = self::DEFAULT_PER_PAGE,
     ): ResponseInterface {
+        // Auto-generate the bridge HMAC secret if it isn't configured
+        // yet. Cheap no-op when already present; writes to
+        // LocalConfiguration.php on first BE module access so the
+        // bridge works out of the box without the admin having to run
+        // the CLI command + edit env. Env-var override still wins for
+        // production 12-factor deploys.
+        $this->bridgeSecretProvider->ensureExists();
+
         $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
         $perPage = in_array($perPage, self::PER_PAGE_OPTIONS, true)
             ? $perPage

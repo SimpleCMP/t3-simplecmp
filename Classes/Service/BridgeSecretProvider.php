@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use TYPO3\CMS\Core\Configuration\ConfigurationManager;
+
 /**
  * Single source of truth for the HMAC secret that signs bridge nonces.
  *
@@ -12,6 +14,13 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  *
  *     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
  *         = getenv('SIMPLECMP_BRIDGE_SECRET') ?: null;
+ *
+ * If no secret is configured, calling `ensureExists()` from a backend
+ * admin context (typically the BE module's controller) auto-generates
+ * one and persists it to `LocalConfiguration.php` so the bridge works
+ * out of the box on first install. Env-var overrides still win — when
+ * an env-bound `bridgeSecret` is non-empty, `isConfigured()` returns
+ * true and auto-gen is a no-op.
  *
  * The secret is shared between bridge sender (`RegisterAssets` issuing
  * nonces into JS init config) and receiver (`ServiceDbApi::webhook()`
@@ -28,6 +37,12 @@ final readonly class BridgeSecretProvider
     private const string CONFIG_KEY = 'bridgeSecret';
     private const string EXTENSION_KEY = 't3_simplecmp';
     private const int MIN_SECRET_BYTES = 32;
+    private const int GENERATED_BYTES = 32;
+
+    public function __construct(
+        private ?ConfigurationManager $configurationManager = null,
+    ) {
+    }
 
     /**
      * @return string|null the raw secret bytes, or null when not configured
@@ -50,5 +65,46 @@ final readonly class BridgeSecretProvider
     public function isConfigured(): bool
     {
         return $this->get() !== null;
+    }
+
+    /**
+     * Auto-generate and persist a secret if none is configured.
+     *
+     * Writes to `LocalConfiguration.php` via `ConfigurationManager` so
+     * the value survives cache flushes and is shared across PHP workers.
+     * Also mirrors into `$GLOBALS` so the rest of the current request
+     * sees the value without needing a process restart.
+     *
+     * Returns true when a new secret was generated, false when one
+     * already existed (no-op). Safe to call on every BE module access:
+     * the `isConfigured()` check is one isset + a length comparison.
+     *
+     * Intended caller: BE module controllers. Do NOT call from a
+     * frontend / API context — config writes outside an admin scope
+     * are a TYPO3 anti-pattern, and the BE-context guarantees the
+     * write happens in a known-safe context.
+     */
+    public function ensureExists(): bool
+    {
+        if ($this->isConfigured()) {
+            return false;
+        }
+        if ($this->configurationManager === null) {
+            // Defensive: in test contexts the provider may be instantiated
+            // without DI. Don't write anywhere — caller will see false and
+            // can decide.
+            return false;
+        }
+        $secret = base64_encode(random_bytes(self::GENERATED_BYTES));
+        $this->configurationManager->setLocalConfigurationValueByPath(
+            'EXTENSIONS/' . self::EXTENSION_KEY . '/' . self::CONFIG_KEY,
+            $secret,
+        );
+        // Mirror into $GLOBALS so the rest of this request sees the
+        // value without restarting. The ConfigurationManager writes the
+        // file but doesn't re-bootstrap the in-memory $GLOBALS view of
+        // the same key.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][self::EXTENSION_KEY][self::CONFIG_KEY] = $secret;
+        return true;
     }
 }
