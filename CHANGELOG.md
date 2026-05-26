@@ -10,6 +10,49 @@ development.
 
 ## Unreleased
 
+### Changed (breaking) — universal blocking ON by default
+
+- **`simplecmp.universalBlocking.enabled` default flipped `false` → `true`**
+  (Sven's `93a4c9c`). Sites that haven't explicitly set the toggle now
+  get pre-consent blocking active out of the box — the GDPR-aligned
+  posture for first install. Admins can still turn it off via the Site
+  Set. Follow-up `ad14a94` syncs the description string in
+  `settings.definitions.yaml` ("On by default — turn off only if your
+  site is fully self-hosted and embeds nothing third-party") and the
+  PHP-layer fallback in `RegisterAssets::buildInitConfig`. The
+  HtmlRewriter middleware intentionally keeps the no-default form
+  (`$settings->get(...)` without a fallback) because it doubles as the
+  "is SimpleCMP active on this site" guard for non-SimpleCMP sites
+  whose responses the middleware also processes.
+
+### Fixed — `$get` helper swallowed explicit `false`/`0`/`''`
+
+- **`?:` → `??` in the settings reader.** The `$get` helper in
+  `RegisterAssets::buildInitConfig` used `?:` (truthy fallback)
+  instead of `??` (null coalesce), so an admin's explicit `false`
+  (e.g. for `respectGPC` or `universalBlocking.enabled`) silently
+  got replaced with the declared default. Hidden by matching
+  defaults until the universal-blocking flip turned it visible.
+  Fixed in `ad14a94`. Failing test renamed
+  `interceptRuntimeAbsentWhenUniversalBlockingUnset`
+  → `interceptRuntimeDefaultsOnWhenUniversalBlockingUnset`.
+
+### Added — automated upstream bundle sync (Phase 1)
+
+- **New CI workflow `.github/workflows/sync-bundle.yml`** (`7f348ea`,
+  `c0cc336`, `68e2f5d`) listens for `repository_dispatch: bundle-sync`
+  from `SimpleCMP/simplecmp` when upstream CI passes on main.
+  Rebuilds the bundle from the dispatched SHA, runs Phase 1 gates
+  (bundle integrity + PHPUnit unit + functional), and either
+  auto-pushes to main (all green, github-actions[bot] as author) or
+  opens a failure PR labelled `needs-triage` with reviewers
+  `ille216,svewap` for human triage. Replaces the manual
+  `pnpm build:sync-typo3` flow for routine syncs (the hand-sync still
+  works as a fallback). End-to-end validated via manual
+  workflow_dispatch (`a0170ed` was the first auto-sync commit);
+  auto-dispatch path proven once `gnftqj9htp0g` cleared. Phase 2
+  (Playwright BE + FE smoke in CI) is open.
+
 ### Added — `libraryFallback` carries per-service purposes to FE
 
 - **`RegisterAssets` emits a `libraryFallback` map** in the JS init
