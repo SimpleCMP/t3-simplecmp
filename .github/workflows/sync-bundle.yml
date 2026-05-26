@@ -39,7 +39,7 @@ env:
   BUNDLE_REL: Resources/Public/JavaScript/simplecmp.global.js
   BUNDLE_MIN_BYTES: 100000
   BUNDLE_MAX_BYTES: 250000
-  TRIAGE_REVIEWERS: ille216 # TODO: add Sven's GitHub username, comma-separated
+  TRIAGE_REVIEWERS: ille216,svewap
 
 jobs:
   sync:
