@@ -332,24 +332,21 @@ final class DetectionReviewController extends ActionController
     }
 
     /**
-     * One-click bootstrap: generate a fresh HMAC secret and persist it
-     * to `config/system/settings.php` via TYPO3's `ConfigurationManager`.
+     * One-click generate-or-rotate: always produces a fresh HMAC
+     * secret and persists it to `config/system/settings.php` via
+     * TYPO3's `ConfigurationManager`. Idempotent semantics:
+     *
+     * - First call on a fresh install (no auto-gen ran yet) creates
+     *   the secret. Rare in practice — the auto-gen path in
+     *   `listAction` usually fires first.
+     * - Subsequent calls rotate the existing secret. Visitor pages
+     *   loaded before rotation get one 401 cycle until their next
+     *   page render re-issues a fresh nonce. The "Rotate secret"
+     *   button in the BE template confirms via modal first.
      */
     public function generateBridgeSecretAction(): ResponseInterface
     {
-        if ($this->bridgeSecretProvider->isConfigured()) {
-            return $this->redirect('list');
-        }
-        $secret = base64_encode(random_bytes(32));
-        try {
-            GeneralUtility::makeInstance(ConfigurationManager::class)
-                ->setLocalConfigurationValueByPath(
-                    'EXTENSIONS/t3_simplecmp/bridgeSecret',
-                    $secret,
-                );
-        } catch (\Throwable) {
-            return $this->redirect('list');
-        }
+        $this->bridgeSecretProvider->rotate();
         return $this->redirect('list');
     }
 

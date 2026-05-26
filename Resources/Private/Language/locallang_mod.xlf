@@ -209,7 +209,10 @@
       <trans-unit id="bridgeSecret.disabled.body"><source>Visitors' browsers detect cookies and external services in real time, but those reports can't appear in this list until you turn detection on. Click the button below to enable it — every cookie, embed, or third-party service loading on your site will then show up here for review.</source></trans-unit>
       <trans-unit id="bridgeSecret.generate"><source>Turn on detection</source></trans-unit>
       <trans-unit id="bridgeSecret.configured"><source>Tracker detection is on</source></trans-unit>
-      <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list. Run simplecmp:generate-bridge-secret on the command line to rotate the secret if needed.</source></trans-unit>
+      <trans-unit id="bridgeSecret.configured.tooltip"><source>Visitor browsers can send tracker reports to this list.</source></trans-unit>
+      <trans-unit id="bridgeSecret.rotate"><source>Rotate secret</source></trans-unit>
+      <trans-unit id="bridgeSecret.rotate.tooltip"><source>Generate a fresh HMAC secret. Visitor pages loaded before rotation will get one 401 cycle until they re-issue a nonce on next page render.</source></trans-unit>
+      <trans-unit id="bridgeSecret.rotate.confirm"><source>Rotate the bridge HMAC secret? Visitor pages currently loaded will need one 401 cycle to re-issue their nonce on next render. Continue?</source></trans-unit>
 
       <trans-unit id="list.discover"><source>Discover trackers</source></trans-unit>
       <trans-unit id="discover.title"><source>Discover trackers across this site</source></trans-unit>

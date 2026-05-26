@@ -88,4 +88,36 @@ final class BridgeSecretProviderTest extends TestCase
 
         self::assertFalse($provider->ensureExists());
     }
+
+    #[Test]
+    public function rotateAlwaysGeneratesFreshSecret(): void
+    {
+        // Pre-existing secret — unlike ensureExists, rotate must
+        // overwrite it.
+        $oldSecret = base64_encode(random_bytes(32));
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = $oldSecret;
+
+        $newValue = null;
+        $configurationManager = $this->createMock(ConfigurationManager::class);
+        $configurationManager->expects(self::once())
+            ->method('setLocalConfigurationValueByPath')
+            ->with(
+                'EXTENSIONS/t3_simplecmp/bridgeSecret',
+                self::callback(static function (mixed $value) use ($oldSecret, &$newValue): bool {
+                    if (!is_string($value) || strlen($value) < 32) {
+                        return false;
+                    }
+                    if ($value === $oldSecret) {
+                        return false;
+                    }
+                    $newValue = $value;
+                    return true;
+                }),
+            );
+
+        $provider = new BridgeSecretProvider($configurationManager);
+
+        self::assertTrue($provider->rotate());
+        self::assertSame($newValue, $provider->get(), 'globals are populated with the new secret');
+    }
 }

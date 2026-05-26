@@ -61,6 +61,14 @@
                     <core:icon identifier="actions-search" size="small" />
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
                 </a>
+                <form method="post" action="{uri_generateBridgeSecret}" class="m-0"
+                      data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.confirm')}">
+                    <button type="submit" class="btn btn-outline-secondary"
+                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.tooltip')}">
+                        <core:icon identifier="actions-refresh" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate" />
+                    </button>
+                </form>
             </p>
         </f:else>
     </f:if>

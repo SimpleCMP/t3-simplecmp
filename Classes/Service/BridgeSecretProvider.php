@@ -70,29 +70,58 @@ final readonly class BridgeSecretProvider
     /**
      * Auto-generate and persist a secret if none is configured.
      *
-     * Writes to `LocalConfiguration.php` via `ConfigurationManager` so
-     * the value survives cache flushes and is shared across PHP workers.
-     * Also mirrors into `$GLOBALS` so the rest of the current request
-     * sees the value without needing a process restart.
-     *
-     * Returns true when a new secret was generated, false when one
-     * already existed (no-op). Safe to call on every BE module access:
-     * the `isConfigured()` check is one isset + a length comparison.
+     * Safe to call on every BE module access: the `isConfigured()`
+     * check is one isset + a length comparison.
      *
      * Intended caller: BE module controllers. Do NOT call from a
      * frontend / API context — config writes outside an admin scope
      * are a TYPO3 anti-pattern, and the BE-context guarantees the
      * write happens in a known-safe context.
+     *
+     * Returns true when a new secret was generated, false when one
+     * already existed (no-op).
      */
     public function ensureExists(): bool
     {
         if ($this->isConfigured()) {
             return false;
         }
+        return $this->generateAndPersist();
+    }
+
+    /**
+     * Force-rotate the secret to a fresh value, regardless of whether
+     * one is already configured. Used by the BE "Rotate secret"
+     * button.
+     *
+     * Cost of rotation: nonces issued under the OLD secret no longer
+     * verify, so visitors with bridge connections initialised before
+     * the rotation will get one 401 cycle on their next webhook POST
+     * until their next page render re-issues a fresh nonce. The
+     * existing in-flight pages (page-loaded BEFORE the rotation) are
+     * the only window where this matters; subsequent visits work
+     * unchanged.
+     *
+     * Returns true when rotation succeeded.
+     */
+    public function rotate(): bool
+    {
+        return $this->generateAndPersist();
+    }
+
+    /**
+     * Writes a fresh random secret to LocalConfiguration.php via
+     * `ConfigurationManager` so the value survives cache flushes and
+     * is shared across PHP workers. Also mirrors into `$GLOBALS` so
+     * the rest of the current request sees the value without needing
+     * a process restart.
+     */
+    private function generateAndPersist(): bool
+    {
         if ($this->configurationManager === null) {
-            // Defensive: in test contexts the provider may be instantiated
-            // without DI. Don't write anywhere — caller will see false and
-            // can decide.
+            // Defensive: in test contexts the provider may be
+            // instantiated without DI. Don't write anywhere — caller
+            // sees false.
             return false;
         }
         $secret = base64_encode(random_bytes(self::GENERATED_BYTES));
@@ -100,10 +129,6 @@ final readonly class BridgeSecretProvider
             'EXTENSIONS/' . self::EXTENSION_KEY . '/' . self::CONFIG_KEY,
             $secret,
         );
-        // Mirror into $GLOBALS so the rest of this request sees the
-        // value without restarting. The ConfigurationManager writes the
-        // file but doesn't re-bootstrap the in-memory $GLOBALS view of
-        // the same key.
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][self::EXTENSION_KEY][self::CONFIG_KEY] = $secret;
         return true;
     }
