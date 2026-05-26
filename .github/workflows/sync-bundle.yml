@@ -70,11 +70,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Resolve upstream SHA to full 40-char form
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # actions/checkout's `ref:` requires either a branch/tag name OR a
+          # full 40-char SHA. A 7-char short SHA gets misinterpreted as a
+          # branch pattern and the fetch fails. Resolve via the commits API.
+          FULL=$(gh api repos/SimpleCMP/simplecmp/commits/${UPSTREAM_SHA} --jq .sha)
+          if [ -z "$FULL" ] || [ "${#FULL}" -ne 40 ]; then
+            echo "::error::Could not resolve $UPSTREAM_SHA to a full SHA"
+            exit 1
+          fi
+          echo "Resolved $UPSTREAM_SHA → $FULL"
+          echo "full_sha=$FULL" >> "$GITHUB_OUTPUT"
+
       - name: Checkout upstream at dispatched SHA
         uses: actions/checkout@v4
         with:
           repository: SimpleCMP/simplecmp
-          ref: ${{ env.UPSTREAM_SHA }}
+          ref: ${{ steps.resolve.outputs.full_sha }}
           path: _upstream
 
       - name: Setup pnpm
