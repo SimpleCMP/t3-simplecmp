@@ -102,6 +102,21 @@ final readonly class ServiceDbApi implements MiddlewareInterface
      * never silently fall back to the looser Phase-1-only mode. See
      * memory `webhook_browser_secret_constraint` for why the nonce is
      * a "raise the bar" defense, not real authentication.
+     *
+     * Why rate limit (step 2) runs BEFORE nonce verification (step 4):
+     * `BridgeRateLimiter::check()` increments the per-IP counter on
+     * every allowed request, regardless of whether the request later
+     * fails nonce verification. Putting the rate limit early ensures
+     * an attacker probing nonces (sending many requests with garbage
+     * nonces to enumerate timing signatures) burns one rate-limit
+     * count per probe and gets capped at the configured per-IP rate
+     * (default 500/hour). If nonce verification ran first, invalid
+     * nonces would short-circuit and never touch the rate limiter,
+     * giving an attacker unlimited probes. The nonce HMAC compare
+     * itself is constant-time (`hash_equals()` in
+     * `BridgeNonceService::verify()`), so timing within an individual
+     * probe doesn't leak useful state — the rate limit caps the
+     * probe COUNT, which is the practical defense.
      */
     private function webhook(ServerRequestInterface $request): ResponseInterface
     {
