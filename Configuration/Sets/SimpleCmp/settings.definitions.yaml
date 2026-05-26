@@ -63,7 +63,7 @@ settings:
     label: 'Universal pre-consent blocking'
     description: 'When on, the FE pipeline rewrites every third-party <script src> / <iframe src> / <img src> / <link href> on the page to the engine''s data-name + data-src + src="about:blank" gate shape before the response is flushed. Visitors then see the click-to-enable placeholder for each blocked embed until consent is granted. Recognises hosts via the bundled simplecmp/services-library origin matchers. Off by default. See ADR-0013 for the design.'
     type: bool
-    default: false
+    default: true
 
   simplecmp.universalBlocking.allowlist:
     label: 'Universal blocking host allowlist'
