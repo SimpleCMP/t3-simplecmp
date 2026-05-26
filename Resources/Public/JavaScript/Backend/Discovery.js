@@ -413,14 +413,42 @@ class Discovery {
   }
 
   appendLog(kind, message) {
-    this.logEntries.push({ kind, message });
+    this._pushLogEntry({ kind, message, count: 1 });
+  }
+
+  /**
+   * Add a single log entry (or merge with the previous identical one)
+   * into both `this.logEntries` and the rendered DOM. Handles both the
+   * live-emit path (count=1) and the restore-from-localStorage path
+   * (count may be > 1 from a previous session's deduped state).
+   *
+   * Dedup is "collapse consecutive identical lines" — same kind +
+   * same message → bump the previous entry's count + refresh the
+   * visible line to show `(×N)`. Different message → push fresh.
+   *
+   * Fixes the "log lines doubled/tripled" bug surfaced 2026-05-26:
+   * switching sites restored old per-site log entries while a fresh
+   * sitemap-refetch also fired, producing 2-4 identical lines for
+   * the same sitemap-load event.
+   */
+  _pushLogEntry(entry) {
+    const last = this.logEntries.length > 0
+      ? this.logEntries[this.logEntries.length - 1]
+      : null;
+    if (last && last.kind === entry.kind && last.message === entry.message) {
+      last.count = (last.count ?? 1) + (entry.count ?? 1);
+      this._refreshLastRenderedLine(last);
+      return;
+    }
+    const next = { kind: entry.kind, message: entry.message, count: entry.count ?? 1 };
+    this.logEntries.push(next);
     if (this.logEntries.length > LOG_RETENTION) {
       this.logEntries.splice(0, this.logEntries.length - LOG_RETENTION);
     }
-    this.renderLogEntry(kind, message);
+    this.renderLogEntry(next.kind, next.message, next.count);
   }
 
-  renderLogEntry(kind, message) {
+  renderLogEntry(kind, message, count = 1) {
     if (!this.log) return;
     if (this.log.firstElementChild?.tagName === 'EM' || this.log.firstElementChild?.querySelector?.('em')) {
       this.log.innerHTML = '';
@@ -429,9 +457,19 @@ class Discovery {
     const icon = kind === 'ok' ? '✓' : kind === 'warn' ? '⚠' : kind === 'error' ? '✗' : '·';
     const cls = kind === 'ok' ? 'text-success' : kind === 'warn' ? 'text-warning' : kind === 'error' ? 'text-danger' : 'text-body-secondary';
     line.className = cls;
-    line.textContent = `${icon} ${message}`;
+    const suffix = count > 1 ? ` (×${count})` : '';
+    line.textContent = `${icon} ${message}${suffix}`;
     this.log.appendChild(line);
     this.log.scrollTop = this.log.scrollHeight;
+  }
+
+  _refreshLastRenderedLine(entry) {
+    if (!this.log) return;
+    const last = this.log.lastElementChild;
+    if (!last) return;
+    const icon = entry.kind === 'ok' ? '✓' : entry.kind === 'warn' ? '⚠' : entry.kind === 'error' ? '✗' : '·';
+    const suffix = entry.count > 1 ? ` (×${entry.count})` : '';
+    last.textContent = `${icon} ${entry.message}${suffix}`;
   }
 
   clearLog() {
@@ -518,14 +556,19 @@ class Discovery {
       this.urlCountEl.textContent = String(this.collectUrls().length);
     }
     if (Array.isArray(data.log)) {
-      // Replay structured entries through renderLogEntry directly so
-      // we don't re-push into logEntries (it's already populated below).
-      this.logEntries = data.log.filter(
+      // Replay saved entries through _pushLogEntry so consecutive
+      // duplicates (from older sessions where dedup didn't exist
+      // yet, OR from cross-site switches that accumulated identical
+      // sitemap-load lines) collapse to a single `(×N)` line. Each
+      // saved entry's `count` field is honored if present (post-fix
+      // saves) and defaults to 1 (pre-fix saves).
+      this.logEntries = [];
+      if (this.log) this.log.innerHTML = '';
+      const validEntries = data.log.filter(
         (e) => e && typeof e === 'object' && typeof e.kind === 'string' && typeof e.message === 'string',
       );
-      if (this.log) this.log.innerHTML = '';
-      for (const entry of this.logEntries) {
-        this.renderLogEntry(entry.kind, entry.message);
+      for (const entry of validEntries) {
+        this._pushLogEntry(entry);
       }
     }
     if (Array.isArray(data.urls) && data.urls.length > 0 && Number.isInteger(data.currentIndex)) {
