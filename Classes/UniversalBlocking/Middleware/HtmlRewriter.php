@@ -191,9 +191,16 @@ final class HtmlRewriter implements MiddlewareInterface
             }
         }
 
-        // saveHTML emits a full document including DOCTYPE; strip the
-        // XML processing instruction we prepended.
+        // saveHTML emits a full document. When the input had no XML
+        // processing instruction, our prepended UTF-8 hint lands at
+        // the start; when the input HAD an xml-PI of its own,
+        // saveHTML emits a DOCTYPE first and our PI ends up further
+        // in. Strip the first occurrence anywhere — there's only
+        // ever one because we inject exactly one. Without the
+        // limit-1 + non-anchored regex, our `encoding="utf-8"`
+        // marker would leak into the visitor's response body for any
+        // input that had its own xml-PI.
         $result = (string) $dom->saveHTML();
-        return preg_replace('/^<\?xml encoding="utf-8"\?>\s*/', '', $result) ?? $result;
+        return preg_replace('/<\?xml encoding="utf-8"\?>\s*/', '', $result, 1) ?? $result;
     }
 }
