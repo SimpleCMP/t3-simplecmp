@@ -10,6 +10,67 @@ development.
 
 ## Unreleased
 
+## 0.5.0 — 2026-05-27
+
+REQ-19 (L2 Provider-Informationen modal) Phase C lands the ext side
+end-to-end: the new bundle ships the modal + per-instance attribute
+overrides, the dep bump brings in 32 curated providers, and
+`RegisterAssets` forwards the disclosure fields into the FE
+`libraryFallback` payload. Plus the ADR-0014 Phase A work
+(upstream services-library consultation) that had been sitting in
+Unreleased.
+
+### Added — REQ-19 Phase C: provider disclosure forwarding
+
+- `RegisterAssets::buildLibraryFallback()` now forwards seven new
+  optional `vendor*` fields from each services-library entry into
+  the FE `libraryFallback` payload: `vendor`, `vendorCountry`,
+  `vendorAddress`, `vendorOptOutUrl`, `vendorPartner`,
+  `vendorDescription`, `privacyPolicyUrl`. The FE
+  `<simplecmp-provider-info-modal>` (upstream
+  `SimpleCMP/simplecmp@afcc5d1`, v0.3.0) renders them on click of
+  the new "Weitere Informationen ›" link in the blocked-embed
+  placeholder. State-2 services (library-known but not in admin
+  registry) now produce a DSGVO-correct L2 disclosure surface
+  matching the layered-disclosure pattern accepted by German DPAs.
+- Two new unit tests in `RegisterAssetsTest`:
+  `libraryFallbackForwardsVendorFieldsFromCuratedEntries` (asserts
+  all 7 forwarded fields on `linkedin-insight`) and
+  `libraryFallbackOmitsVendorFieldsForUncuratedEntries` (guards
+  against null/empty leakage for entries with only purposes).
+- `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` bumped 50 KB → 100 KB raw.
+  Current payload after Phase A.3 curation rolls in: 65 KB raw /
+  9.5 KB gzipped (368 entries, 32 with full provider data). Still
+  well below the extra-roundtrip threshold.
+
+### Changed
+
+- **`simplecmp/services-library` dep bumped `^0.1` → `^0.3`.**
+  Brings in:
+  - Four new optional `vendor*` schema fields validated by
+    `ServicesLibraryTest` (Provider-Informationen fields).
+  - 32 services curated with full provider data across 10 vendors
+    (Google Ireland / Microsoft Ireland / Adobe Systems Software
+    Ireland / Meta Platforms Ireland / TikTok Technology Ireland /
+    Twitter International / Vimeo / LinkedIn Ireland / Pinterest
+    Europe / Stripe Payments Europe).
+  - `bin/migrate-apex-origins.php` migration + apex-domain
+    wildcard rewrite for ~140 OCD-derived services.
+  - `placeholderTitle` / `placeholderDescription` fields with
+    curated copy for 15 high-value embeds.
+  - The `curate-service-provider` Claude Code skill at
+    `services-library/.claude/skills/`.
+
+### Fixed
+
+- **`LibraryWalkDeterminismTest::realLibraryWalkIsAlphabeticalBySourceFile`
+  corrected** to match the iterator's actual behavior: `glob()`
+  returns sorted-by-filename, where `-` (0x2D) < `.` (0x2E), so
+  `akamai-botmanager.json` sorts before `akamai.json` even though
+  by id `akamai` sorts before `akamai-botmanager`. The test was
+  previously coincidentally passing because the v0.1.0 services-
+  library subset shipped no prefix-pair IDs.
+
 ### Added — upstream services-library consultation (ADR-0014 Phase A)
 
 - New Site Set field `simplecmp.libraryUpstreamUrl`. When set,
