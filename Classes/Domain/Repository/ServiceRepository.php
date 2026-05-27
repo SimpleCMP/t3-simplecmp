@@ -135,6 +135,10 @@ final readonly class ServiceRepository
             'name' => $serviceData['name'],
             'vendor' => $serviceData['vendor'] ?? null,
             'vendor_country' => $serviceData['vendorCountry'] ?? null,
+            'vendor_address' => $this->stringOrNull($serviceData['vendorAddress'] ?? null),
+            'vendor_opt_out_url' => $this->stringOrNull($serviceData['vendorOptOutUrl'] ?? null),
+            'vendor_partner' => $this->stringOrNull($serviceData['vendorPartner'] ?? null),
+            'vendor_description' => $this->stringOrNull($serviceData['vendorDescription'] ?? null),
             'purposes' => json_encode($serviceData['purposes'] ?? [], JSON_THROW_ON_ERROR),
             'privacy_policy_url' => $serviceData['privacyPolicyUrl'] ?? null,
             'description' => $serviceData['description'] ?? null,
@@ -318,6 +322,22 @@ final readonly class ServiceRepository
         }
         if ($row['vendor_country'] !== null && $row['vendor_country'] !== '') {
             $out['vendorCountry'] = (string) $row['vendor_country'];
+        }
+        // L2 Provider-Informationen modal fields (REQ-19 Phase D).
+        // Each guarded with both `isset` (legacy rows from before the
+        // schema migration may lack the column entirely if the row was
+        // SELECTed by an old code path) and the non-empty-string check.
+        foreach (
+            [
+                'vendor_address' => 'vendorAddress',
+                'vendor_opt_out_url' => 'vendorOptOutUrl',
+                'vendor_partner' => 'vendorPartner',
+                'vendor_description' => 'vendorDescription',
+            ] as $column => $key
+        ) {
+            if (isset($row[$column]) && $row[$column] !== null && $row[$column] !== '') {
+                $out[$key] = (string) $row[$column];
+            }
         }
         if ($row['privacy_policy_url'] !== null && $row['privacy_policy_url'] !== '') {
             $out['privacyPolicyUrl'] = (string) $row['privacy_policy_url'];

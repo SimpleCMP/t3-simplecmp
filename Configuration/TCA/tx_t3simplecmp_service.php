@@ -94,6 +94,30 @@ return [
             'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_country',
             'config' => ['type' => 'input', 'size' => 4, 'eval' => 'trim,upper', 'max' => 8],
         ],
+        // L2 Provider-Informationen modal fields (REQ-19 Phase D).
+        // Populated by Bibliothek-Übernehmen automatically; admin can
+        // edit freely. Long-form text fields except vendor_opt_out_url
+        // which is a URL.
+        'vendor_address' => [
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_address',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_address.description',
+            'config' => ['type' => 'text', 'rows' => 3, 'cols' => 40],
+        ],
+        'vendor_opt_out_url' => [
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_opt_out_url',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_opt_out_url.description',
+            'config' => ['type' => 'link', 'allowedTypes' => ['url']],
+        ],
+        'vendor_partner' => [
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_partner',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_partner.description',
+            'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40],
+        ],
+        'vendor_description' => [
+            'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_description',
+            'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_description.description',
+            'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40],
+        ],
         'purposes' => [
             'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes',
             'description' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.description',
@@ -155,7 +179,7 @@ return [
     'palettes' => [
         'protocol' => [
             'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.palette.protocol',
-            'showitem' => 'service_id, name, vendor, vendor_country',
+            'showitem' => 'service_id, name, vendor, vendor_country, --linebreak--, vendor_address, --linebreak--, vendor_description, --linebreak--, vendor_partner, --linebreak--, vendor_opt_out_url',
         ],
         'classification' => [
             'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.palette.classification',

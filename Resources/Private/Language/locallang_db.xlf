@@ -10,6 +10,14 @@
       <trans-unit id="tx_t3simplecmp_service.name"><source>Display name</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.vendor"><source>Vendor</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.vendor_country"><source>Vendor country (ISO 3166)</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_address"><source>Vendor postal address</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_address.description"><source>Full postal address of the legal entity (e.g. "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland"). Surfaced in the L2 Provider-Informationen modal.</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_opt_out_url"><source>Vendor opt-out URL</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_opt_out_url.description"><source>Service-specific opt-out endpoint (HTTPS). Distinct from the privacy-policy URL.</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_partner"><source>Vendor partner / joint controllers</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_partner.description"><source>Free-text disclosure of joint controllers, parent companies, or data-sharing partners (Fashion ID / Art. 26 GDPR), plus transfer-basis text (DPF / SCCs / Art. 49).</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_description"><source>Vendor description</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.vendor_description.description"><source>Short description of the legal entity / company itself. Distinct from the service description (which describes the service).</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes"><source>Purposes</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes.description"><source>What this service is used for. Choices come from the bundled tracker library and grow as new categories appear in it.</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes.item.advertising"><source>Advertising</source></trans-unit>
