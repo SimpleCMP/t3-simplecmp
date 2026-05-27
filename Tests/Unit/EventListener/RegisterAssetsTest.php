@@ -493,8 +493,12 @@ final class RegisterAssetsTest extends TestCase
         self::assertArrayHasKey('libraryFallback', $config);
         self::assertArrayHasKey('linkedin-insight', $config['libraryFallback']);
         $entry = $config['libraryFallback']['linkedin-insight'];
-        self::assertSame('LinkedIn Ireland Unlimited Company', $entry['vendor']);
+        self::assertSame('LinkedIn', $entry['vendor']);
         self::assertSame('IE', $entry['vendorCountry']);
+        self::assertStringContainsString('LinkedIn Ireland Unlimited Company', $entry['vendorAddress']);
+        self::assertSame('https://www.linkedin.com/psettings/advertising', $entry['vendorOptOutUrl']);
+        self::assertStringContainsString('Microsoft Corporation', $entry['vendorPartner']);
+        self::assertStringContainsString('EU establishment', $entry['vendorDescription']);
         self::assertSame('https://www.linkedin.com/legal/privacy-policy', $entry['privacyPolicyUrl']);
     }
 

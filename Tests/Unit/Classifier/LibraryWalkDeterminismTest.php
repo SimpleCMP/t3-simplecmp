@@ -102,14 +102,25 @@ final class LibraryWalkDeterminismTest extends TestCase
     #[Test]
     public function realLibraryWalkIsAlphabeticalBySourceFile(): void
     {
-        // Sanity check the real library iterator's order — IDs come
-        // back in alphabetical order so deriveState picks the first
-        // alphabetical match. Tests against whatever version is
-        // bundled; just asserts the order is stable & alphabetical.
+        // Sanity check the real library iterator's order — entries come
+        // back in alphabetical-by-source-filename order (the library
+        // uses glob() which returns sorted-by-filename). This differs
+        // from alphabetical-by-id for prefix pairs like
+        // `akamai`/`akamai-botmanager`: by filename `-` (0x2D) <
+        // `.` (0x2E), so `akamai-botmanager.json` sorts before
+        // `akamai.json` even though by id `akamai` sorts before
+        // `akamai-botmanager`. deriveState picks the first matching
+        // entry in iteration order; this test pins the order is
+        // stable + matches glob's filename sort.
         $ids = array_column(iterator_to_array(ServicesLibrary::services(), false), 'id');
         self::assertNotEmpty($ids, 'Real library should be non-empty.');
-        $sorted = $ids;
-        sort($sorted, SORT_STRING);
-        self::assertSame($sorted, $ids, 'Library iteration order must be alphabetical by id.');
+        $filenames = array_map(static fn (string $id): string => $id . '.json', $ids);
+        $sortedFilenames = $filenames;
+        sort($sortedFilenames, SORT_STRING);
+        self::assertSame(
+            $sortedFilenames,
+            $filenames,
+            'Library iteration order must match glob() filename sort.',
+        );
     }
 }

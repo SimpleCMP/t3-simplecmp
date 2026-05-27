@@ -343,14 +343,16 @@ final readonly class RegisterAssets
      *   information ›" link with an effectively-empty modal.
      *
      * Size budget (as of 2026-05-27, 368 entries; 32 with curated
-     * provider data):
-     *   - raw JSON:  ~31 KB
-     *   - gzipped:   ~5 KB
+     * provider data via services-library v0.3.0):
+     *   - raw JSON:  ~65 KB
+     *   - gzipped:   ~9.5 KB
      *
-     * The `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` constant (50 KB raw ≈
-     * 8 KB gzipped) marks where inlining stops being clearly-better-
+     * The `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` constant (100 KB raw ≈
+     * 14 KB gzipped) marks where inlining stops being clearly-better-
      * than-an-extra-fetch: an additional HTTP roundtrip costs
-     * ~30-50ms; inlined data > ~8 KB gzipped starts pushing past that.
+     * ~30-50ms; inlined data > ~15 KB gzipped starts pushing past that.
+     * Bumped from 50 KB after Phase A.3 curation rolled in; the
+     * payload grew ~4× without adding a roundtrip.
      *
      * If the library grows past the budget we log a warning so future-
      * us knows to consider lazy-loading via a same-origin endpoint
@@ -368,7 +370,7 @@ final readonly class RegisterAssets
      *     privacyPolicyUrl?: string,
      * }>
      */
-    private const int LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 50000;
+    private const int LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 100000;
 
     private const array LIBRARY_FALLBACK_VENDOR_FIELDS = [
         'vendor',
