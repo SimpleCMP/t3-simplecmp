@@ -262,6 +262,27 @@ Iterations shipped:
     `Server-Timing: rewriter` header so cost is visible per request.
     See [ADR-0013](https://github.com/SimpleCMP/simplecmp/blob/main/docs/adr/0013-universal-blocking-implementation-plan.md)
     for design.
+12. **Upstream library consultation (ADR-0014 Phase A).** New Site
+    Set field `simplecmp.libraryUpstreamUrl` (default
+    `https://library.simplecmp.eu/v1`); when set, `ClassifierLookup`
+    consults the canonical hosted services-library as a third tier
+    after the local registry and the bundled JSON both miss. Visitor
+    IPs never reach the upstream — only this server's PHP queries it
+    server-to-server. 24h positive + negative cache;
+    `simplecmp.libraryUpstreamDailyBudget` caps daily calls.
+13. **REQ-19 L2 Provider-Informationen modal (v0.5.0).** The FE
+    contextual-notice gets a "Weitere Informationen ›" link that
+    opens a modal disclosing the recipient legal entity, full postal
+    address, country, privacy policy URL, opt-out URL, partner /
+    joint-controllers, and provider description — sourced from the
+    services-library v0.3.0 curated entries. `RegisterAssets`
+    forwards the data into the FE `libraryFallback` payload for
+    library-known-but-not-adopted services; for adopted services
+    the registry stores the same fields (new columns
+    `vendor_address` / `vendor_opt_out_url` / `vendor_partner` /
+    `vendor_description`; admin-editable via TCA). Run
+    `vendor/bin/typo3 database:updateschema` on upgrade. Matches the
+    German-market accepted three-layer-disclosure pattern.
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
