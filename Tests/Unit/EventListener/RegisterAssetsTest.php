@@ -458,6 +458,96 @@ final class RegisterAssetsTest extends TestCase
         self::assertTrue($config['interceptRuntime']['universalBlock']);
     }
 
+    // --- libraryFallback provider fields (REQ-19) -------------------------
+
+    #[Test]
+    public function libraryFallbackForwardsVendorFieldsFromCuratedEntries(): void
+    {
+        // The L2 Provider-Informationen modal (REQ-19) reads vendor /
+        // vendorCountry / vendorAddress / vendorOptOutUrl /
+        // vendorPartner / vendorDescription / privacyPolicyUrl from
+        // each library entry. This test pins the forwarding wire-up:
+        // any of the seven optional fields present on a library entry
+        // must flow into the FE libraryFallback payload so the modal
+        // can render them on state-2 (library-known) services.
+        //
+        // Asserts against `linkedin-insight` because it's present in
+        // the ext-local services-library subset AND already has
+        // `vendor`, `vendorCountry`, `privacyPolicyUrl` populated.
+        // The remaining four fields will join when the dep is bumped
+        // past v0.1.0 to include the Phase A.3 curated data.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.universalBlocking.enabled' => true,
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertArrayHasKey('libraryFallback', $config);
+        self::assertArrayHasKey('linkedin-insight', $config['libraryFallback']);
+        $entry = $config['libraryFallback']['linkedin-insight'];
+        self::assertSame('LinkedIn Ireland Unlimited Company', $entry['vendor']);
+        self::assertSame('IE', $entry['vendorCountry']);
+        self::assertSame('https://www.linkedin.com/legal/privacy-policy', $entry['privacyPolicyUrl']);
+    }
+
+    #[Test]
+    public function libraryFallbackOmitsVendorFieldsForUncuratedEntries(): void
+    {
+        // Only ~32 of the ~369 library services have been curated with
+        // vendor* fields. An uncurated entry should still appear in
+        // libraryFallback when it has purposes (the existing behavior),
+        // but WITHOUT the vendor* keys leaking through as empty strings
+        // or null — we want absence to mean absence.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.universalBlocking.enabled' => true,
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        $fallback = $config['libraryFallback'];
+        // Find one library entry that has purposes but NOT vendor* fields.
+        $uncuratedEntry = null;
+        $uncuratedId = null;
+        foreach ($fallback as $id => $entry) {
+            if (
+                !isset($entry['vendorAddress'])
+                && !isset($entry['vendorPartner'])
+                && isset($entry['purposes'])
+            ) {
+                $uncuratedEntry = $entry;
+                $uncuratedId = $id;
+                break;
+            }
+        }
+        self::assertNotNull($uncuratedEntry, 'Expected at least one purposes-only library entry');
+        self::assertArrayHasKey('purposes', $uncuratedEntry);
+        foreach (
+            ['vendorAddress', 'vendorOptOutUrl', 'vendorPartner', 'vendorDescription'] as $key
+        ) {
+            self::assertArrayNotHasKey(
+                $key,
+                $uncuratedEntry,
+                sprintf('uncurated entry %s should not carry %s', $uncuratedId, $key),
+            );
+        }
+    }
+
     // --- theme injection ---------------------------------------------------
 
     #[Test]

@@ -332,28 +332,53 @@ final readonly class RegisterAssets
      * Build the `libraryFallback` map for the FE notice's state-2
      * render mode. Keyed by library service id (matches what
      * `HtmlRewriter` puts in `data-name` for library-recognised
-     * hosts). Currently only `purposes` is included — that's all
-     * the notice needs right now. Additional fields (vendor, privacy
-     * URL, …) can be added later if the notice UI grows.
+     * hosts). Forwarded fields:
      *
-     * Size budget (as of 2026-05-26, 368 entries):
-     *   - raw JSON:  ~16 KB
-     *   - gzipped:   ~2.7 KB
+     * - `purposes` — drives the "Zwecke: Marketing, Statistik" line
+     *   under the placeholder description.
+     * - `vendor`, `vendorCountry`, `vendorAddress`, `vendorOptOutUrl`,
+     *   `vendorPartner`, `vendorDescription`, `privacyPolicyUrl` —
+     *   the L2 Provider-Informationen modal fields (REQ-19). Without
+     *   forwarding these, state-2 services would show only a "More
+     *   information ›" link with an effectively-empty modal.
      *
-     * At current density that's roughly 44 raw bytes per entry. The
-     * `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` constant (50 KB raw ≈ 8 KB
-     * gzipped) marks where inlining stops being clearly-better-than-
-     * an-extra-fetch: an additional HTTP roundtrip costs ~30-50ms;
-     * inlined data > ~8 KB gzipped starts pushing past that.
+     * Size budget (as of 2026-05-27, 368 entries; 32 with curated
+     * provider data):
+     *   - raw JSON:  ~31 KB
+     *   - gzipped:   ~5 KB
+     *
+     * The `LIBRARY_FALLBACK_RAW_BUDGET_BYTES` constant (50 KB raw ≈
+     * 8 KB gzipped) marks where inlining stops being clearly-better-
+     * than-an-extra-fetch: an additional HTTP roundtrip costs
+     * ~30-50ms; inlined data > ~8 KB gzipped starts pushing past that.
      *
      * If the library grows past the budget we log a warning so future-
      * us knows to consider lazy-loading via a same-origin endpoint
      * (e.g. `/api/simplecmp/v1/library-fallback.json` cached 24h, plugin
      * proxies it like everything else). For now: inline is fine.
      *
-     * @return array<string, array{purposes: list<string>}>
+     * @return array<string, array{
+     *     purposes?: list<string>,
+     *     vendor?: string,
+     *     vendorCountry?: string,
+     *     vendorAddress?: string,
+     *     vendorOptOutUrl?: string,
+     *     vendorPartner?: string,
+     *     vendorDescription?: string,
+     *     privacyPolicyUrl?: string,
+     * }>
      */
     private const int LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 50000;
+
+    private const array LIBRARY_FALLBACK_VENDOR_FIELDS = [
+        'vendor',
+        'vendorCountry',
+        'vendorAddress',
+        'vendorOptOutUrl',
+        'vendorPartner',
+        'vendorDescription',
+        'privacyPolicyUrl',
+    ];
 
     private function buildLibraryFallback(): array
     {
@@ -363,20 +388,36 @@ final readonly class RegisterAssets
             if ($id === '') {
                 continue;
             }
+
+            $entry = [];
+
             $purposes = $service['purposes'] ?? [];
-            if (!is_array($purposes) || $purposes === []) {
-                continue;
-            }
-            $clean = [];
-            foreach ($purposes as $p) {
-                if (is_string($p) && $p !== '') {
-                    $clean[] = $p;
+            if (is_array($purposes)) {
+                $clean = [];
+                foreach ($purposes as $p) {
+                    if (is_string($p) && $p !== '') {
+                        $clean[] = $p;
+                    }
+                }
+                if ($clean !== []) {
+                    $entry['purposes'] = $clean;
                 }
             }
-            if ($clean === []) {
-                continue;
+
+            // L2 Provider-Informationen fields — forward when present
+            // and non-empty. The FE modal renders each field
+            // independently, hiding any that are missing, so a partial
+            // set is fine.
+            foreach (self::LIBRARY_FALLBACK_VENDOR_FIELDS as $field) {
+                $value = $service[$field] ?? null;
+                if (is_string($value) && $value !== '') {
+                    $entry[$field] = $value;
+                }
             }
-            $fallback[$id] = ['purposes' => $clean];
+
+            if ($entry !== []) {
+                $fallback[$id] = $entry;
+            }
         }
 
         $rawSize = strlen((string) json_encode($fallback));
