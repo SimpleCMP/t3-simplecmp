@@ -267,9 +267,9 @@ final class LibraryBrowserController extends ActionController
 
         // Drift comparison is on dataHash (content over service JSON
         // files) NOT sourceSha (which moves on every README/CI commit).
-        // dataHash is null on legacy upstreams pre-dating the
-        // `/v1/health.dataHash` field — fall back to sourceSha so the
-        // panel still works during the rollout, but flag both ends.
+        // Upstreams that don't expose dataHash on /v1/health are
+        // reported as drifted — operators see "Updates verfügbar" until
+        // the upstream is rebuilt and dataHash matches.
         $upstreamDataHash = $snapshot['dataHash'] ?? null;
         $upstreamSourceSha = $snapshot['sourceSha'] ?? null;
         $inSync = $bundleDataHash !== ''
