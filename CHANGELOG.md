@@ -8,7 +8,18 @@ step with the upstream
 [SimpleCMP](https://github.com/SimpleCMP/simplecmp) library's own pre-1.0
 development.
 
-## Unreleased
+## 0.6.0 — 2026-05-28
+
+Backend polish + library-upstream feedback loop closes. Builds on
+v0.5.0's `simplecmp/services-library` consultation: the BE now
+*shows* the bundled-vs-upstream state (freshness panel), labels
+its two upstream traffic sources distinctly (Bundle & Snapshot vs
+Laufzeit-Abfragen, side-by-side on wider viewports), and surfaces
+the full service surface on demand via a per-row info modal.
+
+Hard requirement: `simplecmp/services-library` ≥ `v0.3.1`
+(introduces `ServicesLibrary::dataHash()` — the freshness drift
+signal and the info modal both depend on it).
 
 ### Added
 
