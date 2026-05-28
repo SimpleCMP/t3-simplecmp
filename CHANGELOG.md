@@ -12,6 +12,23 @@ development.
 
 ### Added
 
+- **Per-service info modal** on the Bibliothek and Dienste tabs.
+  Every row gets a small ⓘ icon button next to its actions; clicking
+  it opens a TYPO3 `Modal.advanced` with the full service surface:
+  locale-resolved description (reads `i18n.description.<lang>` from
+  the bundled JSON against the BE user's UI language), ID, vendor
+  + country, privacy-policy link, purposes as badges, cookie /
+  origin matchers, and the four optional `vendor*` L2 fields
+  (address, opt-out URL, partners, vendor description) when present.
+  The Dienste tab additionally folds the bundled library entry on
+  top of the DB row for `Aus-Bibliothek` services, so they surface
+  the i18n + `vendor*` data the registry DB doesn't store.
+- **Sub-section labels and two-column layout** on the Bibliotheks-
+  Upstream panel. "Bundle & Snapshot" (drift-probe driven) sits
+  beside "Laufzeit-Abfragen" (runtime classifier counters, with
+  tooltip clarifying the distinction). The two sub-sections are
+  side-by-side on ≥768px viewports and collapse to a single column
+  on narrower BE windows.
 - **Bibliotheks-Upstream freshness panel** on the Bibliothek tab now
   shows the bundled library version (from Composer) alongside the live
   upstream snapshot from `/v1/health` (service count, source commit
