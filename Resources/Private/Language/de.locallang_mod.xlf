@@ -94,6 +94,9 @@
       <trans-unit id="upstream.unreachable"><source>not reachable</source><target>nicht erreichbar</target></trans-unit>
       <trans-unit id="upstream.refresh"><source>Check now</source><target>Jetzt prüfen</target></trans-unit>
       <trans-unit id="upstream.refresh.tooltip"><source>Re-fetch the upstream library health snapshot.</source><target>Lädt die Statusinformationen des Bibliotheks-Upstreams neu.</target></trans-unit>
+      <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source><target>Bundle &amp; Snapshot</target></trans-unit>
+      <trans-unit id="upstream.section.runtime"><source>Runtime lookups</source><target>Laufzeit-Abfragen</target></trans-unit>
+      <trans-unit id="upstream.section.runtime.hint"><source>Counts the runtime classifier's queries to the upstream registry — independent of this panel's freshness probe.</source><target>Zählt die Abfragen des Klassifikators an die Upstream-Registry — unabhängig von der Aktualitätsprüfung dieses Panels.</target></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>

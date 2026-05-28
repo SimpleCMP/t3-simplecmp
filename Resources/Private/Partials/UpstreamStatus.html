@@ -24,6 +24,11 @@
                 </f:if>
             </div>
 
+            <div class="row gx-3 gy-2">
+                <div class="col-md-6">
+            <div class="text-body-secondary text-uppercase fw-semibold small mb-1" style="letter-spacing: 0.04em;">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.snapshot" />
+            </div>
             <div class="small mb-1">
                 <span class="text-body-secondary">
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.label" />:
@@ -93,7 +98,13 @@
                 </div>
             </f:if>
 
-            <div class="d-flex flex-wrap align-items-center gap-3 small">
+                </div>
+                <div class="col-md-6">
+            <div class="text-body-secondary text-uppercase fw-semibold small mb-1" style="letter-spacing: 0.04em;"
+                 title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime" />
+            </div>
+            <div class="d-flex flex-column gap-1 small">
                 <f:if condition="{upstreamStatus.enabled}">
                     <f:then>
                         <div>
@@ -151,6 +162,8 @@
                         </span>
                     </f:else>
                 </f:if>
+            </div>
+                </div>
             </div>
 
             <f:if condition="{upstreamStatus.enabled} && {upstreamStatus.sites -> f:count()} > 1">
