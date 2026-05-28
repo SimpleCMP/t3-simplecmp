@@ -138,6 +138,40 @@ final class LibraryUpstreamHealthTest extends TestCase
         self::assertNull($snap['dataHash'], 'pre-dataHash upstreams must return null for the field');
     }
 
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function bogusDataHashShapes(): iterable
+    {
+        yield 'too short'   => ['abc'];
+        yield 'empty'       => [''];
+        yield 'wrong length 32 hex' => [str_repeat('a', 32)];
+        yield 'non-string number'   => [12345];
+        yield 'non-string array'    => [['a', 'b']];
+        yield 'non-string bool'     => [true];
+        yield 'non-string null'     => [null];
+    }
+
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('bogusDataHashShapes')]
+    public function dataHashIsSanitisedToNullWhenUpstreamReturnsWrongShape(mixed $bogus): void
+    {
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willReturn($this->httpResponse(200, json_encode([
+                'serviceCount' => 368,
+                'sourceSha' => str_repeat('a', 40),
+                'dataHash' => $bogus,
+                'lastSyncAt' => '2026-05-28T08:17:03Z',
+            ]) ?: ''));
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        $snap = $health->snapshot('https://lib.example/v1', str_repeat('b', 64));
+
+        self::assertNotNull($snap);
+        self::assertNull($snap['dataHash'], 'wrong-shape dataHash must sanitise to null (only 64-char strings pass through)');
+    }
+
     #[Test]
     public function returnsNullOnNetworkErrorAndDoesNotCache(): void
     {
