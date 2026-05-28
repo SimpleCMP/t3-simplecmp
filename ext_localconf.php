@@ -14,6 +14,17 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']
         'groups' => ['system'],
     ];
 
+// Upstream library /v1/health snapshot cache for the Bibliothek tab's
+// freshness panel. One entry per configured upstream URL; 30-minute
+// TTL so the panel stays cheap to open repeatedly. The "Jetzt prüfen"
+// button on the panel flushes the cache for on-demand refresh.
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']
+    [\SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth::CACHE_IDENTIFIER] ??= [
+        'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
+        'backend' => \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend::class,
+        'groups' => ['system'],
+    ];
+
 // Pivot `tx_t3simplecmp_service.purposes` between JSON storage and
 // CSV form value. See the two classes' docblocks for why.
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']

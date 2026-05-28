@@ -83,6 +83,17 @@
       <trans-unit id="upstream.budget.exhausted"><source>budget reached</source></trans-unit>
       <trans-unit id="upstream.sites.toggle"><source>Per-site detail (%s sites)</source></trans-unit>
       <trans-unit id="upstream.site.budget"><source>budget</source></trans-unit>
+      <trans-unit id="upstream.bundle.label"><source>Bundle</source></trans-unit>
+      <trans-unit id="upstream.bundle.changelog"><source>Changelog</source></trans-unit>
+      <trans-unit id="upstream.snapshot.label"><source>Upstream</source></trans-unit>
+      <trans-unit id="upstream.services"><source>services</source></trans-unit>
+      <trans-unit id="upstream.synced"><source>synced</source></trans-unit>
+      <trans-unit id="upstream.inSync"><source>In sync</source></trans-unit>
+      <trans-unit id="upstream.updatesAvailable"><source>Updates available</source></trans-unit>
+      <trans-unit id="upstream.howToUpdate"><source>Update with:</source></trans-unit>
+      <trans-unit id="upstream.unreachable"><source>not reachable</source></trans-unit>
+      <trans-unit id="upstream.refresh"><source>Check now</source></trans-unit>
+      <trans-unit id="upstream.refresh.tooltip"><source>Re-fetch the upstream library health snapshot.</source></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>

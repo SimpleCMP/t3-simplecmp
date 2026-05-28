@@ -15,6 +15,8 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo;
+use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 
@@ -51,6 +53,8 @@ final class LibraryBrowserController extends ActionController
         private readonly LibraryUpstreamStats $upstreamStats,
         private readonly LibraryCacheRepository $libraryCache,
         private readonly SiteFinder $siteFinder,
+        private readonly LibraryUpstreamHealth $upstreamHealth,
+        private readonly BundledLibraryInfo $bundledLibrary,
     ) {
     }
 
@@ -104,7 +108,7 @@ final class LibraryBrowserController extends ActionController
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
-            'upstreamStatus' => $this->buildUpstreamStatus(),
+            'upstreamStatus' => $this->buildUpstreamStatus(count($allEntries)),
             'entries' => $rows,
             'status' => $status,
             'search' => $search,
@@ -162,6 +166,18 @@ final class LibraryBrowserController extends ActionController
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
+    /**
+     * "Jetzt prüfen" button in the Bibliotheks-Upstream card. Drops the
+     * cached `/v1/health` snapshots so the next list render re-probes
+     * upstream. Touches only the health cache — the per-cookie lookup
+     * cache (LibraryCacheRepository) is unaffected.
+     */
+    public function refreshUpstreamHealthAction(): ResponseInterface
+    {
+        $this->upstreamHealth->flush();
+        return $this->redirect('list');
+    }
+
     // ---------------------------------------------------------------------
 
     /**
@@ -169,6 +185,9 @@ final class LibraryBrowserController extends ActionController
      * on the Bibliothek tab. Cache rows + stats are system-wide;
      * upstream URL + daily budget are per-site, so we list one entry
      * per site that has the URL configured (usually just one).
+     *
+     * @param int $bundleServiceCount Pre-counted from loadLibrary() — passed in to avoid iterating
+     *     `ServicesLibrary::services()` twice per list render.
      *
      * @return array{
      *     enabled: bool,
@@ -183,9 +202,21 @@ final class LibraryBrowserController extends ActionController
      *     lastSuccessAt: int|null,
      *     lastFailureAt: int|null,
      *     sites: list<array{identifier: string, url: string, budget: int}>,
+     *     bundle: array{version: string|null, sha: string|null, shortSha: string|null, serviceCount: int, changelogUrl: string},
+     *     upstream: array{
+     *         probed: bool,
+     *         serviceCount: int|null,
+     *         sourceSha: string|null,
+     *         shortSourceSha: string|null,
+     *         dataHash: string|null,
+     *         lastSyncAt: int|null,
+     *         fetchedAt: int|null,
+     *         inSync: bool,
+     *     },
+     *     uri_refresh: string,
      * }
      */
-    private function buildUpstreamStatus(): array
+    private function buildUpstreamStatus(int $bundleServiceCount): array
     {
         $now = time();
         $cache = $this->libraryCache->countLive($now);
@@ -195,12 +226,14 @@ final class LibraryBrowserController extends ActionController
 
         $sites = [];
         $maxBudget = 0;
+        $firstUpstreamUrl = null;
         foreach ($this->siteFinder->getAllSites() as $site) {
             $settings = $site->getSettings();
             $url = $settings->get('simplecmp.libraryUpstreamUrl');
             if (!is_string($url) || $url === '') {
                 continue;
             }
+            $firstUpstreamUrl ??= $url;
             $budget = $settings->get('simplecmp.libraryUpstreamDailyBudget');
             $budgetInt = is_int($budget) ? $budget : (int) $budget;
             $sites[] = [
@@ -212,6 +245,47 @@ final class LibraryBrowserController extends ActionController
                 $maxBudget = $budgetInt;
             }
         }
+
+        $bundleSha = $this->bundledLibrary->sha();
+        $bundleVersion = $this->bundledLibrary->version();
+        $bundleDataHash = $this->bundledLibrary->dataHash();
+        $bundle = [
+            'version' => $bundleVersion,
+            'sha' => $bundleSha,
+            'shortSha' => $bundleSha !== null ? substr($bundleSha, 0, 7) : null,
+            'serviceCount' => $bundleServiceCount,
+            'changelogUrl' => 'https://github.com/SimpleCMP/services-library/blob/main/CHANGELOG.md',
+        ];
+
+        // Probe upstream /health only when at least one site has a URL
+        // configured. Multi-site installs typically share one upstream;
+        // we use the first one we see. Bundle dataHash drives cache
+        // invalidation on the next composer update.
+        $snapshot = $firstUpstreamUrl !== null
+            ? $this->upstreamHealth->snapshot($firstUpstreamUrl, $bundleDataHash)
+            : null;
+
+        // Drift comparison is on dataHash (content over service JSON
+        // files) NOT sourceSha (which moves on every README/CI commit).
+        // dataHash is null on legacy upstreams pre-dating the
+        // `/v1/health.dataHash` field — fall back to sourceSha so the
+        // panel still works during the rollout, but flag both ends.
+        $upstreamDataHash = $snapshot['dataHash'] ?? null;
+        $upstreamSourceSha = $snapshot['sourceSha'] ?? null;
+        $inSync = $bundleDataHash !== ''
+            && $upstreamDataHash !== null
+            && hash_equals($bundleDataHash, $upstreamDataHash);
+
+        $upstream = [
+            'probed' => $snapshot !== null,
+            'serviceCount' => $snapshot['serviceCount'] ?? null,
+            'sourceSha' => $upstreamSourceSha,
+            'shortSourceSha' => $upstreamSourceSha !== null ? substr($upstreamSourceSha, 0, 7) : null,
+            'dataHash' => $upstreamDataHash,
+            'lastSyncAt' => $snapshot['lastSyncAt'] ?? null,
+            'fetchedAt' => $snapshot['fetchedAt'] ?? null,
+            'inSync' => $inSync,
+        ];
 
         return [
             'enabled' => $sites !== [],
@@ -226,6 +300,9 @@ final class LibraryBrowserController extends ActionController
             'lastSuccessAt' => $snap['last_success_at'],
             'lastFailureAt' => $snap['last_failure_at'],
             'sites' => $sites,
+            'bundle' => $bundle,
+            'upstream' => $upstream,
+            'uri_refresh' => $this->uri('refreshUpstreamHealth'),
         ];
     }
 

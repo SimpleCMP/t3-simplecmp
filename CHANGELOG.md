@@ -10,6 +10,36 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Bibliotheks-Upstream freshness panel** on the Bibliothek tab now
+  shows the bundled library version (from Composer) alongside the live
+  upstream snapshot from `/v1/health` (service count, source commit
+  SHA, last sync time). A drift badge compares the bundled and upstream
+  `dataHash` (sha256 over the service JSON files): ✓ "Auf dem Stand"
+  when equal, ⚠ "Updates verfügbar" when they differ. Content-only
+  comparison — README/CI/docs commits on the upstream library repo
+  don't trigger drift signals. When upstream signals drift, an inline
+  `composer update simplecmp/services-library` hint appears. A "Jetzt
+  prüfen" button flushes the 30-minute cache for an on-demand re-probe.
+  New cache backend `t3_simplecmp_library_upstream_health` is
+  registered automatically; run `database:updateschema` on upgrade so
+  the cache tables get created
+  (`cache_t3_simplecmp_library_upstream_health` and its `_tags`
+  companion).
+- New services: `LibraryUpstreamHealth` (cached `/v1/health` probe
+  with bundle-dataHash-aware invalidation), `BundledLibraryInfo` (thin
+  wrapper over Composer's `InstalledVersions` + the library's own
+  `dataHash()` method). Both covered by unit tests.
+
+### Requires
+
+- `simplecmp/services-library` ≥ the commit introducing
+  `ServicesLibrary::dataHash()` and a reference-server emitting
+  `dataHash` on `/v1/health`. Pre-dataHash upstreams degrade to a
+  ⚠ "Updates verfügbar" state (the comparison can't establish
+  equality without both sides).
+
 ## 0.5.0 — 2026-05-27
 
 REQ-19 (L2 Provider-Informationen modal) Phase C lands the ext side

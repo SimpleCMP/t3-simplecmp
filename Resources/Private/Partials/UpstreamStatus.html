@@ -6,14 +6,94 @@
 <f:section name="upstreamStatus">
     <div class="card mb-3 simplecmp-upstream-status {f:if(condition: '{upstreamStatus.budgetExhausted}', then: 'border-warning')}">
         <div class="card-body py-2">
-            <div class="d-flex flex-wrap align-items-center gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
                 <div class="d-flex align-items-center gap-2 me-auto">
                     <core:icon identifier="actions-cloud" size="medium" />
                     <strong>
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.title" />
                     </strong>
                 </div>
+                <f:if condition="{upstreamStatus.enabled}">
+                    <form method="post" action="{upstreamStatus.uri_refresh}" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh.tooltip')}">
+                            <core:icon identifier="actions-refresh" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh" />
+                        </button>
+                    </form>
+                </f:if>
+            </div>
 
+            <div class="small mb-1">
+                <span class="text-body-secondary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.label" />:
+                </span>
+                <f:if condition="{upstreamStatus.bundle.version}">
+                    <f:then><strong>{upstreamStatus.bundle.version}</strong></f:then>
+                    <f:else><span class="text-body-secondary">—</span></f:else>
+                </f:if>
+                <span class="text-body-secondary">
+                    ({upstreamStatus.bundle.serviceCount}
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />)
+                </span>
+                <f:if condition="{upstreamStatus.bundle.sha}">
+                    <code class="text-body-secondary ms-1" title="{upstreamStatus.bundle.sha}">@{upstreamStatus.bundle.shortSha}</code>
+                </f:if>
+                <a href="{upstreamStatus.bundle.changelogUrl}" target="_blank" rel="noopener noreferrer" class="ms-2">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.changelog" /> ↗
+                </a>
+            </div>
+
+            <f:if condition="{upstreamStatus.enabled}">
+                <div class="small mb-2">
+                    <span class="text-body-secondary">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.snapshot.label" />:
+                    </span>
+                    <f:if condition="{upstreamStatus.upstream.probed}">
+                        <f:then>
+                            <strong>{upstreamStatus.upstream.serviceCount}</strong>
+                            <span class="text-body-secondary">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />
+                            </span>
+                            <f:if condition="{upstreamStatus.upstream.sourceSha}">
+                                <code class="text-body-secondary ms-1" title="{upstreamStatus.upstream.sourceSha}">@{upstreamStatus.upstream.shortSourceSha}</code>
+                            </f:if>
+                            <f:if condition="{upstreamStatus.upstream.lastSyncAt}">
+                                <span class="text-body-secondary ms-1">
+                                    ·
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.synced" />
+                                </span>
+                                <strong><f:format.date format="Y-m-d H:i">@{upstreamStatus.upstream.lastSyncAt}</f:format.date></strong>
+                            </f:if>
+                            <span class="ms-2">
+                                <f:if condition="{upstreamStatus.upstream.inSync}">
+                                    <f:then>
+                                        <span class="badge badge-success">
+                                            ✓ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.inSync" />
+                                        </span>
+                                    </f:then>
+                                    <f:else>
+                                        <span class="badge badge-warning">
+                                            ⚠ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.updatesAvailable" />
+                                        </span>
+                                        <span class="text-body-secondary ms-2">
+                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.howToUpdate" />
+                                            <code>composer update simplecmp/services-library</code>
+                                        </span>
+                                    </f:else>
+                                </f:if>
+                            </span>
+                        </f:then>
+                        <f:else>
+                            <span class="badge badge-danger">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.unreachable" />
+                            </span>
+                        </f:else>
+                    </f:if>
+                </div>
+            </f:if>
+
+            <div class="d-flex flex-wrap align-items-center gap-3 small">
                 <f:if condition="{upstreamStatus.enabled}">
                     <f:then>
                         <div>

@@ -52,6 +52,7 @@ return [
                 'list',
                 'adopt',
                 'unadopt',
+                'refreshUpstreamHealth',
             ],
             RegistryListController::class => [
                 'list',
