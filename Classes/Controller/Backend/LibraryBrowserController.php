@@ -325,6 +325,7 @@ final class LibraryBrowserController extends ActionController
      */
     private function loadLibrary(array $adoptedIds): array
     {
+        $lang = $this->resolveBackendLanguageCode();
         $entries = [];
         foreach (ServicesLibrary::services() as $entry) {
             if (!isset($entry['id'])) {
@@ -332,9 +333,46 @@ final class LibraryBrowserController extends ActionController
             }
             $id = (string) $entry['id'];
             $entry['adopted'] = isset($adoptedIds[$id]);
+            $entry['resolvedDescription'] = $this->resolveLocalizedDescription($entry, $lang);
+            // Payload for the per-row info modal — JSON-encoded full
+            // service entry plus the resolved description (so JS doesn't
+            // need to know the BE locale). Drift compared to the raw
+            // JSON on disk: only `adopted` + `resolvedDescription` are
+            // added; nothing rewritten.
+            $entry['infoModalPayload'] = json_encode($entry, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
             $entries[] = $entry;
         }
         return $entries;
+    }
+
+    /**
+     * BE user's language code, normalised to a 2-letter form. Returns
+     * `en` for `default` / empty so consumers can do straight
+     * `$entry['i18n']['description'][$lang]` lookups without
+     * special-casing English.
+     */
+    private function resolveBackendLanguageCode(): string
+    {
+        $beUser = $GLOBALS['BE_USER'] ?? null;
+        $lang = is_object($beUser) && isset($beUser->user['lang']) ? (string) $beUser->user['lang'] : '';
+        $lang = strtolower(trim($lang));
+        if ($lang === '' || $lang === 'default' || $lang === 'en') {
+            return 'en';
+        }
+        return preg_replace('/[^a-z]/', '', substr($lang, 0, 2)) ?: 'en';
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function resolveLocalizedDescription(array $entry, string $lang): string
+    {
+        $overlay = $entry['i18n']['description'][$lang] ?? null;
+        if (is_string($overlay) && trim($overlay) !== '') {
+            return $overlay;
+        }
+        $fallback = $entry['description'] ?? '';
+        return is_string($fallback) ? $fallback : '';
     }
 
     /**
@@ -432,6 +470,9 @@ final class LibraryBrowserController extends ActionController
         $moduleTemplate->setTitle('SimpleCMP');
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/Pagination.js'
+        );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@simplecmp/t3-simplecmp/Backend/ServiceInfoModal.js'
         );
         return $moduleTemplate;
     }

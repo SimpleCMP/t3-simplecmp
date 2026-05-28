@@ -106,6 +106,28 @@
                                     </f:for>
                                 </td>
                                 <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-link p-1 me-1"
+                                            data-info-trigger
+                                            data-info-payload="{entry.infoModalPayload}"
+                                            data-label-modal-title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.modal.title')}"
+                                            data-label-close="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.modal.close')}"
+                                            data-label-section-general="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.section.general')}"
+                                            data-label-section-purposes="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.section.purposes')}"
+                                            data-label-section-matchers="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.section.matchers')}"
+                                            data-label-section-vendor="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.section.vendor')}"
+                                            data-label-field-id="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.id')}"
+                                            data-label-field-vendor="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.vendor')}"
+                                            data-label-field-privacy-policy="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.privacyPolicy')}"
+                                            data-label-field-cookies="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.cookies')}"
+                                            data-label-field-origins="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.origins')}"
+                                            data-label-field-vendor-address="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.vendorAddress')}"
+                                            data-label-field-vendor-optout="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.vendorOptOut')}"
+                                            data-label-field-vendor-partner="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.vendorPartner')}"
+                                            data-label-field-vendor-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.field.vendorDescription')}"
+                                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:info.button.title')}">
+                                        <core:icon identifier="actions-info-circle" size="small" />
+                                    </button>
                                     <f:if condition="{entry.adopted}">
                                         <f:then>
                                             <form method="post" action="{entry.uri_unadopt}" class="d-inline">

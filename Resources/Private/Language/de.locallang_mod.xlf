@@ -97,6 +97,22 @@
       <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source><target>Bundle &amp; Snapshot</target></trans-unit>
       <trans-unit id="upstream.section.runtime"><source>Runtime lookups</source><target>Laufzeit-Abfragen</target></trans-unit>
       <trans-unit id="upstream.section.runtime.hint"><source>Counts the runtime classifier's queries to the upstream registry — independent of this panel's freshness probe.</source><target>Zählt die Abfragen des Klassifikators an die Upstream-Registry — unabhängig von der Aktualitätsprüfung dieses Panels.</target></trans-unit>
+      <trans-unit id="info.button.title"><source>Show service details</source><target>Details zum Dienst anzeigen</target></trans-unit>
+      <trans-unit id="info.modal.title"><source>Service details</source><target>Dienst-Details</target></trans-unit>
+      <trans-unit id="info.modal.close"><source>Close</source><target>Schließen</target></trans-unit>
+      <trans-unit id="info.section.general"><source>General</source><target>Allgemein</target></trans-unit>
+      <trans-unit id="info.section.purposes"><source>Purposes</source><target>Zwecke</target></trans-unit>
+      <trans-unit id="info.section.matchers"><source>Matchers</source><target>Matcher</target></trans-unit>
+      <trans-unit id="info.section.vendor"><source>Vendor information</source><target>Anbieter-Informationen</target></trans-unit>
+      <trans-unit id="info.field.id"><source>ID</source><target>ID</target></trans-unit>
+      <trans-unit id="info.field.vendor"><source>Vendor</source><target>Anbieter</target></trans-unit>
+      <trans-unit id="info.field.privacyPolicy"><source>Privacy policy</source><target>Datenschutzerklärung</target></trans-unit>
+      <trans-unit id="info.field.cookies"><source>Cookies</source><target>Cookies</target></trans-unit>
+      <trans-unit id="info.field.origins"><source>Origins</source><target>Origins</target></trans-unit>
+      <trans-unit id="info.field.vendorAddress"><source>Address</source><target>Anschrift</target></trans-unit>
+      <trans-unit id="info.field.vendorOptOut"><source>Opt-out URL</source><target>Opt-out-Link</target></trans-unit>
+      <trans-unit id="info.field.vendorPartner"><source>Partners / joint controllers</source><target>Partner / Mitverantwortliche</target></trans-unit>
+      <trans-unit id="info.field.vendorDescription"><source>About the vendor</source><target>Über den Anbieter</target></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>

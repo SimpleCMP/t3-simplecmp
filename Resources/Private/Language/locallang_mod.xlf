@@ -97,6 +97,22 @@
       <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source></trans-unit>
       <trans-unit id="upstream.section.runtime"><source>Runtime lookups</source></trans-unit>
       <trans-unit id="upstream.section.runtime.hint"><source>Counts the runtime classifier's queries to the upstream registry — independent of this panel's freshness probe.</source></trans-unit>
+      <trans-unit id="info.button.title"><source>Show service details</source></trans-unit>
+      <trans-unit id="info.modal.title"><source>Service details</source></trans-unit>
+      <trans-unit id="info.modal.close"><source>Close</source></trans-unit>
+      <trans-unit id="info.section.general"><source>General</source></trans-unit>
+      <trans-unit id="info.section.purposes"><source>Purposes</source></trans-unit>
+      <trans-unit id="info.section.matchers"><source>Matchers</source></trans-unit>
+      <trans-unit id="info.section.vendor"><source>Vendor information</source></trans-unit>
+      <trans-unit id="info.field.id"><source>ID</source></trans-unit>
+      <trans-unit id="info.field.vendor"><source>Vendor</source></trans-unit>
+      <trans-unit id="info.field.privacyPolicy"><source>Privacy policy</source></trans-unit>
+      <trans-unit id="info.field.cookies"><source>Cookies</source></trans-unit>
+      <trans-unit id="info.field.origins"><source>Origins</source></trans-unit>
+      <trans-unit id="info.field.vendorAddress"><source>Address</source></trans-unit>
+      <trans-unit id="info.field.vendorOptOut"><source>Opt-out URL</source></trans-unit>
+      <trans-unit id="info.field.vendorPartner"><source>Partners / joint controllers</source></trans-unit>
+      <trans-unit id="info.field.vendorDescription"><source>About the vendor</source></trans-unit>
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source></trans-unit>

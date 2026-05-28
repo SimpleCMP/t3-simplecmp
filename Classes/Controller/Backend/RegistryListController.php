@@ -11,6 +11,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use SimpleCMP\ServicesLibrary\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\RegistryListPresenter;
 
@@ -94,11 +95,22 @@ final class RegistryListController extends ActionController
         $paginated = array_slice($filtered, ($page - 1) * $perPage, $perPage);
 
         $filterArg = $this->filterArg($source, $purpose, $search);
-        $rows = array_map(function (array $r) use ($filterArg): array {
+        $lang = $this->resolveBackendLanguageCode();
+        $libraryIndex = $this->indexBundledLibraryById();
+        $rows = array_map(function (array $r) use ($filterArg, $lang, $libraryIndex): array {
             $r['uri_edit'] = $this->editServiceUri((int) ($r['_uid'] ?? 0));
             $r['uri_delete'] = $r['source'] === RegistryListPresenter::SOURCE_LIBRARY
                 ? null
                 : $this->uri('delete', ['serviceId' => (string) ($r['id'] ?? '')] + $filterArg);
+            // For library-sourced rows the bundled JSON carries i18n
+            // overlays + vendor* fields the DB doesn't store; merge
+            // them in (DB row wins on conflict).
+            $id = (string) ($r['id'] ?? '');
+            $libraryEntry = $libraryIndex[$id] ?? null;
+            $merged = $libraryEntry !== null ? ($libraryEntry + $r) : $r;
+            $merged['resolvedDescription'] = $this->resolveLocalizedDescription($merged, $lang);
+            $r['resolvedDescription'] = $merged['resolvedDescription'];
+            $r['infoModalPayload'] = json_encode($merged, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
             return $r;
         }, $paginated);
 
@@ -271,11 +283,52 @@ final class RegistryListController extends ActionController
             ->uriFor($action, $arguments);
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function indexBundledLibraryById(): array
+    {
+        $index = [];
+        foreach (ServicesLibrary::services() as $entry) {
+            $id = (string) ($entry['id'] ?? '');
+            if ($id === '') {
+                continue;
+            }
+            $index[$id] = $entry;
+        }
+        return $index;
+    }
+
+    private function resolveBackendLanguageCode(): string
+    {
+        $beUser = $GLOBALS['BE_USER'] ?? null;
+        $lang = is_object($beUser) && isset($beUser->user['lang']) ? (string) $beUser->user['lang'] : '';
+        $lang = strtolower(trim($lang));
+        if ($lang === '' || $lang === 'default' || $lang === 'en') {
+            return 'en';
+        }
+        return preg_replace('/[^a-z]/', '', substr($lang, 0, 2)) ?: 'en';
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function resolveLocalizedDescription(array $entry, string $lang): string
+    {
+        $overlay = $entry['i18n']['description'][$lang] ?? null;
+        if (is_string($overlay) && trim($overlay) !== '') {
+            return $overlay;
+        }
+        $fallback = $entry['description'] ?? '';
+        return is_string($fallback) ? $fallback : '';
+    }
+
     private function initModuleTemplate(): ModuleTemplate
     {
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('SimpleCMP');
         $this->pageRenderer->loadJavaScriptModule('@simplecmp/t3-simplecmp/Backend/Pagination.js');
+        $this->pageRenderer->loadJavaScriptModule('@simplecmp/t3-simplecmp/Backend/ServiceInfoModal.js');
         return $moduleTemplate;
     }
 }
