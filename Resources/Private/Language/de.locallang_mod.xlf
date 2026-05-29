@@ -79,6 +79,8 @@
       <trans-unit id="library.bulk.selectAll"><source>Select all on this page</source><target>Alle auf dieser Seite auswählen</target></trans-unit>
       <trans-unit id="library.bulk.adoptSelectedEmpty"><source>Adopt selected</source><target>Ausgewählte übernehmen</target></trans-unit>
       <trans-unit id="library.bulk.adoptSelectedTemplate"><source>Adopt %d selected</source><target>%d ausgewählte übernehmen</target></trans-unit>
+      <trans-unit id="library.bulk.unadoptSelectedEmpty"><source>Remove selected</source><target>Ausgewählte entfernen</target></trans-unit>
+      <trans-unit id="library.bulk.unadoptSelectedTemplate"><source>Remove %d selected</source><target>%d ausgewählte entfernen</target></trans-unit>
       <trans-unit id="library.bulk.clearSelection"><source>Clear selection</source><target>Auswahl aufheben</target></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source><target>Bibliotheks-Upstream</target></trans-unit>
@@ -156,6 +158,8 @@
       <trans-unit id="list.action.curate"><source>Curate</source><target>Kuratieren</target></trans-unit>
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source><target>Das Formular für einen neuen Dienst öffnen (keine Übereinstimmung in der Bibliothek — manuell eintragen).</target></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
+      <trans-unit id="list.action.unadoptMatched"><source>Undo</source><target>Rückgängig</target></trans-unit>
+      <trans-unit id="list.action.unadoptMatched.title"><source>Remove the matched service from the registry. The detection flips back from Curated to Recognised or Unknown.</source><target>Den passenden Dienst aus der Registry entfernen. Die Detektion fällt von Kuratiert zurück auf Erkannt oder Unbekannt.</target></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source><target>Den Registry-Eintrag öffnen, der diese Detektion abdeckt.</target></trans-unit>
 
       <trans-unit id="list.action.dismiss"><source>Dismiss</source><target>Verwerfen</target></trans-unit>

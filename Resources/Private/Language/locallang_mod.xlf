@@ -79,6 +79,8 @@
       <trans-unit id="library.bulk.selectAll"><source>Select all on this page</source></trans-unit>
       <trans-unit id="library.bulk.adoptSelectedEmpty"><source>Adopt selected</source></trans-unit>
       <trans-unit id="library.bulk.adoptSelectedTemplate"><source>Adopt %d selected</source></trans-unit>
+      <trans-unit id="library.bulk.unadoptSelectedEmpty"><source>Remove selected</source></trans-unit>
+      <trans-unit id="library.bulk.unadoptSelectedTemplate"><source>Remove %d selected</source></trans-unit>
       <trans-unit id="library.bulk.clearSelection"><source>Clear selection</source></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source></trans-unit>
@@ -157,6 +159,8 @@
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source></trans-unit>
+      <trans-unit id="list.action.unadoptMatched"><source>Undo</source></trans-unit>
+      <trans-unit id="list.action.unadoptMatched.title"><source>Remove the matched service from the registry. The detection flips back from Curated to Recognised or Unknown.</source></trans-unit>
 
       <trans-unit id="list.action.dismiss"><source>Dismiss</source></trans-unit>
       <trans-unit id="list.action.dismiss.title"><source>Park this detection — it will stop showing in the actionable list and will not reappear even if visitors keep triggering it. Reversible from the Dismissed view.</source></trans-unit>

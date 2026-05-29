@@ -354,6 +354,12 @@
                                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.editService" />
                                                 </a>
                                             </f:if>
+                                            <a href="{detection.uri_unadoptMatched}"
+                                               class="btn btn-default"
+                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched.title')}">
+                                                <core:icon identifier="actions-undo" size="small" />
+                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched" />
+                                            </a>
                                         </f:case>
                                         <f:case value="verworfen">
                                             <a href="{detection.uri_undismiss}"

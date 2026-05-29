@@ -233,6 +233,7 @@ final class LibraryBrowserController extends ActionController
                 $topRecommendedRows,
             ),
             'uri_bulkAdopt' => $this->uri('bulkAdopt', $filterArg),
+            'uri_bulkUnadopt' => $this->uri('bulkUnadopt', $filterArg),
         ]);
         return $moduleTemplate->renderResponse('LibraryBrowser/List');
     }
@@ -294,6 +295,28 @@ final class LibraryBrowserController extends ActionController
         string $search = '',
     ): ResponseInterface {
         $this->serviceRepository->delete($serviceId);
+        return $this->redirect('list', null, null, $this->filterArg($status, $search));
+    }
+
+    /**
+     * Symmetric counterpart to bulkAdoptAction. Loops
+     * ServiceRepository::delete per id. Same lack of confirm dialog —
+     * unadoption is reversible via the per-row [Übernehmen] button.
+     * Idempotent: deleting an already-deleted id is a silent no-op.
+     *
+     * @param array<int|string, mixed> $serviceIds
+     */
+    public function bulkUnadoptAction(
+        array $serviceIds = [],
+        string $status = self::DEFAULT_STATUS,
+        string $search = '',
+    ): ResponseInterface {
+        foreach ($serviceIds as $serviceId) {
+            if (!is_string($serviceId) || $serviceId === '') {
+                continue;
+            }
+            $this->serviceRepository->delete($serviceId);
+        }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 

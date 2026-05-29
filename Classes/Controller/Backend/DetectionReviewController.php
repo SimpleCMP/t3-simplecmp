@@ -149,6 +149,7 @@ final class DetectionReviewController extends ActionController
             $r['uri_show'] = $this->uri('show', $rowArgs);
             $r['uri_createService'] = $this->uri('createService', ['uid' => (int) $r['uid']]);
             $r['uri_approve'] = $this->uri('approve', $rowArgs);
+            $r['uri_unadoptMatched'] = $this->uri('unadoptMatchedService', $rowArgs);
             $r['uri_dismiss'] = $this->uri('dismiss', $rowArgs);
             $r['uri_undismiss'] = $this->uri('undismiss', $rowArgs);
             $r['uri_purge'] = $this->uri('purge', $rowArgs);
@@ -630,6 +631,50 @@ final class DetectionReviewController extends ActionController
         // the FE banner. fromLibrary=true stamps library_adopted_at so
         // the Dienste tab can derive Aus-Bibliothek source state.
         $this->serviceRepository->upsert($match, $pid, true);
+        return $this->redirectToList($filters);
+    }
+
+    /**
+     * Unadopt the service that's currently classifying this Kuratiert
+     * row. Server-side state re-derivation: refuses to do anything
+     * unless the row is genuinely STATE_CURATED right now and the
+     * matched service exists in the registry. Same defensive shape as
+     * approveAction.
+     *
+     * Pairs with bulk-unadopt on the Bibliothek tab and closes the
+     * "no in-place undo" gap on the Detektionen tab — if an admin
+     * clicked Übernehmen by mistake, the row that's now Kuratiert
+     * carries a "Rückgängig" button that flips it back to Erkannt /
+     * Unbekannt in one click without a tab switch.
+     */
+    public function unadoptMatchedServiceAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+        $row = $this->fetchOne($uid);
+        if ($row === null) {
+            return $this->redirectToList($filters);
+        }
+        $ctx = $this->listPresenter->loadStateContext();
+        $derived = DetectionListPresenter::deriveState(
+            $row,
+            $ctx['services'],
+            $ctx['library'],
+            $ctx['upstreamCache'],
+        );
+        if ($derived['state'] !== DetectionListPresenter::STATE_CURATED
+            || !is_array($derived['match'] ?? null)
+            || !isset($derived['match']['id'])
+        ) {
+            // Not in curated state right now — bounce. Defense in depth
+            // against stale URLs.
+            return $this->redirectToList($filters);
+        }
+        $this->serviceRepository->delete((string) $derived['match']['id']);
         return $this->redirectToList($filters);
     }
 

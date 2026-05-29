@@ -2,24 +2,32 @@
  * Wires the bulk-select UI on the Bibliothek tab. Tracks the checked
  * state of `[data-bulk-row]` checkboxes scattered across the table,
  * syncs the `[data-bulk-select-all]` header checkbox, and on submit
- * builds hidden inputs from the checked rows and appends them to the
- * hidden `[data-bulk-form]` form before submitting.
+ * appends hidden inputs to whichever of the two hidden forms matches
+ * the action — `[data-bulk-form-adopt]` for unadopted rows,
+ * `[data-bulk-form-unadopt]` for adopted rows.
  *
- * The bulk form has to live outside the table because the per-row
- * unadopt forms inside the action cells would otherwise be nested,
- * which HTML disallows. Gathering checked rows at submit time is the
- * common workaround in TYPO3 BE list views with mixed-action rows.
+ * Two separate buttons (Adopt N / Unadopt M) each enabled by their
+ * own count keep the model simple: each toolbar button is responsible
+ * for one half of the selection regardless of what else is checked.
+ * The corresponding form is the SINGLE source of truth for that
+ * action — no client-side mixing across forms in one submit.
+ *
+ * The forms have to live outside the table because the per-row
+ * unadopt forms inside action cells would otherwise be nested, which
+ * HTML disallows.
  */
 class LibraryBulkSelectHandler {
   initialize() {
     document.addEventListener('change', this.onChange);
     document.addEventListener('click', this.onClick);
-    // Snapshot the empty-state label rendered by Fluid on page load.
-    // sync() resets the visible label to this whenever count drops to
-    // 0; without the snapshot the button would keep showing "N
-    // ausgewählte übernehmen" forever once a count was ever displayed.
-    const submitLabel = document.querySelector('[data-bulk-submit-label]');
-    this.emptyLabel = submitLabel?.textContent?.trim() ?? '';
+    // Snapshot the empty-state labels rendered by Fluid on page load.
+    // sync() resets the visible label to these whenever the matching
+    // count drops to 0; without snapshots the button keeps showing "N
+    // …" forever once a count was ever displayed.
+    const adoptLabel = document.querySelector('[data-bulk-submit-adopt-label]');
+    const unadoptLabel = document.querySelector('[data-bulk-submit-unadopt-label]');
+    this.emptyAdoptLabel = adoptLabel?.textContent?.trim() ?? '';
+    this.emptyUnadoptLabel = unadoptLabel?.textContent?.trim() ?? '';
     // Run once on load so the toolbar state reflects whatever checkbox
     // state the browser restored (e.g. after back-navigation).
     this.sync();
@@ -42,7 +50,7 @@ class LibraryBulkSelectHandler {
 
   onClick = (event) => {
     const target = event.target instanceof Element
-      ? event.target.closest('[data-bulk-clear], [data-bulk-submit]')
+      ? event.target.closest('[data-bulk-clear], [data-bulk-submit-adopt], [data-bulk-submit-unadopt]')
       : null;
     if (!target) {
       return;
@@ -53,9 +61,14 @@ class LibraryBulkSelectHandler {
       this.sync();
       return;
     }
-    if (target.hasAttribute('data-bulk-submit')) {
+    if (target.hasAttribute('data-bulk-submit-adopt')) {
       event.preventDefault();
-      this.submit();
+      this.submit('adopt');
+      return;
+    }
+    if (target.hasAttribute('data-bulk-submit-unadopt')) {
+      event.preventDefault();
+      this.submit('unadopt');
     }
   };
 
@@ -68,11 +81,30 @@ class LibraryBulkSelectHandler {
     });
   }
 
+  /**
+   * @returns {{ adopt: HTMLInputElement[], unadopt: HTMLInputElement[] }}
+   */
+  splitChecked() {
+    const rows = [...document.querySelectorAll('[data-bulk-row]')]
+      .filter((el) => el instanceof HTMLInputElement && el.checked);
+    const adopt = [];
+    const unadopt = [];
+    rows.forEach((row) => {
+      if (row.getAttribute('data-adopted') === '1') {
+        unadopt.push(row);
+      } else {
+        adopt.push(row);
+      }
+    });
+    return { adopt, unadopt };
+  }
+
   sync() {
     const rows = [...document.querySelectorAll('[data-bulk-row]')]
       .filter((el) => el instanceof HTMLInputElement);
     const totalRows = rows.length;
     const checkedCount = rows.filter((el) => el.checked).length;
+    const { adopt, unadopt } = this.splitChecked();
 
     // Select-all checkbox tri-state: checked when all checked, unchecked
     // when none, indeterminate in between.
@@ -90,33 +122,51 @@ class LibraryBulkSelectHandler {
       }
     }
 
-    const submit = document.querySelector('[data-bulk-submit]');
+    this.updateButton('adopt', adopt.length, this.emptyAdoptLabel);
+    this.updateButton('unadopt', unadopt.length, this.emptyUnadoptLabel);
+
     const clear = document.querySelector('[data-bulk-clear]');
-    const submitLabel = document.querySelector('[data-bulk-submit-label]');
-    if (submit instanceof HTMLButtonElement && submitLabel instanceof HTMLElement) {
-      const template = submit.getAttribute('data-label-template') || '';
-      submit.disabled = checkedCount === 0;
-      if (checkedCount > 0 && template) {
-        submitLabel.textContent = template.replace('%d', String(checkedCount));
-      } else {
-        submitLabel.textContent = this.emptyLabel;
-      }
-    }
     if (clear instanceof HTMLButtonElement) {
       clear.disabled = checkedCount === 0;
     }
   }
 
-  submit() {
-    const form = document.querySelector('[data-bulk-form]');
+  /**
+   * @param {'adopt'|'unadopt'} action
+   * @param {number} count
+   * @param {string} emptyLabel
+   */
+  updateButton(action, count, emptyLabel) {
+    const submit = document.querySelector(`[data-bulk-submit-${action}]`);
+    const submitLabel = document.querySelector(`[data-bulk-submit-${action}-label]`);
+    if (!(submit instanceof HTMLButtonElement) || !(submitLabel instanceof HTMLElement)) {
+      return;
+    }
+    submit.disabled = count === 0;
+    const template = submit.getAttribute('data-label-template') || '';
+    if (count > 0 && template) {
+      submitLabel.textContent = template.replace('%d', String(count));
+    } else {
+      submitLabel.textContent = emptyLabel;
+    }
+  }
+
+  /**
+   * @param {'adopt'|'unadopt'} action
+   */
+  submit(action) {
+    const formSelector = action === 'adopt'
+      ? '[data-bulk-form-adopt]'
+      : '[data-bulk-form-unadopt]';
+    const form = document.querySelector(formSelector);
     if (!(form instanceof HTMLFormElement)) {
       return;
     }
     // Wipe any leftover hidden inputs from a previous failed submit.
     form.querySelectorAll('input[type="hidden"][name="serviceIds[]"]').forEach((el) => el.remove());
 
-    const rows = [...document.querySelectorAll('[data-bulk-row]')]
-      .filter((el) => el instanceof HTMLInputElement && el.checked);
+    const { adopt, unadopt } = this.splitChecked();
+    const rows = action === 'adopt' ? adopt : unadopt;
     if (rows.length === 0) {
       return;
     }

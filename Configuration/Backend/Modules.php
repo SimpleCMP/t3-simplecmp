@@ -47,11 +47,14 @@ return [
                 'createService',
                 'generateBridgeSecret',
                 'reclassifyUnknowns',
+                'unadoptMatchedService',
             ],
             LibraryBrowserController::class => [
                 'list',
                 'adopt',
+                'bulkAdopt',
                 'unadopt',
+                'bulkUnadopt',
                 'refreshUpstreamHealth',
             ],
             RegistryListController::class => [

@@ -121,19 +121,33 @@
             </f:if>
         </f:then>
         <f:else>
-            <!-- Bulk-action form lives outside the table to avoid nesting
-                 inside the per-row unadopt <form>s. JS gathers checked
-                 rows + appends hidden inputs at submit time. -->
-            <form method="post" action="{uri_bulkAdopt}" data-bulk-form class="d-none"></form>
+            <!-- Two bulk-action forms live outside the table to avoid
+                 nesting inside the per-row unadopt <form>s. JS reads
+                 checked rows, splits them by adopted state (data-adopted),
+                 appends hidden inputs to the matching form, and submits.
+                 Two forms ⇒ two clean POST targets ⇒ no client-side mixing
+                 of adopt + unadopt in a single round-trip. -->
+            <form method="post" action="{uri_bulkAdopt}" data-bulk-form-adopt class="d-none"></form>
+            <form method="post" action="{uri_bulkUnadopt}" data-bulk-form-unadopt class="d-none"></form>
             <div class="btn-toolbar mb-2 align-items-center gap-2" role="toolbar" data-bulk-toolbar>
                 <button type="button"
                         class="btn btn-sm btn-primary"
-                        data-bulk-submit
+                        data-bulk-submit-adopt
                         data-label-template="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.adoptSelectedTemplate')}"
                         disabled>
                     <core:icon identifier="actions-plus" size="small" />
-                    <span data-bulk-submit-label>
+                    <span data-bulk-submit-adopt-label>
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.adoptSelectedEmpty" />
+                    </span>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-default"
+                        data-bulk-submit-unadopt
+                        data-label-template="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.unadoptSelectedTemplate')}"
+                        disabled>
+                    <core:icon identifier="actions-minus" size="small" />
+                    <span data-bulk-submit-unadopt-label>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.unadoptSelectedEmpty" />
                     </span>
                 </button>
                 <button type="button" class="btn btn-sm btn-default" data-bulk-clear disabled>
@@ -162,21 +176,18 @@
                         <f:for each="{entries}" as="entry">
                             <tr>
                                 <td>
-                                    <f:if condition="{entry.adopted}">
-                                        <f:else>
-                                            <!-- Not inside the bulk form; JS gathers checked rows
-                                                 at submit time and appends hidden inputs to the
-                                                 form. value carries the service-id. No
-                                                 .form-check-input class — that Bootstrap class
-                                                 sets appearance:none and needs a .form-check
-                                                 parent for actual styling, which collapses the
-                                                 checkbox to 0x0 in TYPO3 v14 BE table cells. -->
-                                            <input type="checkbox"
-                                                   value="{entry.id}"
-                                                   data-bulk-row
-                                                   aria-label="{entry.name}" />
-                                        </f:else>
-                                    </f:if>
+                                    <!-- Checkbox renders on every row; data-adopted lets the JS
+                                         module split selected rows into adopt vs unadopt buckets
+                                         and post to the matching form. value carries the
+                                         service-id. No .form-check-input class — that Bootstrap
+                                         class sets appearance:none and needs a .form-check
+                                         parent shell which we don't use here (collapses to 0x0
+                                         otherwise — typo3_v14_gotchas memory). -->
+                                    <input type="checkbox"
+                                           value="{entry.id}"
+                                           data-bulk-row
+                                           data-adopted="{f:if(condition: entry.adopted, then: '1', else: '0')}"
+                                           aria-label="{entry.name}" />
                                 </td>
                                 <td>
                                     <f:if condition="{entry.adopted}">
