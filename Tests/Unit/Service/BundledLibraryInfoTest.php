@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Service;
 
-use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo;
 
 /**
- * Locks `BundledLibraryInfo` against the live Composer install of
- * `simplecmp/services-library`. Run as part of `composer test:unit`,
- * which executes from the ext's own root — Composer's autoloader is
- * already initialised, so `InstalledVersions` resolves naturally.
+ * Locks `BundledLibraryInfo` against the SOURCE.json sidecar that the
+ * sync workflow writes alongside the vendored library data. Run as
+ * part of `composer test:unit`, which executes from the ext's own
+ * root — the SOURCE.json file lives at a deterministic relative path.
  *
- * No mocking: the static facade isn't worth a DI seam for these
- * trivial accessors. Real Composer state is what gets shipped.
+ * No mocking: the file IO isn't worth a DI seam for these trivial
+ * accessors. Real shipped state is what gets tested.
  */
 final class BundledLibraryInfoTest extends TestCase
 {
     #[Test]
-    public function versionReturnsNonEmptyStringWhenInstalled(): void
+    public function versionReturnsNonEmptyStringWhenSourceJsonExists(): void
     {
-        if (!InstalledVersions::isInstalled('simplecmp/services-library')) {
-            self::markTestSkipped('services-library is not installed in this test run');
+        $sourcePath = dirname(__DIR__, 3) . '/Resources/Private/ServicesLibrary/SOURCE.json';
+        if (!is_file($sourcePath)) {
+            self::markTestSkipped('SOURCE.json sidecar not present in this test run');
         }
         $info = new BundledLibraryInfo();
         $version = $info->version();
@@ -38,7 +38,7 @@ final class BundledLibraryInfoTest extends TestCase
         $info = new BundledLibraryInfo();
         $sha = $info->sha();
         if ($sha === null) {
-            self::assertTrue(true, 'path-repo or branch install — no SHA recorded');
+            self::assertTrue(true, 'SOURCE.json missing or sha field unrecognised');
             return;
         }
         self::assertSame(40, strlen($sha));
