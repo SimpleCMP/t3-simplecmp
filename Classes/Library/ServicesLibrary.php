@@ -8,15 +8,14 @@ namespace SimpleCMP\T3SimpleCmp\Library;
  * Helper for consumers of the SimpleCMP services library — exposes the
  * data directory path and an iterator over loaded service records.
  *
- * The data files at `Resources/Private/ServicesLibrary/data/services/*.json`
- * follow the upstream SimpleCMP Service-DB protocol shape. See
+ * The data files at `data/services/*.json` follow the upstream
+ * SimpleCMP Service-DB protocol shape. See
  * https://github.com/SimpleCMP/simplecmp/blob/main/docs/service-db-protocol.md
  * for the field reference.
  *
- * This file is vendored from `SimpleCMP/services-library` by the
- * `sync-library` GitHub workflow on every push to that repository's
- * main branch. Manual edits to this file or the data directory will
- * be overwritten on the next sync — make changes upstream.
+ * Consumers (TYPO3, WordPress, Contao plugins) typically iterate
+ * `services()` and upsert each record into their own registry, or
+ * resolve `dataPath()` to read the files directly.
  *
  * ## Multi-TLD vendor coverage
  *
