@@ -168,4 +168,32 @@ final class LibraryRecommendationServiceTest extends TestCase
         $headline = $this->service->headline([]);
         self::assertSame(['entries' => 0, 'detections' => 0], $headline);
     }
+
+    #[Test]
+    public function identifiersListIsCappedButCountStaysTrue(): void
+    {
+        // Plant 50 distinct cookie names that all match a regex matcher.
+        // Service should cap the identifiers list at 20 but report
+        // count=50, so the pill / headline stay honest.
+        $detections = [];
+        for ($i = 0; $i < 50; $i++) {
+            $detections[] = [
+                'kind' => 'cookie',
+                'identifier' => '_cap_test_' . $i,
+                'origin' => '',
+                'dismissed_at' => 0,
+            ];
+        }
+        $recommendations = $this->service->recommendationsFor(
+            detections: $detections,
+            registryServices: [],
+            libraryEntries: [
+                ['id' => 'cap-test', 'matches' => ['cookies' => ['/^_cap_test_/']]],
+            ],
+            adoptedIds: [],
+        );
+        self::assertArrayHasKey('cap-test', $recommendations);
+        self::assertSame(50, $recommendations['cap-test']['count']);
+        self::assertCount(20, $recommendations['cap-test']['identifiers']);
+    }
 }

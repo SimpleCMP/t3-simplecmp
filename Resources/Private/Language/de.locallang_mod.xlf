@@ -75,6 +75,11 @@
       <trans-unit id="library.recommended.headline"><source>%d library entries would resolve %d open detections.</source><target>%d Bibliothekseinträge würden %d offene Erkennungen auflösen.</target></trans-unit>
       <trans-unit id="library.recommended.pill"><source>would resolve %d</source><target>würde %d auflösen</target></trans-unit>
       <trans-unit id="library.recommended.seeAll"><source>See all %d recommended entries</source><target>Alle %d empfohlenen Einträge ansehen</target></trans-unit>
+      <trans-unit id="library.recommended.adoptAll"><source>Adopt all %d recommended</source><target>Alle %d empfohlenen übernehmen</target></trans-unit>
+      <trans-unit id="library.bulk.selectAll"><source>Select all on this page</source><target>Alle auf dieser Seite auswählen</target></trans-unit>
+      <trans-unit id="library.bulk.adoptSelectedEmpty"><source>Adopt selected</source><target>Ausgewählte übernehmen</target></trans-unit>
+      <trans-unit id="library.bulk.adoptSelectedTemplate"><source>Adopt %d selected</source><target>%d ausgewählte übernehmen</target></trans-unit>
+      <trans-unit id="library.bulk.clearSelection"><source>Clear selection</source><target>Auswahl aufheben</target></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source><target>Bibliotheks-Upstream</target></trans-unit>
       <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source><target>Deaktiviert — keine Site-Konfiguration mit libraryUpstreamUrl gesetzt.</target></trans-unit>

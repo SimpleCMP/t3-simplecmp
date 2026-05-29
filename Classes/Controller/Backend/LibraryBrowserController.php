@@ -224,6 +224,15 @@ final class LibraryBrowserController extends ActionController
             'recommendationHeadline' => $headline,
             'recommendationOverflow' => max(0, count($recommendations) - count($topRecommendedInline)),
             'uri_seeAllRecommended' => $this->uri('list', ['status' => 'recommended']),
+            // Full list of recommended service-ids, sorted by count desc
+            // (same order as the top section + the ?status=recommended
+            // table). Backs the "Alle X übernehmen" one-shot form which
+            // posts the entire list to bulkAdoptAction.
+            'allRecommendedIds' => array_map(
+                fn (array $row): string => (string) ($row['entry']['id'] ?? ''),
+                $topRecommendedRows,
+            ),
+            'uri_bulkAdopt' => $this->uri('bulkAdopt', $filterArg),
         ]);
         return $moduleTemplate->renderResponse('LibraryBrowser/List');
     }
@@ -241,6 +250,40 @@ final class LibraryBrowserController extends ActionController
             // from Eigene rows, and surface Verwaist if the bundled
             // library drops this service in a future composer update.
             $this->serviceRepository->upsert($entry, $pid, true);
+        }
+        return $this->redirect('list', null, null, $this->filterArg($status, $search));
+    }
+
+    /**
+     * Adopt many library entries in one round-trip. Used by the
+     * "Alle X übernehmen" one-shot on the top recommended section
+     * and by the per-row-checkbox toolbar.
+     *
+     * No confirm dialog by design — adoption is reversible via the
+     * Dienste-tab unadopt path. Idempotent: re-submitting the same
+     * id list a second time is a no-op (upsert UPDATE branch).
+     *
+     * `$serviceIds` arrives from the HTML form as a (possibly nested)
+     * array of strings. Unknown ids are skipped silently (e.g. a
+     * library entry was removed upstream between the form render
+     * and the submit).
+     *
+     * @param array<int|string, mixed> $serviceIds
+     */
+    public function bulkAdoptAction(
+        array $serviceIds = [],
+        string $status = self::DEFAULT_STATUS,
+        string $search = '',
+    ): ResponseInterface {
+        $pid = $this->storagePidResolver->resolveDefault();
+        foreach ($serviceIds as $serviceId) {
+            if (!is_string($serviceId) || $serviceId === '') {
+                continue;
+            }
+            $entry = $this->loadLibraryEntry($serviceId);
+            if ($entry !== null) {
+                $this->serviceRepository->upsert($entry, $pid, true);
+            }
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
@@ -579,6 +622,9 @@ final class LibraryBrowserController extends ActionController
         );
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/ServiceInfoModal.js'
+        );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@simplecmp/t3-simplecmp/Backend/LibraryBulkSelect.js'
         );
         return $moduleTemplate;
     }

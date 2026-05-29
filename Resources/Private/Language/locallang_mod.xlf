@@ -75,6 +75,11 @@
       <trans-unit id="library.recommended.headline"><source>%d library entries would resolve %d open detections.</source></trans-unit>
       <trans-unit id="library.recommended.pill"><source>would resolve %d</source></trans-unit>
       <trans-unit id="library.recommended.seeAll"><source>See all %d recommended entries</source></trans-unit>
+      <trans-unit id="library.recommended.adoptAll"><source>Adopt all %d recommended</source></trans-unit>
+      <trans-unit id="library.bulk.selectAll"><source>Select all on this page</source></trans-unit>
+      <trans-unit id="library.bulk.adoptSelectedEmpty"><source>Adopt selected</source></trans-unit>
+      <trans-unit id="library.bulk.adoptSelectedTemplate"><source>Adopt %d selected</source></trans-unit>
+      <trans-unit id="library.bulk.clearSelection"><source>Clear selection</source></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source></trans-unit>
       <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source></trans-unit>

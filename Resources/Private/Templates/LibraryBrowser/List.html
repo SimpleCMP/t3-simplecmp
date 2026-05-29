@@ -41,15 +41,25 @@
                         </div>
                     </f:for>
                 </div>
-                <f:if condition="{recommendationOverflow} > 0">
-                    <p class="mb-0">
+                <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-0">
+                    <form method="post" action="{uri_bulkAdopt}" class="mb-0">
+                        <f:for each="{allRecommendedIds}" as="rid">
+                            <input type="hidden" name="serviceIds[]" value="{rid}" />
+                        </f:for>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <core:icon identifier="actions-plus" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.adoptAll"
+                                         arguments="{0: recommendationHeadline.entries}" />
+                        </button>
+                    </form>
+                    <f:if condition="{recommendationOverflow} > 0">
                         <a href="{uri_seeAllRecommended}">
                             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.seeAll"
                                          arguments="{0: recommendationHeadline.entries}" />
                             →
                         </a>
-                    </p>
-                </f:if>
+                    </f:if>
+                </div>
             </div>
         </div>
     </f:if>
@@ -111,10 +121,35 @@
             </f:if>
         </f:then>
         <f:else>
+            <!-- Bulk-action form lives outside the table to avoid nesting
+                 inside the per-row unadopt <form>s. JS gathers checked
+                 rows + appends hidden inputs at submit time. -->
+            <form method="post" action="{uri_bulkAdopt}" data-bulk-form class="d-none"></form>
+            <div class="btn-toolbar mb-2 align-items-center gap-2" role="toolbar" data-bulk-toolbar>
+                <button type="button"
+                        class="btn btn-sm btn-primary"
+                        data-bulk-submit
+                        data-label-template="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.adoptSelectedTemplate')}"
+                        disabled>
+                    <core:icon identifier="actions-plus" size="small" />
+                    <span data-bulk-submit-label>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.adoptSelectedEmpty" />
+                    </span>
+                </button>
+                <button type="button" class="btn btn-sm btn-default" data-bulk-clear disabled>
+                    <core:icon identifier="actions-close" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.clearSelection" />
+                </button>
+            </div>
             <div class="table-fit">
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th style="width: 2.5rem;">
+                                <input type="checkbox"
+                                       data-bulk-select-all
+                                       aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.bulk.selectAll')}" />
+                            </th>
                             <th style="width: 8rem;"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.status" /></th>
                             <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.id" /></th>
                             <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.column.name" /></th>
@@ -126,6 +161,23 @@
                     <tbody>
                         <f:for each="{entries}" as="entry">
                             <tr>
+                                <td>
+                                    <f:if condition="{entry.adopted}">
+                                        <f:else>
+                                            <!-- Not inside the bulk form; JS gathers checked rows
+                                                 at submit time and appends hidden inputs to the
+                                                 form. value carries the service-id. No
+                                                 .form-check-input class — that Bootstrap class
+                                                 sets appearance:none and needs a .form-check
+                                                 parent for actual styling, which collapses the
+                                                 checkbox to 0x0 in TYPO3 v14 BE table cells. -->
+                                            <input type="checkbox"
+                                                   value="{entry.id}"
+                                                   data-bulk-row
+                                                   aria-label="{entry.name}" />
+                                        </f:else>
+                                    </f:if>
+                                </td>
                                 <td>
                                     <f:if condition="{entry.adopted}">
                                         <f:then>

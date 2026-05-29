@@ -31,6 +31,18 @@ namespace SimpleCMP\T3SimpleCmp\Service;
 final readonly class LibraryRecommendationService
 {
     /**
+     * Cap on identifiers stored per recommendation. The tooltip only
+     * surfaces the first 5; anything beyond that is just bookkeeping
+     * that the caller's headline `distinct` counter undercounts at
+     * pathological scale anyway. 20 is plenty of headroom for any
+     * realistic recommendation (a single library entry typically
+     * matches ≤5 detections; 20+ would be a regex matcher gone
+     * adversarial).
+     */
+    private const int IDENTIFIERS_CAP = 20;
+
+
+    /**
      * Compute recommendations for the supplied library entries against
      * the actionable subset of `$detections` (= not dismissed AND not
      * already covered by a registry entry).
@@ -76,6 +88,7 @@ final readonly class LibraryRecommendationService
             $origins = (array) ($entry['matches']['origins'] ?? []);
             $identifiers = [];
             $seen = [];
+            $count = 0;
             foreach ($actionable as $detection) {
                 if (!$this->detectionMatchesEntry($detection, $cookies, $origins)) {
                     continue;
@@ -85,11 +98,19 @@ final readonly class LibraryRecommendationService
                     continue;
                 }
                 $seen[$detId] = true;
-                $identifiers[] = $detId;
+                $count++;
+                // Stop appending to `identifiers` past the cap — `count`
+                // continues climbing so the headline + pill keep showing
+                // the true total. The cap defensively bounds memory under
+                // pathological matchers (regex catch-alls that hit many
+                // detections) without losing the count signal.
+                if (count($identifiers) < self::IDENTIFIERS_CAP) {
+                    $identifiers[] = $detId;
+                }
             }
-            if ($identifiers !== []) {
+            if ($count > 0) {
                 $recommendations[$id] = [
-                    'count' => count($identifiers),
+                    'count' => $count,
                     'identifiers' => $identifiers,
                 ];
             }
