@@ -53,6 +53,7 @@
       <trans-unit id="library.filter.label"><source>Status</source></trans-unit>
       <trans-unit id="library.filter.all"><source>All</source></trans-unit>
       <trans-unit id="library.filter.available"><source>Available</source></trans-unit>
+      <trans-unit id="library.filter.recommended"><source>Recommended</source></trans-unit>
       <trans-unit id="library.filter.adopted"><source>Adopted</source></trans-unit>
       <trans-unit id="library.search.placeholder"><source>Search id, name, vendor, matchers…</source></trans-unit>
       <trans-unit id="library.search.clear"><source>Clear</source></trans-unit>
@@ -70,6 +71,10 @@
       <trans-unit id="library.empty"><source>The bundled services library appears empty — check that simplecmp/services-library is installed via composer.</source></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full library will show.</source></trans-unit>
+      <trans-unit id="library.recommended.title"><source>Recommended for this site</source></trans-unit>
+      <trans-unit id="library.recommended.headline"><source>%d library entries would resolve %d open detections.</source></trans-unit>
+      <trans-unit id="library.recommended.pill"><source>would resolve %d</source></trans-unit>
+      <trans-unit id="library.recommended.seeAll"><source>See all %d recommended entries</source></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source></trans-unit>
       <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source></trans-unit>

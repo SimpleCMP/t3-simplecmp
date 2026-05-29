@@ -9,6 +9,51 @@
 
     <f:render partial="UpstreamStatus" arguments="{upstreamStatus: upstreamStatus}" />
 
+    <f:if condition="{topRecommended -> f:count()} > 0">
+        <div class="callout callout-info mb-3" data-test="recommendations-section">
+            <div class="callout-content">
+                <h4 class="callout-title">
+                    <core:icon identifier="actions-lightbulb-on" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.title" />
+                </h4>
+                <p class="mb-3">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.headline"
+                                 arguments="{0: recommendationHeadline.entries, 1: recommendationHeadline.detections}" />
+                </p>
+                <div class="list-group list-group-flush mb-3">
+                    <f:for each="{topRecommended}" as="entry">
+                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center gap-2 py-2">
+                            <div class="flex-grow-1 min-w-0">
+                                <strong>{entry.name}</strong>
+                                <span class="text-body-secondary"> · {entry.vendor}</span>
+                                <code class="ms-2 text-body-secondary">{entry.id}</code>
+                            </div>
+                            <span class="badge badge-success" title="{entry.pillTooltip}">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.pill"
+                                             arguments="{0: entry.pillCount}" />
+                            </span>
+                            <form method="post" action="{entry.uri_adopt}" class="d-inline mb-0">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <core:icon identifier="actions-plus" size="small" />
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.action.adopt" />
+                                </button>
+                            </form>
+                        </div>
+                    </f:for>
+                </div>
+                <f:if condition="{recommendationOverflow} > 0">
+                    <p class="mb-0">
+                        <a href="{uri_seeAllRecommended}">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.seeAll"
+                                         arguments="{0: recommendationHeadline.entries}" />
+                            →
+                        </a>
+                    </p>
+                </f:if>
+            </div>
+        </div>
+    </f:if>
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.title" /></h1>
     <p class="text-body-secondary">
         <strong>{availableCount}</strong>
@@ -106,6 +151,14 @@
                                     </f:for>
                                 </td>
                                 <td>
+                                    <f:if condition="{entry.pillCount} > 0">
+                                        <span class="badge badge-success me-1"
+                                              data-test="recommendation-pill"
+                                              title="{entry.pillTooltip}">
+                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:library.recommended.pill"
+                                                         arguments="{0: entry.pillCount}" />
+                                        </span>
+                                    </f:if>
                                     <button type="button"
                                             class="btn btn-sm btn-link p-1 me-1"
                                             data-info-trigger

@@ -13,9 +13,11 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo;
+use SimpleCMP\T3SimpleCmp\Service\LibraryRecommendationService;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
@@ -40,8 +42,30 @@ final class LibraryBrowserController extends ActionController
 {
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
-    private const array STATUS_OPTIONS = ['available', 'adopted', 'all'];
+    /**
+     * `recommended` filters to entries whose adoption would resolve at
+     * least one actionable detection on this site. Listed in dropdown
+     * order: Verfügbar → Empfohlen → Übernommen → Alle.
+     */
+    private const array STATUS_OPTIONS = ['available', 'recommended', 'adopted', 'all'];
     private const string DEFAULT_STATUS = 'available';
+
+    /**
+     * How many recommendations to render inline in the "💡 Empfohlen"
+     * top section before the "Alle X ansehen →" overflow link. Five
+     * keeps the top area tight without hiding the long tail.
+     */
+    private const int TOP_RECOMMENDATIONS_INLINE = 5;
+
+    /**
+     * Cap on detections fetched per render. Recommendation matching is
+     * O(detections × library), so an unbounded set could become a
+     * bottleneck on busy production sites. 1000 covers the realistic
+     * upper bound of "open actionable detections" for a single admin
+     * session — anything beyond that is a triage problem on the
+     * Detektionen tab, not a library-discovery problem.
+     */
+    private const int DETECTIONS_FETCH_LIMIT = 1000;
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -55,6 +79,8 @@ final class LibraryBrowserController extends ActionController
         private readonly SiteFinder $siteFinder,
         private readonly LibraryUpstreamHealth $upstreamHealth,
         private readonly BundledLibraryInfo $bundledLibrary,
+        private readonly DetectionRepository $detectionRepository,
+        private readonly LibraryRecommendationService $recommendationService,
     ) {
     }
 
@@ -81,11 +107,25 @@ final class LibraryBrowserController extends ActionController
             }
         }
 
-        $filtered = array_values(array_filter($allEntries, function (array $entry) use ($status, $search): bool {
+        // Compute recommendations once per render. Pure compute against
+        // the registry + library + recent detections; cheap enough at the
+        // current scale (see TOP_RECOMMENDATIONS_INLINE comment).
+        $recommendations = $this->recommendationService->recommendationsFor(
+            $this->detectionRepository->recent(self::DETECTIONS_FETCH_LIMIT),
+            $this->serviceRepository->findAll(),
+            $allEntries,
+            $adoptedIds,
+        );
+        $headline = $this->recommendationService->headline($recommendations);
+
+        $filtered = array_values(array_filter($allEntries, function (array $entry) use ($status, $search, $recommendations): bool {
             if ($status === 'available' && $entry['adopted']) {
                 return false;
             }
             if ($status === 'adopted' && !$entry['adopted']) {
+                return false;
+            }
+            if ($status === 'recommended' && !isset($recommendations[(string) ($entry['id'] ?? '')])) {
                 return false;
             }
             if ($search !== '' && !$this->matchesSearch($entry, $search)) {
@@ -94,6 +134,22 @@ final class LibraryBrowserController extends ActionController
             return true;
         }));
 
+        // When the admin is viewing the Empfohlen filter, sort by match
+        // count descending (highest-impact first). Alphabetical
+        // tiebreak via secondary sort key.
+        if ($status === 'recommended') {
+            usort($filtered, function (array $a, array $b) use ($recommendations): int {
+                $idA = (string) ($a['id'] ?? '');
+                $idB = (string) ($b['id'] ?? '');
+                $countA = $recommendations[$idA]['count'] ?? 0;
+                $countB = $recommendations[$idB]['count'] ?? 0;
+                if ($countA !== $countB) {
+                    return $countB <=> $countA;
+                }
+                return strcmp($idA, $idB);
+            });
+        }
+
         $filteredCount = count($filtered);
         $totalPages = max(1, (int) ceil($filteredCount / $perPage));
         $page = min($page, $totalPages);
@@ -101,8 +157,36 @@ final class LibraryBrowserController extends ActionController
 
         $filterArg = $this->filterArg($status, $search);
         $rows = array_map(
-            fn (array $entry): array => $this->decorateRow($entry, $filterArg),
+            fn (array $entry): array => $this->decorateRow($entry, $filterArg, $recommendations),
             $paginated,
+        );
+
+        // Top "💡 Empfohlen für diese Site" section. Renders only when
+        // there's at least one recommendation. Top 5 inline; overflow
+        // link below jumps to the table filtered to ?status=recommended.
+        $topRecommendedRows = [];
+        foreach ($allEntries as $entry) {
+            $id = (string) ($entry['id'] ?? '');
+            if (!isset($recommendations[$id])) {
+                continue;
+            }
+            $topRecommendedRows[] = [
+                'entry' => $this->decorateRow($entry, $filterArg, $recommendations),
+                'count' => $recommendations[$id]['count'],
+            ];
+        }
+        usort($topRecommendedRows, function (array $a, array $b): int {
+            if ($a['count'] !== $b['count']) {
+                return $b['count'] <=> $a['count'];
+            }
+            return strcmp(
+                (string) ($a['entry']['id'] ?? ''),
+                (string) ($b['entry']['id'] ?? ''),
+            );
+        });
+        $topRecommendedInline = array_map(
+            fn (array $row): array => $row['entry'],
+            array_slice($topRecommendedRows, 0, self::TOP_RECOMMENDATIONS_INLINE),
         );
 
         $pageArg = $filterArg + ['perPage' => $perPage];
@@ -136,6 +220,10 @@ final class LibraryBrowserController extends ActionController
                 'simplecmp_detections.Backend\\RegistryList_list',
             ),
             'uri_libraryTab' => $this->uri('list'),
+            'topRecommended' => $topRecommendedInline,
+            'recommendationHeadline' => $headline,
+            'recommendationOverflow' => max(0, count($recommendations) - count($topRecommendedInline)),
+            'uri_seeAllRecommended' => $this->uri('list', ['status' => 'recommended']),
         ]);
         return $moduleTemplate->renderResponse('LibraryBrowser/List');
     }
@@ -406,15 +494,33 @@ final class LibraryBrowserController extends ActionController
     /**
      * @param array<string, mixed> $entry
      * @param array<string, scalar> $filterArg
+     * @param array<string, array{count: int, identifiers: list<string>}> $recommendations
      * @return array<string, mixed>
      */
-    private function decorateRow(array $entry, array $filterArg): array
+    private function decorateRow(array $entry, array $filterArg, array $recommendations = []): array
     {
         $id = (string) $entry['id'];
         $rowArgs = ['serviceId' => $id] + $filterArg;
         $entry['uri_adopt'] = $this->uri('adopt', $rowArgs);
         $entry['uri_unadopt'] = $this->uri('unadopt', $rowArgs);
         $entry['uri_edit'] = $entry['adopted'] ? $this->editServiceUri($id) : null;
+        // Recommendation pill data. Tooltip preview (first 5 identifiers
+        // + "+N more" suffix) is precomputed in PHP — Fluid's inline
+        // f:if/f:join in HTML attributes hits the escaped-quote parser
+        // trap documented in typo3_v14_gotchas memory and silently
+        // renders the literal source.
+        $rec = $recommendations[$id] ?? null;
+        if ($rec !== null) {
+            $entry['pillCount'] = $rec['count'];
+            $sample = array_slice($rec['identifiers'], 0, 5);
+            $more = max(0, $rec['count'] - count($sample));
+            $entry['pillTooltip'] = $more > 0
+                ? implode(', ', $sample) . ', +' . $more . ' more'
+                : implode(', ', $sample);
+        } else {
+            $entry['pillCount'] = 0;
+            $entry['pillTooltip'] = '';
+        }
         return $entry;
     }
 

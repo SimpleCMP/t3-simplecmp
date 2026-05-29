@@ -53,6 +53,7 @@
       <trans-unit id="library.filter.label"><source>Status</source><target>Status</target></trans-unit>
       <trans-unit id="library.filter.all"><source>All</source><target>Alle</target></trans-unit>
       <trans-unit id="library.filter.available"><source>Available</source><target>Verfügbar</target></trans-unit>
+      <trans-unit id="library.filter.recommended"><source>Recommended</source><target>Empfohlen</target></trans-unit>
       <trans-unit id="library.filter.adopted"><source>Adopted</source><target>Übernommen</target></trans-unit>
       <trans-unit id="library.search.placeholder"><source>Search id, name, vendor, matchers…</source><target>Suche ID, Name, Anbieter, Muster…</target></trans-unit>
       <trans-unit id="library.search.clear"><source>Clear</source><target>Zurücksetzen</target></trans-unit>
@@ -70,6 +71,10 @@
       <trans-unit id="library.empty"><source>The bundled services library appears empty — check that simplecmp/services-library is installed via composer.</source><target>Die gebündelte Dienste-Bibliothek scheint leer zu sein — bitte simplecmp/services-library über composer prüfen.</target></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source><target>Kein Bibliothekseintrag entspricht den aktiven Filtern.</target></trans-unit>
       <trans-unit id="library.empty.filtered.body"><source>Clear the filter / search and the full library will show.</source><target>Filter und Suche zurücksetzen, um die gesamte Bibliothek zu sehen.</target></trans-unit>
+      <trans-unit id="library.recommended.title"><source>Recommended for this site</source><target>Empfohlen für diese Site</target></trans-unit>
+      <trans-unit id="library.recommended.headline"><source>%d library entries would resolve %d open detections.</source><target>%d Bibliothekseinträge würden %d offene Erkennungen auflösen.</target></trans-unit>
+      <trans-unit id="library.recommended.pill"><source>would resolve %d</source><target>würde %d auflösen</target></trans-unit>
+      <trans-unit id="library.recommended.seeAll"><source>See all %d recommended entries</source><target>Alle %d empfohlenen Einträge ansehen</target></trans-unit>
 
       <trans-unit id="upstream.title"><source>Library upstream</source><target>Bibliotheks-Upstream</target></trans-unit>
       <trans-unit id="upstream.disabled"><source>Disabled — no Site Set has libraryUpstreamUrl configured.</source><target>Deaktiviert — keine Site-Konfiguration mit libraryUpstreamUrl gesetzt.</target></trans-unit>
