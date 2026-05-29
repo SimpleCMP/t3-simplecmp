@@ -1,0 +1,17 @@
+{
+    "id": "optimizely",
+    "name": "Optimizely",
+    "vendor": "Optimizely",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.optimizely.com/privacy/",
+    "matches": {
+        "cookies": [
+            "optimizelyEndUserId",
+            "optimizelyRedirectData",
+            "optimizelyDomainTestCookie",
+            "optimizelyOptOut"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "ahoy",
+    "name": "Ahoy",
+    "vendor": "Ahoy",
+    "purposes": [
+        "analytics"
+    ],
+    "matches": {
+        "cookies": [
+            "ahoy_visit",
+            "ahoy_visitor"
+        ]
+    }
+}

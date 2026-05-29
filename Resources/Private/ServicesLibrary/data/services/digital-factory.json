@@ -1,0 +1,14 @@
+{
+    "id": "digital-factory",
+    "name": "Digital Factory",
+    "vendor": "Digital Factory",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://dfactory.co/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "cookie_notice_accepted"
+        ]
+    }
+}

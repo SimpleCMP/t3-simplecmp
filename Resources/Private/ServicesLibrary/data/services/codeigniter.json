@@ -1,0 +1,14 @@
+{
+    "id": "codeigniter",
+    "name": "CodeIgniter",
+    "vendor": "CodeIgniter",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://codeigniter.com/help",
+    "matches": {
+        "cookies": [
+            "ci_session"
+        ]
+    }
+}

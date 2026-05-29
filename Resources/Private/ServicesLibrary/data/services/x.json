@@ -1,0 +1,62 @@
+{
+    "id": "x",
+    "name": "X",
+    "vendor": "X",
+    "vendorCountry": "IE",
+    "vendorAddress": "Twitter International Unlimited Company, One Cumberland Place, Fenian Street, Dublin 2, D02 AX07, Ireland",
+    "vendorOptOutUrl": "https://x.com/personalization",
+    "vendorPartner": "X Corp. (USA) as parent company. Not DPF-listed; transfers to the USA under Standard Contractual Clauses (Art. 46 GDPR) with supplementary measures. The U.S. lacks an EU-equivalent data protection level; government access not excluded.",
+    "vendorDescription": "Twitter International Unlimited Company is the EU establishment of X Corp. (formerly Twitter, Inc.). It is the EU controller for X and processes personal data of European users, forwarding to X Corp. in the USA under Standard Contractual Clauses.",
+    "purposes": [
+        "marketing",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://twitter.com/en/privacy",
+    "matches": {
+        "cookies": [
+            "guest_id",
+            "personalization_id",
+            {
+                "name": "ct0",
+                "requireOrigin": "twitter.com"
+            },
+            {
+                "name": "gt",
+                "requireOrigin": "twitter.com"
+            },
+            "guest_id_marketing",
+            "guest_id_ads",
+            "muc_ads",
+            "_twitter_sess",
+            "ads_prefs",
+            "auth_token",
+            "csrf_same_site",
+            "csrf_same_site_set",
+            {
+                "name": "dnt",
+                "requireOrigin": "twitter.com"
+            },
+            "eu_cn",
+            "external_referer",
+            {
+                "name": "kdt",
+                "requireOrigin": "twitter.com"
+            },
+            "remember_checked_on",
+            "rweb_optin",
+            "syndication_guest_id",
+            "twid",
+            "tfw_exp"
+        ],
+        "origins": [
+            "*.twitter.com",
+            "*.t.co"
+        ]
+    },
+    "placeholderDescription": "This post is embedded from X (formerly Twitter) and will set tracking cookies when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser Beitrag ist von X (ehemals Twitter) eingebettet und setzt Tracking-Cookies, sobald er geladen wird."
+        }
+    }
+}

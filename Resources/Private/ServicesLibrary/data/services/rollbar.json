@@ -1,0 +1,12 @@
+{
+  "id": "rollbar",
+  "name": "Rollbar",
+  "vendor": "Rollbar, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://rollbar.com/privacy/",
+  "description": "Frontend error and performance monitoring. Reports JavaScript errors with stack traces.",
+  "matches": {
+    "origins": ["api.rollbar.com", "cdn.rollbar.com", "cdnjs.cloudflare.com/ajax/libs/rollbar.js"]
+  }
+}

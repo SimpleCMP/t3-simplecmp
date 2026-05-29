@@ -1,0 +1,34 @@
+{
+    "id": "linkedin-insight",
+    "name": "LinkedIn Insight Tag",
+    "vendor": "LinkedIn",
+    "vendorCountry": "IE",
+    "vendorAddress": "LinkedIn Ireland Unlimited Company, Wilton Plaza, Wilton Place, Dublin 2, Ireland",
+    "vendorOptOutUrl": "https://www.linkedin.com/psettings/advertising",
+    "vendorPartner": "LinkedIn Corporation (USA) as parent; ultimate parent Microsoft Corporation (USA). Transfers to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "LinkedIn Ireland Unlimited Company is the EU establishment of LinkedIn Corporation (a Microsoft subsidiary). It is the EU controller for LinkedIn services and processes personal data of European users, forwarding to LinkedIn Corporation in the USA where required.",
+    "purposes": [
+        "marketing",
+        "advertising",
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.linkedin.com/legal/privacy-policy",
+    "description": "Conversion tracking, retargeting, and audience insights for LinkedIn Ads. Sets cookies to identify visitors across sessions and link them to LinkedIn profiles.",
+    "matches": {
+        "cookies": [
+            "lidc",
+            "bcookie",
+            "bscookie",
+            "AnalyticsSyncHistory",
+            "UserMatchHistory",
+            "li_oatml",
+            "li_sugr",
+            "/^li_/"
+        ],
+        "origins": [
+            "snap.licdn.com",
+            "px.ads.linkedin.com",
+            "*.linkedin.com"
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "id": "tapad",
+    "name": "Tapad",
+    "vendor": "Tapad",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.tapad.com/privacy",
+    "matches": {
+        "cookies": [
+            "TapAd_DID",
+            "TapAd_TS",
+            "TapAd_3WAY_SYNCS"
+        ],
+        "origins": [
+            "*.tapad.com"
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "chartbeat",
+    "name": "Chartbeat",
+    "vendor": "Chartbeat",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://chartbeat.com/privacy/",
+    "matches": {
+        "cookies": [
+            "/^_chartbeat/",
+            "_SUPERFLY_nosample"
+        ]
+    }
+}

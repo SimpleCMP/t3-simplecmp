@@ -1,0 +1,45 @@
+{
+    "id": "wordpress",
+    "name": "WordPress",
+    "vendor": "WordPress",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://wordpress.org/about/privacy/",
+    "matches": {
+        "cookies": [
+            "wordpress_test_cookie",
+            "devicePixelRatio",
+            "tk_qs",
+            "tk_lr",
+            "tk_or",
+            "tk_r3d",
+            "tk_tc",
+            "/^wp\\-settings\\-/",
+            "wporg_logged_in",
+            "wporg_sec",
+            "wporg_locale",
+            "/^welcome\\-/",
+            "showComments",
+            "trac_form_token",
+            "trac_session",
+            "codexToken",
+            "codexUserId",
+            "codexUserName",
+            "camptix_client_stats",
+            "wp-saving-post",
+            "/^comment_author_/",
+            "/^comment_author_url_/",
+            "/^wp\\-postpass_/",
+            "/^wp\\-settings\\-time\\-/",
+            "tix_view_token",
+            "jetpackState",
+            "jpp_math_pass",
+            "stnojs",
+            "/^wordpress_logged_in_/",
+            "wp_lang"
+        ]
+    }
+}

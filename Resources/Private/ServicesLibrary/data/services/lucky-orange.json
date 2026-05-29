@@ -1,0 +1,23 @@
+{
+    "id": "lucky-orange",
+    "name": "Lucky Orange",
+    "vendor": "Lucky Orange",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.luckyorange.com/legal/privacy",
+    "matches": {
+        "cookies": [
+            "_global_lucky_opt_out",
+            "/^_lo_np_/",
+            "_lo_bn",
+            "_lo_cid",
+            "_lo_uid",
+            "_lo_rid",
+            "_lo_v",
+            "__lotl",
+            "__lotr"
+        ]
+    }
+}

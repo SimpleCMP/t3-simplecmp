@@ -1,0 +1,18 @@
+{
+    "id": "beeswax",
+    "name": "Beeswax",
+    "vendor": "Beeswax",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.beeswax.com/privacy/",
+    "matches": {
+        "cookies": [
+            "bitoIsSecure",
+            "bito"
+        ],
+        "origins": [
+            "*.bidr.io"
+        ]
+    }
+}

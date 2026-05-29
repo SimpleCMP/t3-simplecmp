@@ -1,0 +1,16 @@
+{
+    "id": "csync-loopme-me",
+    "name": "csync.loopme.me",
+    "vendor": "csync.loopme.me",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "viewer_token"
+        ],
+        "origins": [
+            "csync.loopme.me"
+        ]
+    }
+}

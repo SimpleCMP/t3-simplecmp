@@ -1,0 +1,30 @@
+{
+    "id": "google-adsense",
+    "name": "Google AdSense",
+    "vendor": "Google",
+    "vendorCountry": "IE",
+    "vendorAddress": "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland",
+    "vendorOptOutUrl": "https://adssettings.google.com/",
+    "vendorPartner": "Google LLC (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Google Ireland Limited is the EU establishment of Google LLC. It is the EU controller for Google products and processes personal data of European users, forwarding to Google LLC in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://business.safety.google/privacy/",
+    "matches": {
+        "cookies": [
+            "__eoi",
+            "pm_sess",
+            "pm_sess_NNN",
+            "aboutads_sessNNN",
+            "ANID",
+            "__gsas",
+            "__gpi",
+            "__gpi_optout",
+            "GED_PLAYLIST_ACTIVITY",
+            "ACLK_DATA"
+        ]
+    }
+}

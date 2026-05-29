@@ -1,0 +1,23 @@
+{
+    "id": "mediarithmics",
+    "name": "Mediarithmics",
+    "vendor": "Mediarithmics",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://developer.mediarithmics.io/advanced-usages/data-privacy-compliance/cookies",
+    "matches": {
+        "cookies": [
+            "mics_vid",
+            "mics_uaid",
+            "mics_lts",
+            {
+                "name": "chk",
+                "requireOrigin": "mediarithmics.com"
+            }
+        ],
+        "origins": [
+            "*.mediarithmics.com"
+        ]
+    }
+}

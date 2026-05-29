@@ -1,0 +1,14 @@
+{
+    "id": "loggly",
+    "name": "Loggly",
+    "vendor": "Solarwinds",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.solarwinds.com/legal/privacy",
+    "matches": {
+        "cookies": [
+            "logglytrackings\u00adession"
+        ]
+    }
+}

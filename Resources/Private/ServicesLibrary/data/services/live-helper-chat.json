@@ -1,0 +1,16 @@
+{
+    "id": "live-helper-chat",
+    "name": "Live helper chat",
+    "vendor": "Live helper chat",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://livehelperchat.com/gdpr-compliance-504a.html",
+    "matches": {
+        "cookies": [
+            "lhc_per",
+            "lhc_ldep",
+            "lhc_ses"
+        ]
+    }
+}

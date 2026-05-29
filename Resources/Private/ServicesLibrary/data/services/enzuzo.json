@@ -1,0 +1,17 @@
+{
+    "id": "enzuzo",
+    "name": "Enzuzo",
+    "vendor": "Enzuzo",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.enzuzo.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "cookies-analytics",
+            "cookies-functional",
+            "cookies-marketing",
+            "cookies-preferences"
+        ]
+    }
+}

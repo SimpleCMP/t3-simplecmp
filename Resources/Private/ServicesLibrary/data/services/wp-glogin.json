@@ -1,0 +1,14 @@
+{
+    "id": "wp-glogin",
+    "name": "WP-Glogin",
+    "vendor": "WP-Glogin",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://wp-glogin.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "wordpress_google_apps_login"
+        ]
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "id": "seedtag",
+    "name": "Seedtag",
+    "vendor": "seedtag.com",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.seedtag.com/privacy/",
+    "matches": {
+        "cookies": [
+            "st_csd",
+            "st_cs",
+            "st_uid",
+            "st_cnt",
+            "st_chc",
+            "st_ssp"
+        ],
+        "origins": [
+            "*.seedtag.com"
+        ]
+    }
+}

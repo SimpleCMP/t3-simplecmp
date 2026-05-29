@@ -1,0 +1,17 @@
+{
+    "id": "bit-ly",
+    "name": "Bit.ly",
+    "vendor": "Bit.ly",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://bitly.com/pages/privacy",
+    "matches": {
+        "cookies": [
+            "_bit"
+        ],
+        "origins": [
+            "*.bit.ly"
+        ]
+    }
+}

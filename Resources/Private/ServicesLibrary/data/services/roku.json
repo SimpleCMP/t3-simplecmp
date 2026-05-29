@@ -1,0 +1,18 @@
+{
+    "id": "roku",
+    "name": "Roku",
+    "vendor": "Roku",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.roku.com/legal",
+    "matches": {
+        "cookies": [
+            "matchadform",
+            "wfivefivec"
+        ],
+        "origins": [
+            "*.w55c.net"
+        ]
+    }
+}

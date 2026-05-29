@@ -1,0 +1,13 @@
+{
+  "id": "amplitude",
+  "name": "Amplitude",
+  "vendor": "Amplitude, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://amplitude.com/privacy",
+  "description": "Product analytics for behavioural cohorts, funnels, and retention. Identifies users across sessions via a device-id cookie.",
+  "matches": {
+    "cookies": ["/^amplitude_/", "/^AMP_/"],
+    "origins": ["cdn.amplitude.com", "api.amplitude.com", "api2.amplitude.com"]
+  }
+}

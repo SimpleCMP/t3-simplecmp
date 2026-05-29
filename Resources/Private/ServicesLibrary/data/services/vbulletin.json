@@ -1,0 +1,21 @@
+{
+    "id": "vbulletin",
+    "name": "vBulletin",
+    "vendor": "vBulletin",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.internetbrands.com/privacy/privacy-main",
+    "matches": {
+        "cookies": [
+            "bbuserid",
+            "bbpassword",
+            "bbsessionhash",
+            "bbcpsessionhash",
+            "bbnp_notices_displayed",
+            "bbsitebuilder_active",
+            "bblastactivity",
+            "bblastvisit"
+        ]
+    }
+}

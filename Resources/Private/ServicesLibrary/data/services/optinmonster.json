@@ -1,0 +1,15 @@
+{
+    "id": "optinmonster",
+    "name": "Optinmonster",
+    "vendor": "Optinmonster",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://optinmonster.com/privacy/",
+    "matches": {
+        "cookies": [
+            "_omappvs",
+            "_omappvp"
+        ]
+    }
+}

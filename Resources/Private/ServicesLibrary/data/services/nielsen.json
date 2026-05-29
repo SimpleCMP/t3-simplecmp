@@ -1,0 +1,30 @@
+{
+    "id": "nielsen",
+    "name": "Nielsen",
+    "vendor": "Nielsen",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.nielsen.com/legal/privacy-principles/",
+    "matches": {
+        "cookies": [
+            "IMRID",
+            {
+                "name": "ud",
+                "requireOrigin": "exelator.com"
+            },
+            {
+                "name": "udo",
+                "requireOrigin": "exelator.com"
+            },
+            {
+                "name": "EE",
+                "requireOrigin": "exelator.com"
+            }
+        ],
+        "origins": [
+            "*.imrworldwide.com",
+            "*.exelator.com"
+        ]
+    }
+}

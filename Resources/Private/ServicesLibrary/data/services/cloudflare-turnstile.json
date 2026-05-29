@@ -1,0 +1,22 @@
+{
+    "id": "cloudflare-turnstile",
+    "name": "Cloudflare Turnstile",
+    "vendor": "Cloudflare, Inc.",
+    "vendorCountry": "US",
+    "purposes": [
+        "security"
+    ],
+    "privacyPolicyUrl": "https://www.cloudflare.com/privacypolicy/",
+    "description": "Privacy-focused bot-detection challenge for forms. Cookieless on the visitor side; relies on browser-fingerprinting signals collected via the challenge widget.",
+    "matches": {
+        "origins": [
+            "challenges.cloudflare.com"
+        ]
+    },
+    "placeholderDescription": "This form uses Cloudflare Turnstile to verify visitors. Loading it runs scripts from Cloudflare.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieses Formular nutzt Cloudflare Turnstile zur Besucher-Verifikation. Beim Laden werden Skripte von Cloudflare ausgeführt."
+        }
+    }
+}

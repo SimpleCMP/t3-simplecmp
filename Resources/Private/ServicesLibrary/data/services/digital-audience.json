@@ -1,0 +1,17 @@
+{
+    "id": "digital-audience",
+    "name": "Digital Audience",
+    "vendor": "Digital Audience",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://digitalaudience.io/legal/",
+    "matches": {
+        "cookies": [
+            "digitalAudience"
+        ],
+        "origins": [
+            "*.digitalaudience.io"
+        ]
+    }
+}

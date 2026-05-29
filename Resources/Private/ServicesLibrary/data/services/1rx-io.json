@@ -1,0 +1,16 @@
+{
+    "id": "1rx-io",
+    "name": "1rx.io",
+    "vendor": "1rx.io",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "_rxuuid"
+        ],
+        "origins": [
+            "*.1rx.io"
+        ]
+    }
+}

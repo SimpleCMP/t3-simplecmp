@@ -1,0 +1,18 @@
+{
+    "id": "adxcore",
+    "name": "Adxcore",
+    "vendor": "Adxcore",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "advst_uid_11",
+            "DISPATCHER"
+        ],
+        "origins": [
+            "adxcore.com",
+            "dispatcher.adxcore.com"
+        ]
+    }
+}

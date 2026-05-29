@@ -1,0 +1,27 @@
+{
+    "id": "cloudflare",
+    "name": "Cloudflare",
+    "vendor": "Cloudflare",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.cloudflare.com/privacypolicy/",
+    "matches": {
+        "cookies": [
+            "__cfduid",
+            "__cfruid",
+            "__cf_bm",
+            "cf_chl_2",
+            "__cflb",
+            "_cfuvid",
+            "cf_clearance",
+            "__cfseq",
+            "cf_ob_info",
+            "cf_use_ob",
+            "__cfwaitingroom",
+            "cf_chl_rc_i",
+            "cf_chl_rc_ni",
+            "cf_chl_rc_m"
+        ]
+    }
+}

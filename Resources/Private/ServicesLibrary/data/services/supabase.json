@@ -1,0 +1,14 @@
+{
+    "id": "supabase",
+    "name": "Supabase",
+    "vendor": "Supabase",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://supabase.com/privacy",
+    "matches": {
+        "cookies": [
+            "/^sb\\-/"
+        ]
+    }
+}

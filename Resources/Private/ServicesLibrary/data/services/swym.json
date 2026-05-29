@@ -1,0 +1,25 @@
+{
+    "id": "swym",
+    "name": "Swym",
+    "vendor": "Swym",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://swym.it/privacy/",
+    "matches": {
+        "cookies": [
+            "swym-email",
+            "swym-session-id",
+            "swym-pid",
+            "swym-swymRegid",
+            "swym-cu_ct",
+            "swym-o_s",
+            "swym-instrumentMap",
+            "swym-ol_ct",
+            "swym-v-ckd",
+            "swym-tpermts",
+            "swym-u_pref",
+            "swym-weml"
+        ]
+    }
+}

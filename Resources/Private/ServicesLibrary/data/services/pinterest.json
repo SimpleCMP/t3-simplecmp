@@ -1,0 +1,32 @@
+{
+    "id": "pinterest",
+    "name": "Pinterest",
+    "vendor": "Pinterest",
+    "vendorCountry": "IE",
+    "vendorAddress": "Pinterest Europe Limited, Palmerston House, 2nd Floor, Fenian Street, Dublin 2, Ireland",
+    "vendorOptOutUrl": "https://www.pinterest.com/settings/privacy/",
+    "vendorPartner": "Pinterest, Inc. (USA) as parent company. Transfers to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Pinterest Europe Limited is the EU establishment of Pinterest, Inc. It is the EU controller for Pinterest services and processes personal data of European users, forwarding to Pinterest, Inc. in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://policy.pinterest.com/en/privacy-policy",
+    "matches": {
+        "cookies": [
+            "_pinterest_cm",
+            "_pinterest_sess",
+            "_pin_unauth",
+            "_pinterest_ct_ua",
+            "sessionFunnelEventLogged",
+            "_routing_id",
+            "_derived_epik",
+            "_pinterest_ct",
+            "_pinterest_ct_rt",
+            "_epik"
+        ],
+        "origins": [
+            "*.pinterest.com"
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "paypal",
+  "name": "PayPal",
+  "vendor": "PayPal (Europe) S.à r.l. et Cie, S.C.A.",
+  "vendorCountry": "LU",
+  "purposes": ["functional", "security"],
+  "privacyPolicyUrl": "https://www.paypal.com/privacy",
+  "description": "Payment processing and PayPal button / checkout widget. Sets cookies for session continuity, fraud detection, and user identification.",
+  "matches": {
+    "cookies": ["/^_paypal_/", {"name": "ts", "requireOrigin": "paypal.com"}, "ts_c", "x-pp-s", "x-pp-l7"],
+    "origins": ["www.paypal.com", "*.paypal.com", "*.paypalobjects.com"]
+  }
+}

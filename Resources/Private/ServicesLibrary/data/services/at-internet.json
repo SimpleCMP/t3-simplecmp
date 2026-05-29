@@ -1,0 +1,14 @@
+{
+    "id": "at-internet",
+    "name": "AT Internet",
+    "vendor": "AT Internet",
+    "purposes": [
+        "analytics"
+    ],
+    "matches": {
+        "cookies": [
+            "atidvisitor",
+            "atuserid"
+        ]
+    }
+}

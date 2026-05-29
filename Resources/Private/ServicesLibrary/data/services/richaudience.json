@@ -1,0 +1,19 @@
+{
+    "id": "richaudience",
+    "name": "richAudience",
+    "vendor": "richAudience",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://richaudience.com/en/privacy/",
+    "matches": {
+        "cookies": [
+            "/^rai\\-pltn\\-pl\\-/",
+            "/^avcid\\-/",
+            "pdid"
+        ],
+        "origins": [
+            "*.richaudience.com"
+        ]
+    }
+}

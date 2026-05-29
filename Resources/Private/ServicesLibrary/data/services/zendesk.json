@@ -1,0 +1,39 @@
+{
+    "id": "zendesk",
+    "name": "Zendesk",
+    "vendor": "Zendesk",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.zendesk.com/company/agreements-and-terms/privacy-notice/",
+    "matches": {
+        "cookies": [
+            "connect.sid",
+            "_zendesk_cookie",
+            "zte2095",
+            "__zlcprivacy",
+            "__zlcmid",
+            "_answer_bot_service_session",
+            "ZD-zE_oauth",
+            "_zendesk_session",
+            "zendesk_thirdparty_test",
+            "_zendesk_shared_session",
+            "_zendesk_authenticated",
+            "_help_center_session",
+            "help_center_data",
+            "_zdshared_user_session_analytics",
+            "_zendesk_nps_session",
+            "ZD-settings",
+            "ZD-suid",
+            "ZD-buid",
+            "ZD-store",
+            "ZD-widgetOpen",
+            "ZD-launcherLabelRemoved",
+            "_zdsession_talk_embeddables_service"
+        ],
+        "origins": [
+            "*.zendesk.com"
+        ]
+    }
+}

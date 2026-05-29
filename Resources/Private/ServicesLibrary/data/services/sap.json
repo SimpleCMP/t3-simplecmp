@@ -1,0 +1,51 @@
+{
+    "id": "sap",
+    "name": "SAP",
+    "vendor": "SAP",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.sap.com/privacy",
+    "matches": {
+        "cookies": [
+            "/^apiDomain_/",
+            "/^gac_/",
+            "_gig_APIProxy_enabled",
+            "/^gig_bootstrap_/",
+            "gig_canary",
+            "/^gig_canary_3/",
+            "_gig_email",
+            "/^gig_canary_ver/",
+            "gig_hasGmid",
+            "_gig_llu",
+            "_gig_llp",
+            "/^glt_/",
+            "_gig_lt",
+            "/^gig_last_ver_/",
+            "/^gig_loginToken_/",
+            "/^_gig_shareUI_cb_/",
+            "_gig_shareUI_lastUID",
+            "/^_gigRefUid_/",
+            "gig_toggles",
+            "gig3pc",
+            "gig3pctest",
+            "glnk",
+            "gmid",
+            {
+                "name": "gst",
+                "requireOrigin": "gigya.com"
+            },
+            "/^GSLM_/",
+            "hasGmid",
+            "/^SAML_/",
+            "/^gltexp_/",
+            "/^_gig_/",
+            "/^ua_/",
+            "ucid"
+        ],
+        "origins": [
+            "*.gigya.com"
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "id": "stonly",
+    "name": "Stonly",
+    "vendor": "Stonly",
+    "purposes": [
+        "security"
+    ],
+    "privacyPolicyUrl": "https://stonly.com/privacy",
+    "matches": {
+        "cookies": [
+            "_csrf"
+        ],
+        "origins": [
+            "*.stonly.com"
+        ]
+    }
+}

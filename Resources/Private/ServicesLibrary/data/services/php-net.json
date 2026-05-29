@@ -1,0 +1,15 @@
+{
+    "id": "php-net",
+    "name": "PHP.net",
+    "vendor": "PHP.net",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.php.net/privacy.php",
+    "matches": {
+        "cookies": [
+            "PHPSESSID",
+            "__Secure-PHPSESSID"
+        ]
+    }
+}

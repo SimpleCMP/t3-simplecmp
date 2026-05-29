@@ -1,0 +1,20 @@
+{
+    "id": "sharpspring",
+    "name": "Sharpspring",
+    "vendor": "Constant Contact",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.constantcontact.com/legal/privacy-notice",
+    "matches": {
+        "cookies": [
+            "koitk",
+            "__ss_referrer",
+            "__ss_tk",
+            "__ss"
+        ],
+        "origins": [
+            "*.marketingautomation.services"
+        ]
+    }
+}

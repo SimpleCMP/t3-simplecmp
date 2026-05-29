@@ -1,0 +1,17 @@
+{
+    "id": "33across",
+    "name": "33Across",
+    "vendor": "33Across",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://33across.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "33x_ps"
+        ],
+        "origins": [
+            "*.33across.com"
+        ]
+    }
+}

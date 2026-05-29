@@ -1,0 +1,15 @@
+{
+    "id": "leadinfo",
+    "name": "Leadinfo",
+    "vendor": "Leadinfo",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.leadinfo.com/en/privacy/",
+    "matches": {
+        "cookies": [
+            "/^_li_id/",
+            "/^_li_ses/"
+        ]
+    }
+}

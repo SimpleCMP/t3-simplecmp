@@ -1,0 +1,25 @@
+{
+    "id": "blueconic-com",
+    "name": "Blueconic.com",
+    "vendor": "Blueconic.com",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.blueconic.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "BCSessionID",
+            "BCTempID",
+            "BCPermissionLevel",
+            "BCReferrerOverrule",
+            "BCRefusedObjectives",
+            "BCRevision",
+            "BCTracking",
+            "bc_tstgrp"
+        ],
+        "origins": [
+            "*.blueconic.net"
+        ]
+    }
+}

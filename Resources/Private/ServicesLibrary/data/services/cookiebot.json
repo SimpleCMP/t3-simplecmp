@@ -1,0 +1,24 @@
+{
+    "id": "cookiebot",
+    "name": "Cookiebot",
+    "vendor": "Cookiebot",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.cookiebot.com/en/cookie-declaration/",
+    "matches": {
+        "cookies": [
+            "CookieConsent",
+            "CookieConsentBulkTicket",
+            "/^userlang/",
+            "consentUUID",
+            "CrossConsent",
+            "1.gif",
+            "cb-currency",
+            "/^CookieConsentBulkSetting\\-/"
+        ],
+        "origins": [
+            "*.cookiebot.com"
+        ]
+    }
+}

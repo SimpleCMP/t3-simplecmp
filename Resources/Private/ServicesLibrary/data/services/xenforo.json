@@ -1,0 +1,30 @@
+{
+    "id": "xenforo",
+    "name": "Xenforo",
+    "vendor": "Xenforo",
+    "purposes": [
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://xenforo.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "xf_consent",
+            "xf_csrf",
+            "xf_dbWriteForced",
+            "/^xf_inline_mod_/",
+            "xf_language_id",
+            "xf_ls",
+            "xf_notice_dismiss",
+            "xf_push_notice_dismiss",
+            "xf_push_subscription_updated",
+            "xf_session",
+            "xf_style_id",
+            "xf_tfa_trust",
+            "xf_toggle",
+            "xf_user",
+            "xf_emoji_usage",
+            "xf_from_search"
+        ]
+    }
+}

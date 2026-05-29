@@ -1,0 +1,17 @@
+{
+    "id": "pangle",
+    "name": "Pangle",
+    "vendor": "Pangle",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.pangleglobal.com/privacy",
+    "matches": {
+        "cookies": [
+            "_pangle"
+        ],
+        "origins": [
+            "analytics.pangle-ads.com"
+        ]
+    }
+}

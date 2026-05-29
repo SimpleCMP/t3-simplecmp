@@ -1,0 +1,13 @@
+{
+  "id": "hubspot",
+  "name": "HubSpot",
+  "vendor": "HubSpot, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "analytics", "functional"],
+  "privacyPolicyUrl": "https://legal.hubspot.com/privacy-policy",
+  "description": "Marketing automation, CRM tracking, chat widget, and form embedding. Identifies visitors across sessions and ties activity to CRM contact records.",
+  "matches": {
+    "cookies": ["/^__hs/", "/^hubspotutk/", "/^messagesUtk/"],
+    "origins": ["js.hs-scripts.com", "js.hs-analytics.net", "js.hsforms.net", "js.usemessages.com", "track.hubspot.com", "*.hubspot.com", "*.hsforms.com"]
+  }
+}

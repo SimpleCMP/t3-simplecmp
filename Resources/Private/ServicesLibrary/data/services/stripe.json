@@ -1,0 +1,28 @@
+{
+    "id": "stripe",
+    "name": "Stripe",
+    "vendor": "Stripe",
+    "vendorCountry": "IE",
+    "vendorAddress": "Stripe Payments Europe Limited, 25-28 North Wall Quay, Dublin 1, Ireland",
+    "vendorPartner": "Stripe, Inc. (USA) as parent company. Transfers to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR). Stripe is PCI-DSS-certified for payment data processing.",
+    "vendorDescription": "Stripe Payments Europe Limited is the EU establishment of Stripe, Inc., a payment processing platform. It is the EU controller for Stripe services and processes personal data of European users (including payment instruments), forwarding to Stripe, Inc. in the USA where required.",
+    "purposes": [
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://stripe.com/privacy",
+    "description": "Payment processing and Stripe.js form embedding. Sets cookies for session continuity, fraud prevention, and 3-D Secure flows.",
+    "matches": {
+        "cookies": [
+            "__stripe_mid",
+            "__stripe_sid",
+            "/^_stripe_/"
+        ],
+        "origins": [
+            "js.stripe.com",
+            "m.stripe.com",
+            "*.stripe.com",
+            "*.stripe.network"
+        ]
+    }
+}

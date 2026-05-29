@@ -1,0 +1,24 @@
+{
+    "id": "amazon-web-services",
+    "name": "Amazon Web Services",
+    "vendor": "Amazon Web Services",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://aws.amazon.com/privacy/",
+    "matches": {
+        "cookies": [
+            "AWSALB",
+            "AWSALBCORS",
+            "AWSELBCORS",
+            "AWSELB",
+            "AWSALBTGCORS",
+            "AWSALBTG",
+            "aws-csds-token",
+            "aws_lang",
+            "aws-target-visitor-id",
+            "aws-priv"
+        ]
+    }
+}

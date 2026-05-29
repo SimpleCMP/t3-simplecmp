@@ -1,0 +1,14 @@
+{
+    "id": "devise-ruby-on-rails",
+    "name": "Devise (Ruby on Rails)",
+    "vendor": "Ruby on Rails",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://github.com/heartcombo/devise",
+    "matches": {
+        "cookies": [
+            "remember_user_token"
+        ]
+    }
+}

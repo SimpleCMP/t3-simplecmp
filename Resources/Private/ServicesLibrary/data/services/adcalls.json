@@ -1,0 +1,20 @@
+{
+    "id": "adcalls",
+    "name": "Adcalls",
+    "vendor": "Adcalls",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://adcalls.com/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "acalltracker",
+            "acalltrackersession",
+            "acalltrackerreferrer",
+            "excludecalltracking",
+            "acalltrackernumber"
+        ]
+    }
+}

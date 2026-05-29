@@ -1,0 +1,21 @@
+{
+    "id": "springserve",
+    "name": "Springserve",
+    "vendor": "Magnite",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.magnite.com/legal/platform-cookie-policy/",
+    "matches": {
+        "cookies": [
+            "ssid",
+            {
+                "name": "sst",
+                "requireOrigin": "springserve.com"
+            }
+        ],
+        "origins": [
+            "*.springserve.com"
+        ]
+    }
+}

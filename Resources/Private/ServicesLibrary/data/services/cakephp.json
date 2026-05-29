@@ -1,0 +1,14 @@
+{
+    "id": "cakephp",
+    "name": "CakePHP",
+    "vendor": "CakePHP",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://cakephp.org/privacy",
+    "matches": {
+        "cookies": [
+            "CAKEPHP"
+        ]
+    }
+}

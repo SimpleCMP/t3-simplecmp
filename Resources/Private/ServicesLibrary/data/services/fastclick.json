@@ -1,0 +1,20 @@
+{
+    "id": "fastclick",
+    "name": "Fastclick",
+    "vendor": "Epsilon",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://legal.epsilon.com/global-privacy-policies/",
+    "matches": {
+        "cookies": [
+            "pluto2",
+            "pluto",
+            "fastclick"
+        ],
+        "origins": [
+            "*.fastclick.net"
+        ]
+    }
+}

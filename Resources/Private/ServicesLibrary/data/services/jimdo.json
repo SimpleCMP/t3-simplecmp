@@ -1,0 +1,18 @@
+{
+    "id": "jimdo",
+    "name": "Jimdo",
+    "vendor": "Jimdo",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.jimdo.com/info/privacy/",
+    "matches": {
+        "cookies": [
+            "ckies_functional",
+            "ckies_necessary",
+            "ckies_performance",
+            "ckies_marketing",
+            "ClickAndChange"
+        ]
+    }
+}

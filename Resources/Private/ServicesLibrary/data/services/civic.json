@@ -1,0 +1,17 @@
+{
+    "id": "civic",
+    "name": "Civic",
+    "vendor": "Civic UK",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.civicuk.com/privacy",
+    "matches": {
+        "cookies": [
+            "CookieControl",
+            "HACIVICLB",
+            "HACIVIC",
+            "HAAPPLB"
+        ]
+    }
+}

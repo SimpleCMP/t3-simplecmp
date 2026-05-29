@@ -1,0 +1,16 @@
+{
+    "id": "axeptio",
+    "name": "Axeptio",
+    "vendor": "Axeptio",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.axept.io/",
+    "matches": {
+        "cookies": [
+            "axeptio_authorized_vendors",
+            "axeptio_cookies",
+            "axeptio_all_vendors"
+        ]
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "id": "parse-ly",
+    "name": "Parse.ly",
+    "vendor": "Parse.ly",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://docs.parse.ly/privacy/",
+    "matches": {
+        "cookies": [
+            "_parsely_visitor",
+            "_parsely_tpa_blocked",
+            "_parsely_slot_click",
+            "_parsely_session",
+            "test"
+        ]
+    }
+}

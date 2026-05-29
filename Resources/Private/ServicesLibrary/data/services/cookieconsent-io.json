@@ -1,0 +1,18 @@
+{
+    "id": "cookieconsent-io",
+    "name": "CookieConsent.io",
+    "vendor": "CookieConsent.io",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.cookieconsent.io/cookies/",
+    "matches": {
+        "cookies": [
+            "cookie-consent-io",
+            "/^cookie\\-consent\\-io\\-timestamp/",
+            "cookie-consent-io-gdpr",
+            "ccec_user"
+        ]
+    }
+}

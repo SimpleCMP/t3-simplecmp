@@ -1,0 +1,30 @@
+{
+    "id": "cleantalk",
+    "name": "CleanTalk",
+    "vendor": "CleanTalk",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://cleantalk.org/publicoffer#privacy",
+    "matches": {
+        "cookies": [
+            "apbct_antibot",
+            "ct_check_js",
+            "ct_fkp_timestamp",
+            "ct_has_scrolled",
+            "ct_pointer_data",
+            "ct_ps_timestamp",
+            "ct_timezone",
+            "apbct_cookies_test",
+            "/^apbct_/",
+            "/^ct_/",
+            "ct_sfw_",
+            "spbc_cookies_test",
+            "spbc_firewall_pass_key",
+            "spbc_is_logged_in",
+            "spbc_2fa_passed",
+            "spbc_timer",
+            "spbc_log_id"
+        ]
+    }
+}

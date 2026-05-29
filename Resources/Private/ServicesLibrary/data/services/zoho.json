@@ -1,0 +1,24 @@
+{
+    "id": "zoho",
+    "name": "ZOHO",
+    "vendor": "ZOHO",
+    "purposes": [
+        "functional",
+        "marketing",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://www.zoho.com/privacy.html",
+    "matches": {
+        "cookies": [
+            "zc_consent",
+            "ZCAMPAIGN_CSRF_TOKEN",
+            "zc_show",
+            "zc_cu_exp",
+            "zc_loc",
+            "uesign"
+        ],
+        "origins": [
+            "salesiq.zoho.com"
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "id": "liveintent",
+    "name": "LiveIntent",
+    "vendor": "LiveIntent",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "lidid",
+            "_li_ss"
+        ],
+        "origins": [
+            "*.liadm.com"
+        ]
+    }
+}

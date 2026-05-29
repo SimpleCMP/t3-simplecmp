@@ -1,0 +1,28 @@
+{
+    "id": "complianz",
+    "name": "Complianz",
+    "vendor": "Complianz",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://complianz.io/legal/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "complianz_policy_id",
+            "complianz_consent_status",
+            "cmplz_marketing",
+            "cmplz_statistics",
+            "cmplz_preferences",
+            "cmplz_functional",
+            "cmplz_stats",
+            "cmplz_choice",
+            "cmplz_id",
+            "cmplz_user_data",
+            "cmplz_saved_services",
+            "cmplz_consented_services",
+            "cmplz_policy_id",
+            "cmplz_saved_categories",
+            "cmplz_banner-status"
+        ]
+    }
+}

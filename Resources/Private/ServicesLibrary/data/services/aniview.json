@@ -1,0 +1,19 @@
+{
+    "id": "aniview",
+    "name": "Aniview",
+    "vendor": "Aniview",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.aniview.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "aniC",
+            "version"
+        ],
+        "origins": [
+            "aniview.com",
+            "track1.aniview.com"
+        ]
+    }
+}

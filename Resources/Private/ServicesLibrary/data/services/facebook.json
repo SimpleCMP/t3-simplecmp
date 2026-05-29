@@ -1,0 +1,95 @@
+{
+    "id": "facebook",
+    "name": "Facebook",
+    "vendor": "Facebook",
+    "vendorCountry": "IE",
+    "vendorAddress": "Meta Platforms Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Ireland",
+    "vendorOptOutUrl": "https://www.facebook.com/help/247395082112892",
+    "vendorPartner": "Meta Platforms, Inc. (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Meta Platforms Ireland Limited is the EU establishment of Meta Platforms, Inc. It is the EU controller for Facebook, Instagram, WhatsApp and related Meta products, and processes personal data of European users, forwarding to Meta Platforms, Inc. in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.facebook.com/about/privacy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "lu",
+                "requireOrigin": "facebook.com"
+            },
+            {
+                "name": "xs",
+                "requireOrigin": "facebook.com"
+            },
+            "c_user",
+            "m_user",
+            {
+                "name": "pl",
+                "requireOrigin": "facebook.com"
+            },
+            "dbln",
+            {
+                "name": "aks",
+                "requireOrigin": "facebook.com"
+            },
+            "aksb",
+            "sfau",
+            {
+                "name": "ick",
+                "requireOrigin": "facebook.com"
+            },
+            {
+                "name": "csm",
+                "requireOrigin": "facebook.com"
+            },
+            {
+                "name": "s",
+                "requireOrigin": "facebook.com"
+            },
+            "datr",
+            {
+                "name": "sb",
+                "requireOrigin": "facebook.com"
+            },
+            {
+                "name": "fr",
+                "requireOrigin": "facebook.com"
+            },
+            {
+                "name": "oo",
+                "requireOrigin": "facebook.com"
+            },
+            "ddid",
+            "locale",
+            "_fbp",
+            "_fbc",
+            "js_ver",
+            {
+                "name": "rc",
+                "requireOrigin": "facebook.com"
+            },
+            "campaign_click_url",
+            {
+                "name": "wd",
+                "requireOrigin": "facebook.com"
+            },
+            "usida",
+            "presence"
+        ],
+        "origins": [
+            "*.facebook.com"
+        ],
+        "aliasOrigins": [
+            "*.facebook.net",
+            "*.fbcdn.net",
+            "*.fbsbx.com"
+        ]
+    },
+    "placeholderDescription": "This Facebook embed (Meta) will set tracking cookies when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser Facebook-Inhalt (Meta) setzt Tracking-Cookies, sobald er geladen wird."
+        }
+    }
+}

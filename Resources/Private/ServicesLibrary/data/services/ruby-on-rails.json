@@ -1,0 +1,14 @@
+{
+    "id": "ruby-on-rails",
+    "name": "Ruby on Rails",
+    "vendor": "Ruby on Rails",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://guides.rubyonrails.org/security.html",
+    "matches": {
+        "cookies": [
+            "_rails_session"
+        ]
+    }
+}

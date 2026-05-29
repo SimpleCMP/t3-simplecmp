@@ -1,0 +1,16 @@
+{
+    "id": "intershop",
+    "name": "Intershop",
+    "vendor": "Intershop",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.intershop.com/en/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^cc\\-/",
+            "/^pgid\\-org\\-/",
+            "/^SecureSessionID\\-/"
+        ]
+    }
+}

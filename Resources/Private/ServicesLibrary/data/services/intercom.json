@@ -1,0 +1,13 @@
+{
+  "id": "intercom",
+  "name": "Intercom",
+  "vendor": "Intercom, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional", "analytics"],
+  "privacyPolicyUrl": "https://www.intercom.com/legal/privacy",
+  "description": "Customer-messaging widget with chat, in-app messages, and product tours. Persists visitor identity across sessions.",
+  "matches": {
+    "cookies": ["/^intercom-id-/", "/^intercom-session-/", "/^intercom-device-id-/"],
+    "origins": ["widget.intercom.io", "js.intercomcdn.com", "*.intercom.io"]
+  }
+}

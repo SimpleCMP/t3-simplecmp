@@ -1,0 +1,20 @@
+{
+    "id": "dotmetrics",
+    "name": "Dotmetrics",
+    "vendor": "Dot Metrics",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://dotmetrics.net/privacy-center.html",
+    "matches": {
+        "cookies": [
+            "DotMetrics.SessionCookieTemp",
+            "DotMetrics.UniqueUserIdentityCookie",
+            "DotMetrics.DeviceKey",
+            "DotMetrics.SessionCookieTempTimed"
+        ],
+        "origins": [
+            "*.dotmetrics.net"
+        ]
+    }
+}

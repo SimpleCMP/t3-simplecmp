@@ -1,0 +1,24 @@
+{
+    "id": "trustpilot",
+    "name": "Trustpilot",
+    "vendor": "Trustpilot",
+    "purposes": [
+        "analytics",
+        "marketing",
+        "security"
+    ],
+    "matches": {
+        "cookies": [
+            "__auc",
+            "ajs_user_id",
+            "ajs_anonymous_id",
+            "ajs_group_id",
+            "__asc",
+            "/^amplitude_id/",
+            "csrf-canary"
+        ],
+        "origins": [
+            "*.trustpilot.com"
+        ]
+    }
+}

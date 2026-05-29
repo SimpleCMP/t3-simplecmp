@@ -1,0 +1,25 @@
+{
+    "id": "soundcloud",
+    "name": "SoundCloud",
+    "vendor": "SoundCloud Global Limited & Co. KG",
+    "vendorCountry": "DE",
+    "purposes": [
+        "marketing",
+        "personalization"
+    ],
+    "privacyPolicyUrl": "https://soundcloud.com/pages/privacy",
+    "description": "Embedded SoundCloud audio player.",
+    "matches": {
+        "origins": [
+            "w.soundcloud.com",
+            "*.soundcloud.com",
+            "*.sndcdn.com"
+        ]
+    },
+    "placeholderDescription": "This SoundCloud player will set tracking cookies from SoundCloud when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser SoundCloud-Player setzt Tracking-Cookies von SoundCloud, sobald er geladen wird."
+        }
+    }
+}

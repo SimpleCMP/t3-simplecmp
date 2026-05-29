@@ -1,0 +1,16 @@
+{
+    "id": "nextauth-js",
+    "name": "NextAuth.js",
+    "vendor": "NextAuth.js",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://authjs.dev/",
+    "matches": {
+        "cookies": [
+            "__Secure-next-auth.callback-url",
+            "__Host-next-auth.csrf-token",
+            "/^next\\-auth\\./"
+        ]
+    }
+}

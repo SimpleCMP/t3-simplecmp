@@ -1,0 +1,25 @@
+{
+    "id": "viafoura",
+    "name": "Viafoura",
+    "vendor": "Viafoura",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://viafoura.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_vfa",
+            "_vfb",
+            "_vfz",
+            "/^_vf_rd_test/",
+            "VfSess",
+            "VfRefresh",
+            "/^VfAccess/",
+            "vfThirdpartyCookiesEnabled"
+        ],
+        "origins": [
+            "*.viafoura.co"
+        ]
+    }
+}

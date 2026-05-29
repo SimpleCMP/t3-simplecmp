@@ -1,0 +1,20 @@
+{
+    "id": "media-net",
+    "name": "Media.net",
+    "vendor": "Media.net",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.media.net/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "/^data\\-/",
+            "visitor-id",
+            "gdpr_status",
+            "mnet_session_depth"
+        ],
+        "origins": [
+            "contextual.media.net"
+        ]
+    }
+}

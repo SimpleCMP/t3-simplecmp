@@ -1,0 +1,25 @@
+{
+    "id": "groovinads",
+    "name": "Groovinads",
+    "vendor": "Groovinads",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://shopping.groovinads.com/privacy",
+    "matches": {
+        "cookies": [
+            "/^GRV_BHV_UID/",
+            "/^GRV_BHV_IDCC/",
+            "/^GRV_BHV_SKU/",
+            "/^GRV_BHV_IDCAT/",
+            "/^GRV_BHV_DATE/",
+            "GRV_IDU",
+            "/^NPA/",
+            "/^GRV_BHV_BRND_/",
+            "GRV_google"
+        ],
+        "origins": [
+            "*.groovinads.com"
+        ]
+    }
+}

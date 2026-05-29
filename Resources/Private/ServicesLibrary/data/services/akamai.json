@@ -1,0 +1,15 @@
+{
+    "id": "akamai",
+    "name": "Akamai",
+    "vendor": "Akamai",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "AKA_A2",
+            "ak_bmsc",
+            "bm_sv"
+        ]
+    }
+}

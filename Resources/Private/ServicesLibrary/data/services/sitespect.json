@@ -1,0 +1,17 @@
+{
+    "id": "sitespect",
+    "name": "SiteSpect",
+    "vendor": "SiteSpect",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.sitespect.com/privacy-overview/",
+    "matches": {
+        "cookies": [
+            "SSLB",
+            "SSPV",
+            "SSRT",
+            "SSSC"
+        ]
+    }
+}

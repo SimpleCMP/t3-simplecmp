@@ -1,0 +1,14 @@
+{
+    "id": "umami",
+    "name": "Umami",
+    "vendor": "Website operator",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://umami.is/docs/about",
+    "matches": {
+        "cookies": [
+            "/^umami\\./"
+        ]
+    }
+}

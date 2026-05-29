@@ -1,0 +1,15 @@
+{
+    "id": "cheq-ai-technologies",
+    "name": "CHEQ AI Technologies",
+    "vendor": "CHEQ AI Technologies",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://cheq.ai/privacy-compliance/",
+    "matches": {
+        "cookies": [
+            "_cq_duid",
+            "_cq_suid"
+        ]
+    }
+}

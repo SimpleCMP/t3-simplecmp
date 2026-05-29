@@ -115,7 +115,7 @@ final readonly class ServiceRepository
      * (post-fe_visible architecture): the table holds **admin-curated
      * services only**. Bulk-import paths went away with the 3-table
      * model — classifier coverage now comes from the bundled library
-     * (`SimpleCMP\ServicesLibrary`) consulted directly by
+     * (`SimpleCMP\T3SimpleCmp\Library`) consulted directly by
      * `ClassifierLookup`.
      *
      * Pass `$fromLibrary = true` from adoption paths (Bibliothek

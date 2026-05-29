@@ -1,0 +1,13 @@
+{
+  "id": "outbrain",
+  "name": "Outbrain",
+  "vendor": "Outbrain, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "advertising"],
+  "privacyPolicyUrl": "https://www.outbrain.com/privacy/",
+  "description": "Content-recommendation and native-advertising widgets. Identifies visitors for retargeting and recommendation-personalization.",
+  "matches": {
+    "cookies": ["/^obuid/", "/^_outbrain_/"],
+    "origins": ["widgets.outbrain.com", "tr.outbrain.com", "*.outbrain.com"]
+  }
+}

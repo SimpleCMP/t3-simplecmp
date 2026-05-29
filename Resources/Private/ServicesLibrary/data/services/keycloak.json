@@ -1,0 +1,22 @@
+{
+    "id": "keycloak",
+    "name": "Keycloak",
+    "vendor": "Keycloak",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "AUTH_SESSION_ID",
+            "KC_RESTART",
+            "KC_START",
+            "KEYCLOAK_IDENTITY",
+            "KEYCLOAK_LOCALE",
+            "KEYCLOAK_REMEMBER_ME",
+            "KEYCLOAK_SESSION",
+            "KC_STATE_CHECKER",
+            "KC_AUTH_STATE",
+            "AUTH_SESSION_ID_LEGACY"
+        ]
+    }
+}

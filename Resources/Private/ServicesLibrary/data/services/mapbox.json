@@ -1,0 +1,24 @@
+{
+    "id": "mapbox",
+    "name": "Mapbox",
+    "vendor": "Mapbox, Inc.",
+    "vendorCountry": "US",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.mapbox.com/legal/privacy",
+    "description": "Embedded interactive maps. Logs per-tile telemetry to Mapbox for usage billing.",
+    "matches": {
+        "origins": [
+            "api.mapbox.com",
+            "events.mapbox.com",
+            "*.tiles.mapbox.com"
+        ]
+    },
+    "placeholderDescription": "This map is rendered by Mapbox and will share your IP and device data with Mapbox when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Diese Karte wird von Mapbox dargestellt und übermittelt Ihre IP-Adresse und Geräte-Daten an Mapbox, sobald sie geladen wird."
+        }
+    }
+}

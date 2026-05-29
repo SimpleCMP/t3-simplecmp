@@ -1,0 +1,26 @@
+{
+    "id": "quantcast",
+    "name": "Quantcast",
+    "vendor": "Quantcast",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.quantcast.com/privacy/",
+    "matches": {
+        "cookies": [
+            "cref",
+            {
+                "name": "mc",
+                "requireOrigin": "quantserve.com"
+            },
+            {
+                "name": "d",
+                "requireOrigin": "quantserve.com"
+            },
+            "__qca"
+        ],
+        "origins": [
+            "*.quantserve.com"
+        ]
+    }
+}

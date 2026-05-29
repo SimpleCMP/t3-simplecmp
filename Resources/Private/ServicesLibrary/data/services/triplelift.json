@@ -1,0 +1,20 @@
+{
+    "id": "triplelift",
+    "name": "TripleLift",
+    "vendor": "TripleLift",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://triplelift.com/advertising-technology-platform-cookie-notice/",
+    "matches": {
+        "cookies": [
+            "tluid",
+            "tluidp",
+            "optout",
+            "sync"
+        ],
+        "origins": [
+            "*.3lift.com"
+        ]
+    }
+}

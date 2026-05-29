@@ -1,0 +1,12 @@
+{
+  "id": "instagram-embed",
+  "name": "Instagram Embed",
+  "vendor": "Meta Platforms Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "personalization"],
+  "privacyPolicyUrl": "https://www.facebook.com/privacy/policy/",
+  "description": "Embedded Instagram posts and reels. Loads from Instagram's CDN and shares Meta-platform cookies with the visitor's logged-in Instagram session.",
+  "matches": {
+    "origins": ["www.instagram.com", "*.cdninstagram.com"]
+  }
+}

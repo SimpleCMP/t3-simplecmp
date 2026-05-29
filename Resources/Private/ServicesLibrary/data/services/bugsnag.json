@@ -1,0 +1,12 @@
+{
+  "id": "bugsnag",
+  "name": "Bugsnag",
+  "vendor": "SmartBear Software, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://smartbear.com/privacy/",
+  "description": "Frontend error and performance monitoring. Reports JavaScript errors and stack traces with anonymized device fingerprint.",
+  "matches": {
+    "origins": ["notify.bugsnag.com", "sessions.bugsnag.com", "d2wy8f7a9ursnm.cloudfront.net"]
+  }
+}

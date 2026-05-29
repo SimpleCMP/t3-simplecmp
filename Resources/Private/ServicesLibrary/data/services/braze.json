@@ -1,0 +1,19 @@
+{
+    "id": "braze",
+    "name": "Braze",
+    "vendor": "Braze",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.braze.com/company/legal/privacy",
+    "matches": {
+        "cookies": [
+            "/^ab\\.storage\\.userId\\./",
+            "/^ab\\.storage\\.sessionId\\./",
+            "/^ab\\.storage\\.deviceId\\./",
+            "ab.optOut",
+            "ab._gd"
+        ]
+    }
+}

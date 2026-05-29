@@ -1,0 +1,14 @@
+{
+    "id": "borlabs",
+    "name": "Borlabs",
+    "vendor": "Borlabs",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://borlabs.io/privacy/",
+    "matches": {
+        "cookies": [
+            "borlabs-cookie"
+        ]
+    }
+}

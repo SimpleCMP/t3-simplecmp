@@ -1,0 +1,16 @@
+{
+    "id": "sailthru",
+    "name": "Sailthru",
+    "vendor": "Sailthru",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.sailthru.com/legal/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "sailthru_content",
+            "sailthru_pageviews",
+            "sailthru_visitor"
+        ]
+    }
+}

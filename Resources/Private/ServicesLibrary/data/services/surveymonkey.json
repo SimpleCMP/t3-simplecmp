@@ -1,0 +1,22 @@
+{
+    "id": "surveymonkey",
+    "name": "SurveyMonkey",
+    "vendor": "SurveyMonkey",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.surveymonkey.com/mp/legal/privacy/",
+    "matches": {
+        "cookies": [
+            "/^RP_/",
+            "sso_user",
+            "/^CX_/",
+            "/^P_/",
+            "sm_ir",
+            "_splunk_rum_sid",
+            "sm_rec",
+            "/^RE_/",
+            "/^REPID_/"
+        ]
+    }
+}

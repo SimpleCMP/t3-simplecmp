@@ -1,0 +1,19 @@
+{
+    "id": "amazon",
+    "name": "Amazon",
+    "vendor": "Amazon",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://amazon.com/privacy/",
+    "matches": {
+        "cookies": [
+            "ad-id",
+            "ad-privacy",
+            "__trf.src"
+        ],
+        "origins": [
+            "*.amazon-adsystem.com"
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "id": "federated-media-publishing",
+    "name": "Federated Media Publishing",
+    "vendor": "Federated Media Publishing",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "ljt_reader"
+        ]
+    }
+}

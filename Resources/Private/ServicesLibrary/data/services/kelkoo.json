@@ -1,0 +1,17 @@
+{
+    "id": "kelkoo",
+    "name": "Kelkoo",
+    "vendor": "Kelkoo",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.kelkoogroup.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "KelkooID"
+        ],
+        "origins": [
+            "*.kelkoogroup.net"
+        ]
+    }
+}

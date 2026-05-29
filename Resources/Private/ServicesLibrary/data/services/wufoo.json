@@ -1,0 +1,15 @@
+{
+    "id": "wufoo",
+    "name": "Wufoo",
+    "vendor": "SurveyMonkey",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.surveymonkey.com/mp/legal/privacy/",
+    "matches": {
+        "cookies": [
+            "ep201",
+            "ep202"
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "id": "haproxy",
+    "name": "HAproxy",
+    "vendor": "HAProxy",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "SERVERID"
+        ]
+    }
+}

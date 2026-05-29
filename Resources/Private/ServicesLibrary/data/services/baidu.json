@@ -1,0 +1,16 @@
+{
+    "id": "baidu",
+    "name": "Baidu",
+    "vendor": "Baidu",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://privacy.baidu.com/policy/PrivacyPolicy",
+    "matches": {
+        "cookies": [
+            "Hm_lpvt_",
+            "Hm_lvt_",
+            "HMACCOUNT"
+        ]
+    }
+}

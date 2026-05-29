@@ -1,0 +1,34 @@
+{
+    "id": "wix-com",
+    "name": "Wix.com",
+    "vendor": "Wix.com",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://support.wix.com/article/cookies-and-your-wix-site",
+    "matches": {
+        "cookies": [
+            "SSR-caching",
+            "smSession",
+            "svSession",
+            "ForceFlashSite",
+            {
+                "name": "hs",
+                "requireOrigin": "wix.com"
+            },
+            "bSession",
+            "/^TS01/",
+            "fedops.logger.sessionId",
+            "wixLanguage",
+            "_wixCIDX",
+            "_wix_browser_sess",
+            "consent-policy",
+            "client-session-bind",
+            "server-session-bind"
+        ],
+        "origins": [
+            "*.wix.com"
+        ]
+    }
+}

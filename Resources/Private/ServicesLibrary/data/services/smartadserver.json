@@ -1,0 +1,51 @@
+{
+    "id": "smartadserver",
+    "name": "Smartadserver",
+    "vendor": "Equativ.com",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://equativ.com/end-users-privacy-policy/",
+    "matches": {
+        "cookies": [
+            "cnfq",
+            "lcsrc",
+            "dyncdn",
+            {
+                "name": "gid",
+                "requireOrigin": "smartadserver.com"
+            },
+            "csfq",
+            "/^partner\\-/",
+            {
+                "name": "vs",
+                "requireOrigin": "smartadserver.com"
+            },
+            "Comp",
+            {
+                "name": "Pwb",
+                "requireOrigin": "smartadserver.com"
+            },
+            "Pdomid",
+            "sasd",
+            "sasd2",
+            "TestIfCookie",
+            "csync",
+            "TestIfCookieP",
+            {
+                "name": "pid",
+                "requireOrigin": "smartadserver.com"
+            },
+            {
+                "name": "pbw",
+                "requireOrigin": "smartadserver.com"
+            },
+            "lcsrd"
+        ],
+        "origins": [
+            "*.smartadserver.com"
+        ]
+    }
+}

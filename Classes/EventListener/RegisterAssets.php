@@ -13,7 +13,7 @@ use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 

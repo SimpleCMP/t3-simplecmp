@@ -1,0 +1,14 @@
+{
+    "id": "flowbox",
+    "name": "Flowbox",
+    "vendor": "Flowbox",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://getflowbox.com/privacy/",
+    "matches": {
+        "cookies": [
+            "_flowbox"
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "mailmunch",
+    "name": "MailMunch",
+    "vendor": "MailMunch",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://legal.mailmunch.com/privacy/",
+    "matches": {
+        "cookies": [
+            "mailmunch_second_pageview",
+            "_mailmunch_visitor_id"
+        ]
+    }
+}

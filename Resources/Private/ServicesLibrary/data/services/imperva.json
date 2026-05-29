@@ -1,0 +1,16 @@
+{
+    "id": "imperva",
+    "name": "Imperva",
+    "vendor": "Imperva",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.imperva.com/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "/^incap_ses_/",
+            "/^nlbi_/",
+            "/^visid_incap_/"
+        ]
+    }
+}

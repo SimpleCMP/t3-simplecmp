@@ -1,0 +1,20 @@
+{
+    "id": "mediavine",
+    "name": "MediaVine",
+    "vendor": "MediaVine",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.mediavine.com/privacy-policy/#cookie-policy",
+    "matches": {
+        "cookies": [
+            "mv_tokens",
+            "mv_tokens_invalidate-verizon-pushes",
+            "am_tokens",
+            "am_tokens_invalidate-verizon-pushes"
+        ],
+        "origins": [
+            "exchange.mediavine.com"
+        ]
+    }
+}

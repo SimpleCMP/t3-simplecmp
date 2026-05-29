@@ -1,0 +1,18 @@
+{
+    "id": "snapengage",
+    "name": "SnapEngage",
+    "vendor": "SnapEngage",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://snapengage.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "SnapABugHistory",
+            "SnapABugUserAlias",
+            "SnapABugVisit",
+            "SnapABugRef"
+        ]
+    }
+}

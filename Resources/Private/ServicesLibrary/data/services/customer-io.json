@@ -1,0 +1,18 @@
+{
+    "id": "customer-io",
+    "name": "Customer.io",
+    "vendor": "Customer.io",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://customer.io/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_cio",
+            "_cioid",
+            "_cioanonid",
+            "cioFT",
+            "cioLT"
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "awin",
+    "name": "Awin",
+    "vendor": "29 days",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.awin.com/gb/privacy",
+    "matches": {
+        "cookies": [
+            "lantern",
+            "AwinChannelCookie"
+        ]
+    }
+}

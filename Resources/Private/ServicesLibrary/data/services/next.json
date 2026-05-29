@@ -1,0 +1,14 @@
+{
+    "id": "next",
+    "name": "Next",
+    "vendor": "NextJS",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://vercel.com/legal/privacy-policy",
+    "matches": {
+        "cookies": [
+            "NEXT_LOCALE"
+        ]
+    }
+}

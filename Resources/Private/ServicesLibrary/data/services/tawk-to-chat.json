@@ -1,0 +1,21 @@
+{
+    "id": "tawk-to-chat",
+    "name": "Tawk.to Chat",
+    "vendor": "Tawk.to Chat",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.tawk.to/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "TawkConnectionTime",
+            "tawkUUID",
+            "TawkCookie",
+            "__tawkuuid"
+        ],
+        "origins": [
+            "va.tawk.to"
+        ]
+    }
+}

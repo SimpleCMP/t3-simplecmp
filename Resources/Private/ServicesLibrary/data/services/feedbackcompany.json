@@ -1,0 +1,14 @@
+{
+    "id": "feedbackcompany",
+    "name": "FeedbackCompany",
+    "vendor": "FeedbackCompany",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.feedbackcompany.com/nl-nl/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "tsrvid"
+        ]
+    }
+}

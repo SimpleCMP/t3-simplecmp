@@ -1,0 +1,21 @@
+{
+    "id": "casale-media",
+    "name": "Casale Media",
+    "vendor": "Casale Media",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://casalemedia.com",
+    "matches": {
+        "cookies": [
+            "CMID",
+            "CMPRO",
+            "CMPS",
+            "CMRUM3",
+            "CMST"
+        ],
+        "origins": [
+            "*.casalemedia.com"
+        ]
+    }
+}

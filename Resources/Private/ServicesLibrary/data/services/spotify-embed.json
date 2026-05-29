@@ -1,0 +1,13 @@
+{
+  "id": "spotify-embed",
+  "name": "Spotify Embed",
+  "vendor": "Spotify AB",
+  "vendorCountry": "SE",
+  "purposes": ["marketing", "personalization"],
+  "privacyPolicyUrl": "https://www.spotify.com/legal/privacy-policy/",
+  "description": "Embedded Spotify player for tracks and playlists.",
+  "matches": {
+    "cookies": ["sp_t", "sp_landing", "sp_dc", "/^sp_/"],
+    "origins": ["open.spotify.com", "*.spotify.com", "*.scdn.co"]
+  }
+}

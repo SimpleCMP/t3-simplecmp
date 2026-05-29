@@ -1,0 +1,21 @@
+{
+    "id": "beamer",
+    "name": "Beamer",
+    "vendor": "Hotjar",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.getbeamer.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^_BEAMER_FIRST_VISIT_/",
+            "/^_BEAMER_USER_ID_/",
+            "/^_BEAMER_DATE_/",
+            "/^_BEAMER_LAST_POST_SHOWN_/",
+            "/^_BEAMER_FILTER_BY_URL_/"
+        ],
+        "origins": [
+            "*.hotjar.com"
+        ]
+    }
+}

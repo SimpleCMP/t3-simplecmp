@@ -1,0 +1,45 @@
+{
+    "id": "crazy-egg",
+    "name": "Crazy Egg",
+    "vendor": "Crazy Egg",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.crazyegg.com/cookies",
+    "matches": {
+        "cookies": [
+            "_ceir",
+            "_CEFT",
+            "_cer.v",
+            "_ce.s",
+            "_ce.cch",
+            "_ce.gtld",
+            "ce_need_secure_cookie",
+            "ce_successful_csp_check",
+            "cebs",
+            "cebsp_",
+            "_ce.clock_event",
+            "_ce.clock_data",
+            "_ce.irv",
+            "ceft_variant_override",
+            "_crazyegg",
+            "ce_login",
+            "ce_signup_flow",
+            "ce_signup_partner",
+            "ceac",
+            "cean",
+            "cehc",
+            "celi",
+            "cean_assoc",
+            "first_snapshot_url",
+            "/^sharing_/",
+            "ce_sid",
+            "cecu"
+        ],
+        "origins": [
+            "*.crazyegg.com"
+        ]
+    }
+}

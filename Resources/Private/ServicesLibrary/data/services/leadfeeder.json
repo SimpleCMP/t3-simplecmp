@@ -1,0 +1,14 @@
+{
+    "id": "leadfeeder",
+    "name": "Leadfeeder",
+    "vendor": "Leadfeeder",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.leadfeeder.com/privacy/",
+    "matches": {
+        "cookies": [
+            "_lfa"
+        ]
+    }
+}

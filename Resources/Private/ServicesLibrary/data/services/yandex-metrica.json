@@ -1,0 +1,38 @@
+{
+    "id": "yandex-metrica",
+    "name": "Yandex.Metrica",
+    "vendor": "Yandex",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://yandex.com/support/metrica/general/gdpr.html",
+    "matches": {
+        "cookies": [
+            "_ym_metrika_enabled",
+            "_ym_isad",
+            "_ym_uid",
+            "_ym_d",
+            "yabs-sid",
+            "_ym_debug",
+            "/^_ym_visorc_/",
+            "_ym_hostIndex",
+            "yandexuid",
+            "yuidss",
+            "ymex",
+            "usst",
+            "is_gdpr_b",
+            "is_gdpr",
+            "yabs-vdrf",
+            {
+                "name": "bh",
+                "requireOrigin": "yandex.ru"
+            },
+            "_yasc",
+            "yashr"
+        ],
+        "origins": [
+            "*.yandex.ru"
+        ]
+    }
+}

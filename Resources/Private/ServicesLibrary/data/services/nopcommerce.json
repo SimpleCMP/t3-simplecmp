@@ -1,0 +1,16 @@
+{
+    "id": "nopcommerce",
+    "name": "nopCommerce",
+    "vendor": "nopCommerce",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.nopcommerce.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "Nop.customer",
+            "NopCommerce.RecentlyViewedProducts",
+            "NOPCOMMERCE.AUTH"
+        ]
+    }
+}

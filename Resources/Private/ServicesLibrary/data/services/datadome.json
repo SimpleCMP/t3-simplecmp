@@ -1,0 +1,14 @@
+{
+    "id": "datadome",
+    "name": "Datadome",
+    "vendor": "Datadome",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://datadome.co/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "Datadome"
+        ]
+    }
+}

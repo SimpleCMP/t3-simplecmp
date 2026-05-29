@@ -1,0 +1,13 @@
+{
+  "id": "drift",
+  "name": "Drift",
+  "vendor": "Salesloft, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional", "marketing"],
+  "privacyPolicyUrl": "https://www.salesloft.com/legal/privacy-notice",
+  "description": "Conversational marketing chat widget with lead-routing and bot flows.",
+  "matches": {
+    "cookies": ["driftt_aid", "drift_aid", "driftt_sid", "/^drift_/"],
+    "origins": ["js.driftt.com", "*.drift.com"]
+  }
+}

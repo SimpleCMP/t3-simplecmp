@@ -1,0 +1,16 @@
+{
+    "id": "pulsepoint",
+    "name": "Pulsepoint",
+    "vendor": "Pulsepoint",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "_dbefe"
+        ],
+        "origins": [
+            "*.contextweb.com"
+        ]
+    }
+}

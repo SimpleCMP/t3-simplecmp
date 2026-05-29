@@ -1,0 +1,25 @@
+{
+    "id": "google-optimize",
+    "name": "Google Optimize",
+    "vendor": "Google",
+    "vendorCountry": "IE",
+    "vendorAddress": "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland",
+    "vendorPartner": "Google LLC (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Google Ireland Limited is the EU establishment of Google LLC. It is the EU controller for Google products and processes personal data of European users, forwarding to Google LLC in the USA where required.",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://business.safety.google/privacy/",
+    "matches": {
+        "cookies": [
+            "_opt_awkid",
+            "_opt_awgid",
+            "_opt_awmid",
+            "_gaexp_rc",
+            "_opt_awcid",
+            "_opt_expid",
+            "_gaexp"
+        ]
+    }
+}

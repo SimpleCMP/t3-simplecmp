@@ -1,0 +1,19 @@
+{
+    "id": "betweendigital",
+    "name": "BetweenDigital",
+    "vendor": "BetweenDigital",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            {
+                "name": "dc",
+                "requireOrigin": "betweendigital.com"
+            }
+        ],
+        "origins": [
+            "*.betweendigital.com"
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "id": "oracle",
+    "name": "Oracle",
+    "vendor": "Oracle",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.oracle.com/privacy",
+    "matches": {
+        "cookies": [
+            "JSESSIO",
+            "/^ORA_WWV_APP_/",
+            "ELOQUA",
+            "ELQSTATUS"
+        ],
+        "origins": [
+            "*.eloqua.com"
+        ]
+    }
+}

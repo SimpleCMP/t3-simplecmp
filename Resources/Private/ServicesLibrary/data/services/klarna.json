@@ -1,0 +1,13 @@
+{
+  "id": "klarna",
+  "name": "Klarna",
+  "vendor": "Klarna Bank AB",
+  "vendorCountry": "SE",
+  "purposes": ["functional", "security"],
+  "privacyPolicyUrl": "https://www.klarna.com/international/privacy-notice/",
+  "description": "Payment processing and Pay Later / Pay Now widgets. Sets cookies for session continuity and fraud prevention.",
+  "matches": {
+    "cookies": ["/^kbg-/", "/^kid-/"],
+    "origins": ["x.klarnacdn.net", "*.klarna.com", "*.klarnacdn.net"]
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "id": "sharethrough",
+    "name": "Sharethrough",
+    "vendor": "Sharethrough",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://platform-cdn.sharethrough.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "stx_user_id"
+        ],
+        "origins": [
+            "*.sharethrough.com"
+        ]
+    }
+}

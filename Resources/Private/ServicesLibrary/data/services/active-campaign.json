@@ -1,0 +1,15 @@
+{
+    "id": "active-campaign",
+    "name": "Active Campaign",
+    "vendor": "Active Campaign",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.activecampaign.com/gdpr-updates/",
+    "matches": {
+        "cookies": [
+            "ac_enable_tracking",
+            "/^prism_/"
+        ]
+    }
+}

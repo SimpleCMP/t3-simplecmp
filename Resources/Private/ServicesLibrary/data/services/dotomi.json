@@ -1,0 +1,30 @@
+{
+    "id": "dotomi",
+    "name": "Dotomi",
+    "vendor": "Epsilon",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://legal.epsilon.com/global-privacy-policies/",
+    "matches": {
+        "cookies": [
+            "DotomiUser",
+            "cjae",
+            "DotomiStatus",
+            "/^DotomiSession_/",
+            "DotomiSync",
+            "dtm_token",
+            "dtm_token_exp",
+            "dtm_tcdata",
+            "dtm_tcdata_exp",
+            "dtm_token_sc",
+            "dtm_user_id",
+            "dtm_user_id_sc",
+            "dtm_gdpr_delete",
+            "dtm_gpc_optout"
+        ],
+        "origins": [
+            "*.dotomi.com"
+        ]
+    }
+}

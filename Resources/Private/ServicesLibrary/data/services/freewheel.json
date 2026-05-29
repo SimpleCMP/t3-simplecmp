@@ -1,0 +1,18 @@
+{
+    "id": "freewheel",
+    "name": "FreeWheel",
+    "vendor": "FreeWheel",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.freewheel.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^uid\\-bp\\-/",
+            "MRM_UID"
+        ],
+        "origins": [
+            "*.stickyadstv.com"
+        ]
+    }
+}

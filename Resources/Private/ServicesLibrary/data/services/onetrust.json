@@ -1,0 +1,25 @@
+{
+    "id": "onetrust",
+    "name": "OneTrust",
+    "vendor": "OneTrust",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.onetrust.com/privacy-notice/",
+    "matches": {
+        "cookies": [
+            "OptanonConsent",
+            "OptanonAlertBoxClosed",
+            "OptanonControl",
+            "OneTrustWPCCPAGoogleOptOut",
+            "FunctionalCookie",
+            "_mkto_trk",
+            "utm_key",
+            "__Secure-fgpt"
+        ],
+        "origins": [
+            "*.onetrust.com"
+        ]
+    }
+}

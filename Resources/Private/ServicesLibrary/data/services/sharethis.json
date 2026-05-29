@@ -1,0 +1,28 @@
+{
+    "id": "sharethis",
+    "name": "ShareThis",
+    "vendor": "ShareThis",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://sharethis.com/privacy/",
+    "matches": {
+        "cookies": [
+            "__stid",
+            "__stidv",
+            "/^pubconsent/",
+            "st_optout",
+            "pxcelBcnLcy",
+            "pxcelAcc3PC",
+            "/^pxcelPage/",
+            "/^usprivacy/",
+            "/^euconsent/",
+            "fpestid"
+        ],
+        "origins": [
+            "*.sharethis.com"
+        ]
+    }
+}

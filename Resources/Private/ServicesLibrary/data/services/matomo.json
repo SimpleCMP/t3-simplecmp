@@ -1,0 +1,24 @@
+{
+    "id": "matomo",
+    "name": "Matomo",
+    "vendor": "Matomo",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://matomo.org/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "/^_pk_id/",
+            "/^_pk_ref/",
+            "/^_pk_ses/",
+            "_pk_cvar",
+            "/^_pk_hsr/",
+            "/^_pk_testcookie/",
+            "mtm_consent",
+            "mtm_consent_removed",
+            "mtm_cookie_consent",
+            "matomo_ignore",
+            "matomo_sessid"
+        ]
+    }
+}

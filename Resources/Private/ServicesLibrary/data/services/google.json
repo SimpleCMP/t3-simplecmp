@@ -1,0 +1,95 @@
+{
+    "id": "google",
+    "name": "Google",
+    "vendor": "Google",
+    "vendorCountry": "IE",
+    "vendorAddress": "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland",
+    "vendorPartner": "Google LLC (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Google Ireland Limited is the EU establishment of Google LLC. It is the EU controller for Google products and processes personal data of European users, forwarding to Google LLC in the USA where required.",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://business.safety.google/privacy/",
+    "matches": {
+        "cookies": [
+            "FPGSID",
+            "_Secure-ENID",
+            "Secure-YEC",
+            "CGIC",
+            "_Secure-YEC",
+            "__Secure-YNID",
+            "AdID",
+            "DSID",
+            "gcl",
+            "gac",
+            "1P_JAR",
+            "CONSENT",
+            "SOCS",
+            "ACCOUNT_CHOOSER",
+            "SMSV",
+            "__Host-1PLSID",
+            "__Host-3PLSID",
+            "__Host-GAPS",
+            "LSOLH",
+            "g_enabled_idps",
+            "G_AUTHUSER_H",
+            "__Secure-ENID",
+            "SEARCH_SAMESITE",
+            {
+                "name": "AID",
+                "requireOrigin": "google.com"
+            },
+            {
+                "name": "SID",
+                "requireOrigin": "google.com"
+            },
+            "HSID",
+            "APISID",
+            "SAPISID",
+            "SSID",
+            "SIDCC",
+            {
+                "name": "OTZ",
+                "requireOrigin": "google.com"
+            },
+            {
+                "name": "A",
+                "requireOrigin": "google.com"
+            },
+            {
+                "name": "DV",
+                "requireOrigin": "google.com"
+            },
+            {
+                "name": "NID",
+                "requireOrigin": "google.com"
+            },
+            "TAID",
+            "FPGCLDC",
+            "_gcl_au",
+            "_gcl_dc",
+            "GCLB",
+            "FCCDCF",
+            "FCNEC",
+            "receive-cookie-deprecation",
+            "_dcid",
+            "SNID",
+            "cookies_accepted",
+            "GN_PREF",
+            "OSID",
+            "__Secure-OSID",
+            "LSID",
+            "COMPASS",
+            "UULE"
+        ],
+        "origins": [
+            "gstatic.com",
+            "google.com",
+            "accounts.google.com",
+            "developers.google.com",
+            "news.google.com"
+        ]
+    }
+}

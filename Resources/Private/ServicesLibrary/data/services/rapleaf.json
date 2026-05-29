@@ -1,0 +1,18 @@
+{
+    "id": "rapleaf",
+    "name": "Rapleaf",
+    "vendor": "Tower Data",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.towerdata.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "pxrc",
+            "rlas3"
+        ],
+        "origins": [
+            "*.rlcdn.com"
+        ]
+    }
+}

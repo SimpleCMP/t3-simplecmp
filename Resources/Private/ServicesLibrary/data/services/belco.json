@@ -1,0 +1,15 @@
+{
+    "id": "belco",
+    "name": "Belco",
+    "vendor": "Belco",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.belco.nl/privacy-policy",
+    "matches": {
+        "cookies": [
+            "belco-anonymous-id",
+            "belco-cookies"
+        ]
+    }
+}

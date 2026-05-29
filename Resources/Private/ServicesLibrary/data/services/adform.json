@@ -1,0 +1,51 @@
+{
+    "id": "adform",
+    "name": "Adform",
+    "vendor": "Adform",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://site.adform.com/privacy-center/overview",
+    "matches": {
+        "cookies": [
+            {
+                "name": "TPC",
+                "requireOrigin": "adform.net"
+            },
+            {
+                "name": "C",
+                "requireOrigin": "adform.net"
+            },
+            {
+                "name": "uid",
+                "requireOrigin": "adform.net"
+            },
+            {
+                "name": "cid",
+                "requireOrigin": "adform.net"
+            },
+            {
+                "name": "GCM",
+                "requireOrigin": "adform.net"
+            },
+            {
+                "name": "CM",
+                "requireOrigin": "adform.net"
+            },
+            "CM14",
+            "token",
+            "otsid",
+            "adtrc",
+            "/^SR/",
+            "/^CT/",
+            "/^EBFCD/",
+            "/^EBFC/",
+            "/^CFFC/",
+            "DigiTrust.v1.identity",
+            "adformfrpid"
+        ],
+        "origins": [
+            "*.adform.net"
+        ]
+    }
+}

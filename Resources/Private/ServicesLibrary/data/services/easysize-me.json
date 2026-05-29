@@ -1,0 +1,14 @@
+{
+    "id": "easysize-me",
+    "name": "Easysize.me",
+    "vendor": "Easysize.me",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.easysize.me/privacy-policy",
+    "matches": {
+        "cookies": [
+            "easysize_button_loaded_for_user"
+        ]
+    }
+}

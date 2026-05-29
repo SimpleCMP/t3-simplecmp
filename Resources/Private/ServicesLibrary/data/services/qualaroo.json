@@ -1,0 +1,18 @@
+{
+    "id": "qualaroo",
+    "name": "Qualaroo",
+    "vendor": "Qualaroo",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.proprofs.com/policies/privacy/",
+    "matches": {
+        "cookies": [
+            "ki_s",
+            "ki_u"
+        ],
+        "origins": [
+            "*.qualaroo.com"
+        ]
+    }
+}

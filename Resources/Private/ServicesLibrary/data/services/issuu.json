@@ -1,0 +1,17 @@
+{
+    "id": "issuu",
+    "name": "Issuu",
+    "vendor": "Issuu",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://issuu.com/legal/privacy",
+    "matches": {
+        "cookies": [
+            "iutk"
+        ],
+        "origins": [
+            "*.issuu.com"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "postviewscounter",
+    "name": "Postviewscounter",
+    "vendor": "Postviewscounter",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://postviewscounter.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "pvc_visits[0]"
+        ]
+    }
+}

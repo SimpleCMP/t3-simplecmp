@@ -1,0 +1,28 @@
+{
+    "id": "inspectlet",
+    "name": "Inspectlet",
+    "vendor": "Inspectlet",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://docs.inspectlet.com/hc/en-us",
+    "matches": {
+        "cookies": [
+            "__insp_pad",
+            "__insp_sid",
+            "__insp_ref",
+            "__insp_scpt",
+            "__insp_nv",
+            "__insp_wid",
+            "__insp_uid",
+            "__insp_dct",
+            "__insp_norec_sess",
+            "__insp_slim",
+            "__insp_targlpt",
+            "__insp_targlpu"
+        ],
+        "origins": [
+            "*.inspectlet.com"
+        ]
+    }
+}

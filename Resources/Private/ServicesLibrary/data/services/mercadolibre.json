@@ -1,0 +1,19 @@
+{
+    "id": "mercadolibre",
+    "name": "MercadoLibre",
+    "vendor": "MercadoLibre",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.mercadolibre.com.ar/privacidad",
+    "matches": {
+        "cookies": [
+            "_d2id",
+            "edsid",
+            "ftid"
+        ],
+        "origins": [
+            "*.mercadolibre.com"
+        ]
+    }
+}

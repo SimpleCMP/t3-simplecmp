@@ -1,0 +1,26 @@
+{
+    "id": "smaato",
+    "name": "Smaato",
+    "vendor": "Smaato",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.smaato.com/privacy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "SCM",
+                "requireOrigin": "smaato.net"
+            },
+            "SCMaps",
+            "SCMsovrn",
+            "SCMinf",
+            "SCMo",
+            "SCMg",
+            "SCM*"
+        ],
+        "origins": [
+            "*.smaato.net"
+        ]
+    }
+}

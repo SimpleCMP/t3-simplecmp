@@ -1,0 +1,36 @@
+{
+    "id": "zeotap",
+    "name": "Zeotap",
+    "vendor": "Zeotap",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://zeotap.com/product-privacy-policy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "zc",
+                "requireOrigin": "zeotap.com"
+            },
+            {
+                "name": "zsc",
+                "requireOrigin": "zeotap.com"
+            },
+            {
+                "name": "zi",
+                "requireOrigin": "zeotap.com"
+            },
+            {
+                "name": "idp",
+                "requireOrigin": "zeotap.com"
+            },
+            {
+                "name": "zuc",
+                "requireOrigin": "zeotap.com"
+            }
+        ],
+        "origins": [
+            "*.zeotap.com"
+        ]
+    }
+}

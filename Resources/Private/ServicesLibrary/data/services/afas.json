@@ -1,0 +1,16 @@
+{
+    "id": "afas",
+    "name": "AFAS",
+    "vendor": "AFAS",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            ".secureclient",
+            ".securesession",
+            ".stateflags",
+            ".auth"
+        ]
+    }
+}

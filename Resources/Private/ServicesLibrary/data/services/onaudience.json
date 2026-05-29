@@ -1,0 +1,17 @@
+{
+    "id": "onaudience",
+    "name": "OnAudience",
+    "vendor": "OnAudience",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.onaudience.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^done_redirects/"
+        ],
+        "origins": [
+            "*.onaudience.com"
+        ]
+    }
+}

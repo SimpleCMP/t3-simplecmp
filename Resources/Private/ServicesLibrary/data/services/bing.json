@@ -1,0 +1,118 @@
+{
+    "id": "bing",
+    "name": "Bing",
+    "vendor": "Microsoft",
+    "vendorCountry": "IE",
+    "vendorAddress": "Microsoft Ireland Operations Limited, One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, D18 P521, Ireland",
+    "vendorOptOutUrl": "https://account.microsoft.com/privacy/ad-settings",
+    "vendorPartner": "Microsoft Corporation (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Microsoft Ireland Operations Limited is the EU establishment of Microsoft Corporation. It is the EU controller for Microsoft products and processes personal data of European users, forwarding to Microsoft Corporation in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://account.microsoft.com/privacy",
+    "matches": {
+        "cookies": [
+            {
+                "name": "MR",
+                "requireOrigin": "bing.com"
+            },
+            {
+                "name": "MR",
+                "requireOrigin": "microsoft.com"
+            },
+            "MUID",
+            "MUIDB",
+            {
+                "name": "MC1",
+                "requireOrigin": "bing.com"
+            },
+            {
+                "name": "MC1",
+                "requireOrigin": "microsoft.com"
+            },
+            "MSFPC",
+            "_uetsid",
+            "_uetvid",
+            "ANON",
+            "ANONCHK",
+            {
+                "name": "CC",
+                "requireOrigin": "microsoft.com"
+            },
+            "PPAuth",
+            "MSPAuth",
+            "MSNRPSAuth",
+            "KievRPSAuth",
+            "WLSSC",
+            "MSPProf",
+            {
+                "name": "MC0",
+                "requireOrigin": "microsoft.com"
+            },
+            {
+                "name": "MS0",
+                "requireOrigin": "microsoft.com"
+            },
+            {
+                "name": "NAP",
+                "requireOrigin": "microsoft.com"
+            },
+            {
+                "name": "MH",
+                "requireOrigin": "microsoft.com"
+            },
+            "childinfo",
+            "kcdob",
+            "kcrelid",
+            "kcru",
+            "pcfm",
+            "x-ms-gateway-slice",
+            "ToptOut",
+            "ACH01",
+            "AADSSO",
+            "brcap",
+            "SRM_B",
+            "_RwBf",
+            "_HPVN",
+            {
+                "name": "_UR",
+                "requireOrigin": "bing.com"
+            },
+            {
+                "name": "OID",
+                "requireOrigin": "bing.com"
+            },
+            "OIDI",
+            "OIDR",
+            {
+                "name": "BCP",
+                "requireOrigin": "bing.com"
+            },
+            "BFBUSR",
+            {
+                "name": "BFB",
+                "requireOrigin": "bing.com"
+            },
+            {
+                "name": "ACL",
+                "requireOrigin": "bing.com"
+            },
+            "ACLUSR",
+            "MSPTC",
+            {
+                "name": "_u",
+                "requireOrigin": "bing.com"
+            },
+            {
+                "name": "_u",
+                "requireOrigin": "microsoft.com"
+            }
+        ],
+        "origins": [
+            "*.bing.com",
+            "*.microsoft.com"
+        ]
+    }
+}

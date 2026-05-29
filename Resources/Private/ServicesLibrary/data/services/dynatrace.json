@@ -1,0 +1,31 @@
+{
+    "id": "dynatrace",
+    "name": "Dynatrace",
+    "vendor": "Dynatrace",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.dynatrace.com/company/trust-center/privacy/",
+    "matches": {
+        "cookies": [
+            "/^dtCookie/",
+            "/^dtLatC/",
+            "/^dtPC/",
+            "dtSa",
+            "dtValidationCookie",
+            "dtDisabled",
+            "/^rxVisitor/",
+            "rxvt",
+            "b925d32c",
+            "ssoCSRFCookie",
+            "p23mn32t",
+            "l34kn6no",
+            "iu2g34bw",
+            "a69k21bb",
+            "cgq80xhu",
+            "72ddbc27",
+            "kj76fg4h"
+        ]
+    }
+}

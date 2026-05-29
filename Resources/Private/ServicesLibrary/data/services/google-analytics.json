@@ -1,0 +1,45 @@
+{
+    "id": "google-analytics",
+    "name": "Google Analytics",
+    "vendor": "Google",
+    "vendorCountry": "IE",
+    "vendorAddress": "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland",
+    "vendorOptOutUrl": "https://tools.google.com/dlpage/gaoptout",
+    "vendorPartner": "Google LLC (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Google Ireland Limited is the EU establishment of Google LLC. It is the EU controller for Google products and processes personal data of European users, forwarding to Google LLC in the USA where required.",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://business.safety.google/privacy/",
+    "matches": {
+        "cookies": [
+            "_ga",
+            "_gali",
+            "/^_ga_/",
+            "_gid",
+            "/^_gat/",
+            "/^_dc_gtm_/",
+            "AMP_TOKEN",
+            "/^_gat_gtag_/",
+            "/^_gac_/",
+            "__utma",
+            "__utmt",
+            "__utmb",
+            "__utmc",
+            "__utmz",
+            "__utmv",
+            "__utmx",
+            "__utmxx",
+            "FPAU",
+            "FPID",
+            "FPLC",
+            "GA_OPT_OUT"
+        ],
+        "origins": [
+            "*.google-analytics.com",
+            "analytics.google.com"
+        ]
+    }
+}

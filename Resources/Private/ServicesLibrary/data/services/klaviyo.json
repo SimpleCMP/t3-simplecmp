@@ -1,0 +1,14 @@
+{
+    "id": "klaviyo",
+    "name": "Klaviyo",
+    "vendor": "Klaviyo",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.klaviyo.com/legal",
+    "matches": {
+        "cookies": [
+            "__kla_id"
+        ]
+    }
+}

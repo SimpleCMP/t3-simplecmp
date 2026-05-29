@@ -1,0 +1,18 @@
+{
+    "id": "osano",
+    "name": "Osano",
+    "vendor": "Osano",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://osano.trusthub.com/privacy",
+    "matches": {
+        "cookies": [
+            "osano_consentmanager",
+            "osano_consentmanager_expdate",
+            "osano_consentmanager_uuid",
+            "cookieconsent_status",
+            "cookieconsent_page"
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "id": "blue",
+    "name": "Blue",
+    "vendor": "Blue",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://getblue.io/privacy/en/",
+    "matches": {
+        "cookies": [
+            "ckid",
+            "hash",
+            "BLUEID"
+        ],
+        "origins": [
+            "*.getblue.io"
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "abtasty",
+    "name": "ABTasty",
+    "vendor": "ABTasty",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.abtasty.com/terms-of-use/",
+    "matches": {
+        "cookies": [
+            "ABTasty",
+            "ABTastySession"
+        ]
+    }
+}

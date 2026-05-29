@@ -1,0 +1,13 @@
+{
+  "id": "tawk-to",
+  "name": "Tawk.to",
+  "vendor": "tawk.to inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://www.tawk.to/privacy-policy/",
+  "description": "Free customer-messaging chat widget. Persists visitor identity across sessions.",
+  "matches": {
+    "cookies": ["TawkConnectionTime", "__tawkuuid"],
+    "origins": ["embed.tawk.to", "*.tawk.to"]
+  }
+}

@@ -1,0 +1,19 @@
+{
+    "id": "squeezely",
+    "name": "Squeezely",
+    "vendor": "Squeezely",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://squeezely.tech/privacy",
+    "matches": {
+        "cookies": [
+            "sqzl_abs",
+            "sqzl_consent",
+            "sqzl_session_id",
+            "sqzl_vw",
+            "sqzllocal"
+        ]
+    }
+}

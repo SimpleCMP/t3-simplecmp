@@ -1,0 +1,32 @@
+{
+    "id": "yieldmo",
+    "name": "Yieldmo",
+    "vendor": "Yieldmo",
+    "purposes": [
+        "analytics",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://yieldmo.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "ptrcriteo",
+            "ptrrhs",
+            "yieldmo_id",
+            "ptrrc",
+            "ptran",
+            "ptrt",
+            "ptrpp",
+            "ptrpub",
+            "ptrc",
+            "ptrb",
+            "ptropenx",
+            "ptrbsw",
+            "ptreps",
+            "ptradtrt"
+        ],
+        "origins": [
+            "ads.yieldmo.com",
+            "yieldmo.com"
+        ]
+    }
+}

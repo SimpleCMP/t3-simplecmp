@@ -1,0 +1,16 @@
+{
+    "id": "snowplow",
+    "name": "Snowplow",
+    "vendor": "Snowplow",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://snowplowanalytics.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "sp",
+            "/^_sp_id\\./",
+            "/^_sp_ses\\./"
+        ]
+    }
+}

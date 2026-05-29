@@ -1,0 +1,17 @@
+{
+    "id": "e-volution-ai",
+    "name": "E-volution.ai",
+    "vendor": "E-volution.ai",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://e-volution.ai/privacy/",
+    "matches": {
+        "cookies": [
+            "v_usr"
+        ],
+        "origins": [
+            "*.e-volution.ai"
+        ]
+    }
+}

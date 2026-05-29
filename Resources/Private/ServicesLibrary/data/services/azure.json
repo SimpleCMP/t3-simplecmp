@@ -1,0 +1,50 @@
+{
+    "id": "azure",
+    "name": "Azure",
+    "vendor": "Microsoft",
+    "purposes": [
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://account.microsoft.com/privacy",
+    "matches": {
+        "cookies": [
+            "buid",
+            "esctx",
+            {
+                "name": "fpc",
+                "requireOrigin": "microsoft.com"
+            },
+            "stsservicecookie",
+            "ARRAffinity",
+            "ARRAffinitySameSite",
+            "__AntiXsrfToken",
+            ".ASPXANONYMOUS",
+            ".ASPXAUTH",
+            "/^nSGt\\-/",
+            "RpsContextCookie",
+            "ASLBSACORS",
+            "ASLBSA",
+            "/^ASPSESSIO/",
+            "ApplicationGatewayAffinity",
+            "ApplicationGatewayAffinityCORS",
+            "VisitorStorageGuid",
+            ".AspNetCore.Mvc.CookieTempDataProvider",
+            "x-ms-cpim-admin",
+            "x-ms-cpim-slice",
+            "x-ms-cpim-trans",
+            "/^x\\-ms\\-cpim\\-sso/",
+            "/^x\\-ms\\-cpim\\-cache/",
+            "x-ms-cpim-csrf",
+            "x-ms-cpim-dc",
+            "x-ms-cpim-ctx",
+            "x-ms-cpim-rp",
+            "x-ms-cpim-rc",
+            "x-ms-cpim-geo",
+            "Dynamics365PortalAnalytics"
+        ],
+        "origins": [
+            "*.microsoft.com"
+        ]
+    }
+}

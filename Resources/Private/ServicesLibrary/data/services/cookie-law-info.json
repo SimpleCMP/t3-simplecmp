@@ -1,0 +1,25 @@
+{
+    "id": "cookie-law-info",
+    "name": "Cookie Law Info",
+    "vendor": "CookieYes",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.cookielawinfo.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "cookielawinfo-checkbox-necessary",
+            "cookielawinfo-checkbox-non-necessary",
+            "viewed_cookie_policy",
+            "cookielawinfo-checkbox-marketing",
+            "cookielawinfo-checkbox-analytics",
+            "cookielawinfo-checkbox-performance",
+            "cookielawinfo-checkbox-others",
+            "cookielawinfo-checkbox-functional",
+            "cookielawinfo-checkbox-advertisement",
+            "cli_user_preference",
+            "cookielawinfo-checkbox-preferences",
+            "CookieLawInfoConsent"
+        ]
+    }
+}

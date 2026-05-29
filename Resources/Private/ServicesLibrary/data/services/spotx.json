@@ -1,0 +1,17 @@
+{
+    "id": "spotx",
+    "name": "SpotX",
+    "vendor": "SpotX",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.spotx.tv/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "audience"
+        ],
+        "origins": [
+            "*.spotxchange.com"
+        ]
+    }
+}

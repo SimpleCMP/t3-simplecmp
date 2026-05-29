@@ -1,0 +1,13 @@
+{
+  "id": "zendesk-chat",
+  "name": "Zendesk Chat / Web Widget",
+  "vendor": "Zendesk, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://www.zendesk.com/company/agreements-and-terms/privacy-policy/",
+  "description": "Embedded help desk and chat widget (formerly Zopim).",
+  "matches": {
+    "cookies": ["/^__zlcmid/", "/^__zlc/"],
+    "origins": ["static.zdassets.com", "*.zendesk.com", "*.zopim.com"]
+  }
+}

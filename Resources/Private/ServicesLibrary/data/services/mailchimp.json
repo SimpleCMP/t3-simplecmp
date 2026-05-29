@@ -1,0 +1,13 @@
+{
+  "id": "mailchimp",
+  "name": "Mailchimp",
+  "vendor": "Intuit Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "functional"],
+  "privacyPolicyUrl": "https://www.intuit.com/privacy/statement/",
+  "description": "Embedded newsletter signup forms and pop-up subscribe widgets.",
+  "matches": {
+    "cookies": ["/^_mcid/", "/^_mceid/", "/^mc_/"],
+    "origins": ["chimpstatic.com", "*.mailchimp.com", "*.list-manage.com"]
+  }
+}

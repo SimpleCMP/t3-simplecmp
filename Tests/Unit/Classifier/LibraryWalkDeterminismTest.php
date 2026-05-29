@@ -6,7 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Classifier;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Service\DetectionListPresenter;
 
 /**

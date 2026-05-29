@@ -1,0 +1,17 @@
+{
+    "id": "liveramp",
+    "name": "LiveRamp",
+    "vendor": "LiveRamp",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://liveramp.com/privacy/",
+    "matches": {
+        "cookies": [
+            "euconsent"
+        ],
+        "origins": [
+            "*.faktor.io"
+        ]
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "id": "twitch",
+    "name": "Twitch",
+    "vendor": "Twitch Interactive, Inc.",
+    "vendorCountry": "US",
+    "purposes": [
+        "marketing",
+        "personalization"
+    ],
+    "privacyPolicyUrl": "https://www.twitch.tv/p/legal/privacy-notice/",
+    "description": "Embedded live-stream and video player.",
+    "matches": {
+        "origins": [
+            "player.twitch.tv",
+            "*.twitch.tv",
+            "*.ttvnw.net"
+        ]
+    },
+    "placeholderDescription": "This Twitch stream will set tracking cookies from Twitch (Amazon) when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser Twitch-Stream setzt Tracking-Cookies von Twitch (Amazon), sobald er geladen wird."
+        }
+    }
+}

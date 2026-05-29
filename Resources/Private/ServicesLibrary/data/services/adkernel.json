@@ -1,0 +1,20 @@
+{
+    "id": "adkernel",
+    "name": "Adkernel",
+    "vendor": "AdKernel",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://adkernel.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "SSPR_*",
+            "SSPZ",
+            "DSP2F_*",
+            "ADKUID"
+        ],
+        "origins": [
+            "*.adkernel.com"
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "id": "pinterest-tag",
+    "name": "Pinterest Tag",
+    "vendor": "Pinterest",
+    "vendorCountry": "IE",
+    "vendorAddress": "Pinterest Europe Limited, Palmerston House, 2nd Floor, Fenian Street, Dublin 2, Ireland",
+    "vendorOptOutUrl": "https://www.pinterest.com/settings/privacy/",
+    "vendorPartner": "Pinterest, Inc. (USA) as parent company. Transfers to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Pinterest Europe Limited is the EU establishment of Pinterest, Inc. It is the EU controller for Pinterest services and processes personal data of European users, forwarding to Pinterest, Inc. in the USA where required.",
+    "purposes": [
+        "marketing",
+        "advertising",
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://policy.pinterest.com/privacy-policy",
+    "description": "Conversion tracking and audience retargeting for Pinterest Ads.",
+    "matches": {
+        "cookies": [
+            "/^_pin_/",
+            "_routing_id"
+        ],
+        "origins": [
+            "ct.pinterest.com",
+            "s.pinimg.com",
+            "*.pinterest.com"
+        ]
+    }
+}

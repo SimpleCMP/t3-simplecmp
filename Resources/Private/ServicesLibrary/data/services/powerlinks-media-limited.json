@@ -1,0 +1,17 @@
+{
+    "id": "powerlinks-media-limited",
+    "name": "PowerLinks Media Limited",
+    "vendor": "PowerLinks Media Limited",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.powerlinks.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "/^dsps\\:/"
+        ],
+        "origins": [
+            "px.powerlinks.com"
+        ]
+    }
+}

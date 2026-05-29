@@ -1,0 +1,15 @@
+{
+    "id": "wepublish",
+    "name": "WePublish",
+    "vendor": "WePublish",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.wepublish.com/privacy-statement.html",
+    "matches": {
+        "cookies": [
+            "_wepublishGa",
+            "_wepublishGa_gid"
+        ]
+    }
+}

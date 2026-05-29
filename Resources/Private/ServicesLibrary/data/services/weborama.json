@@ -1,0 +1,17 @@
+{
+    "id": "weborama",
+    "name": "Weborama",
+    "vendor": "Weborama",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://weborama.com/en/weborama-privacy-commitment/",
+    "matches": {
+        "cookies": [
+            "AFFICHE_W"
+        ],
+        "origins": [
+            "*.weborama.fr"
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "id": "wpml",
+    "name": "WPML",
+    "vendor": "WPML",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "wp-wpml_current_language"
+        ]
+    }
+}

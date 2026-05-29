@@ -1,0 +1,18 @@
+{
+    "id": "tappx",
+    "name": "Tappx",
+    "vendor": "Tappx",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.tappx.com/legal/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^TXCSDMN_/",
+            "TXCD"
+        ],
+        "origins": [
+            "*.tappx.com"
+        ]
+    }
+}

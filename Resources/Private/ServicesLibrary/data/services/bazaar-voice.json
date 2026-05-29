@@ -1,0 +1,21 @@
+{
+    "id": "bazaar-voice",
+    "name": "Bazaar Voice",
+    "vendor": "Bazaar Voice",
+    "purposes": [
+        "analytics",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.bazaarvoice.com/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "BVBRANDID",
+            "BVBRANDSID",
+            "BVID",
+            "BVSID"
+        ],
+        "origins": [
+            "network.bazaarvoice.com"
+        ]
+    }
+}

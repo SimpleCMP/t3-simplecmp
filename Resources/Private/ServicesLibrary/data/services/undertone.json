@@ -1,0 +1,19 @@
+{
+    "id": "undertone",
+    "name": "Undertone",
+    "vendor": "Undertone",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.undertone.com/cookies-policy/",
+    "matches": {
+        "cookies": [
+            "UID_EXT_*",
+            "UTID",
+            "UTID_ENC"
+        ],
+        "origins": [
+            "*.undertone.com"
+        ]
+    }
+}

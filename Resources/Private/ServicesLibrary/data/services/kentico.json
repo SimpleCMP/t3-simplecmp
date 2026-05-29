@@ -1,0 +1,22 @@
+{
+    "id": "kentico",
+    "name": "Kentico",
+    "vendor": "Kentico",
+    "purposes": [
+        "analytics",
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://xperience.io/policies/privacy-policy",
+    "matches": {
+        "cookies": [
+            "CMSCsrfCookie",
+            "CMSCookieLevel",
+            "CMSLandingPageLoaded",
+            "CMSPreferredCulture",
+            "CMSUserPage",
+            "CurrentContact",
+            "VisitorStatus"
+        ]
+    }
+}

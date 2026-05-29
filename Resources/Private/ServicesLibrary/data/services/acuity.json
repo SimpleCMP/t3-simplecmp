@@ -1,0 +1,20 @@
+{
+    "id": "acuity",
+    "name": "Acuity",
+    "vendor": "Acuity",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "auid",
+            {
+                "name": "aum",
+                "requireOrigin": "acuityplatform.com"
+            }
+        ],
+        "origins": [
+            "*.acuityplatform.com"
+        ]
+    }
+}

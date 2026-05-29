@@ -1,0 +1,14 @@
+{
+    "id": "abovo-media",
+    "name": "Abovo Media",
+    "vendor": "Abovo Media",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.abovomedia.nl/cookies/",
+    "matches": {
+        "cookies": [
+            "tv_spot_tracker"
+        ]
+    }
+}

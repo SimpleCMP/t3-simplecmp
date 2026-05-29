@@ -1,0 +1,13 @@
+{
+  "id": "snapchat-pixel",
+  "name": "Snapchat Pixel",
+  "vendor": "Snap Group Limited",
+  "vendorCountry": "GB",
+  "purposes": ["marketing", "advertising", "analytics"],
+  "privacyPolicyUrl": "https://snap.com/en-US/privacy/privacy-policy",
+  "description": "Conversion tracking and audience retargeting for Snapchat Ads.",
+  "matches": {
+    "cookies": ["/^_scid/", "/^_sctr/"],
+    "origins": ["sc-static.net", "tr.snapchat.com", "*.snapchat.com"]
+  }
+}

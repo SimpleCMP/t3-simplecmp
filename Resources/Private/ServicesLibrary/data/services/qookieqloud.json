@@ -1,0 +1,18 @@
+{
+    "id": "qookieqloud",
+    "name": "QookieQloud",
+    "vendor": "Qodli AB",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://qookieqloud.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "__cpmQQ_trackers",
+            "__cpmQQ_trackers_timestamp",
+            "__cmpQQ_usedCoookies",
+            "__cmpQQ_consentID",
+            "__cmpQQ_CookieConsent"
+        ]
+    }
+}

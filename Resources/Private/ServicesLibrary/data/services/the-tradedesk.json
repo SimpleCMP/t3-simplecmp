@@ -1,0 +1,18 @@
+{
+    "id": "the-tradedesk",
+    "name": "The Tradedesk",
+    "vendor": "The Tradedesk",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://adsrvr.org/",
+    "matches": {
+        "cookies": [
+            "TDCPM",
+            "TDID"
+        ],
+        "origins": [
+            "*.adsrvr.org"
+        ]
+    }
+}

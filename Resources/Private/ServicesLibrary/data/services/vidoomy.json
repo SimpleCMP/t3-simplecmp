@@ -1,0 +1,17 @@
+{
+    "id": "vidoomy",
+    "name": "Vidoomy",
+    "vendor": "Vidoomy",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.vidoomy.com/privacypolicy-en.html",
+    "matches": {
+        "cookies": [
+            "vidoomy-uids"
+        ],
+        "origins": [
+            "*.vidoomy.com"
+        ]
+    }
+}

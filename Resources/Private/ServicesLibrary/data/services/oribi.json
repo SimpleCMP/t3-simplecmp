@@ -1,0 +1,19 @@
+{
+    "id": "oribi",
+    "name": "Oribi",
+    "vendor": "Oribi",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.linkedin.com/legal/cookie-policy",
+    "matches": {
+        "cookies": [
+            "oribi_user_guid",
+            "oribi_cookie_test"
+        ],
+        "origins": [
+            "*.oribi.io",
+            "*.linkedin.com"
+        ]
+    }
+}

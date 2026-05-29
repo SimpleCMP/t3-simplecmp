@@ -1,0 +1,26 @@
+{
+    "id": "adhese",
+    "name": "Adhese",
+    "vendor": "Adhese",
+    "purposes": [
+        "analytics",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://adhese.com/images/Privacy%20Policy_Doggybites.pdf",
+    "matches": {
+        "cookies": [
+            "adhese2",
+            "/^cap/",
+            "pubmatic_uid",
+            "improvedigital_uid",
+            "rubicon_uid",
+            "adform_uid",
+            "appnexus_uid",
+            "triplelift_uid",
+            "adheseCustomer"
+        ],
+        "origins": [
+            "*.adhese.com"
+        ]
+    }
+}

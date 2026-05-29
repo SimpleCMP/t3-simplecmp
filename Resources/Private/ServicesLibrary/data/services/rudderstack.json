@@ -1,0 +1,23 @@
+{
+    "id": "rudderstack",
+    "name": "Rudderstack",
+    "vendor": "Rudderstack",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.rudderstack.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "rl_user_id",
+            "rl_trait",
+            "rl_anonymous_id",
+            "rl_group_id",
+            "rl_group_trait",
+            "rl_page_init_referrer",
+            "rl_page_init_referring_domain",
+            "test_rudder_cookie",
+            "rl_session",
+            "rl_auth_token"
+        ]
+    }
+}

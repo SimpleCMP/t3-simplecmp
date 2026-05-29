@@ -1,0 +1,17 @@
+{
+    "id": "maxlead",
+    "name": "Maxlead",
+    "vendor": "Maxlead",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://maxlead.com/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "cookieconsent_variant",
+            "cookieconsent_system",
+            "cookieconsent_level",
+            "cookieconsent_seen"
+        ]
+    }
+}

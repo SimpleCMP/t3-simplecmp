@@ -1,0 +1,17 @@
+{
+    "id": "the-ozone-project",
+    "name": "The Ozone Project",
+    "vendor": "The Ozone Project",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.ozoneproject.com/privacy-matters",
+    "matches": {
+        "cookies": [
+            "ozone_uid"
+        ],
+        "origins": [
+            "*.the-ozone-project.com"
+        ]
+    }
+}

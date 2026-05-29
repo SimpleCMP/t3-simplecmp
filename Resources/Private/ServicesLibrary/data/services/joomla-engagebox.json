@@ -1,0 +1,13 @@
+{
+    "id": "joomla-engagebox",
+    "name": "Joomla! Engagebox",
+    "vendor": "Joomla!",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "nrid"
+        ]
+    }
+}

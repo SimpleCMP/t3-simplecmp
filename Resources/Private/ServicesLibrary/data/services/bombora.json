@@ -1,0 +1,20 @@
+{
+    "id": "bombora",
+    "name": "Bombora",
+    "vendor": "Bombora",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://bombora.com/privacy-philosophy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "tp",
+                "requireOrigin": "ml314.com"
+            }
+        ],
+        "origins": [
+            "*.ml314.com"
+        ]
+    }
+}

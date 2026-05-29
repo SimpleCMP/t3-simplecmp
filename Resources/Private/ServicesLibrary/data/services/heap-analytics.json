@@ -1,0 +1,15 @@
+{
+    "id": "heap-analytics",
+    "name": "Heap Analytics",
+    "vendor": "Heap Analytics",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.heap.io/privacy",
+    "matches": {
+        "cookies": [
+            "_hp2_id",
+            "_hp2_ses_props"
+        ]
+    }
+}

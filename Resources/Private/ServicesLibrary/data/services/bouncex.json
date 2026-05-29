@@ -1,0 +1,18 @@
+{
+    "id": "bouncex",
+    "name": "Bouncex",
+    "vendor": "Wunderkind",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.wunderkind.co/privacy/",
+    "matches": {
+        "cookies": [
+            "dgzsdl08v4",
+            "bounceClientVisit"
+        ],
+        "origins": [
+            "*.bounceexchange.com"
+        ]
+    }
+}

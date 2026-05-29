@@ -1,0 +1,19 @@
+{
+    "id": "bidence",
+    "name": "Bidence",
+    "vendor": "Bidence",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://bidence.com/page/pp.html",
+    "matches": {
+        "cookies": [
+            "duid_update_time",
+            "/^_ssp_update_time/",
+            "/^_dsp_uid/"
+        ],
+        "origins": [
+            "*.bidence.net"
+        ]
+    }
+}

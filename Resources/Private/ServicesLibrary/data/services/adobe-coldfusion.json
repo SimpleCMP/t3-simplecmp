@@ -1,0 +1,14 @@
+{
+    "id": "adobe-coldfusion",
+    "name": "Adobe ColdFusion",
+    "vendor": "Adobe ColdFusion",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "cfid",
+            "cftoken"
+        ]
+    }
+}

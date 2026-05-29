@@ -1,0 +1,13 @@
+{
+    "id": "j2ee",
+    "name": "J2EE",
+    "vendor": "J2EE",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "/^JSESSIONID/"
+        ]
+    }
+}

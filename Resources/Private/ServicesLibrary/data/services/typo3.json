@@ -1,0 +1,17 @@
+{
+    "id": "typo3",
+    "name": "TYPO3",
+    "vendor": "TYPO3",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://typo3.org/privacy-policy",
+    "matches": {
+        "cookies": [
+            "fe_typo_user",
+            "be_typo_user",
+            "Typo3InstallTool",
+            "be_lastLoginProvider"
+        ]
+    }
+}

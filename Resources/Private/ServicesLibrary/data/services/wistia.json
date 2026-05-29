@@ -1,0 +1,19 @@
+{
+    "id": "wistia",
+    "name": "Wistia",
+    "vendor": "Wistia",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://wistia.com/privacy",
+    "matches": {
+        "cookies": [
+            "_distillery",
+            "muxData",
+            "wistia-http2-push-disabled",
+            "_simplex",
+            "wistia",
+            "/^wistia\\-video\\-progress\\-/"
+        ]
+    }
+}

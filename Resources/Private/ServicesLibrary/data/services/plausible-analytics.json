@@ -1,0 +1,14 @@
+{
+    "id": "plausible-analytics",
+    "name": "Plausible Analytics",
+    "vendor": "Plausible Insights O\u00dc",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://plausible.io/privacy",
+    "matches": {
+        "cookies": [
+            "/^plausible_/"
+        ]
+    }
+}

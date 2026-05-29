@@ -1,0 +1,20 @@
+{
+    "id": "plesk",
+    "name": "Plesk",
+    "vendor": "Plesk",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.plesk.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "PLESKSESSID",
+            "plesk-items-per-page",
+            "plek-list-type",
+            "plesk-sort-dir",
+            "plesk-sort-field",
+            "sites-active-list-state-collapsed",
+            "lists-state"
+        ]
+    }
+}

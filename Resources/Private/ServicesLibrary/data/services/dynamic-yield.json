@@ -1,0 +1,36 @@
+{
+    "id": "dynamic-yield",
+    "name": "Dynamic Yield",
+    "vendor": "Dynamic Yield",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.dynamicyield.com/gdpr-and-privacy/",
+    "matches": {
+        "cookies": [
+            "DYID",
+            "_dyid",
+            "_dyid_server",
+            "DYSES",
+            "_dyjsession",
+            "_dy_csc_ses",
+            "_dycmc",
+            "_dycnst",
+            "_dy_lu_ses",
+            "_dy_df_geo",
+            "_dy_geo",
+            "_dycst",
+            "_dy_ses_load_seq",
+            "_dy_soct",
+            "_dy_toffset",
+            "dy_fs_page",
+            "_dy_cs_storage_items",
+            "_dy_cs_cookie_items"
+        ],
+        "origins": [
+            "*.dynamicyield.com"
+        ]
+    }
+}

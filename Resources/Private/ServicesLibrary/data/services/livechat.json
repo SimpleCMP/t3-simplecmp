@@ -1,0 +1,22 @@
+{
+    "id": "livechat",
+    "name": "Livechat",
+    "vendor": "Livechat",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.livechat.com/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "__lc_cid",
+            "__lc_cst",
+            "__lc2_cid",
+            "__lc2_cst",
+            "__livechat",
+            "/^lc_/"
+        ],
+        "origins": [
+            "*.livechatinc.com"
+        ]
+    }
+}

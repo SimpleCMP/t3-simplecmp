@@ -1,0 +1,16 @@
+{
+    "id": "convert-insights",
+    "name": "Convert Insights",
+    "vendor": "Convert",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.convert.com/privacy/",
+    "matches": {
+        "cookies": [
+            "_conv_r",
+            "_conv_s",
+            "_conv_v"
+        ]
+    }
+}

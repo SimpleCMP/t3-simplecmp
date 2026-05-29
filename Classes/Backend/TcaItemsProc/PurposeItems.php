@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Backend\TcaItemsProc;
 
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 
 /**
  * Populates the `purposes` selectCheckBox items by introspecting every

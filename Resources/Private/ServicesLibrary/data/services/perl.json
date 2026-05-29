@@ -1,0 +1,14 @@
+{
+    "id": "perl",
+    "name": "Perl",
+    "vendor": "Perl",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.perl.org/siteinfo.html",
+    "matches": {
+        "cookies": [
+            "CGISESSID"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "akamai-botmanager",
+    "name": "Akamai Botmanager",
+    "vendor": "Akamai",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.akamai.com/us/en/privacy-policies/",
+    "matches": {
+        "cookies": [
+            "_abck"
+        ]
+    }
+}

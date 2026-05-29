@@ -1,0 +1,23 @@
+{
+    "id": "wikimedia",
+    "name": "Wikimedia",
+    "vendor": "Wikipedia",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy",
+    "matches": {
+        "cookies": [
+            "WMF-Last-Access",
+            "loginnotify_prevlogins",
+            "stopMobileRedirect",
+            "centralnotice_bucket",
+            "GeoIP",
+            "NetWorkProbeLimit"
+        ],
+        "origins": [
+            "*.wikimedia.org"
+        ]
+    }
+}

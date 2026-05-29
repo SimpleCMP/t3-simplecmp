@@ -1,0 +1,26 @@
+{
+    "id": "visual-website-optimizer",
+    "name": "Visual Website Optimizer",
+    "vendor": "Visual Website Optimizer",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://vwo.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_vwo_uuid_v2",
+            "_vwo_uuid",
+            "_vis_opt_s",
+            "_vis_opt_test_cookie",
+            "/^_vis_opt_exp_/",
+            "_vwo_sn",
+            "_vwo_ds",
+            "_vwo_referrer",
+            "_vwo_ssm"
+        ],
+        "origins": [
+            "dev.visualwebsiteoptimizer.com"
+        ]
+    }
+}

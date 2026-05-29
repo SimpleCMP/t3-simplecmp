@@ -1,0 +1,14 @@
+{
+    "id": "drupal-cms",
+    "name": "Drupal CMS",
+    "vendor": "Drupal CMS",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.drupal.org/privacy",
+    "matches": {
+        "cookies": [
+            "has_js"
+        ]
+    }
+}

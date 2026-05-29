@@ -1,0 +1,40 @@
+{
+    "id": "contentsquare",
+    "name": "ContentSquare",
+    "vendor": "ContentSquare",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://contentsquare.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_cs_c",
+            "_cs_cvars",
+            "_cs_id",
+            "_cs_s",
+            "__CT_Data",
+            "_CT_RS_",
+            "WRUID",
+            "_cs_ex",
+            "_cs_optout",
+            "_cs_rl",
+            "_cs_root-domain",
+            "WRIgnore",
+            "WRBlock",
+            "_cs_same_site",
+            "_cs_debug",
+            "_hjasCachedUserAttributes",
+            "_hjUserAttrbutesHash",
+            "_hjUserAttributes",
+            "_hp2_hld",
+            "/^_hp5_event_props\\./",
+            "/^_hp5_meta\\./",
+            "_cs_mk_aa",
+            "_cs_mk_ga",
+            "/^_cs_tld/"
+        ],
+        "origins": [
+            "*.clicktale.net"
+        ]
+    }
+}

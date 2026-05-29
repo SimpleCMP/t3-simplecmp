@@ -1,0 +1,18 @@
+{
+    "id": "whatsapp",
+    "name": "WhatsApp",
+    "vendor": "WhatsApp",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.whatsapp.com/privacy/",
+    "matches": {
+        "cookies": [
+            "wa_ul",
+            "wa_lang_pref"
+        ],
+        "origins": [
+            "*.whatsapp.com"
+        ]
+    }
+}

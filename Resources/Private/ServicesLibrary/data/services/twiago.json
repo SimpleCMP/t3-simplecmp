@@ -1,0 +1,17 @@
+{
+    "id": "twiago",
+    "name": "Twiago",
+    "vendor": "Twiago",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.twiago.com/datenschutz/",
+    "matches": {
+        "cookies": [
+            "deuxesse_uxid"
+        ],
+        "origins": [
+            "*.twiago.com"
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "id": "ablyft",
+    "name": "ABlyft",
+    "vendor": "ABlyft",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://ablyft.com/en/privacy-notice",
+    "matches": {
+        "cookies": [
+            "ablyft_exps",
+            "ablyft_queue",
+            "ablyft_uvs",
+            "ablyft_tracking_consent"
+        ]
+    }
+}

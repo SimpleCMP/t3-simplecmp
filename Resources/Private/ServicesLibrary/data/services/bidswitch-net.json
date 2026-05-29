@@ -1,0 +1,16 @@
+{
+    "id": "bidswitch-net",
+    "name": "bidswitch.net",
+    "vendor": "bidswitch.net",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "tuuid_lu"
+        ],
+        "origins": [
+            "*.bidswitch.net"
+        ]
+    }
+}

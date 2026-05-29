@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimpleCMP\T3SimpleCmp\Service;
 
 use Composer\InstalledVersions;
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 
 /**
  * Thin DI-friendly wrapper over Composer's InstalledVersions API +

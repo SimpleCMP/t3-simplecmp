@@ -1,0 +1,16 @@
+{
+    "id": "picreel",
+    "name": "Picreel",
+    "vendor": "Picreel",
+    "purposes": [
+        "analytics"
+    ],
+    "matches": {
+        "cookies": [
+            "picreel_tracker__visited",
+            "picreel_tracker__first_visit",
+            "picreel_tracker__page_views",
+            "picreel_new_price"
+        ]
+    }
+}

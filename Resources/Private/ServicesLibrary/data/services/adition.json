@@ -1,0 +1,17 @@
+{
+    "id": "adition",
+    "name": "Adition",
+    "vendor": "Adition",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.adition.com/kontakt/datenschutz/",
+    "matches": {
+        "cookies": [
+            "UserID1"
+        ],
+        "origins": [
+            "adfarm3.adition.com"
+        ]
+    }
+}

@@ -1,0 +1,43 @@
+{
+    "id": "magento",
+    "name": "Magento",
+    "vendor": "Adobe",
+    "purposes": [
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://www.adobe.com/privacy.html",
+    "matches": {
+        "cookies": [
+            "form_key",
+            "/^product_data_storage/",
+            "mage-cache-sessid",
+            "/^mage\\-cache\\-storage/",
+            "/^mage\\-cache\\-storage\\-section\\-invalidation/",
+            "/^mage\\-cache\\-timeout/",
+            "mage-messages",
+            "mage-translation-file-version",
+            "mage-translation-storage",
+            "/^recently_compared_product/",
+            "/^recently_compared_product_previous/",
+            "/^recently_viewed_product/",
+            "/^recently_viewed_product_previous/",
+            "user_allowed_save_cookie",
+            "external_no_cache",
+            "persistent_shopping_cart",
+            "stf",
+            "pollN",
+            "frontend",
+            "guest-view",
+            "mage-banners-cache-storage",
+            "searchReport-log",
+            "private_content_version",
+            "X-Magento-Vary",
+            "section_data_ids",
+            "section_data_clean",
+            "last_visited_store",
+            "store",
+            "login_redirect"
+        ]
+    }
+}

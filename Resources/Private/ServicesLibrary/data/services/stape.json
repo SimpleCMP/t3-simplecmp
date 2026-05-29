@@ -1,0 +1,14 @@
+{
+    "id": "stape",
+    "name": "Stape",
+    "vendor": "Stape",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://stape.io/privacy-notice",
+    "matches": {
+        "cookies": [
+            "_gtmeec"
+        ]
+    }
+}

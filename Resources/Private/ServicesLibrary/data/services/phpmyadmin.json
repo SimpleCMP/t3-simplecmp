@@ -1,0 +1,16 @@
+{
+    "id": "phpmyadmin",
+    "name": "phpMyAdmin",
+    "vendor": "phpMyAdmin",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "/^pmaAuth\\-/",
+            "phpMyAdmin",
+            "/^pmaUser\\-/",
+            "pma_lang"
+        ]
+    }
+}

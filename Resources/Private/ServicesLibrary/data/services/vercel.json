@@ -1,0 +1,14 @@
+{
+    "id": "vercel",
+    "name": "Vercel",
+    "vendor": "Vercel Inc",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://vercel.com/legal/privacy-policy",
+    "matches": {
+        "cookies": [
+            "/^_vercel_/"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "cookie-first",
+    "name": "Cookie First",
+    "vendor": "Cookie First",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://cookiefirst.com/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "cookiefirst-consent"
+        ]
+    }
+}

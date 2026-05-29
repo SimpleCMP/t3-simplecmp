@@ -1,0 +1,13 @@
+{
+  "id": "logrocket",
+  "name": "LogRocket",
+  "vendor": "LogRocket, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["analytics", "functional"],
+  "privacyPolicyUrl": "https://logrocket.com/privacy/",
+  "description": "Session replay with error monitoring. Records visitor interactions including form input and DOM changes.",
+  "matches": {
+    "cookies": ["/^_lr_/"],
+    "origins": ["cdn.lr-ingest.io", "r.lr-ingest.io", "*.logrocket.com", "*.logrocket.io"]
+  }
+}

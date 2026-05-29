@@ -1,0 +1,29 @@
+{
+    "id": "adobe-analytics",
+    "name": "Adobe Analytics",
+    "vendor": "Adobe",
+    "vendorCountry": "IE",
+    "vendorAddress": "Adobe Systems Software Ireland Limited, 4-6 Riverwalk, Citywest Business Campus, Dublin 24, D24 PVF8, Ireland",
+    "vendorOptOutUrl": "https://www.adobe.com/privacy/opt-out.html",
+    "vendorPartner": "Adobe Inc. (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Adobe Systems Software Ireland Limited is the EU establishment of Adobe Inc. It is the EU controller for Adobe products and processes personal data of European users, forwarding to Adobe Inc. in the USA where required.",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.adobe.com/nl/privacy.html",
+    "matches": {
+        "cookies": [
+            "s_cc",
+            "s_sq",
+            "/^s_vi/",
+            "s_fid",
+            "fid",
+            "s_ecid",
+            "s_ppv",
+            "s_tp",
+            "sat_track"
+        ]
+    }
+}

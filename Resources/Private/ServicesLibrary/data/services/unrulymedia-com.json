@@ -1,0 +1,13 @@
+{
+    "id": "unrulymedia-com",
+    "name": "Unrulymedia.com",
+    "vendor": "Unrulymedia.com",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "/^unruly_m/"
+        ]
+    }
+}

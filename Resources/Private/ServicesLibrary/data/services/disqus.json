@@ -1,0 +1,29 @@
+{
+    "id": "disqus",
+    "name": "Disqus",
+    "vendor": "Zeta Global Corp.",
+    "vendorCountry": "US",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://help.disqus.com/en/articles/1717103-disqus-privacy-policy",
+    "description": "Embedded comment system. Persists visitor identity and serves ad-supported comment threads (in the free tier).",
+    "matches": {
+        "cookies": [
+            "/^disqus_/",
+            "__jid"
+        ],
+        "origins": [
+            "disqus.com",
+            "*.disqus.com",
+            "*.disquscdn.com"
+        ]
+    },
+    "placeholderDescription": "Comments are powered by Disqus. Loading them will set Disqus tracking cookies.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Die Kommentare werden von Disqus bereitgestellt. Beim Laden werden Disqus-Tracking-Cookies gesetzt."
+        }
+    }
+}

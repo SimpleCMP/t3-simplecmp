@@ -1,0 +1,24 @@
+{
+    "id": "lotame",
+    "name": "Lotame",
+    "vendor": "Lotame",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.lotame.com/about-lotame/privacy/lotames-products-services-privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_cc_aud",
+            "_cc_cc",
+            "_cc_id",
+            "panoramaId",
+            "panoramaId_expiry",
+            "panoramaId_expiry_exp",
+            "_cc_domain",
+            "_cc_dc"
+        ],
+        "origins": [
+            "*.crwdcntrl.net"
+        ]
+    }
+}

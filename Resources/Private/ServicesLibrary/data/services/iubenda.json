@@ -1,0 +1,14 @@
+{
+    "id": "iubenda",
+    "name": "Iubenda",
+    "vendor": "Iubenda",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.iubenda.com/privacy-policy/252372",
+    "matches": {
+        "cookies": [
+            "/^_iub_cs\\-/"
+        ]
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "id": "piano",
+    "name": "Piano",
+    "vendor": "Piano",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://piano.io/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "pa_user",
+            {
+                "name": "xbc",
+                "requireOrigin": "tinypass.com"
+            },
+            "__tbc",
+            "__pls",
+            "__tac",
+            "_pcus",
+            "cX_P",
+            "cX_G",
+            "gckp",
+            "pnespsdk_visitor",
+            "pnespsdk_push_subscription_added",
+            "pnespsdk_pnespid",
+            "pnespsdk_ssn",
+            "__utp",
+            "__pil",
+            "__pid",
+            "__idr",
+            "__eea",
+            "__code",
+            "__bid",
+            "__ut",
+            "__pvi",
+            "__pat",
+            "__pnahc",
+            "LANG",
+            "LANG_CHANGED",
+            "_pctx",
+            "_pprv",
+            "_pcid"
+        ],
+        "origins": [
+            "*.tinypass.com"
+        ]
+    }
+}

@@ -1,0 +1,46 @@
+{
+    "id": "github",
+    "name": "GitHub",
+    "vendor": "GitHub",
+    "purposes": [
+        "analytics",
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+    "matches": {
+        "cookies": [
+            "app_manifest_token",
+            "color_mode",
+            "_device_id",
+            "dotcom_user",
+            "enterprise_trial_redirect_to",
+            "fileTreeExpanded",
+            "ghcc",
+            "_gh_ent",
+            "_gh_sess",
+            "gist_oauth_csrf",
+            "gist_user_session",
+            "has_recent_activity",
+            "__Host-gist_user_session_same_site",
+            "__Host-user_session_same_site",
+            "marketplace_repository_ids",
+            "marketplace_suggested_target_id",
+            "_octo",
+            "org_transform_notice",
+            "private_mode_user_session",
+            "saml_csrf_token",
+            "saml_return_to",
+            "saml_return_to_legacy",
+            "show_cookie_banner",
+            {
+                "name": "tz",
+                "requireOrigin": "github.com"
+            },
+            "user_session"
+        ],
+        "origins": [
+            "*.github.com"
+        ]
+    }
+}

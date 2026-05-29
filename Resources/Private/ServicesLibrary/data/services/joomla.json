@@ -1,0 +1,14 @@
+{
+    "id": "joomla",
+    "name": "Joomla!",
+    "vendor": "Joomla!",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "componentType",
+            "componentStyle"
+        ]
+    }
+}

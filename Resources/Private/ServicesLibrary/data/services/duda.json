@@ -1,0 +1,18 @@
+{
+    "id": "duda",
+    "name": "Duda",
+    "vendor": "Duda",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.duda.co/legal/privacy",
+    "matches": {
+        "cookies": [
+            "dm_timezone_offset",
+            "dm_last_visit",
+            "dm_total_visits",
+            "dm_last_page_view",
+            "dm_this_page_view"
+        ]
+    }
+}

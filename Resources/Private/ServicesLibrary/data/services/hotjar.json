@@ -1,0 +1,13 @@
+{
+  "id": "hotjar",
+  "name": "Hotjar",
+  "vendor": "Hotjar Ltd",
+  "vendorCountry": "MT",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://www.hotjar.com/legal/policies/privacy/",
+  "description": "Session recording, heatmaps, and user-feedback surveys. Sets per-session and per-user cookies to maintain recording and visitor identity.",
+  "matches": {
+    "cookies": ["/^_hj/"],
+    "origins": ["static.hotjar.com", "script.hotjar.com", "vars.hotjar.com", "insights.hotjar.com"]
+  }
+}

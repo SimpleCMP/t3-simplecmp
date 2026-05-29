@@ -1,0 +1,25 @@
+{
+    "id": "indeed",
+    "name": "Indeed",
+    "vendor": "Indeed",
+    "purposes": [
+        "analytics",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://www.indeed.com/legal",
+    "matches": {
+        "cookies": [
+            {
+                "name": "CTK",
+                "requireOrigin": "indeed.com"
+            },
+            "ctkgen",
+            "INDEED_CSRF_TOKEN",
+            "jasx_pool_id",
+            "pagead/conv/%INTEGER%"
+        ],
+        "origins": [
+            "*.indeed.com"
+        ]
+    }
+}

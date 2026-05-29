@@ -1,0 +1,16 @@
+{
+    "id": "datatrics",
+    "name": "Datatrics",
+    "vendor": "Datatrics",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.datatrics.com/privacy",
+    "matches": {
+        "cookies": [
+            "datatrics_optin",
+            "datatricsDebugger",
+            "datatrics_customData"
+        ]
+    }
+}

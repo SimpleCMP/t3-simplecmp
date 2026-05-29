@@ -1,0 +1,20 @@
+{
+    "id": "codepen",
+    "name": "Codepen",
+    "vendor": "Codepen",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://blog.codepen.io/documentation/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "__editor_layout",
+            "codepen_session",
+            "codepen_signup_referrer",
+            "codepen_signup_referrer_date"
+        ],
+        "origins": [
+            "*.codepen.io"
+        ]
+    }
+}

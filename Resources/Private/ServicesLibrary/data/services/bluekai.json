@@ -1,0 +1,22 @@
+{
+    "id": "bluekai",
+    "name": "BlueKai",
+    "vendor": "Oracle",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.oracle.com/legal/privacy/marketing-cloud-data-cloud-privacy-policy.html",
+    "matches": {
+        "cookies": [
+            "bkdc",
+            {
+                "name": "bku",
+                "requireOrigin": "bluekai.com"
+            },
+            "bkpa"
+        ],
+        "origins": [
+            "*.bluekai.com"
+        ]
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "id": "didomi",
+    "name": "Didomi",
+    "vendor": "Didomi",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://privacy.console.didomi.io/",
+    "matches": {
+        "cookies": [
+            "didomi_token",
+            "euconsent-v2"
+        ]
+    }
+}

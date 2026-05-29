@@ -1,0 +1,26 @@
+{
+    "id": "piwik",
+    "name": "Piwik",
+    "vendor": "Piwik",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://piwik.pro/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "stg_traffic_source_priority",
+            "stg_last_interaction",
+            "stg_returning_visitor",
+            "stg_externalReferrer",
+            "/^_pk_id\\./",
+            "/^_pk_ses\\./",
+            "/^ppms_privacy_/",
+            "/^ppms_privacy_bar_/",
+            "/^stg_fired__/",
+            "stg_utm_campaign",
+            "stg_pk_campaign",
+            "_stg_optout",
+            "stg_global_opt_out"
+        ]
+    }
+}

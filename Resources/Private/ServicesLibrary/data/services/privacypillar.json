@@ -1,0 +1,17 @@
+{
+    "id": "privacypillar",
+    "name": "PrivacyPillar",
+    "vendor": "PrivacyPillar",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://privacypillar.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "privacypillar-google-consent",
+            "privacypillar-cookie-consent",
+            "euconsent-v2",
+            "usprivacy"
+        ]
+    }
+}

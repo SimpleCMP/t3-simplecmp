@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 
 /**

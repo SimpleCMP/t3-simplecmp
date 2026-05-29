@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Updates;
 
-use SimpleCMP\ServicesLibrary\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Attribute\Autoconfigure;
 use TYPO3\CMS\Install\Attribute\UpgradeWizard;

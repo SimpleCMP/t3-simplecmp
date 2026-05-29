@@ -1,0 +1,17 @@
+{
+    "id": "adalyser-com",
+    "name": "Adalyser.com",
+    "vendor": "Adalyser.com",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.adalyser.com/en/cookies",
+    "matches": {
+        "cookies": [
+            "__adal_ca",
+            "__adal_cw",
+            "__adal_id",
+            "__adal_ses"
+        ]
+    }
+}

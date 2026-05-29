@@ -1,0 +1,14 @@
+{
+    "id": "usabilla",
+    "name": "Usabilla",
+    "vendor": "SurveyMonkey",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.surveymonkey.com/mp/legal/privacy/",
+    "matches": {
+        "cookies": [
+            "usbls"
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "id": "hcaptcha",
+    "name": "hCaptcha",
+    "vendor": "Intuition Machines, Inc.",
+    "vendorCountry": "US",
+    "purposes": [
+        "security"
+    ],
+    "privacyPolicyUrl": "https://www.hcaptcha.com/privacy",
+    "description": "Bot-detection challenge for forms and login flows. Sets a session cookie to track challenge state.",
+    "matches": {
+        "cookies": [
+            "hmt_id"
+        ],
+        "origins": [
+            "hcaptcha.com",
+            "*.hcaptcha.com"
+        ]
+    },
+    "placeholderDescription": "This form uses hCaptcha. The challenge widget loads scripts and may set cookies from hCaptcha.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieses Formular nutzt hCaptcha. Das Widget lädt Skripte und kann Cookies von hCaptcha setzen."
+        }
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "taboola",
+  "name": "Taboola",
+  "vendor": "Taboola, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "advertising"],
+  "privacyPolicyUrl": "https://www.taboola.com/policies/privacy-policy",
+  "description": "Content-recommendation and native-advertising widgets. Identifies visitors for retargeting and recommendation-personalization.",
+  "matches": {
+    "cookies": ["/^taboola_/", "/^_tb/"],
+    "origins": ["cdn.taboola.com", "trc.taboola.com", "*.taboola.com"]
+  }
+}

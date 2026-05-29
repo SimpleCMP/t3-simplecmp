@@ -1,0 +1,24 @@
+{
+    "id": "cookieyes",
+    "name": "CookieYes",
+    "vendor": "CookieYes",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.cookieyes.com/cookie-policy/",
+    "matches": {
+        "cookies": [
+            "cookieyesID",
+            "cky-consent",
+            "cookieyes-necessary",
+            "cookieyes-functional",
+            "cookieyes-analytics",
+            "cookieyes-advertisement",
+            "cookieyes_privacy_policy_generator_session",
+            "cookieyes_session",
+            "cky-action",
+            "cookieyes-performance",
+            "cookieyes-consent"
+        ]
+    }
+}

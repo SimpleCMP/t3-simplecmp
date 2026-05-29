@@ -1,0 +1,17 @@
+{
+    "id": "lightspeed",
+    "name": "Lightspeed",
+    "vendor": "Lightspeed",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.lightspeedhq.com/legal/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "COOKIELAW_ADS",
+            "COOKIELAW_SOCIAL",
+            "COOKIELAW_STATS",
+            "COOKIELAW"
+        ]
+    }
+}

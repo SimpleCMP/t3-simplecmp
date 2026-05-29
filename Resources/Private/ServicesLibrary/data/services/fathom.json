@@ -1,0 +1,12 @@
+{
+  "id": "fathom",
+  "name": "Fathom Analytics",
+  "vendor": "Conva Ventures Inc.",
+  "vendorCountry": "CA",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://usefathom.com/privacy",
+  "description": "Privacy-focused, cookieless web analytics. Does not set tracking cookies; identifies sessions via a daily-rotating hash on the server side.",
+  "matches": {
+    "origins": ["cdn.usefathom.com"]
+  }
+}

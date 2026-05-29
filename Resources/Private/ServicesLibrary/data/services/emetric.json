@@ -1,0 +1,26 @@
+{
+    "id": "emetric",
+    "name": "Emetric",
+    "vendor": "Emetric",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.emetriq.com/datenschutz/",
+    "matches": {
+        "cookies": [
+            "pid_short",
+            "pid_signature",
+            {
+                "name": "pid",
+                "requireOrigin": "xplosion.de"
+            },
+            {
+                "name": "ep",
+                "requireOrigin": "xplosion.de"
+            }
+        ],
+        "origins": [
+            "*.xplosion.de"
+        ]
+    }
+}

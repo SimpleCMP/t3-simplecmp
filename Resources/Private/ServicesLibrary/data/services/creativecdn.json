@@ -1,0 +1,33 @@
+{
+    "id": "creativecdn",
+    "name": "CreativeCDN",
+    "vendor": "RTB House",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://rtbhouse.com/privacy-center",
+    "matches": {
+        "cookies": [
+            {
+                "name": "c",
+                "requireOrigin": "creativecdn.com"
+            },
+            {
+                "name": "g",
+                "requireOrigin": "creativecdn.com"
+            },
+            {
+                "name": "ts",
+                "requireOrigin": "creativecdn.com"
+            },
+            {
+                "name": "u",
+                "requireOrigin": "creativecdn.com"
+            }
+        ],
+        "origins": [
+            "*.creativecdn.com"
+        ]
+    }
+}

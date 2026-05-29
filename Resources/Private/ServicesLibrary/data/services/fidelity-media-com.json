@@ -1,0 +1,16 @@
+{
+    "id": "fidelity-media-com",
+    "name": "Fidelity-media.com",
+    "vendor": "Fidelity-media.com",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "DSP_UID"
+        ],
+        "origins": [
+            "*.fidelity-media.com"
+        ]
+    }
+}

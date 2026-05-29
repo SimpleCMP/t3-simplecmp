@@ -1,0 +1,20 @@
+{
+    "id": "mediamath",
+    "name": "MediaMath",
+    "vendor": "MediaMath",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.mediamath.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "mt_misc",
+            "mt_mop",
+            "uuidc",
+            "uuid"
+        ],
+        "origins": [
+            "*.mathtag.com"
+        ]
+    }
+}

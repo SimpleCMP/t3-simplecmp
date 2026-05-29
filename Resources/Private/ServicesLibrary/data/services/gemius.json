@@ -1,0 +1,19 @@
+{
+    "id": "gemius",
+    "name": "Gemius",
+    "vendor": "Gemius",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.gemius.pl/privacy-notice-for-panelists.html",
+    "matches": {
+        "cookies": [
+            "__gfp_64b",
+            "__gfp_s_64b",
+            "Gdyn"
+        ],
+        "origins": [
+            "*.gemius.pl"
+        ]
+    }
+}

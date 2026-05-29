@@ -1,0 +1,27 @@
+{
+    "id": "sonobi",
+    "name": "Sonobi",
+    "vendor": "Sonobi",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://sonobi.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "__uin_bw",
+            "__uir_bw",
+            "__uis",
+            "HAPLB5S",
+            "__uin_mm",
+            "__uir_mm",
+            "/^HAPLB8/",
+            "__uin_rh",
+            "__uir_rh",
+            "HAPLB3A"
+        ],
+        "origins": [
+            "go.sonobi.com",
+            "sonobi.com"
+        ]
+    }
+}

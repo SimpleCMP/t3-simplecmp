@@ -1,0 +1,17 @@
+{
+    "id": "snapwidget",
+    "name": "Snapwidget",
+    "vendor": "Snapwidget",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://snapwidget.com/privacy",
+    "matches": {
+        "cookies": [
+            "_gat_pro"
+        ],
+        "origins": [
+            "*.snapwidget.com"
+        ]
+    }
+}

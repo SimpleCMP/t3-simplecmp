@@ -1,0 +1,15 @@
+{
+    "id": "permutive",
+    "name": "Permutive",
+    "vendor": "Permutive",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://permutive.com/privacy/",
+    "matches": {
+        "cookies": [
+            "pxid",
+            "permutive-id"
+        ]
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "id": "plausible",
+    "name": "Plausible Analytics",
+    "vendor": "Plausible Insights O\u00dc",
+    "vendorCountry": "EE",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://plausible.io/privacy-focused-web-analytics",
+    "description": "Privacy-focused, cookieless web analytics. Identifies sessions via a daily-rotating hash of IP + user-agent; does not set tracking cookies on the visitor's device.",
+    "matches": {
+        "origins": [
+            "*.plausible.io"
+        ]
+    }
+}

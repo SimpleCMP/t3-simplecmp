@@ -1,0 +1,18 @@
+{
+    "id": "lightbox-cdn",
+    "name": "Lightbox CDN",
+    "vendor": "Lightbox",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.lightboxcdn.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "TiPMix",
+            "x-ms-routing-name"
+        ],
+        "origins": [
+            "api.lightboxcdn.com"
+        ]
+    }
+}

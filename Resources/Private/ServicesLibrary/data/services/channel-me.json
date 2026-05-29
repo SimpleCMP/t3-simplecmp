@@ -1,0 +1,14 @@
+{
+    "id": "channel-me",
+    "name": "Channel.me",
+    "vendor": "Channel.me",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://channel.me/privacy",
+    "matches": {
+        "cookies": [
+            "wwwchannelme_z_sid"
+        ]
+    }
+}

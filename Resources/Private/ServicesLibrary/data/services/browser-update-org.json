@@ -1,0 +1,13 @@
+{
+    "id": "browser-update-org",
+    "name": "Browser-Update.org",
+    "vendor": "Browser-Update.org",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "browserupdateorg"
+        ]
+    }
+}

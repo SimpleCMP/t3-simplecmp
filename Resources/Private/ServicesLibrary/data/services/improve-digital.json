@@ -1,0 +1,21 @@
+{
+    "id": "improve-digital",
+    "name": "Improve Digital",
+    "vendor": "ad.360yield.com",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.improvedigital.com/platform-privacy-policy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "um",
+                "requireOrigin": "ad.360yield.com"
+            },
+            "umeh"
+        ],
+        "origins": [
+            "ad.360yield.com"
+        ]
+    }
+}

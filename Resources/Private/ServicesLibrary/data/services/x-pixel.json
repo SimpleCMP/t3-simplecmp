@@ -1,0 +1,13 @@
+{
+  "id": "x-pixel",
+  "name": "X / Twitter Pixel",
+  "vendor": "X Corp.",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "advertising", "analytics"],
+  "privacyPolicyUrl": "https://twitter.com/en/privacy",
+  "description": "Conversion tracking and audience retargeting for X Ads (formerly Twitter Ads).",
+  "matches": {
+    "cookies": ["personalization_id", "guest_id", "muc_ads", "/^twid/"],
+    "origins": ["static.ads-twitter.com", "analytics.twitter.com", "t.co", "*.twitter.com", "*.x.com"]
+  }
+}

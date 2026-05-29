@@ -1,0 +1,43 @@
+{
+    "id": "instagram",
+    "name": "Instagram",
+    "vendor": "Instagram",
+    "vendorCountry": "IE",
+    "vendorAddress": "Meta Platforms Ireland Limited, Merrion Road, Dublin 4, D04 X2K5, Ireland",
+    "vendorOptOutUrl": "https://www.facebook.com/help/instagram/519522125107875",
+    "vendorPartner": "Meta Platforms, Inc. (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Meta Platforms Ireland Limited is the EU establishment of Meta Platforms, Inc. It is the EU controller for Facebook, Instagram, WhatsApp and related Meta products, and processes personal data of European users, forwarding to Meta Platforms, Inc. in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.facebook.com/privacy/policies/cookies",
+    "matches": {
+        "cookies": [
+            "ig_did",
+            "ig_cb",
+            "ds_user_id",
+            {
+                "name": "mid",
+                "requireOrigin": "instagram.com"
+            },
+            "/^fbm_/",
+            "shbid",
+            "shbts",
+            "sessionid"
+        ],
+        "origins": [
+            "*.instagram.com"
+        ],
+        "aliasOrigins": [
+            "*.cdninstagram.com",
+            "*.fbcdn.net"
+        ]
+    },
+    "placeholderDescription": "This embed is hosted by Instagram (Meta) and will set tracking cookies when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser Inhalt wird von Instagram (Meta) bereitgestellt und setzt Tracking-Cookies, sobald er geladen wird."
+        }
+    }
+}

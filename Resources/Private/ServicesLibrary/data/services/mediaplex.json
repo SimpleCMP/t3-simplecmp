@@ -1,0 +1,21 @@
+{
+    "id": "mediaplex",
+    "name": "Mediaplex",
+    "vendor": "Epsilon",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://legal.epsilon.com/global-privacy-policies/",
+    "matches": {
+        "cookies": [
+            "svid",
+            {
+                "name": "rts",
+                "requireOrigin": "mediaplex.com"
+            }
+        ],
+        "origins": [
+            "*.mediaplex.com"
+        ]
+    }
+}

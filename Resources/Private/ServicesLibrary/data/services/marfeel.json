@@ -1,0 +1,22 @@
+{
+    "id": "marfeel",
+    "name": "Marfeel",
+    "vendor": "Marfeel",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://community.marfeel.com/t/marfeel-com-privacy-policy/10383",
+    "matches": {
+        "cookies": [
+            "/^_ut/",
+            "/^_lv/",
+            "_nrbi",
+            "compass_sid",
+            "compass_uid",
+            "___m_rec"
+        ],
+        "origins": [
+            "events.newsroom.bi"
+        ]
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "id": "woocommerce",
+    "name": "WooCommerce",
+    "vendor": "WooCommerce",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://automattic.com/privacy/",
+    "matches": {
+        "cookies": [
+            "woocommerce_cart_hash",
+            "woocommerce_items_in_cart",
+            "/^wp_woocommerce_session_/",
+            "woocommerce_recently_viewed",
+            "/^store_notice/",
+            "/^woocommerce_snooze_suggestions__/",
+            "/^woocommerce_dismissed_suggestions__/",
+            "tk_ai",
+            "sbjs_session",
+            "sbjs_udata",
+            "sbjs_first",
+            "sbjs_current",
+            "sbjs_first_add",
+            "sbjs_current_add",
+            "sbjs_migrations"
+        ],
+        "origins": [
+            "*.woocommerce.com"
+        ]
+    }
+}

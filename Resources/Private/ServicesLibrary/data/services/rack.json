@@ -1,0 +1,13 @@
+{
+    "id": "rack",
+    "name": "Rack",
+    "vendor": "Rack",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "rack.session"
+        ]
+    }
+}

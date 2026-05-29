@@ -1,0 +1,18 @@
+{
+    "id": "sleeknote",
+    "name": "Sleeknote",
+    "vendor": "Sleeknote",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://sleeknote.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "_sn_a",
+            "_sn_m",
+            "_sn_n"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "cookie-script",
+    "name": "Cookie Script",
+    "vendor": "Cookie Script",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://cookie-script.com/legal/privacy-policy",
+    "matches": {
+        "cookies": [
+            "CookieScriptConsent"
+        ]
+    }
+}

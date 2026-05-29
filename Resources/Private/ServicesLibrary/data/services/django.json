@@ -1,0 +1,14 @@
+{
+    "id": "django",
+    "name": "Django",
+    "vendor": "Django",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://docs.djangoproject.com/en/stable/topics/i18n/",
+    "matches": {
+        "cookies": [
+            "django_language"
+        ]
+    }
+}

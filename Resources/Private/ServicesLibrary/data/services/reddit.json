@@ -1,0 +1,19 @@
+{
+    "id": "reddit",
+    "name": "Reddit",
+    "vendor": "Reddit",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.redditinc.com/policies/privacy-policy",
+    "matches": {
+        "cookies": [
+            "edgebucket",
+            "initref",
+            "_rdt_uuid"
+        ],
+        "origins": [
+            "*.reddit.com"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "alteon",
+    "name": "Alteon",
+    "vendor": "Radware",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.radware.com/privacypolicy.aspx/",
+    "matches": {
+        "cookies": [
+            "AlteonP"
+        ]
+    }
+}

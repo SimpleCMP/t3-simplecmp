@@ -1,0 +1,14 @@
+{
+    "id": "clerk",
+    "name": "Clerk",
+    "vendor": "Clerk",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://clerk.com/privacy",
+    "matches": {
+        "cookies": [
+            "/^clerk_/"
+        ]
+    }
+}

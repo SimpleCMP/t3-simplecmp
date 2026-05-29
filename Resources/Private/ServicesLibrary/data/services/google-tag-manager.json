@@ -1,0 +1,12 @@
+{
+  "id": "google-tag-manager",
+  "name": "Google Tag Manager",
+  "vendor": "Google LLC",
+  "vendorCountry": "US",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://policies.google.com/privacy",
+  "description": "Tag deployment and trigger management. Loads other Google trackers and third-party scripts based on container configuration; on its own does not set tracking cookies, but is the delivery channel for the trackers it loads.",
+  "matches": {
+    "origins": ["www.googletagmanager.com"]
+  }
+}

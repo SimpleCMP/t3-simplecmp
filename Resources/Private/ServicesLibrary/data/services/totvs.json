@@ -1,0 +1,21 @@
+{
+    "id": "totvs",
+    "name": "Totvs",
+    "vendor": "Totvs",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.totvs.com/protecao-e-privacidade-de-dados/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "u",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            "_ssc"
+        ],
+        "origins": [
+            "t.tailtarget.com"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "processwire",
+    "name": "Processwire",
+    "vendor": "Processwire",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "wires",
+            "wires_challenge"
+        ]
+    }
+}

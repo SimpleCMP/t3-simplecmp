@@ -1,0 +1,18 @@
+{
+    "id": "verve",
+    "name": "Verve",
+    "vendor": "Verve",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://verve.com/website-privacy-policy/",
+    "matches": {
+        "cookies": [
+            "lkqdid",
+            "lkqdidts"
+        ],
+        "origins": [
+            "*.lkqd.net"
+        ]
+    }
+}

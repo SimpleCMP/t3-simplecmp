@@ -1,0 +1,18 @@
+{
+    "id": "justpremium-com",
+    "name": "justpremium.com",
+    "vendor": "JustPremium",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://justpremium.com/terms-conditions/",
+    "matches": {
+        "cookies": [
+            "jpxumaster",
+            "jpxumatched"
+        ],
+        "origins": [
+            "*.justpremium.com"
+        ]
+    }
+}

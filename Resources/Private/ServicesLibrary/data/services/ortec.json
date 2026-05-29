@@ -1,0 +1,21 @@
+{
+    "id": "ortec",
+    "name": "Ortec",
+    "vendor": "Ortec",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.ortecadscience.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "app_ts",
+            "viewer",
+            "spx_ts",
+            "adx_ts",
+            "id_ts"
+        ],
+        "origins": [
+            "*.adscience.nl"
+        ]
+    }
+}

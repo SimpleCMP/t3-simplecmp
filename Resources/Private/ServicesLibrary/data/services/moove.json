@@ -1,0 +1,14 @@
+{
+    "id": "moove",
+    "name": "Moove",
+    "vendor": "Moove",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.mooveagency.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "moove_gdpr_popup"
+        ]
+    }
+}

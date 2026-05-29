@@ -1,0 +1,18 @@
+{
+    "id": "claritas",
+    "name": "Claritas",
+    "vendor": "Claritas",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://claritas.com/privacy-legal/",
+    "matches": {
+        "cookies": [
+            "barometric[cuid]",
+            "barometric[idfa]"
+        ],
+        "origins": [
+            "*.trkn.us"
+        ]
+    }
+}

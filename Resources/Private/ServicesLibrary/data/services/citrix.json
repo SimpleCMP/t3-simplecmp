@@ -1,0 +1,14 @@
+{
+    "id": "citrix",
+    "name": "Citrix",
+    "vendor": "Citrix",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.citrix.com/about/trust-center/privacy-compliance/",
+    "matches": {
+        "cookies": [
+            "/^NSC_/"
+        ]
+    }
+}

@@ -1,0 +1,47 @@
+{
+    "id": "doubleclick-google-marketing",
+    "name": "DoubleClick/Google Marketing",
+    "vendor": "Google",
+    "vendorCountry": "IE",
+    "vendorAddress": "Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland",
+    "vendorOptOutUrl": "https://adssettings.google.com/",
+    "vendorPartner": "Google LLC (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Google Ireland Limited is the EU establishment of Google LLC. It is the EU controller for Google products and processes personal data of European users, forwarding to Google LLC in the USA where required.",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://business.safety.google/privacy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "IDE",
+                "requireOrigin": "doubleclick.net"
+            },
+            "DSID",
+            {
+                "name": "ID",
+                "requireOrigin": "doubleclick.net"
+            },
+            {
+                "name": "RUL",
+                "requireOrigin": "doubleclick.net"
+            },
+            {
+                "name": "FLC",
+                "requireOrigin": "doubleclick.net"
+            },
+            "__gads",
+            "GoogleAdServingTest",
+            "ar_debug",
+            "test_cookie",
+            {
+                "name": "APC",
+                "requireOrigin": "doubleclick.net"
+            }
+        ],
+        "origins": [
+            "*.doubleclick.net"
+        ]
+    }
+}

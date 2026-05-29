@@ -1,0 +1,28 @@
+{
+    "id": "platform161",
+    "name": "Platform161",
+    "vendor": "Platform161",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://platform161.com/cookie-and-privacy-policy/",
+    "matches": {
+        "cookies": [
+            "fl_inst",
+            "pvc2",
+            "pcc2",
+            {
+                "name": "trc",
+                "requireOrigin": "creative-serving.com"
+            },
+            "tuuid",
+            {
+                "name": "ad2",
+                "requireOrigin": "creative-serving.com"
+            }
+        ],
+        "origins": [
+            "*.creative-serving.com"
+        ]
+    }
+}

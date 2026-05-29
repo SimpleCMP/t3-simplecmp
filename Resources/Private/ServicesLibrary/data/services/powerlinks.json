@@ -1,0 +1,17 @@
+{
+    "id": "powerlinks",
+    "name": "PowerLinks",
+    "vendor": "PowerLinks",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.powerlinks.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "pl_user_id"
+        ],
+        "origins": [
+            "*.powerlinks.com"
+        ]
+    }
+}

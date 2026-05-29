@@ -1,0 +1,59 @@
+{
+    "id": "command-act",
+    "name": "Command Act",
+    "vendor": "Command Act",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.commandersact.com/en/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "tc_cj_v2",
+            "tc_cj_v2_cmp.",
+            "tc_cj_v2_med",
+            "tc_test_cookie",
+            "TCIPD",
+            "TC_PRIVACY",
+            "TC_PRIVACY_CENTER",
+            "TC_OUTPUT",
+            "TC_OUTPUT_categories",
+            "CAID",
+            "TCID",
+            {
+                "name": "WID",
+                "requireOrigin": "commander1.com"
+            },
+            "tc_sample_",
+            {
+                "name": "TMS",
+                "requireOrigin": "commander1.com"
+            },
+            "TC_CHECK_COOKIES_SUPPORT",
+            "TCSESSION",
+            "TCREDIRECT",
+            "TCLANDINGURL",
+            "TCAUDIENCE",
+            "_TCCookieSync",
+            "DLBCTLYOXA",
+            "FDLBFIRSTAPI",
+            "FDLBFIRSTDATA",
+            "FDLBFIRSTCAMPAIGN",
+            "FDLBFIRSTCAMPAIGNEF",
+            "FDLBCAMPAIGNCDOM",
+            "FDLBFIRSTTMS",
+            "FDLBFIRSTCMP",
+            "FDLBFIRST",
+            "FDLBCTLY",
+            "FDLBFIRSTEVENTS",
+            "tc_caids",
+            "tc_cj_ss",
+            "/^tc_ss/",
+            "TCREDIRECT_DEDUP"
+        ],
+        "origins": [
+            "*.commander1.com"
+        ]
+    }
+}

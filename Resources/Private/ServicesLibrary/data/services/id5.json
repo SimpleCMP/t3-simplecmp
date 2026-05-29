@@ -1,0 +1,45 @@
+{
+    "id": "id5",
+    "name": "ID5",
+    "vendor": "ID5",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://id5.io/privacy-policy/",
+    "matches": {
+        "cookies": [
+            {
+                "name": "id5",
+                "requireOrigin": "id5-sync.com"
+            },
+            {
+                "name": "cip",
+                "requireOrigin": "id5-sync.com"
+            },
+            {
+                "name": "car",
+                "requireOrigin": "id5-sync.com"
+            },
+            "callback",
+            "cnac",
+            {
+                "name": "cf",
+                "requireOrigin": "id5-sync.com"
+            },
+            "gdpr",
+            {
+                "name": "gpp",
+                "requireOrigin": "id5-sync"
+            },
+            {
+                "name": "3pi",
+                "requireOrigin": "id5-sync.com"
+            }
+        ],
+        "origins": [
+            "id5-sync.com",
+            "id5-sync"
+        ]
+    }
+}

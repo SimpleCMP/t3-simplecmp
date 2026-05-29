@@ -1,0 +1,17 @@
+{
+    "id": "admixer",
+    "name": "Admixer",
+    "vendor": "Admixer",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://admixer.net/privacy",
+    "matches": {
+        "cookies": [
+            "am-uid"
+        ],
+        "origins": [
+            "*.admixer.net"
+        ]
+    }
+}

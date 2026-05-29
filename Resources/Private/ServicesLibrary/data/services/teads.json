@@ -1,0 +1,23 @@
+{
+    "id": "teads",
+    "name": "Teads",
+    "vendor": "Teads.com",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.teads.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "tt_viewer",
+            "tt_bluekai",
+            "tt_exelate",
+            "tt_liveramp",
+            "tt_neustar",
+            "tt_salesforce"
+        ],
+        "origins": [
+            "*.teads.com",
+            "*.teads.tv"
+        ]
+    }
+}

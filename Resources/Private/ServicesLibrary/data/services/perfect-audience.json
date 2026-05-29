@@ -1,0 +1,22 @@
+{
+    "id": "perfect-audience",
+    "name": "Perfect Audience",
+    "vendor": "Perfect Audience",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.perfectaudience.com/privacy/",
+    "matches": {
+        "cookies": [
+            "pa_rubicon_ts",
+            "pa_google_ts",
+            "pa_twitter_ts",
+            "pa_yahoo_ts",
+            "pa_openx_ts",
+            "pa_uid"
+        ],
+        "origins": [
+            "*.prfct.co"
+        ]
+    }
+}

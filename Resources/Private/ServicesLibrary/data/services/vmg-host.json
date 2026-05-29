@@ -1,0 +1,16 @@
+{
+    "id": "vmg-host",
+    "name": "vmg.host",
+    "vendor": "vmg.host",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "BSWtracker"
+        ],
+        "origins": [
+            "*.vmg.host"
+        ]
+    }
+}

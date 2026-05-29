@@ -1,0 +1,13 @@
+{
+  "id": "crisp",
+  "name": "Crisp",
+  "vendor": "Crisp IM SAS",
+  "vendorCountry": "FR",
+  "purposes": ["functional"],
+  "privacyPolicyUrl": "https://crisp.chat/en/privacy/",
+  "description": "Customer-messaging chat widget. Persists visitor identity across sessions.",
+  "matches": {
+    "cookies": ["/^crisp-client/"],
+    "origins": ["client.crisp.chat", "*.crisp.chat"]
+  }
+}

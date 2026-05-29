@@ -1,0 +1,39 @@
+{
+    "id": "comscore",
+    "name": "ComScore",
+    "vendor": "ComScore",
+    "purposes": [
+        "analytics",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.comscore.com/About/Privacy-Policy",
+    "matches": {
+        "cookies": [
+            {
+                "name": "S1",
+                "requireOrigin": "nl.sitestat.com"
+            },
+            {
+                "name": "C1",
+                "requireOrigin": "nl.sitestat.com"
+            },
+            "UIDR",
+            {
+                "name": "UID",
+                "requireOrigin": "scorecardresearch.com"
+            },
+            {
+                "name": "PID",
+                "requireOrigin": "scorecardresearch.com"
+            },
+            {
+                "name": "XID",
+                "requireOrigin": "scorecardresearch.com"
+            }
+        ],
+        "origins": [
+            "nl.sitestat.com",
+            "scorecardresearch.com"
+        ]
+    }
+}

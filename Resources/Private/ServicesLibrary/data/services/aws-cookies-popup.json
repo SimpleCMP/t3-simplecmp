@@ -1,0 +1,14 @@
+{
+    "id": "aws-cookies-popup",
+    "name": "AWS Cookies Popup",
+    "vendor": "AddWeb Solution",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.addwebsolution.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "aw_popup_viewed_page"
+        ]
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "id": "qualtrics",
+    "name": "Qualtrics",
+    "vendor": "Qualtrics",
+    "purposes": [
+        "analytics",
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.qualtrics.com/privacy-statement/",
+    "matches": {
+        "cookies": [
+            "QSI_HistorySession",
+            "QSI_OptInIDsAndWindowNames",
+            "QSI_OptInIDsAndTargetOrigins",
+            "SiteReferrer",
+            "PageReferrer",
+            "SearchTerm",
+            "FocusTime",
+            "BlurTime",
+            "ActionSetHistory",
+            "SISessID",
+            "CPSessID",
+            "/^QSI_ReplaySession_Info_/",
+            "/^QSI_TestSessions_/",
+            "/^QSI_SI_/",
+            "/^QSI_S_/",
+            {
+                "name": "QST",
+                "requireOrigin": "qualtrics.com"
+            },
+            "/^QSIPopUnder_PopUnderTarget_SI_/",
+            "QSI_CT",
+            "QSI_DATA",
+            "/^QSI_ReplaySession_Throttled_/",
+            "/^QSI_ReplaySession_SampledOut_/",
+            "Site History"
+        ],
+        "origins": [
+            "*.qualtrics.com"
+        ]
+    }
+}

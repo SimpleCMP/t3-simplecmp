@@ -1,0 +1,28 @@
+{
+    "id": "tiktok",
+    "name": "TikTok",
+    "vendor": "TikTok",
+    "vendorCountry": "IE",
+    "vendorAddress": "TikTok Technology Limited, 10 Earlsfort Terrace, Dublin 2, D02 T380, Ireland",
+    "vendorOptOutUrl": "https://www.tiktok.com/safety/privacy-and-security",
+    "vendorPartner": "ByteDance Ltd. (Cayman Islands) and TikTok Inc. (USA) as parent group. Not DPF-listed; international transfers under Standard Contractual Clauses (Art. 46 GDPR).",
+    "vendorDescription": "TikTok Technology Limited is the EU establishment for TikTok services in Europe. It is the EU controller and processes personal data of European users, forwarding to TikTok Inc. in the USA and ByteDance group entities under Standard Contractual Clauses.",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.tiktok.com/legal/page/eea/privacy-policy/en?lang=en",
+    "matches": {
+        "cookies": [
+            "_tt_enable_cookie",
+            "_ttp",
+            "MONITOR_WEB_ID",
+            "msToken",
+            "ttwid",
+            "/^ttcsid/"
+        ],
+        "origins": [
+            "mon-va.byteoversea.com",
+            "tiktok.com"
+        ]
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "id": "xandr",
+    "name": "Xandr",
+    "vendor": "Xandr",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://about.ads.microsoft.com/en-us/solutions/xandr/platform-privacy-policy",
+    "matches": {
+        "cookies": [
+            {
+                "name": "anj",
+                "requireOrigin": "adnxs.com"
+            },
+            "uuid2",
+            "usersync",
+            {
+                "name": "icu",
+                "requireOrigin": "adnxs.com"
+            },
+            "pses",
+            "token",
+            "uids",
+            "sess",
+            "XANDR_PANID"
+        ],
+        "origins": [
+            "*.adnxs.com"
+        ]
+    }
+}

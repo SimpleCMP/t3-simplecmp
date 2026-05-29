@@ -1,0 +1,43 @@
+{
+    "id": "tailtarget",
+    "name": "Tailtarget",
+    "vendor": "Totvs",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.totvs.com/protecao-e-privacidade-de-dados/",
+    "matches": {
+        "cookies": [
+            "ttbprf",
+            {
+                "name": "ttc",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            "ttnprf",
+            {
+                "name": "n",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            {
+                "name": "u",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            {
+                "name": "trk",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            "ttca",
+            "/^tp/",
+            {
+                "name": "dc",
+                "requireOrigin": "t.tailtarget.com"
+            },
+            "ttgcm",
+            "_ssc"
+        ],
+        "origins": [
+            "t.tailtarget.com"
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "id": "f5-big-ip",
+    "name": "f5 BIG-IP",
+    "vendor": "f5",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "/^BIGipServer/"
+        ]
+    }
+}

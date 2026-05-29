@@ -1,0 +1,17 @@
+{
+    "id": "partnerize",
+    "name": "Partnerize",
+    "vendor": "Partnerize",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://partnerize.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "tPHG-PS"
+        ],
+        "origins": [
+            "*.prf.hn"
+        ]
+    }
+}

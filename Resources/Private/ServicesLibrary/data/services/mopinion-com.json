@@ -1,0 +1,15 @@
+{
+    "id": "mopinion-com",
+    "name": "Mopinion.com",
+    "vendor": "Mopinion.com",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://mopinion.com/legal/policies/privacy-statements/",
+    "matches": {
+        "cookies": [
+            "/^Pastease\\.passive\\.activated/",
+            "/^Pastease\\.passive\\.chance/"
+        ]
+    }
+}

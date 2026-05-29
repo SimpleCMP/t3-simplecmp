@@ -1,0 +1,13 @@
+{
+    "id": "nginx-ingresss",
+    "name": "NGINX Ingresss",
+    "vendor": "NGINX",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "INGRESSCOOKIE"
+        ]
+    }
+}

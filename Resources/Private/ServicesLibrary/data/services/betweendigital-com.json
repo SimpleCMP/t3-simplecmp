@@ -1,0 +1,22 @@
+{
+    "id": "betweendigital-com",
+    "name": "betweendigital.com",
+    "vendor": "betweendigital.com",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "betweendigital.com",
+            {
+                "name": "ss",
+                "requireOrigin": "betweendigital.com"
+            }
+        ],
+        "origins": [
+            "ut",
+            "betweendigital.com"
+        ]
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "id": "sooqr",
+    "name": "Sooqr",
+    "vendor": "Sooqr",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.sooqr.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "__sqra",
+            "__sqrb",
+            "__sqrc"
+        ]
+    }
+}

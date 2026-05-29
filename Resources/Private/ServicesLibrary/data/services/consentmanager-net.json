@@ -1,0 +1,25 @@
+{
+    "id": "consentmanager-net",
+    "name": "Consentmanager.net",
+    "vendor": "Consentmanager.net",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.consentmanager.net/datenschutz/",
+    "matches": {
+        "cookies": [
+            "/^__cmpconsent/",
+            "/^__cmpiab/",
+            "/^__cmpcvc/",
+            "/^__cmpcpc/",
+            "/^__cmpccc/",
+            "/^__cmpwel/",
+            "__cmpiuid",
+            "__cmpccx",
+            "__cmpcc",
+            "__cmpfcc",
+            "__cmpld",
+            "/^__cmpccpausps/"
+        ]
+    }
+}

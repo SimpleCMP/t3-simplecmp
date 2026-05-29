@@ -1,0 +1,17 @@
+{
+    "id": "beslist-nl",
+    "name": "Beslist.nl",
+    "vendor": "Beslist.nl",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.beslist.nl/information/overprivacy.html",
+    "matches": {
+        "cookies": [
+            "client_bslstaid",
+            "client_bslstmatch",
+            "client_bslstsid",
+            "client_bslstuid"
+        ]
+    }
+}

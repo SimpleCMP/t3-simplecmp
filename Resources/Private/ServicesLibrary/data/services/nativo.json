@@ -1,0 +1,18 @@
+{
+    "id": "nativo",
+    "name": "Nativo",
+    "vendor": "Nativo",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.nativo.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "opt_out",
+            "visitor"
+        ],
+        "origins": [
+            "*.postrelease.com"
+        ]
+    }
+}

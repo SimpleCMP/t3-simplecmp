@@ -1,0 +1,16 @@
+{
+    "id": "streamtheworld",
+    "name": "StreamTheWorld",
+    "vendor": "StreamTheWorld",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "idsync-bsw-uid-s"
+        ],
+        "origins": [
+            "live.streamtheworld.com"
+        ]
+    }
+}

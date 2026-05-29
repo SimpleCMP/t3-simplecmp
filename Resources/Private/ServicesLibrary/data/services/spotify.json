@@ -1,0 +1,24 @@
+{
+    "id": "spotify",
+    "name": "Spotify",
+    "vendor": "Spotify",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.spotify.com/us/privacy/",
+    "matches": {
+        "cookies": [
+            "sp_t",
+            "sp_landing"
+        ],
+        "origins": [
+            "*.spotify.com"
+        ]
+    },
+    "placeholderDescription": "This Spotify player will set tracking cookies from Spotify when loaded.",
+    "i18n": {
+        "placeholderDescription": {
+            "de": "Dieser Spotify-Player setzt Tracking-Cookies von Spotify, sobald er geladen wird."
+        }
+    }
+}

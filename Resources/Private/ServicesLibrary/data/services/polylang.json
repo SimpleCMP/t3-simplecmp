@@ -1,0 +1,14 @@
+{
+    "id": "polylang",
+    "name": "Polylang",
+    "vendor": "Polylang",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://polylang.pro/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "pll_language"
+        ]
+    }
+}

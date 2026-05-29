@@ -1,0 +1,14 @@
+{
+    "id": "prebid",
+    "name": "Prebid",
+    "vendor": "Prebid",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://prebidprd.wpengine.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "_pbjs_userid_consent_data"
+        ]
+    }
+}

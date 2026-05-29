@@ -1,0 +1,14 @@
+{
+    "id": "asp-net",
+    "name": "ASP.net",
+    "vendor": "Microsoft",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://account.microsoft.com/privacy",
+    "matches": {
+        "cookies": [
+            "ASP.NET_SessionId"
+        ]
+    }
+}

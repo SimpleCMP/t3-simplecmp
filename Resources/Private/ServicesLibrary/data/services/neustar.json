@@ -1,0 +1,20 @@
+{
+    "id": "neustar",
+    "name": "Neustar",
+    "vendor": "Neustar",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.home.neustar/privacy",
+    "matches": {
+        "cookies": [
+            {
+                "name": "ab",
+                "requireOrigin": "agkn.com"
+            }
+        ],
+        "origins": [
+            "*.agkn.com"
+        ]
+    }
+}

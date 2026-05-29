@@ -1,0 +1,39 @@
+{
+    "id": "adobe-advertising",
+    "name": "Adobe Advertising",
+    "vendor": "Adobe",
+    "vendorCountry": "IE",
+    "vendorAddress": "Adobe Systems Software Ireland Limited, 4-6 Riverwalk, Citywest Business Campus, Dublin 24, D24 PVF8, Ireland",
+    "vendorOptOutUrl": "https://www.adobe.com/privacy/opt-out.html",
+    "vendorPartner": "Adobe Inc. (USA) as parent company. Data transferred to the USA under the EU-US Data Privacy Framework adequacy decision (Art. 45 GDPR).",
+    "vendorDescription": "Adobe Systems Software Ireland Limited is the EU establishment of Adobe Inc. It is the EU controller for Adobe products and processes personal data of European users, forwarding to Adobe Inc. in the USA where required.",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.adobe.com/privacy.html",
+    "matches": {
+        "cookies": [
+            "everest_g_v2",
+            "everest_session_v2",
+            "ev_tm",
+            "_tmae",
+            "_lcc",
+            "ev_sync_ax",
+            "ev_sync_bk",
+            "ev_sync_dd",
+            "ev_sync_fs",
+            "ev_sync_ix",
+            "ev_sync_nx",
+            "ev_sync_ox",
+            "ev_sync_pm",
+            "ev_sync_rc",
+            "ev_sync_tm",
+            "ev_sync_yh",
+            "adcloud",
+            "id_adcloud"
+        ],
+        "origins": [
+            "*.everesttech.net"
+        ]
+    }
+}

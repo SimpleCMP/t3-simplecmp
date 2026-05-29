@@ -1,0 +1,16 @@
+{
+    "id": "termly",
+    "name": "Termly",
+    "vendor": "Termly",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://termly.io/our-privacy-policy/",
+    "matches": {
+        "cookies": [
+            "__tlbcpv",
+            "/^__tltpl_/",
+            "__tluid"
+        ]
+    }
+}

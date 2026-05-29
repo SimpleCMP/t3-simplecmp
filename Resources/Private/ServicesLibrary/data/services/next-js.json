@@ -1,0 +1,14 @@
+{
+    "id": "next-js",
+    "name": "Next.js",
+    "vendor": "Vercel",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://nextjs.org/docs",
+    "matches": {
+        "cookies": [
+            "/^__next_/"
+        ]
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "id": "ezoic",
+    "name": "Ezoic",
+    "vendor": "Ezoic",
+    "purposes": [
+        "analytics",
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.ezoic.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "/^active_template\\:\\:/",
+            "ezds",
+            "/^ezoab_/",
+            "/^ezoadgid_/",
+            "ezohw",
+            "/^ezopvc_/",
+            "/^ezoref_/",
+            "/^ezostid_/",
+            "/^ezosuigeneris/",
+            "ezosuibasgeneris-1",
+            "/^ezouid_/",
+            "/^ezovid_/",
+            "/^ezovuuid_/",
+            "/^ezovuuidtime_/",
+            "/^ezux_et_/",
+            "/^ezux_ifep_/",
+            "/^ezux_lpl_/",
+            "/^ezux_tos_/",
+            "/^ezoawesome_/"
+        ]
+    }
+}

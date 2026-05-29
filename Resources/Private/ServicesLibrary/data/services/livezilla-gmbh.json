@@ -1,0 +1,15 @@
+{
+    "id": "livezilla-gmbh",
+    "name": "LiveZilla GmbH",
+    "vendor": "LiveZilla GmbH",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "lz_last_visit",
+            "lz_userid",
+            "lz_visits"
+        ]
+    }
+}

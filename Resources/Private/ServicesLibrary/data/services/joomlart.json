@@ -1,0 +1,14 @@
+{
+    "id": "joomlart",
+    "name": "JoomlArt",
+    "vendor": "JoomlArt",
+    "purposes": [
+        "functional"
+    ],
+    "matches": {
+        "cookies": [
+            "ja_purity_tpl",
+            "ja_purity_ii_tpl"
+        ]
+    }
+}

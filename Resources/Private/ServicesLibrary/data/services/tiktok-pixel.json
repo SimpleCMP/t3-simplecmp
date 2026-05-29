@@ -1,0 +1,32 @@
+{
+    "id": "tiktok-pixel",
+    "name": "TikTok Pixel",
+    "vendor": "TikTok",
+    "vendorCountry": "IE",
+    "vendorAddress": "TikTok Technology Limited, 10 Earlsfort Terrace, Dublin 2, D02 T380, Ireland",
+    "vendorOptOutUrl": "https://www.tiktok.com/safety/privacy-and-security",
+    "vendorPartner": "ByteDance Ltd. (Cayman Islands) and TikTok Inc. (USA) as parent group. Not DPF-listed; international transfers under Standard Contractual Clauses (Art. 46 GDPR).",
+    "vendorDescription": "TikTok Technology Limited is the EU establishment for TikTok services in Europe. It is the EU controller and processes personal data of European users, forwarding to TikTok Inc. in the USA and ByteDance group entities under Standard Contractual Clauses.",
+    "purposes": [
+        "marketing",
+        "advertising",
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.tiktok.com/legal/page/eea/privacy-policy/en",
+    "description": "Conversion tracking and audience retargeting for TikTok Ads. Identifies visitors across sessions and links activity to TikTok user accounts.",
+    "matches": {
+        "cookies": [
+            "/^_ttp/",
+            "/^_tt_/"
+        ],
+        "origins": [
+            "analytics.tiktok.com",
+            "*.tiktok.com"
+        ],
+        "aliasOrigins": [
+            "*.tiktokv.com",
+            "*.tiktokcdn.com",
+            "*.byteoversea.com"
+        ]
+    }
+}

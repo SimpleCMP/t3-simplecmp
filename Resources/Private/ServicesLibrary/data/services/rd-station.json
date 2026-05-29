@@ -1,0 +1,29 @@
+{
+    "id": "rd-station",
+    "name": "RD Station",
+    "vendor": "RD Station",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://legal.rdstation.com/pt/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "rdtrk",
+            "_rdtrk",
+            "_rd_experiment_version",
+            "_form_fields",
+            "_rdlps_pp",
+            "/^_rd_wa_first_session/",
+            "/^_sp_wa_first_session/",
+            "/^_rd_wa_id/",
+            "/^_sp_wa_id/",
+            "/^_rd_wa_ses_id/",
+            "/^_sp_wa_ses_id/",
+            "_sp_root_domain_test_"
+        ],
+        "origins": [
+            "rdstation.com.br"
+        ]
+    }
+}

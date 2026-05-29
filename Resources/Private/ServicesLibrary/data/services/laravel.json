@@ -1,0 +1,14 @@
+{
+    "id": "laravel",
+    "name": "Laravel",
+    "vendor": "Laravel",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.laravel.com",
+    "matches": {
+        "cookies": [
+            "laravel_session"
+        ]
+    }
+}

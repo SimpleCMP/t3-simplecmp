@@ -1,0 +1,16 @@
+{
+    "id": "rekmob-com",
+    "name": "rekmob.com",
+    "vendor": "rekmob.com",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "rek_content"
+        ],
+        "origins": [
+            "*.rekmob.com"
+        ]
+    }
+}

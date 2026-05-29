@@ -1,0 +1,18 @@
+{
+  "id": "mixpanel",
+  "name": "Mixpanel",
+  "vendor": "Mixpanel, Inc.",
+  "vendorCountry": "US",
+  "purposes": ["analytics"],
+  "privacyPolicyUrl": "https://mixpanel.com/legal/privacy-policy/",
+  "description": "Product analytics for user behaviour and funnel tracking. Identifies users across sessions via a `mp_*` cookie family and persistent storage.",
+  "i18n": {
+    "description": {
+      "de": "Produktanalyse für Nutzerverhalten und Funnel-Tracking. Identifiziert Nutzer sitzungsübergreifend über eine `mp_*`-Cookie-Familie und persistenten Speicher."
+    }
+  },
+  "matches": {
+    "cookies": ["/^mp_/"],
+    "origins": ["api.mixpanel.com", "cdn.mxpnl.com", "api-eu.mixpanel.com"]
+  }
+}

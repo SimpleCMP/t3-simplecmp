@@ -1,0 +1,14 @@
+{
+    "id": "yithemes-com",
+    "name": "Yithemes.com",
+    "vendor": "Yithemes.com",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://yithemes.com/",
+    "matches": {
+        "cookies": [
+            "yith_wcwl_session_"
+        ]
+    }
+}

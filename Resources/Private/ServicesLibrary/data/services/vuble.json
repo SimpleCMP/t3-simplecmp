@@ -1,0 +1,20 @@
+{
+    "id": "vuble",
+    "name": "Vuble",
+    "vendor": "Vuble",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.vuble.tv/privacy",
+    "matches": {
+        "cookies": [
+            {
+                "name": "_mb",
+                "requireOrigin": "vuble.tv"
+            }
+        ],
+        "origins": [
+            "*.vuble.tv"
+        ]
+    }
+}

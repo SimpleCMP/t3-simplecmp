@@ -1,0 +1,14 @@
+{
+    "id": "adyen",
+    "name": "Adyen",
+    "vendor": "Adyen",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.adyen.com/privacy-policy",
+    "matches": {
+        "cookies": [
+            "_rp_uid"
+        ]
+    }
+}

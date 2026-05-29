@@ -1,0 +1,16 @@
+{
+    "id": "craftcms",
+    "name": "CraftCMS",
+    "vendor": "CraftCMS",
+    "purposes": [
+        "functional",
+        "security"
+    ],
+    "privacyPolicyUrl": "https://craftcms.com/privacy",
+    "matches": {
+        "cookies": [
+            "CRAFT_CSRF_TOKEN",
+            "CraftSessionId"
+        ]
+    }
+}

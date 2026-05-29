@@ -1,0 +1,18 @@
+{
+    "id": "cognitoforms",
+    "name": "CognitoForms",
+    "vendor": "CognitoForms",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.cognitoforms.com/legal/privacy",
+    "matches": {
+        "cookies": [
+            "c-referrer",
+            "c-signup",
+            "c-plan",
+            "cognito.services.a",
+            "cognito.organization"
+        ]
+    }
+}

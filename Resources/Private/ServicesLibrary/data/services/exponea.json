@@ -1,0 +1,15 @@
+{
+    "id": "exponea",
+    "name": "Exponea",
+    "vendor": "Exponea",
+    "purposes": [
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://exponea.com/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "__exponea_etc__",
+            "__exponea_time2__"
+        ]
+    }
+}

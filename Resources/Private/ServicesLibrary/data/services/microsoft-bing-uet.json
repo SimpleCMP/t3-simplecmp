@@ -1,0 +1,14 @@
+{
+  "id": "microsoft-bing-uet",
+  "name": "Microsoft Bing UET",
+  "vendor": "Microsoft Corporation",
+  "vendorCountry": "US",
+  "purposes": ["marketing", "advertising", "analytics"],
+  "privacyPolicyUrl": "https://privacy.microsoft.com/privacystatement",
+  "description": "Universal Event Tracking for Microsoft Advertising (Bing Ads). Tracks conversions and supports audience retargeting.",
+  "matches": {
+    "cookies": ["MUID", "_uetsid", "_uetvid", "/^_uet/"],
+    "origins": ["bat.bing.com", "*.bing.com", "*.bing.net"],
+    "aliasOrigins": ["*.clarity.ms"]
+  }
+}

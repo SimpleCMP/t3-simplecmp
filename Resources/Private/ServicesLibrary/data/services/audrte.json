@@ -1,0 +1,18 @@
+{
+    "id": "audrte",
+    "name": "Audrte",
+    "vendor": "Audrte",
+    "purposes": [
+        "marketing"
+    ],
+    "matches": {
+        "cookies": [
+            "/^arcki2/",
+            "arcki2_adform",
+            "arcki2_ddp"
+        ],
+        "origins": [
+            "*.audrte.com"
+        ]
+    }
+}

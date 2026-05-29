@@ -1,0 +1,26 @@
+{
+    "id": "funda",
+    "name": "Funda",
+    "vendor": "Funda",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.funda.nl/privacybeleid/consument/",
+    "matches": {
+        "cookies": [
+            "DG_HID",
+            "DG_IID",
+            "DG_SID",
+            "DG_UID",
+            "DG_ZID",
+            "DG_ZUID",
+            "fonts-loaded",
+            "html-classes",
+            "SNLB2"
+        ],
+        "origins": [
+            "*.funda.nl"
+        ]
+    }
+}

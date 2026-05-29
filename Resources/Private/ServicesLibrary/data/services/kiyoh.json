@@ -1,0 +1,17 @@
+{
+    "id": "kiyoh",
+    "name": "Kiyoh",
+    "vendor": "Kiyoh",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://www.kiyoh.nl/disclaimer.html",
+    "matches": {
+        "cookies": [
+            "Kiyohnl"
+        ],
+        "origins": [
+            "*.kiyoh.nl"
+        ]
+    }
+}

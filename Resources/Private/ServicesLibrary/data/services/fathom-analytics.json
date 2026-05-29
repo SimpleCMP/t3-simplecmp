@@ -1,0 +1,14 @@
+{
+    "id": "fathom-analytics",
+    "name": "Fathom Analytics",
+    "vendor": "Conva Ventures Inc",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://usefathom.com/privacy",
+    "matches": {
+        "cookies": [
+            "/^_fathom/"
+        ]
+    }
+}

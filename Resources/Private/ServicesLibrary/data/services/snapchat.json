@@ -1,0 +1,23 @@
+{
+    "id": "snapchat",
+    "name": "Snapchat",
+    "vendor": "Snapchat",
+    "purposes": [
+        "functional",
+        "marketing"
+    ],
+    "privacyPolicyUrl": "https://www.snap.com/en-US/privacy/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "sc_at",
+            "sc-a-nonce",
+            "_scid",
+            "_schn",
+            "X-AB",
+            "_scid_r"
+        ],
+        "origins": [
+            "*.snapchat.com"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "siteimprove",
+    "name": "Siteimprove",
+    "vendor": "Siteimprove",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://siteimprove.com/en/privacy/",
+    "matches": {
+        "cookies": [
+            "nmstat"
+        ]
+    }
+}

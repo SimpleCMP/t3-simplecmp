@@ -1,0 +1,14 @@
+{
+    "id": "hu-manity-co",
+    "name": "Hu-manity.co",
+    "vendor": "Hu-manity.co",
+    "purposes": [
+        "functional"
+    ],
+    "privacyPolicyUrl": "https://hu-manity.co/privacy-policy/",
+    "matches": {
+        "cookies": [
+            "hu-consent"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "id": "algolia",
+    "name": "Algolia",
+    "vendor": "Algolia",
+    "purposes": [
+        "analytics"
+    ],
+    "privacyPolicyUrl": "https://www.algolia.com/policies/privacy/",
+    "matches": {
+        "cookies": [
+            "_ALGOLIA"
+        ]
+    }
+}
