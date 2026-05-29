@@ -66,7 +66,7 @@
       <trans-unit id="library.badge.available"><source>Available</source><target>Verfügbar</target></trans-unit>
       <trans-unit id="library.badge.adopted"><source>Adopted</source><target>Übernommen</target></trans-unit>
       <trans-unit id="library.action.adopt"><source>Adopt</source><target>Übernehmen</target></trans-unit>
-      <trans-unit id="library.action.unadopt"><source>Remove from registry</source><target>Aus Registry entfernen</target></trans-unit>
+      <trans-unit id="library.action.unadopt"><source>Remove</source><target>Entfernen</target></trans-unit>
       <trans-unit id="library.action.edit"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
       <trans-unit id="library.empty"><source>The bundled services library appears empty — check that simplecmp/services-library is installed via composer.</source><target>Die gebündelte Dienste-Bibliothek scheint leer zu sein — bitte simplecmp/services-library über composer prüfen.</target></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source><target>Kein Bibliothekseintrag entspricht den aktiven Filtern.</target></trans-unit>

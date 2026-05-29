@@ -66,7 +66,7 @@
       <trans-unit id="library.badge.available"><source>Available</source></trans-unit>
       <trans-unit id="library.badge.adopted"><source>Adopted</source></trans-unit>
       <trans-unit id="library.action.adopt"><source>Adopt</source></trans-unit>
-      <trans-unit id="library.action.unadopt"><source>Remove from registry</source></trans-unit>
+      <trans-unit id="library.action.unadopt"><source>Remove</source></trans-unit>
       <trans-unit id="library.action.edit"><source>Edit service</source></trans-unit>
       <trans-unit id="library.empty"><source>The bundled services library appears empty — check that simplecmp/services-library is installed via composer.</source></trans-unit>
       <trans-unit id="library.empty.filtered.title"><source>No library entries match the active filters.</source></trans-unit>
