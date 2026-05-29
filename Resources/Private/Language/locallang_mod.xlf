@@ -96,7 +96,7 @@
       <trans-unit id="upstream.refresh.tooltip"><source>Re-fetch the upstream library health snapshot.</source></trans-unit>
       <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source></trans-unit>
       <trans-unit id="upstream.section.runtime"><source>Runtime lookups</source></trans-unit>
-      <trans-unit id="upstream.section.runtime.hint"><source>Counts the runtime classifier's queries to the upstream registry — independent of this panel's freshness probe.</source></trans-unit>
+      <trans-unit id="upstream.section.runtime.hint"><source>Counts the runtime classifier's queries to the upstream registry — independent of this panel's freshness probe. Stays at 0 when the bundled library is in sync with upstream: in that state, upstream calls are skipped because the bundled tier already saw the same data.</source></trans-unit>
       <trans-unit id="info.button.title"><source>Show service details</source></trans-unit>
       <trans-unit id="info.modal.title"><source>Service details</source></trans-unit>
       <trans-unit id="info.modal.close"><source>Close</source></trans-unit>
@@ -262,6 +262,7 @@
       <trans-unit id="list.reclassify.tooltip"><source>Look up every currently-unknown cookie / host in the upstream library and store the matches in the local cache. Unknown rows that match upstream will surface as Erkannt on the next list render.</source></trans-unit>
       <trans-unit id="list.reclassify.flash.disabled"><source>Re-classify needs a Site Set with libraryUpstreamUrl configured. None found.</source></trans-unit>
       <trans-unit id="list.reclassify.flash.summary"><source>Re-classify finished: {matched} new match(es), {unmatched} confirmed unknown, {skipped} skipped (daily budget), {total} candidates total.</source></trans-unit>
+      <trans-unit id="list.reclassify.flash.bundleInSync"><source>Bundled library is in sync with the upstream — no new matches possible. Run `composer update simplecmp/services-library` to pull a newer bundle.</source></trans-unit>
       <trans-unit id="discover.title"><source>Discover trackers across this site</source></trans-unit>
       <trans-unit id="discover.intro"><source>Walks the site's sitemap inside your browser. Each page loads in a hidden frame; the detection chain records cookies and external services as it would for any visitor. You can leave this tab running and come back when it's done.</source></trans-unit>
       <trans-unit id="discover.site"><source>Site</source></trans-unit>

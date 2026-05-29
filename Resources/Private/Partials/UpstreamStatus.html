@@ -100,9 +100,17 @@
 
                 </div>
                 <div class="col-md-6">
-            <div class="text-body-secondary text-uppercase fw-semibold small mb-1" style="letter-spacing: 0.04em;"
-                 title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}">
+            <div class="text-body-secondary text-uppercase fw-semibold small mb-1 d-flex align-items-center gap-1" style="letter-spacing: 0.04em;">
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime" />
+                <button type="button"
+                        class="btn btn-link p-0 m-0 lh-1 border-0 text-body-secondary"
+                        style="cursor: help;"
+                        tabindex="-1"
+                        onclick="return false;"
+                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}"
+                        aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}">
+                    <core:icon identifier="actions-info-circle" size="small" />
+                </button>
             </div>
             <div class="d-flex flex-column gap-1 small">
                 <f:if condition="{upstreamStatus.enabled}">

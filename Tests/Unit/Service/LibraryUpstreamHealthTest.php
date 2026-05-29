@@ -208,6 +208,82 @@ final class LibraryUpstreamHealthTest extends TestCase
     }
 
     #[Test]
+    public function cachedInSyncReturnsTrueWhenCachedSnapshotMatchesBundle(): void
+    {
+        $bundleHash = str_repeat('a', 64);
+        $this->fakeCache->set('h_' . sha1('https://lib.example/v1'), [
+            'bundleDataHash' => $bundleHash,
+            'serviceCount' => 368,
+            'sourceSha' => str_repeat('b', 40),
+            'dataHash' => $bundleHash,
+            'lastSyncAt' => 1717920000,
+            'fetchedAt' => 1717920000,
+        ]);
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertTrue($health->cachedInSync('https://lib.example/v1', $bundleHash));
+    }
+
+    #[Test]
+    public function cachedInSyncReturnsFalseOnEmptyUrl(): void
+    {
+        $this->requestFactory->expects(self::never())->method('request');
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertFalse($health->cachedInSync(null, 'a'));
+        self::assertFalse($health->cachedInSync('', 'a'));
+    }
+
+    #[Test]
+    public function cachedInSyncReturnsFalseWhenCacheCold(): void
+    {
+        $this->requestFactory->expects(self::never())->method('request');
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertFalse($health->cachedInSync('https://lib.example/v1', str_repeat('a', 64)));
+    }
+
+    #[Test]
+    public function cachedInSyncReturnsFalseWhenBundleHashShifted(): void
+    {
+        // Cache was written against bundle hash A; we now ask with bundle hash B.
+        // Must NOT fire — bundle just changed; we have no proof the new bundle
+        // matches upstream.
+        $this->fakeCache->set('h_' . sha1('https://lib.example/v1'), [
+            'bundleDataHash' => str_repeat('a', 64),
+            'serviceCount' => 368,
+            'sourceSha' => str_repeat('b', 40),
+            'dataHash' => str_repeat('a', 64),
+            'lastSyncAt' => 1717920000,
+            'fetchedAt' => 1717920000,
+        ]);
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertFalse($health->cachedInSync('https://lib.example/v1', str_repeat('b', 64)));
+    }
+
+    #[Test]
+    public function cachedInSyncReturnsFalseWhenUpstreamDataHashIsNull(): void
+    {
+        // Legacy upstream (pre-d92ed61) omits the dataHash field.
+        // The snapshot is cached with dataHash=null. We can't prove sync,
+        // so the gate must not fire.
+        $bundleHash = str_repeat('a', 64);
+        $this->fakeCache->set('h_' . sha1('https://lib.example/v1'), [
+            'bundleDataHash' => $bundleHash,
+            'serviceCount' => 368,
+            'sourceSha' => str_repeat('b', 40),
+            'dataHash' => null,
+            'lastSyncAt' => 1717920000,
+            'fetchedAt' => 1717920000,
+        ]);
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertFalse($health->cachedInSync('https://lib.example/v1', $bundleHash));
+    }
+
+    #[Test]
     public function flushDropsCachedSnapshot(): void
     {
         $bundleHash = str_repeat('a', 64);

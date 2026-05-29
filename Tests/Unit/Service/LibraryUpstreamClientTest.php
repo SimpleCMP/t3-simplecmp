@@ -10,8 +10,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
+use SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamClient;
+use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
@@ -25,6 +28,12 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  *   - malformed JSON → returns [], success stat (server responded)
  *   - upstream returns no match → returns [] (cached as negative)
  *   - daily budget reached → returns null (tier-skip), no HTTP, no cache write
+ *   - bundle in sync with upstream → returns null (tier-skip), no HTTP, no
+ *     cache write, no stats — the optimization that skips the call when
+ *     bundle/upstream dataHash matches (provably wasted work)
+ *   - sync gate disabled via ext-config → upstream call proceeds even when
+ *     in-sync (debug knob)
+ *   - cold health cache → sync gate degrades to today's behavior
  *
  * Caching identity is tested by exercising hit + miss paths and
  * verifying HTTP call counts.
@@ -34,12 +43,39 @@ final class LibraryUpstreamClientTest extends TestCase
     private RequestFactory&MockObject $requestFactory;
     private LibraryCacheRepository&MockObject $cache;
     private LibraryUpstreamStats&MockObject $stats;
+    private BundledLibraryInfo&MockObject $bundle;
+    private LibraryUpstreamHealth&MockObject $health;
+    private ExtensionConfiguration&MockObject $extConfig;
 
     protected function setUp(): void
     {
         $this->requestFactory = $this->createMock(RequestFactory::class);
         $this->cache = $this->createMock(LibraryCacheRepository::class);
         $this->stats = $this->createMock(LibraryUpstreamStats::class);
+        $this->bundle = $this->createMock(BundledLibraryInfo::class);
+        $this->health = $this->createMock(LibraryUpstreamHealth::class);
+        $this->extConfig = $this->createMock(ExtensionConfiguration::class);
+
+        // Defaults: bundle reports a fixed hash; health says not-in-sync;
+        // ext-config has the skip-when-in-sync flag ON. Existing tests
+        // exercise the upstream call path so cachedInSync MUST return
+        // false by default — otherwise the gate would short-circuit every
+        // test before it reaches the network mock.
+        $this->bundle->method('dataHash')->willReturn(str_repeat('a', 64));
+        $this->health->method('cachedInSync')->willReturn(false);
+        $this->extConfig->method('get')->willReturn(['libraryUpstreamSkipWhenInSync' => true]);
+    }
+
+    private function buildClient(): LibraryUpstreamClient
+    {
+        return new LibraryUpstreamClient(
+            $this->requestFactory,
+            $this->cache,
+            $this->stats,
+            $this->bundle,
+            $this->health,
+            $this->extConfig,
+        );
     }
 
     #[Test]
@@ -49,7 +85,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->cache->expects(self::never())->method('get');
         $this->stats->expects(self::never())->method('recordCall');
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         self::assertNull($client->lookup(null, '_ga', null));
         self::assertNull($client->lookup('', '_ga', null));
@@ -68,7 +104,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::never())->method('recordCall');
         $this->stats->expects(self::never())->method('getTodayCalls');
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         $result = $client->lookup('https://lib.example/v1', '_ga', null);
         self::assertSame($cached, $result);
@@ -89,7 +125,7 @@ final class LibraryUpstreamClientTest extends TestCase
             ->with('https://lib.example/v1/lookup', 'POST', self::isType('array'))
             ->willReturn($this->httpResponse(200, (string) $body));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         $result = $client->lookup('https://lib.example/v1', '_ga', null);
         self::assertSame([$match], $result);
@@ -106,7 +142,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::once())->method('recordCall')->with(true, self::isType('int'));
         $this->requestFactory->method('request')->willReturn($this->httpResponse(200, (string) $body));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         $result = $client->lookup('https://lib.example/v1', '_unknown', null);
         self::assertSame([], $result);
@@ -123,7 +159,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->requestFactory->method('request')
             ->willThrowException(new \RuntimeException('boom'));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         $result = $client->lookup('https://lib.example/v1', '_ga', null);
         self::assertSame([], $result);
@@ -137,7 +173,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::once())->method('recordCall')->with(false, self::isType('int'));
         $this->requestFactory->method('request')->willReturn($this->httpResponse(503, ''));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         self::assertSame([], $client->lookup('https://lib.example/v1', '_ga', null));
     }
@@ -152,7 +188,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::once())->method('recordCall')->with(true, self::isType('int'));
         $this->requestFactory->method('request')->willReturn($this->httpResponse(200, 'not json'));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         self::assertSame([], $client->lookup('https://lib.example/v1', '_ga', null));
     }
@@ -166,7 +202,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::never())->method('recordCall');
         $this->requestFactory->expects(self::never())->method('request');
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         // Budget = 50, today's count = 50 → skip (returns null).
         self::assertNull($client->lookup('https://lib.example/v1', '_ga', null, 50));
@@ -184,7 +220,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->requestFactory->expects(self::once())->method('request')
             ->willReturn($this->httpResponse(200, (string) $body));
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         self::assertSame([$match], $client->lookup('https://lib.example/v1', '_ga', null, 0));
     }
@@ -206,7 +242,7 @@ final class LibraryUpstreamClientTest extends TestCase
         $this->stats->expects(self::never())->method('recordCall');
         $this->requestFactory->expects(self::never())->method('request');
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
 
         self::assertSame($cached, $client->lookup('https://lib.example/v1', '_ga', null, 1));
     }
@@ -230,8 +266,79 @@ final class LibraryUpstreamClientTest extends TestCase
                 return $this->httpResponse(200, '{"items":[{"query":{"origin":"doubleclick.net"},"matches":[]}]}');
             });
 
-        $client = new LibraryUpstreamClient($this->requestFactory, $this->cache, $this->stats);
+        $client = $this->buildClient();
         $client->lookup('https://lib.example/v1', null, 'doubleclick.net');
+    }
+
+    // -- new tests for the in-sync skip-gate -------------------------------
+
+    #[Test]
+    public function syncGateSkipsUpstreamWhenBundleInSync(): void
+    {
+        // Override the default "not in sync" return so the gate fires.
+        $this->health = $this->createMock(LibraryUpstreamHealth::class);
+        $this->health->expects(self::once())
+            ->method('cachedInSync')
+            ->with('https://lib.example/v1', str_repeat('a', 64))
+            ->willReturn(true);
+
+        // Cache miss to bypass the cache short-circuit and reach the gate.
+        $this->cache->method('get')->willReturn(null);
+        $this->cache->expects(self::never())->method('put');
+
+        // The gate fires BEFORE the budget check, so stats must not be touched.
+        $this->stats->expects(self::never())->method('getTodayCalls');
+        $this->stats->expects(self::never())->method('recordCall');
+
+        // No network call.
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $client = $this->buildClient();
+        self::assertNull($client->lookup('https://lib.example/v1', '_ga', null));
+    }
+
+    #[Test]
+    public function syncGateIsSkippedWhenExtConfigDisablesIt(): void
+    {
+        // Even if bundle IS in sync, the admin's ext-config OFF must force
+        // upstream calls (debug path).
+        $this->health = $this->createMock(LibraryUpstreamHealth::class);
+        $this->health->expects(self::never())->method('cachedInSync');
+
+        $this->extConfig = $this->createMock(ExtensionConfiguration::class);
+        $this->extConfig->method('get')->willReturn(['libraryUpstreamSkipWhenInSync' => false]);
+
+        $body = json_encode(['items' => [['matches' => []]]]);
+        $this->cache->method('get')->willReturn(null);
+        $this->cache->expects(self::once())->method('put');
+        $this->stats->expects(self::once())->method('recordCall')->with(true, self::isType('int'));
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willReturn($this->httpResponse(200, (string) $body));
+
+        $client = $this->buildClient();
+        self::assertSame([], $client->lookup('https://lib.example/v1', '_ga', null));
+    }
+
+    #[Test]
+    public function syncGateFallsThroughOnColdHealthCache(): void
+    {
+        // cachedInSync returns false when the health cache is cold (fresh
+        // deploy, BE Bibliothek tab never opened). The upstream call must
+        // proceed as today — no functional regression for the cold case.
+        $this->health = $this->createMock(LibraryUpstreamHealth::class);
+        $this->health->expects(self::once())->method('cachedInSync')->willReturn(false);
+
+        $body = json_encode(['items' => [['matches' => []]]]);
+        $this->cache->method('get')->willReturn(null);
+        $this->cache->expects(self::once())->method('put');
+        $this->stats->expects(self::once())->method('recordCall')->with(true, self::isType('int'));
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willReturn($this->httpResponse(200, (string) $body));
+
+        $client = $this->buildClient();
+        self::assertSame([], $client->lookup('https://lib.example/v1', '_ga', null));
     }
 
     private function httpResponse(int $status, string $body): ResponseInterface

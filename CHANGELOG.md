@@ -8,6 +8,41 @@ step with the upstream
 [SimpleCMP](https://github.com/SimpleCMP/simplecmp) library's own pre-1.0
 development.
 
+## Unreleased
+
+### Changed
+
+- **Skip wasted upstream `/lookup` calls when the bundled library is in
+  sync with upstream.** `LibraryUpstreamClient::lookup()` now consults
+  `LibraryUpstreamHealth::cachedInSync()` after the local cache check;
+  when bundle and upstream report identical `dataHash`, upstream
+  *cannot* return any match the bundled tier didn't already see, so
+  the call is provably wasted. Short-circuits with no network traffic,
+  no stats increment, and no negative-cache write. Cache-only probe
+  → degrades to today's behavior when the health cache is cold (fresh
+  deploy, BE Bibliothek tab never opened).
+- **Re-classify unknowns** now warms the health cache up-front and
+  bails with an explanatory flash (`list.reclassify.flash.bundleInSync`)
+  when bundle is in sync — admin sees "no new matches possible" with
+  a `composer update` hint instead of a no-op summary.
+
+### Added
+
+- **`ext_conf_template.txt`** establishes the first extension-
+  configuration field in this ext: `libraryUpstreamSkipWhenInSync`
+  (default ON). Reachable at Settings → Extension Configuration →
+  t3_simplecmp. Flip OFF to force upstream calls regardless of bundle
+  sync state — debug-only, the optimization is provably safe
+  otherwise.
+- `LibraryUpstreamHealth::cachedInSync(?string $url, string $bundleDataHash)`
+  — cache-only sync probe. Returns true iff the cached snapshot was
+  captured against the current bundle hash AND reports a non-null
+  upstream `dataHash` equal to the bundle's. Five guard cases
+  covered by tests.
+- `BundledLibraryInfo::dataHash()` is now memoized per-request — the
+  underlying `ServicesLibrary::dataHash()` walks 368 JSON files and
+  must not run on every visitor lookup.
+
 ## 0.6.0 — 2026-05-28
 
 Backend polish + library-upstream feedback loop closes. Builds on

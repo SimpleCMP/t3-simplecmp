@@ -35,6 +35,16 @@ final class BundledLibraryInfo
     private const string PACKAGE_NAME = 'simplecmp/services-library';
 
     /**
+     * Memoized result of `ServicesLibrary::dataHash()` — that call walks
+     * every bundled JSON file (~368) and sha256s the content. The bundle
+     * cannot change mid-request (composer-installed vendor directory),
+     * so caching for the lifetime of the singleton instance is safe and
+     * avoids re-hashing on every visitor lookup that consults the sync
+     * gate in `LibraryUpstreamClient`.
+     */
+    private ?string $cachedDataHash = null;
+
+    /**
      * Version label such as `v0.3.0` or `dev-main`. Returns null when
      * the package isn't installed at all (defensive — the composer
      * deps require it).
@@ -70,6 +80,6 @@ final class BundledLibraryInfo
      */
     public function dataHash(): string
     {
-        return ServicesLibrary::dataHash();
+        return $this->cachedDataHash ??= ServicesLibrary::dataHash();
     }
 }

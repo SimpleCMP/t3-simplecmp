@@ -1,0 +1,2 @@
+# cat=basic//1; type=boolean; label=Skip library upstream calls when bundle is in sync: When the bundled `simplecmp/services-library` data hash matches the upstream's `/v1/health.dataHash`, upstream `/lookup` calls cannot return anything the bundled tier didn't already see. Default ON saves bandwidth and budget. Set OFF only for debugging the upstream wiring.
+libraryUpstreamSkipWhenInSync = 1

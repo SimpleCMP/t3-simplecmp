@@ -101,6 +101,45 @@ final readonly class LibraryUpstreamHealth
     }
 
     /**
+     * Cache-only sync probe — never triggers a network call. Returns
+     * true iff a cached health snapshot exists for `$upstreamUrl`, was
+     * captured against the same bundle hash, AND reports a non-null
+     * upstream `dataHash` equal to `$bundleDataHash`.
+     *
+     * Used by `LibraryUpstreamClient::lookup()` to short-circuit
+     * upstream `/lookup` calls when the bundled library and upstream
+     * carry byte-identical data — in that state, upstream cannot
+     * return any match the bundled tier didn't already see, so the
+     * call is provably wasted.
+     *
+     * Three guard cases return false:
+     *   - empty / null URL
+     *   - no cache entry, or cache entry was captured against a
+     *     different bundle hash (composer-update happened)
+     *   - upstream `dataHash` is null (legacy upstream pre-d92ed61
+     *     or malformed response)
+     *
+     * Degrades cleanly to today's behavior: callers that can't
+     * confirm in-sync fall through to the normal upstream call.
+     */
+    public function cachedInSync(?string $upstreamUrl, string $bundleDataHash): bool
+    {
+        if ($upstreamUrl === null || $upstreamUrl === '') {
+            return false;
+        }
+        $cache = $this->cacheManager->getCache(self::CACHE_IDENTIFIER);
+        $cached = $cache->get($this->cacheKey($upstreamUrl));
+        if (!is_array($cached)) {
+            return false;
+        }
+        if (($cached['bundleDataHash'] ?? null) !== $bundleDataHash) {
+            return false;
+        }
+        $upstreamHash = $cached['dataHash'] ?? null;
+        return is_string($upstreamHash) && $upstreamHash === $bundleDataHash;
+    }
+
+    /**
      * @return array{
      *     serviceCount: int|null,
      *     sourceSha: string|null,

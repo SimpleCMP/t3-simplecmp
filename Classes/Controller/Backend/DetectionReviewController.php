@@ -77,6 +77,8 @@ final class DetectionReviewController extends ActionController
         private readonly BridgeSecretProvider $bridgeSecretProvider,
         private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamClient $libraryUpstream,
         private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats $libraryUpstreamStats,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo $bundledLibrary,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth $libraryHealth,
         private readonly \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
     ) {
     }
@@ -389,6 +391,23 @@ final class DetectionReviewController extends ActionController
             $this->emitFlash(
                 'list.reclassify.flash.disabled',
                 ContextualFeedbackSeverity::WARNING,
+            );
+            return $this->redirect('list');
+        }
+
+        // Sync-gate pre-check: if the bundled library's dataHash equals
+        // the upstream's, looping over candidates and calling upstream
+        // would yield zero new matches by construction (upstream is the
+        // same JSON the bundle already walked). Warm the health cache
+        // first via snapshot() so the gate has fresh information; then
+        // short-circuit with an explanatory flash so the admin's button
+        // press isn't silently no-op.
+        $bundleHash = $this->bundledLibrary->dataHash();
+        $this->libraryHealth->snapshot($upstreamUrl, $bundleHash);
+        if ($this->libraryHealth->cachedInSync($upstreamUrl, $bundleHash)) {
+            $this->emitFlash(
+                'list.reclassify.flash.bundleInSync',
+                ContextualFeedbackSeverity::INFO,
             );
             return $this->redirect('list');
         }

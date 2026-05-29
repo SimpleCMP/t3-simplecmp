@@ -7,6 +7,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\RequestFactory;
 
 /**
@@ -44,12 +45,38 @@ final readonly class LibraryUpstreamClient
     private const int TIMEOUT_SECONDS = 3;
     private const int CACHE_TTL_SECONDS = 86400; // 24h, positive + negative
 
+    /**
+     * Resolved once at construction from the ext-config field
+     * `libraryUpstreamSkipWhenInSync`. When true (default), the sync
+     * gate in `lookup()` short-circuits upstream calls if the bundled
+     * library is provably in sync with upstream. Admins can flip OFF
+     * in Settings → Extension Configuration → t3_simplecmp for
+     * debugging the upstream wiring.
+     */
+    private bool $skipWhenInSync;
+
     public function __construct(
         private RequestFactory $requestFactory,
         private LibraryCacheRepository $cache,
         private LibraryUpstreamStats $stats,
+        private BundledLibraryInfo $bundle,
+        private LibraryUpstreamHealth $health,
+        ExtensionConfiguration $extensionConfiguration,
         private LoggerInterface $logger = new NullLogger(),
     ) {
+        // ExtensionConfiguration::get() throws
+        // ExtensionConfigurationExtensionNotConfiguredException when an
+        // admin hasn't visited Settings → Extension Configuration yet
+        // (the ext_conf_template default isn't materialised into
+        // TYPO3_CONF_VARS until the form is saved). Default to ON in
+        // that case — the optimization is provably safe.
+        try {
+            $config = $extensionConfiguration->get('t3_simplecmp');
+            $configured = is_array($config) ? ($config['libraryUpstreamSkipWhenInSync'] ?? true) : true;
+        } catch (\Throwable) {
+            $configured = true;
+        }
+        $this->skipWhenInSync = (bool) $configured;
     }
 
     /**
@@ -80,6 +107,22 @@ final readonly class LibraryUpstreamClient
         $cached = $this->cache->get($queryType, $queryValue, $now);
         if ($cached !== null) {
             return $cached;
+        }
+
+        // Sync gate: when the bundled library's dataHash equals the
+        // upstream's /v1/health.dataHash (probed by the freshness panel,
+        // cached for 30 min), the upstream's SQLite serves the same
+        // data the bundled JSON walk in `ClassifierLookup` already saw.
+        // Skip the upstream call without writing a negative-cache row
+        // — cache budget is finite and a fresh visitor next hour might
+        // find a different sync state. Returns null = tier-skip (same
+        // semantics as budget-exhausted below).
+        //
+        // Cache-only probe; if the health cache is cold (fresh deploy,
+        // BE never opened) `cachedInSync` returns false and the call
+        // proceeds as today.
+        if ($this->skipWhenInSync && $this->health->cachedInSync($upstreamUrl, $this->bundle->dataHash())) {
+            return null;
         }
 
         if ($dailyBudget !== null && $dailyBudget > 0 && $this->stats->getTodayCalls($now) >= $dailyBudget) {
