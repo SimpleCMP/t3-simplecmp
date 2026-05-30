@@ -13,7 +13,6 @@
             "hmt_id"
         ],
         "origins": [
-            "hcaptcha.com",
             "*.hcaptcha.com"
         ]
     },

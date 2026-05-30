@@ -33,7 +33,7 @@
         ],
         "origins": [
             "nl.sitestat.com",
-            "scorecardresearch.com"
+            "*.scorecardresearch.com"
         ]
     }
 }

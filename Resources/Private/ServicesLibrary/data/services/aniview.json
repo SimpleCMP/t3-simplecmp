@@ -12,7 +12,7 @@
             "version"
         ],
         "origins": [
-            "aniview.com",
+            "*.aniview.com",
             "track1.aniview.com"
         ]
     }

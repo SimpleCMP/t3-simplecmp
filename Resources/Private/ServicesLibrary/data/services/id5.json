@@ -38,7 +38,7 @@
             }
         ],
         "origins": [
-            "id5-sync.com"
+            "*.id5-sync.com"
         ]
     }
 }

@@ -15,7 +15,6 @@
             "__jid"
         ],
         "origins": [
-            "disqus.com",
             "*.disqus.com",
             "*.disquscdn.com"
         ]

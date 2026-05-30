@@ -57,7 +57,7 @@
             }
         ],
         "origins": [
-            "pubmatic.com",
+            "*.pubmatic.com",
             "simage2.pubmatic.com"
         ]
     }

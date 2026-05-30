@@ -8,6 +8,6 @@
   "description": "Conversion tracking and audience retargeting for Snapchat Ads.",
   "matches": {
     "cookies": ["/^_scid/", "/^_sctr/"],
-    "origins": ["sc-static.net", "tr.snapchat.com", "*.snapchat.com"]
+    "origins": ["*.sc-static.net", "tr.snapchat.com", "*.snapchat.com"]
   }
 }

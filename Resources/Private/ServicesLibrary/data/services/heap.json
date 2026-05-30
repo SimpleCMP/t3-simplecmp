@@ -8,6 +8,6 @@
   "description": "Auto-capture product analytics for clicks, form fills, and page views. Identifies users across sessions via a device-id cookie.",
   "matches": {
     "cookies": ["/^_hp2_/"],
-    "origins": ["cdn.heapanalytics.com", "heapanalytics.com"]
+    "origins": ["cdn.heapanalytics.com", "*.heapanalytics.com"]
   }
 }

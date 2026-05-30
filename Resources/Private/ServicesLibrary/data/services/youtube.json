@@ -30,13 +30,11 @@
             "__Secure-ROLLOUT_TOKEN"
         ],
         "origins": [
-            "youtube.com",
             "*.youtube.com",
             "*.googlevideo.com",
             "*.ytimg.com"
         ],
         "aliasOrigins": [
-            "youtube-nocookie.com",
             "*.youtube-nocookie.com"
         ]
     },

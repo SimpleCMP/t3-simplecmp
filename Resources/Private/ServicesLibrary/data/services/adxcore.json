@@ -11,7 +11,7 @@
             "DISPATCHER"
         ],
         "origins": [
-            "adxcore.com",
+            "*.adxcore.com",
             "dispatcher.adxcore.com"
         ]
     }

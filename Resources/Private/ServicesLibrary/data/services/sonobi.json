@@ -21,7 +21,7 @@
         ],
         "origins": [
             "go.sonobi.com",
-            "sonobi.com"
+            "*.sonobi.com"
         ]
     }
 }
