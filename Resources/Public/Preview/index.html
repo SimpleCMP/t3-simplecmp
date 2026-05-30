@@ -16,6 +16,15 @@
 </head>
 <body>
   <script src="../JavaScript/simplecmp.global.js"></script>
-  <script type="module" src="./init.js"></script>
+  <!--
+    Load init.js with the parent URL's query string appended so the
+    cache-buster `f:uri.resource` puts on the iframe src (`?<hash>`)
+    propagates here. Without it browsers serve a stale init.js across
+    extension updates and the editor never sees changes to the demo
+    config (services, translations, banner config like `imprint`).
+  -->
+  <script type="module">
+    import('./init.js' + window.location.search);
+  </script>
 </body>
 </html>

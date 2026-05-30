@@ -105,6 +105,7 @@ final class ThemeDesignerController extends ActionController
         private readonly PageRenderer $pageRenderer,
         private readonly ThemeRepository $themeRepository,
         private readonly SiteFinder $siteFinder,
+        private readonly \TYPO3\CMS\Backend\Routing\UriBuilder $backendUriBuilder,
     ) {
     }
 
@@ -164,6 +165,19 @@ final class ThemeDesignerController extends ActionController
             ];
         }
 
+        // Privacy + Imprint URLs from the site's Settings. Surfaced for
+        // two reasons:
+        //   1. The preview iframe needs them so the banner can render
+        //      both links exactly the way the live FE will — empty
+        //      strings turn into placeholder `#` URLs so the editor
+        //      still sees the layout even when the site hasn't
+        //      configured them yet.
+        //   2. The "URLs" status block in the BE module shows the
+        //      currently saved values (read-only) so editors don't
+        //      need to leave the designer to verify.
+        $policyUrls = $this->policyUrlsForSite($site);
+        $siteSettingsUri = $this->siteSettingsEditUri($site);
+
         $moduleTemplate->assignMultiple([
             'hasAvailableSites' => true,
             'site' => $site,
@@ -172,6 +186,8 @@ final class ThemeDesignerController extends ActionController
             'previewLanguage' => $previewLanguage,
             'languageOptions' => $languageOptions,
             'hasLanguageChoice' => count($languageOptions) > 1,
+            'policyUrls' => $policyUrls,
+            'siteSettingsUri' => $siteSettingsUri,
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
@@ -218,6 +234,50 @@ final class ThemeDesignerController extends ActionController
             return '';
         }
         return (string) $site->getBase();
+    }
+
+    /**
+     * Read the privacy + imprint URLs the site has configured in its
+     * Site Settings. Used by the preview iframe (so the banner shows
+     * the live links) and by the BE status block (so editors can
+     * verify both are set without leaving the designer).
+     *
+     * @return array{privacy: string, imprint: string, hasPrivacy: bool, hasImprint: bool}
+     */
+    private function policyUrlsForSite(string $siteIdentifier): array
+    {
+        try {
+            $site = $this->siteFinder->getSiteByIdentifier($siteIdentifier);
+        } catch (\Throwable) {
+            return ['privacy' => '', 'imprint' => '', 'hasPrivacy' => false, 'hasImprint' => false];
+        }
+        $settings = $site->getSettings();
+        $privacy = (string) $settings->get('simplecmp.privacyPolicyUrl', '');
+        $imprint = (string) $settings->get('simplecmp.imprintUrl', '');
+        return [
+            'privacy' => $privacy,
+            'imprint' => $imprint,
+            'hasPrivacy' => $privacy !== '',
+            'hasImprint' => $imprint !== '',
+        ];
+    }
+
+    /**
+     * Deep link into the standard Sites BE module's settings editor
+     * for this site. Lets the editor jump straight to the place where
+     * privacy + imprint URLs are maintained, instead of explaining the
+     * path in prose.
+     */
+    private function siteSettingsEditUri(string $siteIdentifier): string
+    {
+        try {
+            return (string) $this->backendUriBuilder->buildUriFromRoute(
+                'site_configuration.edit',
+                ['site' => $siteIdentifier],
+            );
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     /**

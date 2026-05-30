@@ -16,6 +16,13 @@
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source></trans-unit>
       <trans-unit id="designer.languagePicker.label"><source>Preview language</source></trans-unit>
 
+      <!-- Policy URLs status block — shown below the live preview -->
+      <trans-unit id="designer.policyUrls.heading"><source>Privacy policy &amp; imprint URLs (read-only here)</source></trans-unit>
+      <trans-unit id="designer.policyUrls.privacy"><source>Privacy policy</source></trans-unit>
+      <trans-unit id="designer.policyUrls.imprint"><source>Imprint (Impressum)</source></trans-unit>
+      <trans-unit id="designer.policyUrls.unset"><source>not configured</source></trans-unit>
+      <trans-unit id="designer.policyUrls.editAction"><source>Edit in Site settings</source></trans-unit>
+
       <!-- Empty-state shown when no site has the SimpleCMP Site Set in its dependencies -->
       <trans-unit id="designer.emptyState.title"><source>No site uses SimpleCMP yet</source></trans-unit>
       <trans-unit id="designer.emptyState.message"><source>Banner design can only be configured for sites whose configuration includes the &quot;%s&quot; Site Set. None of your sites does at the moment, so the FE bundle never loads and there is nothing to theme here.</source></trans-unit>

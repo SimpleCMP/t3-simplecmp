@@ -16,6 +16,13 @@
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source><target>Eigenes Design aktiv</target></trans-unit>
       <trans-unit id="designer.languagePicker.label"><source>Preview language</source><target>Vorschau-Sprache</target></trans-unit>
 
+      <!-- Policy URLs status block -->
+      <trans-unit id="designer.policyUrls.heading"><source>Privacy policy &amp; imprint URLs (read-only here)</source><target>Datenschutzerklärung &amp; Impressum-URLs (hier nur Anzeige)</target></trans-unit>
+      <trans-unit id="designer.policyUrls.privacy"><source>Privacy policy</source><target>Datenschutzerklärung</target></trans-unit>
+      <trans-unit id="designer.policyUrls.imprint"><source>Imprint (Impressum)</source><target>Impressum</target></trans-unit>
+      <trans-unit id="designer.policyUrls.unset"><source>not configured</source><target>nicht konfiguriert</target></trans-unit>
+      <trans-unit id="designer.policyUrls.editAction"><source>Edit in Site settings</source><target>In Site-Einstellungen bearbeiten</target></trans-unit>
+
       <!-- Empty-state -->
       <trans-unit id="designer.emptyState.title"><source>No site uses SimpleCMP yet</source><target>Noch keine Site nutzt SimpleCMP</target></trans-unit>
       <trans-unit id="designer.emptyState.message"><source>Banner design can only be configured for sites whose configuration includes the &quot;%s&quot; Site Set. None of your sites does at the moment, so the FE bundle never loads and there is nothing to theme here.</source><target>Banner-Design kann nur für Sites konfiguriert werden, deren Konfiguration das Site-Set „%s“ enthält. Aktuell tut das keine deiner Sites — das Frontend-Bundle wird nirgends geladen und es gibt hier nichts zu gestalten.</target></trans-unit>

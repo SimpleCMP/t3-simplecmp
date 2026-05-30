@@ -110,15 +110,48 @@
                     </p>
                     <!--
                         `f:uri.resource` produces `…/Preview/index.html?<cache-buster>`,
-                        so the lang param must be joined with `&`, not `?`. With `?lang=`
-                        the URL becomes `?<cb>?lang=de` and the iframe's URLSearchParams
-                        parses `<cb>?lang` as the first param name → `lang` is invisible.
+                        so the lang/privacy/imprint params must be joined with `&`,
+                        not `?`. With `?lang=` the URL becomes `?<cb>?lang=de` and the
+                        iframe's URLSearchParams parses `<cb>?lang` as the first param
+                        name → `lang` is invisible.
                     -->
                     <iframe data-preview-iframe
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}"
                             title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>
+
+                    <div class="alert alert-{f:if(condition: '{policyUrls.hasPrivacy} && {policyUrls.hasImprint}', then: 'info', else: 'warning')} mt-3 mb-0 py-2 small">
+                        <strong class="d-block mb-1">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.heading"/>
+                        </strong>
+                        <div class="d-flex flex-column gap-1">
+                            <div>
+                                <span class="text-body-secondary">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.privacy"/>:
+                                </span>
+                                <f:if condition="{policyUrls.hasPrivacy}">
+                                    <f:then><code>{policyUrls.privacy}</code></f:then>
+                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
+                                </f:if>
+                            </div>
+                            <div>
+                                <span class="text-body-secondary">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.imprint"/>:
+                                </span>
+                                <f:if condition="{policyUrls.hasImprint}">
+                                    <f:then><code>{policyUrls.imprint}</code></f:then>
+                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
+                                </f:if>
+                            </div>
+                        </div>
+                        <f:if condition="{siteSettingsUri}">
+                            <a href="{siteSettingsUri}" class="btn btn-default btn-sm mt-2">
+                                <core:icon identifier="actions-open" size="small"/>
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.editAction"/>
+                            </a>
+                        </f:if>
+                    </div>
                 </div>
             </div>
         </div>

@@ -35,16 +35,18 @@ class ThemePreview {
     const iframe = document.querySelector('[data-preview-iframe]');
     if (!iframe) return;
     // Use the URL API so the cache-buster query `?<hash>` that
-    // `f:uri.resource` puts on the base path is preserved. A plain
-    // string-concat with `?lang=` would produce `?<hash>?lang=` and
-    // URLSearchParams in the iframe would silently misparse it.
-    const rawBase = target.getAttribute('data-preview-iframe-base') || iframe.src;
+    // `f:uri.resource` puts on the base path is preserved AND any
+    // other params already on the iframe (`privacy`, `imprint`, …) survive
+    // the language swap. A plain string-concat with `?lang=` would
+    // produce `?<hash>?lang=` and URLSearchParams in the iframe would
+    // silently misparse it.
     const lang = target.value || 'en';
     let url;
     try {
-      url = new URL(rawBase, window.location.origin);
+      url = new URL(iframe.src, window.location.origin);
       url.searchParams.set('lang', lang);
     } catch (_) {
+      const rawBase = target.getAttribute('data-preview-iframe-base') || iframe.src;
       const sep = rawBase.includes('?') ? '&' : '?';
       iframe.src = `${rawBase}${sep}lang=${encodeURIComponent(lang)}`;
       return;

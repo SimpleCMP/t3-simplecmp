@@ -20,10 +20,20 @@ const cmp = window.SimpleCMP;
 // the BE module's language picker so the editor previews the banner in
 // whichever locale they pick. Falls back to `en` if the query is
 // missing or contains anything other than a 2/3-letter code.
+const previewParams = new URLSearchParams(window.location.search);
 const previewLang = (() => {
-  const raw = new URLSearchParams(window.location.search).get('lang') || '';
+  const raw = previewParams.get('lang') || '';
   return /^[a-z]{2,3}$/i.test(raw) ? raw.toLowerCase() : 'en';
 })();
+
+// Privacy + Imprint URLs come from the site's Settings via the BE
+// module — the controller reads them and the template puts them on
+// the iframe URL. Fallback to `#` so the banner still renders both
+// links and the editor sees the layout even when no URL is
+// configured. The link won't navigate anywhere in that state, which
+// is fine for a designer preview.
+const previewPrivacy = previewParams.get('privacy') || '#';
+const previewImprint = previewParams.get('imprint') || '#';
 
 // Mirror onto <html lang="…"> so the bundle's own detector
 // (`document.documentElement.lang`) lands on the same value if its
@@ -34,7 +44,13 @@ if (cmp && typeof cmp.init === 'function') {
   cmp.init({
     storageName: 'simplecmp-preview',
     testing: true,
-    privacyPolicy: '#',
+    // Always pass both URLs so the upstream policy-links rendering
+    // logic (banner + modal) emits the two-link box layout — the
+    // imprint link must appear next to the privacy link whenever an
+    // imprint URL is configured. `#` placeholders keep the layout
+    // demoable when nothing is configured yet.
+    privacyPolicy: previewPrivacy,
+    imprint: previewImprint,
     lang: previewLang,
     // The bundle's `dt()` translator falls back to this lang when the
     // primary lookup misses a key. Default upstream is "zz" (the
