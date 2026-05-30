@@ -29,9 +29,18 @@ class ThemePreview {
    */
   onChange = (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLSelectElement) || !target.hasAttribute('data-preview-language-picker')) {
+    if (!(target instanceof Element)) return;
+    if (target instanceof HTMLSelectElement && target.hasAttribute('data-preview-language-picker')) {
+      this.swapPreviewLanguage(target);
       return;
     }
+    if (target instanceof HTMLInputElement && target.id === 'override-tone-toggle') {
+      this.swapPreviewTone(target);
+      return;
+    }
+  };
+
+  swapPreviewLanguage(select) {
     const iframe = document.querySelector('[data-preview-iframe]');
     if (!iframe) return;
     // Use the URL API so the cache-buster query `?<hash>` that
@@ -40,13 +49,13 @@ class ThemePreview {
     // the language swap. A plain string-concat with `?lang=` would
     // produce `?<hash>?lang=` and URLSearchParams in the iframe would
     // silently misparse it.
-    const lang = target.value || 'en';
+    const lang = select.value || 'en';
     let url;
     try {
       url = new URL(iframe.src, window.location.origin);
       url.searchParams.set('lang', lang);
     } catch (_) {
-      const rawBase = target.getAttribute('data-preview-iframe-base') || iframe.src;
+      const rawBase = select.getAttribute('data-preview-iframe-base') || iframe.src;
       const sep = rawBase.includes('?') ? '&' : '?';
       iframe.src = `${rawBase}${sep}lang=${encodeURIComponent(lang)}`;
       return;
@@ -55,14 +64,38 @@ class ThemePreview {
 
     // Keep BE URL in sync via the option's pre-built action URL so a
     // browser refresh lands on the same site+language combination.
-    const opt = target.options[target.selectedIndex];
+    const opt = select.options[select.selectedIndex];
     const href = opt?.getAttribute('data-href');
     if (href) {
       try {
         window.history.replaceState(null, '', href);
       } catch (_) { /* older browsers — best-effort */ }
     }
-  };
+  }
+
+  swapPreviewTone(checkbox) {
+    // Tone is consumed by cmp.init() at boot time — reload the iframe
+    // with the new `tone=` query so the bundle re-mounts under the new
+    // register. Same shape as the language swap above; we keep the
+    // other params (lang, privacy, imprint, overrides) intact.
+    //
+    // The form's checkbox state continues to drive the save action —
+    // a reload of the parent BE page after save re-reads the
+    // persisted tone via the controller, so live preview and saved
+    // state converge.
+    const iframe = document.querySelector('[data-preview-iframe]');
+    if (!iframe) return;
+    const tone = checkbox.checked ? 'informal' : 'formal';
+    try {
+      const url = new URL(iframe.src, window.location.origin);
+      url.searchParams.set('tone', tone);
+      iframe.src = url.toString();
+    } catch (_) {
+      // Best-effort fallback — older browsers without URL parser support.
+      const sep = iframe.src.includes('?') ? '&' : '?';
+      iframe.src = `${iframe.src}${sep}tone=${tone}`;
+    }
+  }
 
   onInput = (event) => {
     const target = event.target;

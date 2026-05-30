@@ -73,38 +73,19 @@ final class ThemeDesignerController extends ActionController
     ];
 
     /**
-     * Informal-tone presets per language. Only keys that actually
-     * differ from the formal bundle defaults are listed here — every
-     * other key falls through to the bundle's built-in strings, which
-     * are already the formal variant in every locale we ship presets
-     * for.
+     * Languages for which the upstream `simplecmp` bundle ships a
+     * curated informal-tone overlay (du/tu/tú/…). The BE tone toggle
+     * only appears for editing languages listed here — for any other
+     * language flipping the switch would be a silent no-op (the
+     * bundle would fall back to formal).
      *
-     * Switching the BE designer's tone toggle to "informal" overlays
-     * these onto the bundle defaults before the editor's manual
-     * overrides apply. So the cascade is:
-     *   bundle defaults < tone preset (if informal) < manual overrides
+     * Stays in sync with `simplecmp/src/engine/translations/informal/`
+     * by convention. When upstream adds a new informal pack, append
+     * its language code here and the toggle becomes available.
      *
-     * Languages without an entry here suppress the tone switch entirely
-     * — the editor still has the manual-override fields but no
-     * one-click tone preset to apply.
-     *
-     * @var array<string, array{informal: array<string, string>}>
+     * @var list<string>
      */
-    public const array TONE_PRESETS = [
-        'de' => [
-            'informal' => [
-                'consentNotice.description' => 'Hi! Können wir bitte ein paar zusätzliche Dienste für {purposes} aktivieren? Du kannst deine Zustimmung später jederzeit ändern oder zurückziehen.',
-                'consentNotice.changeDescription' => 'Seit deinem letzten Besuch gab es Änderungen, bitte erneuere deine Zustimmung.',
-                'consentNotice.learnMore' => 'Lass mich wählen',
-                'consentModal.description' => 'Hier kannst du die Dienste, die wir auf dieser Website nutzen möchten, bewerten und anpassen. Du hast das Sagen! Aktiviere oder deaktiviere die Dienste, wie du es für richtig hältst.',
-                'ok' => 'Passt für mich',
-                'decline' => 'Nein danke',
-                'save' => 'Speichern',
-                'acceptAll' => 'Alles akzeptieren',
-                'acceptSelected' => 'Auswahl akzeptieren',
-            ],
-        ],
-    ];
+    public const array LANGUAGES_WITH_INFORMAL_TONE = ['de'];
 
     private const string TONE_FORMAL = 'formal';
     private const string TONE_INFORMAL = 'informal';
@@ -345,16 +326,6 @@ final class ThemeDesignerController extends ActionController
         $overridesForLang = $forLang['overrides'];
         $toneForLang = $forLang['tone'] ?? self::TONE_FORMAL;
 
-        // Tone preset for the current language (only one variant ships
-        // per language — informal — since the bundle defaults already
-        // are the formal tone). The preset values feed `placeholder`
-        // on each field so editors see the suggested informal phrasing
-        // alongside their own entry. The effective text shipped to
-        // both the FE and the preview is preset < manual override.
-        $tonePreset = $toneForLang === self::TONE_INFORMAL
-            ? (self::TONE_PRESETS[$previewLanguage]['informal'] ?? [])
-            : [];
-
         $overrideKeys = [];
         foreach (self::OVERRIDABLE_KEYS as $entry) {
             $key = $entry['key'];
@@ -362,22 +333,20 @@ final class ThemeDesignerController extends ActionController
                 'key' => $key,
                 'kind' => $entry['kind'],
                 'value' => $overridesForLang[$key] ?? '',
-                'placeholder' => $tonePreset[$key] ?? '',
             ];
         }
-        $hasTonePresets = isset(self::TONE_PRESETS[$previewLanguage]);
+        $hasInformalTone = in_array($previewLanguage, self::LANGUAGES_WITH_INFORMAL_TONE, true);
 
-        // Preview-iframe payload: effective overrides (tone preset
-        // overlaid with manual overrides). The iframe's init.js
-        // decodes the base64 JSON map and merges into `cmp.init`'s
-        // `translations` config at boot.
-        $effectiveOverrides = $tonePreset;
-        foreach ($overridesForLang as $key => $value) {
-            $effectiveOverrides[$key] = $value;
-        }
-        $overridesEncoded = $effectiveOverrides === []
+        // Preview-iframe payload: the editor's manual overrides only.
+        // The tone preset (du-form) is no longer materialised here —
+        // it lives in the upstream bundle now and is requested via
+        // the separate `tone` URL param read by init.js. Keeping the
+        // overrides + tone payloads independent means the preview
+        // mirrors the FE's actual resolution chain (bundle < tone <
+        // overrides) instead of pre-merging them on the server.
+        $overridesEncoded = $overridesForLang === []
             ? ''
-            : base64_encode((string) json_encode($effectiveOverrides, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         $moduleTemplate->assignMultiple([
             'hasAvailableSites' => true,
@@ -394,7 +363,7 @@ final class ThemeDesignerController extends ActionController
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
             'toneForLang' => $toneForLang,
-            'hasTonePresets' => $hasTonePresets,
+            'hasInformalTone' => $hasInformalTone,
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,

@@ -35,6 +35,16 @@ const previewLang = (() => {
 const previewPrivacy = previewParams.get('privacy') || '#';
 const previewImprint = previewParams.get('imprint') || '#';
 
+// Tone for the active preview language. The bundle ships curated
+// informal-tone overlays under `simplecmp/src/engine/translations/
+// informal/<lang>.json`; passing `tones: { <lang>: 'informal' }` to
+// `cmp.init()` activates the overlay. Default is formal (no overlay).
+const previewTone = (() => {
+  const raw = (previewParams.get('tone') || '').toLowerCase();
+  return raw === 'informal' ? 'informal' : 'formal';
+})();
+const previewTones = previewTone === 'informal' ? { [previewLang]: 'informal' } : undefined;
+
 // Per-site translation overrides for the active preview language —
 // the controller base64-encodes the dotted-key → value map and the
 // template puts it on the iframe URL. Decode and expand to a nested
@@ -211,7 +221,7 @@ const mergedTranslations = previewOverrides
   : baseTranslations;
 
 if (cmp && typeof cmp.init === 'function') {
-  cmp.init({
+  const initConfig = {
     storageName: 'simplecmp-preview',
     testing: true,
     // Always pass both URLs so the upstream policy-links rendering
@@ -232,7 +242,9 @@ if (cmp && typeof cmp.init === 'function') {
       { name: 'preview-marketing', purposes: ['marketing'] },
     ],
     translations: mergedTranslations,
-  });
+  };
+  if (previewTones) initConfig.tones = previewTones;
+  cmp.init(initConfig);
 
   // Make Accept/Decline clicks inert in the preview. Real FE flows
   // (`manager.saveAndApplyConsents`, `simplecmp:accept|decline` events,

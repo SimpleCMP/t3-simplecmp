@@ -197,13 +197,14 @@
                         </f:if>
                         <!--
                             Tone toggle — Du/Sie etc. Only renders when
-                            we have a curated informal-tone preset for
-                            the active language (TONE_PRESETS keys).
-                            The switch sends `tone=informal` (or empty
-                            = formal) on save; preset values surface as
-                            placeholders on the inputs below.
+                            the upstream bundle ships an informal-tone
+                            overlay for the active language (see
+                            `LANGUAGES_WITH_INFORMAL_TONE`). The switch
+                            sends `tone=informal` (or empty = formal) on
+                            save; the FE bundle's own translation engine
+                            resolves the preset values at runtime.
                         -->
-                        <f:if condition="{hasTonePresets}">
+                        <f:if condition="{hasInformalTone}">
                             <div class="d-flex align-items-center gap-2 ms-md-auto">
                                 <span class="form-label fw-semibold mb-0">
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneLabel"/>:
@@ -247,7 +248,7 @@
                                               name="overrides[{overrideLanguage}][{row.key}]"
                                               class="form-control form-control-sm"
                                               rows="2"
-                                              placeholder="{f:if(condition: row.placeholder, then: '{row.placeholder}', else: '{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder\')}')}">{row.value}</textarea>
+                                              placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}">{row.value}</textarea>
                                 </f:case>
                                 <f:defaultCase>
                                     <input type="text"
@@ -255,7 +256,7 @@
                                            name="overrides[{overrideLanguage}][{row.key}]"
                                            value="{row.value}"
                                            class="form-control form-control-sm"
-                                           placeholder="{f:if(condition: row.placeholder, then: '{row.placeholder}', else: '{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder\')}')}"/>
+                                           placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}"/>
                                 </f:defaultCase>
                             </f:switch>
                         </div>
@@ -277,7 +278,7 @@
                         name → `lang` is invisible.
                     -->
                     <iframe data-preview-iframe
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&tone={toneForLang}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
                             title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>

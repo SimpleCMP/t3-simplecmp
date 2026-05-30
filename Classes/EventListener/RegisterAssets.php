@@ -235,18 +235,15 @@ final readonly class RegisterAssets
      * @return array<string, mixed>|null
      */
     /**
-     * Effective translation overlay per site, per language. Combines
-     * (in this order, last wins):
-     *   1. Tone preset for the language (e.g. DE informal "Du"-form)
-     *      from `ThemeDesignerController::TONE_PRESETS`, only if the
-     *      stored row picked `tone = 'informal'`.
-     *   2. Manual overrides the editor typed into the BE designer
-     *      fields.
-     * Both are stored in the same JSON blob (one row per site).
+     * Manual translation overrides per site, per language. The dotted-key
+     * shape the BE designer stores (`consentNotice.description` → value)
+     * is expanded into the nested
+     * `{ <lang>: { consentNotice: { description: 'Hallo!' } } }` shape
+     * that the bundle's translation tree expects.
      *
-     * The resulting flat dotted-key map is then expanded into the
-     * nested `{ <lang>: { consentNotice: { description: 'Hallo!' } } }`
-     * shape that the bundle's translation tree expects.
+     * Tone selection is handled separately via `buildTones()` — the
+     * bundle owns the curated formal/informal packs, so we only pass
+     * the per-language tone flag, not the preset strings themselves.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -258,22 +255,12 @@ final readonly class RegisterAssets
         }
         $out = [];
         foreach ($rows as $lang => $entry) {
-            $tone = $entry['tone'] ?? null;
-            $effective = [];
-            if ($tone === 'informal') {
-                $preset = \SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController::TONE_PRESETS[$lang]['informal'] ?? [];
-                foreach ($preset as $key => $value) {
-                    $effective[$key] = $value;
-                }
-            }
-            foreach ($entry['overrides'] as $key => $value) {
-                $effective[$key] = $value;
-            }
-            if ($effective === []) {
+            $overrides = $entry['overrides'] ?? [];
+            if ($overrides === []) {
                 continue;
             }
             $tree = [];
-            foreach ($effective as $dottedKey => $value) {
+            foreach ($overrides as $dottedKey => $value) {
                 $this->assignNested($tree, explode('.', $dottedKey), $value);
             }
             if ($tree !== []) {
@@ -281,6 +268,33 @@ final readonly class RegisterAssets
             }
         }
         return $out;
+    }
+
+    /**
+     * Per-language tone flags for the bundle's `tones` config field.
+     * Maps `<lang> => 'informal'` whenever the editor flipped the
+     * tone switch in the BE designer. `'formal'` (the default) is
+     * omitted — the bundle treats absence as formal.
+     *
+     * The bundle (`simplecmp` package, `src/engine/translations/informal/`)
+     * owns the curated du/tu/tú/… overlays; this method just signals
+     * which language should pull which register.
+     *
+     * @return array<string, 'informal'>
+     */
+    private function buildTones(string $siteIdentifier): array
+    {
+        $rows = $this->overrideRepository->findBySite($siteIdentifier);
+        if ($rows === null || $rows === []) {
+            return [];
+        }
+        $tones = [];
+        foreach ($rows as $lang => $entry) {
+            if (($entry['tone'] ?? null) === 'informal') {
+                $tones[$lang] = 'informal';
+            }
+        }
+        return $tones;
     }
 
     /**
@@ -354,11 +368,19 @@ final readonly class RegisterAssets
                 'label' => (string) $get('simplecmp.floatingTriggerLabel', 'Cookie settings'),
             ],
         ];
-        // Merge: bundle defaults < service translations from the
-        // services library < per-site BE-designer overrides. The
-        // designer overrides take final precedence so editors can
-        // pick formal vs informal tone (Du/Sie etc.) per language
-        // without forking strings the bundle ships with.
+        // Resolution chain (lowest → highest precedence):
+        //   1. bundle defaults (formal register)
+        //   2. tone overlays — passed via `config.tones`; the bundle's
+        //      `getConfigTranslations` overlays its curated informal
+        //      packs for any language we mark `informal` here
+        //   3. service translations from the services library
+        //   4. per-site BE-designer manual overrides — last wins so an
+        //      editor's hand-written string beats both the tone preset
+        //      and the bundle default
+        $tones = $this->buildTones($site->getIdentifier());
+        if ($tones !== []) {
+            $config['tones'] = $tones;
+        }
         $translations = $serviceTranslations;
         $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier());
         if ($overrideTranslations !== []) {
