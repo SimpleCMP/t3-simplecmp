@@ -2,8 +2,8 @@ name: Sync upstream bundle
 
 # Receives `repository_dispatch` from SimpleCMP/simplecmp when upstream
 # CI passes on main. Rebuilds the bundle from the dispatched SHA, runs
-# Phase 1 gates, and either commits directly to main (all green) or
-# opens a failure PR labelled `needs-triage` with reviewers requested.
+# Phase 1 gates, and either commits directly to release/v14 (all green)
+# or opens a failure PR labelled `needs-triage` with reviewers requested.
 #
 # Phase 1 gates: bundle integrity (exists, size, parses, public exports
 # present), PHPUnit unit suite, PHPUnit functional suite. Playwright BE
@@ -13,7 +13,7 @@ name: Sync upstream bundle
 # 1. Create label `needs-triage` (Settings → Labels → New label).
 # 2. Settings → Actions → General → Workflow permissions: enable
 #    "Read and write permissions" so the default GITHUB_TOKEN can push
-#    to main and open PRs.
+#    to release/v14 and open PRs.
 
 on:
   repository_dispatch:
@@ -65,9 +65,10 @@ jobs:
       typo3DatabasePassword: root
       typo3DatabaseName: func_t3_simplecmp
     steps:
-      - name: Checkout ext (main)
+      - name: Checkout ext (release/v14)
         uses: actions/checkout@v4
         with:
+          ref: release/v14
           fetch-depth: 0
 
       - name: Resolve upstream SHA to full 40-char form
@@ -201,7 +202,7 @@ jobs:
             echo "MSG_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Commit + push to main
+      - name: Commit + push to release/v14
         id: push
         run: |
           git config user.name "github-actions[bot]"
@@ -213,7 +214,7 @@ jobs:
             exit 0
           fi
           git commit -m "${{ steps.msg.outputs.message }}"
-          git push origin HEAD:main
+          git push origin HEAD:release/v14
 
       # On any failure above, open a PR carrying whatever state we got
       # to, labelled needs-triage with reviewers requested.
@@ -235,7 +236,7 @@ jobs:
           fi
           git push origin "$BRANCH"
           BODY=$(cat <<EOF
-          Automated sync from upstream commit \`${UPSTREAM_SHA}\` failed before reaching \`main\`.
+          Automated sync from upstream commit \`${UPSTREAM_SHA}\` failed before reaching \`release/v14\`.
 
           - **Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           - **Upstream commit:** ${UPSTREAM_URL:-https://github.com/SimpleCMP/simplecmp/commit/$UPSTREAM_SHA}
@@ -254,5 +255,5 @@ jobs:
             --body "$BODY" \
             --label "needs-triage" \
             --reviewer "$TRIAGE_REVIEWERS" \
-            --base main \
+            --base release/v14 \
             --head "$BRANCH"
