@@ -97,6 +97,12 @@ class ThemePreview {
     document.querySelectorAll('[data-token]').forEach((input) => {
       const key = input.getAttribute('data-token');
       if (!key) return;
+      // Radios pose as a group of inputs all sharing `data-token`. Only
+      // the checked one carries the user's choice; the rest are noise.
+      if (input.type === 'radio') {
+        if (input.checked) tokens[key] = input.value;
+        return;
+      }
       tokens[key] = input.value;
     });
     iframe.contentWindow.postMessage({ type: 'simplecmp-theme-preview', tokens }, '*');

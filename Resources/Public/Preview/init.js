@@ -223,10 +223,37 @@ function adoptInto(root) {
   }
 }
 
+// Banner-position keys → upstream CSS vars. Mirror of the PHP-side
+// `ThemeDesignerController::POSITIONS` const. Keep in sync; the values
+// have to match upstream `banner.ts`'s `--simplecmp-banner-{inset,
+// transform, max-width}` tokens.
+const BANNER_POSITION_DECLS = {
+  'top-left':      { inset: 'var(--simplecmp-spacing) auto auto var(--simplecmp-spacing)', transform: 'none', maxWidth: null },
+  'top-center':    { inset: 'var(--simplecmp-spacing) auto auto 50%', transform: 'translateX(-50%)', maxWidth: 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))' },
+  'top-right':     { inset: 'var(--simplecmp-spacing) var(--simplecmp-spacing) auto auto', transform: 'none', maxWidth: null },
+  'middle-left':   { inset: '50% auto auto var(--simplecmp-spacing)', transform: 'translateY(-50%)', maxWidth: null },
+  'middle-center': { inset: '50% auto auto 50%', transform: 'translate(-50%, -50%)', maxWidth: 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))' },
+  'middle-right':  { inset: '50% var(--simplecmp-spacing) auto auto', transform: 'translateY(-50%)', maxWidth: null },
+  'bottom-left':   { inset: 'auto auto var(--simplecmp-spacing) var(--simplecmp-spacing)', transform: 'none', maxWidth: null },
+  'bottom-center': { inset: 'auto auto var(--simplecmp-spacing) 50%', transform: 'translateX(-50%)', maxWidth: 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))' },
+  'bottom-right':  { inset: 'auto var(--simplecmp-spacing) var(--simplecmp-spacing) auto', transform: 'none', maxWidth: null },
+};
+
 function applyTokens(tokens) {
   const decls = [];
   for (const [key, value] of Object.entries(tokens || {})) {
     if (typeof key !== 'string' || typeof value !== 'string' || value === '') {
+      continue;
+    }
+    // `position` is a discrete enum — expand into the three upstream
+    // banner-placement vars instead of a literal `--simplecmp-position`
+    // that the bundle wouldn't read.
+    if (key === 'position') {
+      const def = BANNER_POSITION_DECLS[value];
+      if (!def) continue;
+      decls.push(`--simplecmp-banner-inset: ${def.inset};`);
+      decls.push(`--simplecmp-banner-transform: ${def.transform};`);
+      if (def.maxWidth) decls.push(`--simplecmp-banner-max-width: ${def.maxWidth};`);
       continue;
     }
     decls.push(`--simplecmp-${key}: ${value};`);

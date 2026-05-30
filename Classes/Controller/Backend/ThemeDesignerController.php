@@ -66,6 +66,86 @@ final class ThemeDesignerController extends ActionController
         'font-family-heading' => 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
         'font-size' => '0.95rem',
         'font-size-heading' => '20px',
+        // Banner placement — one of the nine `POSITION_*` keys below.
+        // Translated by the FE asset listener into the upstream
+        // `--simplecmp-banner-inset` / `-transform` / `-max-width`
+        // tokens at runtime; not persisted when the admin keeps the
+        // default. Default mirrors the original hard-coded
+        // bottom-right corner.
+        'position' => 'bottom-right',
+    ];
+
+    /**
+     * Allowed `position` token values + a human-readable label
+     * (used for the BE picker's tooltip) and the matching upstream
+     * CSS-var translation. The keys form a 3x3 grid:
+     *
+     *   top-left    | top-center    | top-right
+     *   middle-left | middle-center | middle-right
+     *   bottom-left | bottom-center | bottom-right
+     *
+     * `inset` is `top right bottom left`. Center positions use
+     * `transform: translate(…)` to do the actual centering and trim
+     * `max-width` so the centered banner stays readable across the
+     * viewport instead of stretching edge-to-edge.
+     *
+     * @var array<string, array{label: string, inset: string, transform: string, maxWidth: ?string}>
+     */
+    public const array POSITIONS = [
+        'top-left' => [
+            'label' => 'Top left',
+            'inset' => 'var(--simplecmp-spacing) auto auto var(--simplecmp-spacing)',
+            'transform' => 'none',
+            'maxWidth' => null,
+        ],
+        'top-center' => [
+            'label' => 'Top center',
+            'inset' => 'var(--simplecmp-spacing) auto auto 50%',
+            'transform' => 'translateX(-50%)',
+            'maxWidth' => 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))',
+        ],
+        'top-right' => [
+            'label' => 'Top right',
+            'inset' => 'var(--simplecmp-spacing) var(--simplecmp-spacing) auto auto',
+            'transform' => 'none',
+            'maxWidth' => null,
+        ],
+        'middle-left' => [
+            'label' => 'Middle left',
+            'inset' => '50% auto auto var(--simplecmp-spacing)',
+            'transform' => 'translateY(-50%)',
+            'maxWidth' => null,
+        ],
+        'middle-center' => [
+            'label' => 'Middle center',
+            'inset' => '50% auto auto 50%',
+            'transform' => 'translate(-50%, -50%)',
+            'maxWidth' => 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))',
+        ],
+        'middle-right' => [
+            'label' => 'Middle right',
+            'inset' => '50% var(--simplecmp-spacing) auto auto',
+            'transform' => 'translateY(-50%)',
+            'maxWidth' => null,
+        ],
+        'bottom-left' => [
+            'label' => 'Bottom left',
+            'inset' => 'auto auto var(--simplecmp-spacing) var(--simplecmp-spacing)',
+            'transform' => 'none',
+            'maxWidth' => null,
+        ],
+        'bottom-center' => [
+            'label' => 'Bottom center',
+            'inset' => 'auto auto var(--simplecmp-spacing) 50%',
+            'transform' => 'translateX(-50%)',
+            'maxWidth' => 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))',
+        ],
+        'bottom-right' => [
+            'label' => 'Bottom right',
+            'inset' => 'auto var(--simplecmp-spacing) var(--simplecmp-spacing) auto',
+            'transform' => 'none',
+            'maxWidth' => null,
+        ],
     ];
 
     /**
@@ -98,6 +178,7 @@ final class ThemeDesignerController extends ActionController
             'font-size-heading',
         ],
         'shape' => ['radius'],
+        'placement' => ['position'],
     ];
 
     public function __construct(
@@ -178,6 +259,11 @@ final class ThemeDesignerController extends ActionController
         $policyUrls = $this->policyUrlsForSite($site);
         $siteSettingsUri = $this->siteSettingsEditUri($site);
 
+        // 3x3 position picker — passed as a list of {key, label, row, col}
+        // so the template can lay it out in a CSS grid without knowing
+        // the position-name → grid-cell mapping.
+        $positionOptions = $this->buildPositionOptions();
+
         $moduleTemplate->assignMultiple([
             'hasAvailableSites' => true,
             'site' => $site,
@@ -188,6 +274,7 @@ final class ThemeDesignerController extends ActionController
             'hasLanguageChoice' => count($languageOptions) > 1,
             'policyUrls' => $policyUrls,
             'siteSettingsUri' => $siteSettingsUri,
+            'positionOptions' => $positionOptions,
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
@@ -268,6 +355,35 @@ final class ThemeDesignerController extends ActionController
      * privacy + imprint URLs are maintained, instead of explaining the
      * path in prose.
      */
+    /**
+     * Build the 3x3 grid descriptor for the position picker. The
+     * template renders each entry as a radio inside a CSS grid cell.
+     * Row/col are 1-based to match `grid-row` / `grid-column`.
+     *
+     * @return list<array{key: string, label: string, row: int, col: int, vRow: string, vCol: string}>
+     */
+    private function buildPositionOptions(): array
+    {
+        $rows = ['top' => 1, 'middle' => 2, 'bottom' => 3];
+        $cols = ['left' => 1, 'center' => 2, 'right' => 3];
+        $vRows = ['top' => 'top', 'middle' => 'middle', 'bottom' => 'bottom'];
+        $vCols = ['left' => 'left', 'center' => 'center', 'right' => 'right'];
+        $out = [];
+        foreach (self::POSITIONS as $key => $cfg) {
+            // Keys are `<row>-<col>`.
+            [$rowName, $colName] = explode('-', $key, 2);
+            $out[] = [
+                'key' => $key,
+                'label' => $cfg['label'],
+                'row' => $rows[$rowName] ?? 1,
+                'col' => $cols[$colName] ?? 1,
+                'vRow' => $vRows[$rowName] ?? 'top',
+                'vCol' => $vCols[$colName] ?? 'left',
+            ];
+        }
+        return $out;
+    }
+
     private function siteSettingsEditUri(string $siteIdentifier): string
     {
         try {
@@ -404,6 +520,11 @@ final class ThemeDesignerController extends ActionController
             }
             $value = trim($value);
             if ($value === '' || $value === $default) {
+                continue;
+            }
+            // Enum guard for `position` — silently drop unknown values
+            // so a tampered POST can't leak garbage CSS into the page.
+            if ($key === 'position' && !isset(self::POSITIONS[$value])) {
                 continue;
             }
             $clean[$key] = $value;

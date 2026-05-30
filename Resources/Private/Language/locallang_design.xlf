@@ -34,6 +34,7 @@
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source></trans-unit>
       <trans-unit id="designer.group.typography"><source>Typography</source></trans-unit>
       <trans-unit id="designer.group.shape"><source>Shape</source></trans-unit>
+      <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
 
       <trans-unit id="designer.field.color-primary"><source>Primary color (Accept button background)</source></trans-unit>
       <trans-unit id="designer.field.color-primary-hover"><source>Primary hover (Accept button hover state)</source></trans-unit>
@@ -48,6 +49,7 @@
       <trans-unit id="designer.field.font-size"><source>Body font size (px or rem)</source></trans-unit>
       <trans-unit id="designer.field.font-size-heading"><source>Heading font size (px or rem)</source></trans-unit>
       <trans-unit id="designer.field.radius"><source>Corner radius (e.g. 6px)</source></trans-unit>
+      <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source></trans-unit>
       <trans-unit id="designer.action.detectFonts"><source>Detect fonts from active site</source></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source></trans-unit>

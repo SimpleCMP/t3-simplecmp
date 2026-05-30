@@ -153,6 +153,16 @@ final readonly class RegisterAssets
             if (!is_string($token) || !is_scalar($value)) {
                 continue;
             }
+            // `position` is a discrete enum — translate it into the three
+            // upstream banner-placement CSS vars (`--simplecmp-banner-inset`,
+            // `-transform`, `-max-width`) instead of a literal var that
+            // the bundle wouldn't know how to consume.
+            if ($token === 'position') {
+                foreach ($this->positionDeclarations((string) $value) as $decl) {
+                    $declarations[] = $decl;
+                }
+                continue;
+            }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
             $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ';';
@@ -188,6 +198,31 @@ final readonly class RegisterAssets
             'simplecmp-theme-' . $site->getIdentifier(),
             $script,
         );
+    }
+
+    /**
+     * Translate the persisted `position` token (one of nine
+     * `<row>-<col>` keys) into the upstream banner-placement CSS
+     * declarations. Returns an empty list if the value isn't a known
+     * position key — so a hand-edited DB row with garbage falls back
+     * silently to the upstream default (bottom-right).
+     *
+     * @return list<string>
+     */
+    private function positionDeclarations(string $position): array
+    {
+        $defs = \SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController::POSITIONS[$position] ?? null;
+        if ($defs === null) {
+            return [];
+        }
+        $out = [
+            '--simplecmp-banner-inset: ' . $defs['inset'] . ';',
+            '--simplecmp-banner-transform: ' . $defs['transform'] . ';',
+        ];
+        if (!empty($defs['maxWidth'])) {
+            $out[] = '--simplecmp-banner-max-width: ' . $defs['maxWidth'] . ';';
+        }
+        return $out;
     }
 
     /**

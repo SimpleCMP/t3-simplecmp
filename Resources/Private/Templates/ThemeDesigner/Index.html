@@ -5,6 +5,68 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
+    <style>
+        /* 3x3 banner-position picker — radios styled as a 3x3 grid of
+           small cells; each cell has a dot indicating where the banner
+           would sit within the cell. */
+        .simplecmp-position-picker {
+            display: grid;
+            grid-template-columns: repeat(3, 36px);
+            grid-template-rows: repeat(3, 26px);
+            gap: 4px;
+            padding: 6px;
+            background: var(--typo3-component-bg-secondary, #f5f7f9);
+            border: 1px solid var(--token-color-stroke-default, #d7d7d7);
+            border-radius: 6px;
+            width: max-content;
+        }
+        .simplecmp-position-cell {
+            position: relative;
+            display: flex;
+            border: 1px solid var(--token-color-stroke-default, #d7d7d7);
+            border-radius: 3px;
+            background: #fff;
+            cursor: pointer;
+            margin: 0;
+            transition: border-color .15s, background .15s;
+        }
+        .simplecmp-position-cell:hover {
+            border-color: var(--typo3-component-primary-color, #0a7cb9);
+        }
+        .simplecmp-position-cell input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+        .simplecmp-position-dot {
+            position: absolute;
+            width: 8px;
+            height: 6px;
+            border-radius: 1px;
+            background: var(--token-color-text-secondary, #5f6b78);
+            transition: background .15s;
+        }
+        .simplecmp-position-cell[data-row="top"]    .simplecmp-position-dot { top: 3px; }
+        .simplecmp-position-cell[data-row="middle"] .simplecmp-position-dot { top: 50%; transform: translateY(-50%); }
+        .simplecmp-position-cell[data-row="bottom"] .simplecmp-position-dot { bottom: 3px; }
+        .simplecmp-position-cell[data-col="left"]   .simplecmp-position-dot { left: 3px; }
+        .simplecmp-position-cell[data-col="center"] .simplecmp-position-dot { left: 50%; transform: translateX(-50%); }
+        .simplecmp-position-cell[data-col="middle"] .simplecmp-position-dot { left: 50%; transform: translateX(-50%); }
+        .simplecmp-position-cell[data-col="right"]  .simplecmp-position-dot { right: 3px; }
+        .simplecmp-position-cell[data-row="middle"][data-col="center"] .simplecmp-position-dot {
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .simplecmp-position-cell:has(input:checked) {
+            background: var(--typo3-component-primary-color, #0a7cb9);
+            border-color: var(--typo3-component-primary-color, #0a7cb9);
+        }
+        .simplecmp-position-cell:has(input:checked) .simplecmp-position-dot {
+            background: #fff;
+        }
+    </style>
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
     <p class="text-body-secondary">
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
@@ -85,7 +147,7 @@
                         <legend class="h5">
                             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
-                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens}" />
+                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions}" />
                         <f:if condition="{group} == 'typography'">
                             <div class="mt-2">
                                 <button type="button"
@@ -243,6 +305,24 @@
                            style="width:7rem"
                            pattern="^\d+(\.\d+)?(px|rem|em)$"
                            data-token="{key}" />
+                </f:case>
+                <f:case value="position">
+                    <div class="simplecmp-position-picker" role="radiogroup"
+                         aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.position')}">
+                        <f:for each="{positionOptions}" as="opt">
+                            <label class="simplecmp-position-cell" data-row="{opt.vRow}" data-col="{opt.vCol}"
+                                   style="grid-row:{opt.row};grid-column:{opt.col}"
+                                   title="{opt.label}">
+                                <input type="radio"
+                                       name="tokens[position]"
+                                       value="{opt.key}"
+                                       data-token="position"
+                                       {f:if(condition: '{tokens.position} == {opt.key}', then: 'checked')}
+                                       aria-label="{opt.label}" />
+                                <span class="simplecmp-position-dot"></span>
+                            </label>
+                        </f:for>
+                    </div>
                 </f:case>
                 <f:defaultCase>
                     <div class="d-flex align-items-center gap-2">
