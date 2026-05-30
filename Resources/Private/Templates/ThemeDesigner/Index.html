@@ -168,19 +168,49 @@
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.overrides"/>
                     </legend>
                     <p class="text-body-secondary small mb-3">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.intro" arguments="{0: overrideLanguage}"/>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.intro"/>
                     </p>
+
+                    <!--
+                        Local language picker inside the override section.
+                        Drives the same `?language=` URL as the Vorschau-
+                        Sprache picker at the top, so the override scope
+                        and the preview language stay in sync — but having
+                        a visible selector here makes the active scope
+                        obvious without scrolling back to the page header.
+                    -->
+                    <f:if condition="{hasLanguageChoice}">
+                        <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-body-tertiary rounded">
+                            <label for="override-lang-picker" class="form-label fw-semibold mb-0">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.scopeLabel"/>
+                            </label>
+                            <select id="override-lang-picker"
+                                    class="form-select form-select-sm"
+                                    style="width:auto"
+                                    onchange="if (this.value) window.location.assign(this.value);">
+                                <f:for each="{languageOptions}" as="opt">
+                                    <option value="{opt.url}" {f:if(condition: '{opt.code} == {overrideLanguage}', then: 'selected')}>{opt.label}</option>
+                                </f:for>
+                            </select>
+                        </div>
+                    </f:if>
+
                     <input type="hidden" name="language" value="{overrideLanguage}"/>
                     <f:for each="{overrideKeys}" as="row">
                         <div class="mb-3">
-                            <label for="override-{row.key}" class="form-label d-flex align-items-center justify-content-between">
-                                <code class="text-body-secondary">{row.key}</code>
+                            <label for="override-{row.key}" class="form-label d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-semibold">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.label.{row.key}" default="{row.key}"/>
+                                </span>
                                 <f:if condition="{row.value}">
                                     <span class="badge text-bg-info ms-2">
                                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.activeBadge"/>
                                     </span>
                                 </f:if>
                             </label>
+                            <div class="d-block mb-1">
+                                <code class="text-body-secondary small">{row.key}</code>
+                            </div>
                             <f:switch expression="{row.kind}">
                                 <f:case value="text">
                                     <textarea id="override-{row.key}"

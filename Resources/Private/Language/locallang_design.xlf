@@ -36,9 +36,26 @@
       <trans-unit id="designer.group.shape"><source>Shape</source></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source></trans-unit>
-      <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for the currently picked preview language (%s). Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
+      <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
+      <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source></trans-unit>
       <trans-unit id="designer.overrides.placeholder"><source>(uses bundle default)</source></trans-unit>
       <trans-unit id="designer.overrides.activeBadge"><source>override active</source></trans-unit>
+      <!-- Per-key human-readable labels for the override fieldset. The dotted bundle key still renders below in <code> for editors who know the bundle internals. -->
+      <trans-unit id="designer.overrides.label.consentNotice.title"><source>Banner heading</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentNotice.description"><source>Banner description (main text)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentNotice.changeDescription"><source>Banner description on return visit (after consent changed)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentNotice.learnMore"><source>"Configure" button label</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentNotice.testing"><source>"Testing mode" notice</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentModal.title"><source>Modal heading (settings dialog)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentModal.description"><source>Modal description (above the service list)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.privacyPolicy.name"><source>Privacy-policy link text</source></trans-unit>
+      <trans-unit id="designer.overrides.label.imprint.name"><source>Imprint link text (standalone footer)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.consentNotice.imprint.name"><source>Imprint link text (next to privacy policy)</source></trans-unit>
+      <trans-unit id="designer.overrides.label.acceptAll"><source>"Accept all" button label</source></trans-unit>
+      <trans-unit id="designer.overrides.label.acceptSelected"><source>"Accept selected" button label</source></trans-unit>
+      <trans-unit id="designer.overrides.label.decline"><source>"Decline" button label</source></trans-unit>
+      <trans-unit id="designer.overrides.label.save"><source>"Save" button label</source></trans-unit>
+      <trans-unit id="designer.overrides.label.ok"><source>"OK" button label (banner accept)</source></trans-unit>
 
       <trans-unit id="designer.field.color-primary"><source>Primary color (Accept button background)</source></trans-unit>
       <trans-unit id="designer.field.color-primary-hover"><source>Primary hover (Accept button hover state)</source></trans-unit>
