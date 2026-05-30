@@ -17,7 +17,8 @@ use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
  *
  * PSR-15 frontend middleware. After the downstream handler renders the
  * page, this scans the response body for third-party subresource
- * references (<script src>, <iframe src>, <img src>, <link href>) and
+ * references (<script src>, <iframe src>, <img src>, and <link href>
+ * for resource-hint rels only — see LINK_REWRITABLE_RELS) and
  * rewrites them to the engine's `data-name + data-src + src="about:blank"`
  * shape — same shape integrators write by hand for the existing opt-in
  * pattern. The engine's existing handling takes it from there: consent
@@ -40,8 +41,10 @@ use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
  * no dependency on `Masterminds/HTML5` was needed.
  *
  * Design call defaults from ADR-0013:
- * - Tag scope (#4): iframe + script + img + link only for now; source/
- *   video/audio added if a real site needs them.
+ * - Tag scope (#4): iframe + script + img fully; <link> only for
+ *   resource-hint rels (LINK_REWRITABLE_RELS) — stylesheet/canonical/
+ *   icon are left untouched to avoid breaking CSS/SEO. source/video/
+ *   audio added if a real site needs them.
  * - Inline scripts (#5): skipped — runtime monkey-patches handle JS-
  *   injected calls.
  * - Module scripts (#6): rewritten same as regular `<script src>`.
@@ -62,6 +65,50 @@ final class HtmlRewriter implements MiddlewareInterface
         'script' => 'src',
         'img'    => 'src',
         'link'   => 'href',
+    ];
+
+    /**
+     * `<link>` is only rewritten for these `rel` values — the resource
+     * hints, which open a third-party connection (DNS/TCP/TLS or an
+     * actual fetch) *before* consent. Neutralizing them to `about:blank`
+     * is invisible (a hint has no visual effect; the underlying
+     * script/img/iframe is gated by its own rule anyway).
+     *
+     * Everything else is deliberately left untouched:
+     * - `stylesheet` — render-critical. There is no contextual-notice
+     *   recovery UI for an invisible `<link>`, so rewriting it to
+     *   `about:blank` would silently strip the page's CSS with no way
+     *   to load it after consent. Blocking third-party stylesheets
+     *   (e.g. Google Fonts) is also leaky at this layer — the browser's
+     *   preload scanner can fetch before interception and `@import`
+     *   inside a stylesheet escapes entirely — so a server-side strip
+     *   gives false confidence. The correct fix for fonts is
+     *   self-hosting. A deliberate opt-in stylesheet blocker (with
+     *   consent re-injection) is tracked as a separate follow-up; see
+     *   docs/decisions/2026-05-30-link-rewrite-rel-policy.md.
+     * - `canonical` / `alternate` — SEO metadata; rewriting to
+     *   `about:blank` poisons the canonical URL. These never cause a
+     *   subresource fetch, so there is no privacy reason to touch them.
+     * - `icon` / `manifest` / `mask-icon` / etc. — structural; breaking
+     *   them harms the site for no privacy gain.
+     * - unknown rels — left alone (allowlist, not blocklist) so a novel
+     *   `rel` value can never cause surprise breakage.
+     *
+     * No mainstream CMP (Cookiebot, Usercentrics, Borlabs, Real Cookie
+     * Banner, consentmanager.net) auto-rewrites arbitrary `<link>` tags;
+     * they target scripts/iframes/images. This list keeps us aligned
+     * with that norm while still neutralizing the genuine pre-consent
+     * leak that hints represent.
+     *
+     * @var list<string>
+     */
+    private const LINK_REWRITABLE_RELS = [
+        'preconnect',
+        'dns-prefetch',
+        'preload',
+        'prefetch',
+        'modulepreload',
+        'prerender',
     ];
 
     /** @var list<string> site's own hosts — never rewritten */
@@ -155,6 +202,12 @@ final class HtmlRewriter implements MiddlewareInterface
                     // Already integrator-marked; engine handles it.
                     continue;
                 }
+                // <link> is only a tracking vector for resource-hint
+                // rels — see LINK_REWRITABLE_RELS for why stylesheet /
+                // canonical / icon / unknown rels are left untouched.
+                if ($tagName === 'link' && !$this->linkRelIsRewritable($node)) {
+                    continue;
+                }
                 $url = $node->getAttribute($attr);
                 if ($url === '') {
                     continue;
@@ -202,5 +255,25 @@ final class HtmlRewriter implements MiddlewareInterface
         // input that had its own xml-PI.
         $result = (string) $dom->saveHTML();
         return preg_replace('/<\?xml encoding="utf-8"\?>\s*/', '', $result, 1) ?? $result;
+    }
+
+    /**
+     * True only when a `<link>`'s `rel` carries a rewritable resource
+     * hint (see LINK_REWRITABLE_RELS). `rel` is a space-separated,
+     * case-insensitive token list; we rewrite if ANY token is a hint.
+     * Missing/empty `rel` → not rewritable (left alone).
+     */
+    private function linkRelIsRewritable(\DOMElement $node): bool
+    {
+        $rel = strtolower(trim($node->getAttribute('rel')));
+        if ($rel === '') {
+            return false;
+        }
+        foreach (preg_split('/\s+/', $rel) ?: [] as $token) {
+            if (in_array($token, self::LINK_REWRITABLE_RELS, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

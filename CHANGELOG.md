@@ -10,6 +10,26 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **Universal blocking no longer breaks third-party stylesheets or
+  poisons SEO `<link>` tags.** The HTML rewriter used to rewrite *every*
+  third-party `<link href>` to `about:blank` regardless of `rel` — with
+  universal blocking on by default this silently dropped third-party-CDN
+  stylesheets (Bootstrap / Font Awesome / Google Fonts → broken CSS with
+  no recovery path) and clobbered cross-domain `rel="canonical"` /
+  `rel="alternate"` (SEO damage). `<link>` rewriting is now gated to
+  resource-hint rels only (`preconnect`, `dns-prefetch`, `preload`,
+  `prefetch`, `modulepreload`, `prerender`) — the rels that open a
+  pre-consent third-party connection, where neutralizing to `about:blank`
+  is invisible. `stylesheet` / `canonical` / `alternate` / `icon` /
+  `manifest` / unknown rels are left untouched (allowlist, not
+  blocklist). Deliberate opt-in stylesheet blocking with consent
+  re-injection is tracked as a follow-up — see
+  `docs/decisions/2026-05-30-link-rewrite-rel-policy.md` for the
+  rationale, competitor survey, and caveats (the correct fix for
+  third-party fonts is self-hosting).
+
 ### Changed
 
 - **Skip wasted upstream `/lookup` calls when the bundled library is in
