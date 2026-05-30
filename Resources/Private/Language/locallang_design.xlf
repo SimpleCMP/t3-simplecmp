@@ -38,6 +38,9 @@
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source></trans-unit>
       <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
       <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source></trans-unit>
+      <trans-unit id="designer.overrides.toneLabel"><source>Tone</source></trans-unit>
+      <trans-unit id="designer.overrides.toneFormal"><source>Formal</source></trans-unit>
+      <trans-unit id="designer.overrides.toneInformal"><source>Informal</source></trans-unit>
       <trans-unit id="designer.overrides.placeholder"><source>(uses bundle default)</source></trans-unit>
       <trans-unit id="designer.overrides.activeBadge"><source>override active</source></trans-unit>
       <!-- Per-key human-readable labels for the override fieldset. The dotted bundle key still renders below in <code> for editors who know the bundle internals. -->

@@ -73,6 +73,43 @@ final class ThemeDesignerController extends ActionController
     ];
 
     /**
+     * Informal-tone presets per language. Only keys that actually
+     * differ from the formal bundle defaults are listed here — every
+     * other key falls through to the bundle's built-in strings, which
+     * are already the formal variant in every locale we ship presets
+     * for.
+     *
+     * Switching the BE designer's tone toggle to "informal" overlays
+     * these onto the bundle defaults before the editor's manual
+     * overrides apply. So the cascade is:
+     *   bundle defaults < tone preset (if informal) < manual overrides
+     *
+     * Languages without an entry here suppress the tone switch entirely
+     * — the editor still has the manual-override fields but no
+     * one-click tone preset to apply.
+     *
+     * @var array<string, array{informal: array<string, string>}>
+     */
+    public const array TONE_PRESETS = [
+        'de' => [
+            'informal' => [
+                'consentNotice.description' => 'Hi! Können wir bitte ein paar zusätzliche Dienste für {purposes} aktivieren? Du kannst deine Zustimmung später jederzeit ändern oder zurückziehen.',
+                'consentNotice.changeDescription' => 'Seit deinem letzten Besuch gab es Änderungen, bitte erneuere deine Zustimmung.',
+                'consentNotice.learnMore' => 'Lass mich wählen',
+                'consentModal.description' => 'Hier kannst du die Dienste, die wir auf dieser Website nutzen möchten, bewerten und anpassen. Du hast das Sagen! Aktiviere oder deaktiviere die Dienste, wie du es für richtig hältst.',
+                'ok' => 'Passt für mich',
+                'decline' => 'Nein danke',
+                'save' => 'Speichern',
+                'acceptAll' => 'Alles akzeptieren',
+                'acceptSelected' => 'Auswahl akzeptieren',
+            ],
+        ],
+    ];
+
+    private const string TONE_FORMAL = 'formal';
+    private const string TONE_INFORMAL = 'informal';
+
+    /**
      * Defaults straight from upstream tokens.ts. Stays here as a const
      * map rather than a separate file because it's read in two paths
      * (form pre-fill + reset semantics) and both want a static value.
@@ -304,26 +341,43 @@ final class ThemeDesignerController extends ActionController
         // picker already switches the active language, which doubles
         // as the override-scope picker.
         $allOverrides = $this->overrideRepository->findBySite($site) ?? [];
-        $overridesForLang = $allOverrides[$previewLanguage] ?? [];
+        $forLang = $allOverrides[$previewLanguage] ?? ['tone' => null, 'overrides' => []];
+        $overridesForLang = $forLang['overrides'];
+        $toneForLang = $forLang['tone'] ?? self::TONE_FORMAL;
+
+        // Tone preset for the current language (only one variant ships
+        // per language — informal — since the bundle defaults already
+        // are the formal tone). The preset values feed `placeholder`
+        // on each field so editors see the suggested informal phrasing
+        // alongside their own entry. The effective text shipped to
+        // both the FE and the preview is preset < manual override.
+        $tonePreset = $toneForLang === self::TONE_INFORMAL
+            ? (self::TONE_PRESETS[$previewLanguage]['informal'] ?? [])
+            : [];
+
         $overrideKeys = [];
         foreach (self::OVERRIDABLE_KEYS as $entry) {
+            $key = $entry['key'];
             $overrideKeys[] = [
-                'key' => $entry['key'],
+                'key' => $key,
                 'kind' => $entry['kind'],
-                'value' => $overridesForLang[$entry['key']] ?? '',
+                'value' => $overridesForLang[$key] ?? '',
+                'placeholder' => $tonePreset[$key] ?? '',
             ];
         }
+        $hasTonePresets = isset(self::TONE_PRESETS[$previewLanguage]);
 
-        // Preview-iframe payload: only the active-language overrides as
-        // a base64-encoded JSON map of dotted-key → value. The iframe's
-        // init.js decodes it and merges into `cmp.init`'s `translations`
-        // config at boot, so the preview banner reflects what the FE
-        // will render. URL-param transport (vs postMessage) keeps the
-        // overrides applied before the bundle reads them — postMessage
-        // would arrive after `init()` has already snapshotted defaults.
-        $overridesEncoded = $overridesForLang === []
+        // Preview-iframe payload: effective overrides (tone preset
+        // overlaid with manual overrides). The iframe's init.js
+        // decodes the base64 JSON map and merges into `cmp.init`'s
+        // `translations` config at boot.
+        $effectiveOverrides = $tonePreset;
+        foreach ($overridesForLang as $key => $value) {
+            $effectiveOverrides[$key] = $value;
+        }
+        $overridesEncoded = $effectiveOverrides === []
             ? ''
-            : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            : base64_encode((string) json_encode($effectiveOverrides, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         $moduleTemplate->assignMultiple([
             'hasAvailableSites' => true,
@@ -339,6 +393,8 @@ final class ThemeDesignerController extends ActionController
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
+            'toneForLang' => $toneForLang,
+            'hasTonePresets' => $hasTonePresets,
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
@@ -555,27 +611,55 @@ final class ThemeDesignerController extends ActionController
         array $tokens = [],
         string $language = '',
         array $overrides = [],
+        string $tone = '',
     ): ResponseInterface {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
         $clean = self::sanitizeTokens($tokens);
         $this->themeRepository->upsert($site, $clean);
 
-        // Merge submitted-language overrides with already-stored ones
-        // for other languages so saving the German tab doesn't clobber
-        // the French overrides.
+        // Merge submitted-language overrides + tone with already-stored
+        // ones for other languages so saving the German tab doesn't
+        // clobber the French overrides.
+        $submittedLang = strtolower(trim($language));
+        if (preg_match('/^[a-z]{2,3}$/', $submittedLang) !== 1) {
+            $submittedLang = '';
+        }
         $cleanOverrides = self::sanitizeOverrides($overrides);
+        $cleanTone = self::sanitizeTone($tone);
+
         $stored = $this->overrideRepository->findBySite($site) ?? [];
         foreach ($cleanOverrides as $lang => $entries) {
-            if ($entries === []) {
-                unset($stored[$lang]);
-                continue;
+            $existingTone = $stored[$lang]['tone'] ?? null;
+            $stored[$lang] = [
+                'tone' => $lang === $submittedLang ? $cleanTone : $existingTone,
+                'overrides' => $entries,
+            ];
+        }
+        // If the editor flipped the tone toggle but didn't touch any
+        // override field, $cleanOverrides for the submitted language
+        // may be empty — still persist the tone choice on its own.
+        if ($submittedLang !== '' && !isset($stored[$submittedLang])) {
+            if ($cleanTone !== null) {
+                $stored[$submittedLang] = ['tone' => $cleanTone, 'overrides' => []];
             }
-            $stored[$lang] = $entries;
+        } elseif ($submittedLang !== '') {
+            $stored[$submittedLang]['tone'] = $cleanTone;
         }
         $this->overrideRepository->upsert($site, $stored);
 
         return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
+    }
+
+    /**
+     * Whitelist tone values; null = "formal" / no preset applied.
+     * Stored only when non-null so the row stays empty for sites
+     * that never touched the toggle.
+     */
+    public static function sanitizeTone(string $tone): ?string
+    {
+        $value = strtolower(trim($tone));
+        return $value === self::TONE_INFORMAL ? self::TONE_INFORMAL : null;
     }
 
     public function resetAction(string $site = ''): ResponseInterface

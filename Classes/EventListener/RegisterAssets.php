@@ -235,10 +235,17 @@ final readonly class RegisterAssets
      * @return array<string, mixed>|null
      */
     /**
-     * Read per-site translation overrides from the BE designer's
-     * repository and expand the dotted-key map (e.g.
-     * `consentNotice.description` => 'Hallo!') into the nested
-     * `{ <lang>: { consentNotice: { description: 'Hallo!' } } }`
+     * Effective translation overlay per site, per language. Combines
+     * (in this order, last wins):
+     *   1. Tone preset for the language (e.g. DE informal "Du"-form)
+     *      from `ThemeDesignerController::TONE_PRESETS`, only if the
+     *      stored row picked `tone = 'informal'`.
+     *   2. Manual overrides the editor typed into the BE designer
+     *      fields.
+     * Both are stored in the same JSON blob (one row per site).
+     *
+     * The resulting flat dotted-key map is then expanded into the
+     * nested `{ <lang>: { consentNotice: { description: 'Hallo!' } } }`
      * shape that the bundle's translation tree expects.
      *
      * @return array<string, array<string, mixed>>
@@ -250,9 +257,23 @@ final readonly class RegisterAssets
             return [];
         }
         $out = [];
-        foreach ($rows as $lang => $entries) {
+        foreach ($rows as $lang => $entry) {
+            $tone = $entry['tone'] ?? null;
+            $effective = [];
+            if ($tone === 'informal') {
+                $preset = \SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController::TONE_PRESETS[$lang]['informal'] ?? [];
+                foreach ($preset as $key => $value) {
+                    $effective[$key] = $value;
+                }
+            }
+            foreach ($entry['overrides'] as $key => $value) {
+                $effective[$key] = $value;
+            }
+            if ($effective === []) {
+                continue;
+            }
             $tree = [];
-            foreach ($entries as $dottedKey => $value) {
+            foreach ($effective as $dottedKey => $value) {
                 $this->assignNested($tree, explode('.', $dottedKey), $value);
             }
             if ($tree !== []) {

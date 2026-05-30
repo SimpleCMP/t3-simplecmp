@@ -38,6 +38,9 @@
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source><target>Banner-Texte überschreiben</target></trans-unit>
       <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source><target>Überschreibe einzelne Bundle-Strings — pro Sprache. Damit kannst du den Tonfall wählen (Du/Sie) oder einen Button-Text komplett neu setzen. Lass ein Feld leer, um den Bundle-Default zu verwenden.</target></trans-unit>
       <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source><target>Sprache, die du gerade bearbeitest</target></trans-unit>
+      <trans-unit id="designer.overrides.toneLabel"><source>Tone</source><target>Sprachstil</target></trans-unit>
+      <trans-unit id="designer.overrides.toneFormal"><source>Formal</source><target>Sie</target></trans-unit>
+      <trans-unit id="designer.overrides.toneInformal"><source>Informal</source><target>Du</target></trans-unit>
       <trans-unit id="designer.overrides.placeholder"><source>(uses bundle default)</source><target>(nutzt Bundle-Default)</target></trans-unit>
       <trans-unit id="designer.overrides.activeBadge"><source>override active</source><target>Override aktiv</target></trans-unit>
       <!-- Per-key Klartext-Labels -->

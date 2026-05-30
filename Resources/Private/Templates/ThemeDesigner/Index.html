@@ -179,21 +179,51 @@
                         a visible selector here makes the active scope
                         obvious without scrolling back to the page header.
                     -->
-                    <f:if condition="{hasLanguageChoice}">
-                        <div class="d-flex align-items-center gap-2 mb-3 p-2 bg-body-tertiary rounded">
-                            <label for="override-lang-picker" class="form-label fw-semibold mb-0">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.scopeLabel"/>
-                            </label>
-                            <select id="override-lang-picker"
-                                    class="form-select form-select-sm"
-                                    style="width:auto"
-                                    onchange="if (this.value) window.location.assign(this.value);">
-                                <f:for each="{languageOptions}" as="opt">
-                                    <option value="{opt.url}" {f:if(condition: '{opt.code} == {overrideLanguage}', then: 'selected')}>{opt.label}</option>
-                                </f:for>
-                            </select>
-                        </div>
-                    </f:if>
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3 p-2 bg-body-tertiary rounded">
+                        <f:if condition="{hasLanguageChoice}">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="override-lang-picker" class="form-label fw-semibold mb-0">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.scopeLabel"/>
+                                </label>
+                                <select id="override-lang-picker"
+                                        class="form-select form-select-sm"
+                                        style="width:auto"
+                                        onchange="if (this.value) window.location.assign(this.value);">
+                                    <f:for each="{languageOptions}" as="opt">
+                                        <option value="{opt.url}" {f:if(condition: '{opt.code} == {overrideLanguage}', then: 'selected')}>{opt.label}</option>
+                                    </f:for>
+                                </select>
+                            </div>
+                        </f:if>
+                        <!--
+                            Tone toggle — Du/Sie etc. Only renders when
+                            we have a curated informal-tone preset for
+                            the active language (TONE_PRESETS keys).
+                            The switch sends `tone=informal` (or empty
+                            = formal) on save; preset values surface as
+                            placeholders on the inputs below.
+                        -->
+                        <f:if condition="{hasTonePresets}">
+                            <div class="d-flex align-items-center gap-2 ms-md-auto">
+                                <span class="form-label fw-semibold mb-0">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneLabel"/>:
+                                </span>
+                                <span class="text-body-secondary small">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneFormal"/>
+                                </span>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           id="override-tone-toggle"
+                                           name="tone"
+                                           value="informal"
+                                           {f:if(condition: '{toneForLang} == \'informal\'', then: 'checked')}/>
+                                </div>
+                                <span class="text-body-secondary small">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneInformal"/>
+                                </span>
+                            </div>
+                        </f:if>
+                    </div>
 
                     <input type="hidden" name="language" value="{overrideLanguage}"/>
                     <f:for each="{overrideKeys}" as="row">
@@ -217,7 +247,7 @@
                                               name="overrides[{overrideLanguage}][{row.key}]"
                                               class="form-control form-control-sm"
                                               rows="2"
-                                              placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}">{row.value}</textarea>
+                                              placeholder="{f:if(condition: row.placeholder, then: '{row.placeholder}', else: '{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder\')}')}">{row.value}</textarea>
                                 </f:case>
                                 <f:defaultCase>
                                     <input type="text"
@@ -225,7 +255,7 @@
                                            name="overrides[{overrideLanguage}][{row.key}]"
                                            value="{row.value}"
                                            class="form-control form-control-sm"
-                                           placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}"/>
+                                           placeholder="{f:if(condition: row.placeholder, then: '{row.placeholder}', else: '{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder\')}')}"/>
                                 </f:defaultCase>
                             </f:switch>
                         </div>
