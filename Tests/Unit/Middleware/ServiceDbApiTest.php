@@ -66,6 +66,9 @@ final class ServiceDbApiTest extends TestCase
         $this->rateLimiter->method('check')->willReturn([
             'allowed' => true, 'limit' => 500, 'count' => 1, 'retryAfter' => 0,
         ]);
+        $this->rateLimiter->method('checkLookup')->willReturn([
+            'allowed' => true, 'limit' => 5000, 'count' => 1, 'retryAfter' => 0,
+        ]);
         $this->secretProvider->method('isConfigured')->willReturn(true);
         $this->nonceService->method('verify')->willReturn(BridgeNonceVerification::ok());
         $this->validator->method('validate')->willReturn(
@@ -175,6 +178,59 @@ final class ServiceDbApiTest extends TestCase
         );
         $body = json_decode((string) $response->getBody(), true);
         self::assertSame([], $body['items']);
+    }
+
+    #[Test]
+    public function lookupReturns429WhenRateLimited(): void
+    {
+        $limiter = $this->createMock(BridgeRateLimiter::class);
+        $limiter->method('checkLookup')->willReturn([
+            'allowed' => false, 'limit' => 5000, 'count' => 5000, 'retryAfter' => 137,
+        ]);
+        // A rate-limited request must not reach the classifier at all.
+        $this->classifierLookup->expects(self::never())->method('lookup');
+
+        $response = $this->middleware(['rateLimiter' => $limiter])->process(
+            $this->request('POST', '/api/simplecmp/v1/lookup', body: json_encode([
+                'items' => [['cookie' => '_ga']],
+            ])),
+            $this->handler,
+        );
+
+        self::assertSame(429, $response->getStatusCode());
+        self::assertSame('137', $response->getHeaderLine('Retry-After'));
+    }
+
+    #[Test]
+    public function lookupRejectsTooManyItems(): void
+    {
+        $items = array_fill(0, 101, ['cookie' => '_ga']);
+        $this->classifierLookup->expects(self::never())->method('lookup');
+
+        $response = $this->middleware()->process(
+            $this->request('POST', '/api/simplecmp/v1/lookup', body: json_encode(['items' => $items])),
+            $this->handler,
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function lookupDropsOverlongQueryStringsBeforeMatching(): void
+    {
+        // An over-long, attacker-controlled cookie name must not reach the
+        // regex matcher (ReDoS guard) — the field is dropped to null.
+        $this->classifierLookup->expects(self::once())
+            ->method('lookup')
+            ->with(null, 'ok.example.com', self::anything(), self::anything())
+            ->willReturn([]);
+
+        $this->middleware()->process(
+            $this->request('POST', '/api/simplecmp/v1/lookup', body: json_encode([
+                'items' => [['cookie' => str_repeat('a', 600), 'origin' => 'ok.example.com']],
+            ])),
+            $this->handler,
+        );
     }
 
     #[Test]

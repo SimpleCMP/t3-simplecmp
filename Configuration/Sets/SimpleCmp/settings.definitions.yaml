@@ -59,6 +59,12 @@ settings:
     type: int
     default: 500
 
+  simplecmp.serviceDbRateLimit:
+    label: 'Service-DB lookup rate limit (requests per IP per hour)'
+    description: 'Maximum number of /api/simplecmp/v1/lookup requests accepted from a single IP within a sliding 1-hour bucket. This is the public classifier endpoint the frontend hits on a local miss, so the default is high (5000) to stay invisible to real visitors and tolerant of shared NAT/CGNAT IPs while still capping a single-IP flood. Counted separately from the webhook limit. Set to 0 to disable.'
+    type: int
+    default: 5000
+
   simplecmp.universalBlocking.enabled:
     label: 'Universal pre-consent blocking'
     description: 'When on, the FE pipeline rewrites every third-party <script src> / <iframe src> / <img src> / <link href> on the page to the engine''s data-name + data-src + src="about:blank" gate shape before the response is flushed. Visitors then see the click-to-enable placeholder for each blocked embed until consent is granted. Recognises hosts via the bundled simplecmp/services-library origin matchers. On by default — turn off only if your site is fully self-hosted and embeds nothing third-party. See ADR-0013 for the design.'

@@ -12,6 +12,19 @@ development.
 
 ### Security
 
+- **Hardened the public `/api/simplecmp/v1/lookup` endpoint against
+  abuse.** It's reachable unauthenticated (the frontend classifier hits
+  it on a local miss), but had no rate limit, no batch cap, and fed the
+  attacker-controlled cookie/origin straight into the curated regex
+  matchers — so a flood could walk the full registry per item, drain the
+  upstream daily budget, or trigger ReDoS. Now: a **separate, loose
+  per-IP rate limit** (`simplecmp.serviceDbRateLimit`, default 5000/h —
+  counted independently of the webhook limit, sized to stay invisible to
+  real visitor traffic and tolerant of shared NAT IPs), a **batch cap**
+  of 100 items per request (400 otherwise), and over-long
+  (>512-char) cookie/origin strings are dropped before matching. The
+  webhook limiter's behaviour is unchanged.
+
 - **Discovery sitemap fetch is now constrained to the site's own hosts
   (SSRF fix).** The *Discover trackers* module fetched an admin-supplied
   `sitemapUrl` server-side — and recursed into sitemap-index `<loc>`s —

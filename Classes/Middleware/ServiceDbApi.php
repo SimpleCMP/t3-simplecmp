@@ -43,6 +43,10 @@ final readonly class ServiceDbApi implements MiddlewareInterface
     private const int SCHEMA_VERSION = 1;
     private const int DEFAULT_LIMIT = 100;
     private const int MAX_LIMIT = 500;
+    /** Max query items accepted per /v1/lookup POST (this is a public, unauthenticated endpoint). */
+    private const int MAX_LOOKUP_ITEMS = 100;
+    /** Max length of an attacker-controlled cookie/origin string fed to the regex matchers (ReDoS guard). */
+    private const int MAX_QUERY_LENGTH = 512;
 
     public function __construct(
         private ServiceRepository $services,
@@ -233,6 +237,16 @@ final readonly class ServiceDbApi implements MiddlewareInterface
 
     private function lookup(ServerRequestInterface $request): ResponseInterface
     {
+        // Public, unauthenticated endpoint (the FE classifier hits it on a
+        // local miss). Loose per-IP rate limit dampens floods that would
+        // walk the registry / drain the upstream daily budget; the limit is
+        // sized for real visitor traffic (see BridgeRateLimiter::checkLookup).
+        $rate = $this->rateLimiter->checkLookup($request);
+        if (!$rate['allowed']) {
+            return $this->jsonError(429, 'Rate limit exceeded')
+                ->withHeader('Retry-After', (string) $rate['retryAfter']);
+        }
+
         $body = (string) $request->getBody();
         try {
             $decoded = $body === '' ? [] : json_decode($body, true, 32, JSON_THROW_ON_ERROR);
@@ -246,6 +260,11 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         if ($items === []) {
             return new JsonResponse(['items' => []]);
         }
+        if (count($items) > self::MAX_LOOKUP_ITEMS) {
+            // Bound per-request work — each item triggers a full registry +
+            // bundled-library scan and a possible upstream call.
+            return $this->jsonError(400, 'Too many items; max ' . self::MAX_LOOKUP_ITEMS . ' per request');
+        }
 
         [$upstreamUrl, $dailyBudget] = $this->resolveLibraryUpstream($request);
         $results = [];
@@ -256,6 +275,16 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             }
             $cookie = isset($query['cookie']) && is_string($query['cookie']) ? $query['cookie'] : null;
             $origin = isset($query['origin']) && is_string($query['origin']) ? $query['origin'] : null;
+            // These strings are attacker-controlled and become the SUBJECT of
+            // the curated regex matchers. Real cookie names / origins are
+            // short; an over-long subject is a ReDoS lever. Drop the offending
+            // field rather than fail the whole batch.
+            if ($cookie !== null && strlen($cookie) > self::MAX_QUERY_LENGTH) {
+                $cookie = null;
+            }
+            if ($origin !== null && strlen($origin) > self::MAX_QUERY_LENGTH) {
+                $origin = null;
+            }
 
             $matches = $this->classifierLookup->lookup($cookie, $origin, $upstreamUrl, $dailyBudget);
             $cleanQuery = [];

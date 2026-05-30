@@ -95,6 +95,55 @@ final class BridgeRateLimiterTest extends TestCase
         self::assertTrue($result['allowed']);
     }
 
+    #[Test]
+    public function checkLookupHasSeparateBudgetFromWebhook(): void
+    {
+        $cache = $this->fakeCache();
+        $limiter = new BridgeRateLimiter(
+            $this->cacheManagerReturning($cache),
+            $this->siteFinderBoth('dev14.ddev.site', 1, 1),
+        );
+        $req = $this->request('dev14.ddev.site', '203.0.113.9');
+
+        // Exhaust the webhook counter.
+        self::assertTrue($limiter->check($req)['allowed']);
+        self::assertFalse($limiter->check($req)['allowed']);
+        // The lookup counter is untouched — different cache-key prefix.
+        self::assertTrue($limiter->checkLookup($req)['allowed']);
+        self::assertFalse($limiter->checkLookup($req)['allowed']);
+    }
+
+    #[Test]
+    public function checkLookupDefaultsToLooseLimitWhenUnset(): void
+    {
+        $cache = $this->fakeCache();
+        // Site sets only the webhook limit; the lookup limit falls back to
+        // the loose default (5000).
+        $limiter = new BridgeRateLimiter(
+            $this->cacheManagerReturning($cache),
+            $this->siteFinder('dev14.ddev.site', 7),
+        );
+        $result = $limiter->checkLookup($this->request('dev14.ddev.site', '203.0.113.10'));
+        self::assertTrue($result['allowed']);
+        self::assertSame(5000, $result['limit']);
+    }
+
+    #[Test]
+    public function checkLookupRejectsAtConfiguredLimit(): void
+    {
+        $cache = $this->fakeCache();
+        $limiter = new BridgeRateLimiter(
+            $this->cacheManagerReturning($cache),
+            $this->siteFinderBoth('dev14.ddev.site', 500, 2),
+        );
+        $req = $this->request('dev14.ddev.site', '203.0.113.11');
+        $limiter->checkLookup($req);
+        $limiter->checkLookup($req);
+        $third = $limiter->checkLookup($req);
+        self::assertFalse($third['allowed']);
+        self::assertSame(2, $third['limit']);
+    }
+
     private function cacheManagerReturning(FrontendInterface $cache): CacheManager
     {
         $cm = $this->createMock(CacheManager::class);
@@ -124,6 +173,20 @@ final class BridgeRateLimiterTest extends TestCase
         $site = new Site($host, 1, [
             'base' => 'https://' . $host . '/',
             'settings' => ['simplecmp' => ['bridgeRateLimit' => $limit]],
+        ]);
+        $finder = $this->createMock(SiteFinder::class);
+        $finder->method('getAllSites')->willReturn([$site]);
+        return $finder;
+    }
+
+    private function siteFinderBoth(string $host, int $webhookLimit, int $lookupLimit): SiteFinder
+    {
+        $site = new Site($host, 1, [
+            'base' => 'https://' . $host . '/',
+            'settings' => ['simplecmp' => [
+                'bridgeRateLimit' => $webhookLimit,
+                'serviceDbRateLimit' => $lookupLimit,
+            ]],
         ]);
         $finder = $this->createMock(SiteFinder::class);
         $finder->method('getAllSites')->willReturn([$site]);
