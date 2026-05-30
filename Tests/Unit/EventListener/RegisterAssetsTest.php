@@ -16,6 +16,7 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteSettings;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 use SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
@@ -34,6 +35,7 @@ final class RegisterAssetsTest extends TestCase
     private AssetCollector&MockObject $assetCollector;
     private ServiceRepository&MockObject $services;
     private ThemeRepository&MockObject $themes;
+    private TranslationOverrideRepository&MockObject $overrideRepository;
     private BridgeSecretProvider&MockObject $secretProvider;
     private BridgeNonceService&MockObject $nonceService;
     private LoggerInterface&MockObject $logger;
@@ -46,6 +48,9 @@ final class RegisterAssetsTest extends TestCase
         $this->themes = $this->createMock(ThemeRepository::class);
         // Default: no theme configured. Tests that need a theme override this.
         $this->themes->method('findBySite')->willReturn(null);
+        $this->overrideRepository = $this->createMock(TranslationOverrideRepository::class);
+        // Default: no translation overrides configured.
+        $this->overrideRepository->method('findBySite')->willReturn(null);
         $this->secretProvider = $this->createMock(BridgeSecretProvider::class);
         $this->nonceService = $this->createMock(BridgeNonceService::class);
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -664,6 +669,7 @@ final class RegisterAssetsTest extends TestCase
             $this->assetCollector,
             $this->services,
             $this->themes,
+            $this->overrideRepository,
             $this->secretProvider,
             $this->nonceService,
             $this->logger,
