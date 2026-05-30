@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 
 /**
  * BE module *Websites → SimpleCMP → Banner design*.
@@ -38,6 +39,38 @@ final class ThemeDesignerController extends ActionController
      * therefore for theming it to make sense.
      */
     private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+
+    /**
+     * Curated list of banner / modal translation keys editors are
+     * allowed to override from the designer module. Limited so the
+     * BE-side surface stays approachable — covers the Du/Sie-relevant
+     * texts plus the prominent buttons. `kind` hints the input
+     * widget the template should render (single-line vs textarea).
+     *
+     * The bundle's translation tree is nested
+     * (`consentNotice.description`); we store + render via the dotted
+     * path and expand to nested objects when handing `config.translations`
+     * to `cmp.init()`.
+     *
+     * @var list<array{key: string, kind: string}>
+     */
+    public const array OVERRIDABLE_KEYS = [
+        ['key' => 'consentNotice.title', 'kind' => 'line'],
+        ['key' => 'consentNotice.description', 'kind' => 'text'],
+        ['key' => 'consentNotice.changeDescription', 'kind' => 'text'],
+        ['key' => 'consentNotice.learnMore', 'kind' => 'line'],
+        ['key' => 'consentNotice.testing', 'kind' => 'line'],
+        ['key' => 'consentModal.title', 'kind' => 'line'],
+        ['key' => 'consentModal.description', 'kind' => 'text'],
+        ['key' => 'privacyPolicy.name', 'kind' => 'line'],
+        ['key' => 'imprint.name', 'kind' => 'line'],
+        ['key' => 'consentNotice.imprint.name', 'kind' => 'line'],
+        ['key' => 'acceptAll', 'kind' => 'line'],
+        ['key' => 'acceptSelected', 'kind' => 'line'],
+        ['key' => 'decline', 'kind' => 'line'],
+        ['key' => 'save', 'kind' => 'line'],
+        ['key' => 'ok', 'kind' => 'line'],
+    ];
 
     /**
      * Defaults straight from upstream tokens.ts. Stays here as a const
@@ -185,6 +218,7 @@ final class ThemeDesignerController extends ActionController
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
         private readonly PageRenderer $pageRenderer,
         private readonly ThemeRepository $themeRepository,
+        private readonly TranslationOverrideRepository $overrideRepository,
         private readonly SiteFinder $siteFinder,
         private readonly \TYPO3\CMS\Backend\Routing\UriBuilder $backendUriBuilder,
     ) {
@@ -264,6 +298,33 @@ final class ThemeDesignerController extends ActionController
         // the position-name → grid-cell mapping.
         $positionOptions = $this->buildPositionOptions();
 
+        // Translation overrides — text fields keyed by dotted-path,
+        // scoped to the currently selected preview language so editors
+        // see / edit one language at a time. The Vorschau-Sprache
+        // picker already switches the active language, which doubles
+        // as the override-scope picker.
+        $allOverrides = $this->overrideRepository->findBySite($site) ?? [];
+        $overridesForLang = $allOverrides[$previewLanguage] ?? [];
+        $overrideKeys = [];
+        foreach (self::OVERRIDABLE_KEYS as $entry) {
+            $overrideKeys[] = [
+                'key' => $entry['key'],
+                'kind' => $entry['kind'],
+                'value' => $overridesForLang[$entry['key']] ?? '',
+            ];
+        }
+
+        // Preview-iframe payload: only the active-language overrides as
+        // a base64-encoded JSON map of dotted-key → value. The iframe's
+        // init.js decodes it and merges into `cmp.init`'s `translations`
+        // config at boot, so the preview banner reflects what the FE
+        // will render. URL-param transport (vs postMessage) keeps the
+        // overrides applied before the bundle reads them — postMessage
+        // would arrive after `init()` has already snapshotted defaults.
+        $overridesEncoded = $overridesForLang === []
+            ? ''
+            : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
         $moduleTemplate->assignMultiple([
             'hasAvailableSites' => true,
             'site' => $site,
@@ -275,6 +336,9 @@ final class ThemeDesignerController extends ActionController
             'policyUrls' => $policyUrls,
             'siteSettingsUri' => $siteSettingsUri,
             'positionOptions' => $positionOptions,
+            'overrideKeys' => $overrideKeys,
+            'overrideLanguage' => $previewLanguage,
+            'overridesEncoded' => $overridesEncoded,
             'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
@@ -481,14 +545,37 @@ final class ThemeDesignerController extends ActionController
 
     /**
      * @param array<string, string> $tokens
+     * @param array<string, array<string, string>> $overrides
+     *   language → (dotted-key → value). Only the language currently
+     *   shown in the editor is submitted; the merge below preserves
+     *   stored overrides for other languages.
      */
-    public function saveAction(string $site = '', array $tokens = []): ResponseInterface
-    {
+    public function saveAction(
+        string $site = '',
+        array $tokens = [],
+        string $language = '',
+        array $overrides = [],
+    ): ResponseInterface {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
         $clean = self::sanitizeTokens($tokens);
         $this->themeRepository->upsert($site, $clean);
-        return $this->redirect('index', null, null, ['site' => $site]);
+
+        // Merge submitted-language overrides with already-stored ones
+        // for other languages so saving the German tab doesn't clobber
+        // the French overrides.
+        $cleanOverrides = self::sanitizeOverrides($overrides);
+        $stored = $this->overrideRepository->findBySite($site) ?? [];
+        foreach ($cleanOverrides as $lang => $entries) {
+            if ($entries === []) {
+                unset($stored[$lang]);
+                continue;
+            }
+            $stored[$lang] = $entries;
+        }
+        $this->overrideRepository->upsert($site, $stored);
+
+        return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
     }
 
     public function resetAction(string $site = ''): ResponseInterface
@@ -496,7 +583,49 @@ final class ThemeDesignerController extends ActionController
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
         $this->themeRepository->delete($site);
+        $this->overrideRepository->delete($site);
         return $this->redirect('index', null, null, ['site' => $site]);
+    }
+
+    /**
+     * Filter incoming overrides down to whitelisted keys, trim
+     * whitespace, drop empty values (which represent "use upstream
+     * default"). Unknown lang codes / unknown keys are silently
+     * dropped so a tampered POST can't pollute the row.
+     *
+     * @param array<string, array<string, string>> $overrides
+     * @return array<string, array<string, string>>
+     */
+    public static function sanitizeOverrides(array $overrides): array
+    {
+        $allowedKeys = array_column(self::OVERRIDABLE_KEYS, 'key');
+        $out = [];
+        foreach ($overrides as $lang => $entries) {
+            if (!is_string($lang) || $lang === '' || !is_array($entries)) {
+                continue;
+            }
+            // Allow only 2/3-letter codes (`de`, `de-AT` → `de`).
+            if (preg_match('/^[a-z]{2,3}$/i', $lang) !== 1) {
+                continue;
+            }
+            $cleanLang = strtolower($lang);
+            $clean = [];
+            foreach ($entries as $key => $value) {
+                if (!is_string($key) || !in_array($key, $allowedKeys, true)) {
+                    continue;
+                }
+                if (!is_string($value)) {
+                    continue;
+                }
+                $trimmed = trim($value);
+                if ($trimmed === '') {
+                    continue;
+                }
+                $clean[$key] = $trimmed;
+            }
+            $out[$cleanLang] = $clean;
+        }
+        return $out;
     }
 
     /**

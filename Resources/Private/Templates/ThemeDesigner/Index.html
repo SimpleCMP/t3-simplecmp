@@ -162,6 +162,45 @@
                         </f:if>
                     </fieldset>
                 </f:for>
+
+                <fieldset class="mb-4">
+                    <legend class="h5">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.overrides"/>
+                    </legend>
+                    <p class="text-body-secondary small mb-3">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.intro" arguments="{0: overrideLanguage}"/>
+                    </p>
+                    <input type="hidden" name="language" value="{overrideLanguage}"/>
+                    <f:for each="{overrideKeys}" as="row">
+                        <div class="mb-3">
+                            <label for="override-{row.key}" class="form-label d-flex align-items-center justify-content-between">
+                                <code class="text-body-secondary">{row.key}</code>
+                                <f:if condition="{row.value}">
+                                    <span class="badge text-bg-info ms-2">
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.activeBadge"/>
+                                    </span>
+                                </f:if>
+                            </label>
+                            <f:switch expression="{row.kind}">
+                                <f:case value="text">
+                                    <textarea id="override-{row.key}"
+                                              name="overrides[{overrideLanguage}][{row.key}]"
+                                              class="form-control form-control-sm"
+                                              rows="2"
+                                              placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}">{row.value}</textarea>
+                                </f:case>
+                                <f:defaultCase>
+                                    <input type="text"
+                                           id="override-{row.key}"
+                                           name="overrides[{overrideLanguage}][{row.key}]"
+                                           value="{row.value}"
+                                           class="form-control form-control-sm"
+                                           placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}"/>
+                                </f:defaultCase>
+                            </f:switch>
+                        </div>
+                    </f:for>
+                </fieldset>
             </div>
 
             <div class="col-md-6">
@@ -178,7 +217,7 @@
                         name → `lang` is invisible.
                     -->
                     <iframe data-preview-iframe
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
                             title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>

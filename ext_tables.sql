@@ -43,6 +43,19 @@ CREATE TABLE tx_t3simplecmp_theme (
     UNIQUE KEY site (site)
 );
 
+CREATE TABLE tx_t3simplecmp_translation_override (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    overrides text,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY site (site)
+);
+
 CREATE TABLE tx_t3simplecmp_library_cache (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,

@@ -35,39 +35,74 @@ const previewLang = (() => {
 const previewPrivacy = previewParams.get('privacy') || '#';
 const previewImprint = previewParams.get('imprint') || '#';
 
+// Per-site translation overrides for the active preview language —
+// the controller base64-encodes the dotted-key → value map and the
+// template puts it on the iframe URL. Decode and expand to a nested
+// tree so it can be deep-merged into `cmp.init`'s `translations`
+// config under the active lang code.
+function decodeOverrides(raw, lang) {
+  if (!raw) return null;
+  let json;
+  try {
+    // `atob()` returns a binary string; the bundled JSON is UTF-8
+    // (Umlauts, accents, …). Decode the byte sequence explicitly so
+    // multi-byte characters survive — otherwise "Können" arrives as
+    // "KÃ¶nnen" in the preview.
+    const binary = atob(raw);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    json = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  } catch (_) {
+    return null;
+  }
+  if (!json || typeof json !== 'object') return null;
+  const tree = {};
+  for (const [dotted, value] of Object.entries(json)) {
+    if (typeof value !== 'string' || value === '') continue;
+    const path = dotted.split('.');
+    let node = tree;
+    for (let i = 0; i < path.length - 1; i++) {
+      const seg = path[i];
+      if (typeof node[seg] !== 'object' || node[seg] === null) {
+        node[seg] = {};
+      }
+      node = node[seg];
+    }
+    node[path[path.length - 1]] = value;
+  }
+  return Object.keys(tree).length > 0 ? { [lang]: tree } : null;
+}
+
+const previewOverrides = decodeOverrides(previewParams.get('overrides'), previewLang);
+
+function deepMerge(base, override) {
+  for (const [key, value] of Object.entries(override || {})) {
+    if (
+      base[key]
+      && typeof base[key] === 'object'
+      && !Array.isArray(base[key])
+      && typeof value === 'object'
+      && value !== null
+      && !Array.isArray(value)
+    ) {
+      base[key] = deepMerge(base[key], value);
+    } else {
+      base[key] = value;
+    }
+  }
+  return base;
+}
+
 // Mirror onto <html lang="…"> so the bundle's own detector
 // (`document.documentElement.lang`) lands on the same value if its
 // explicit `lang` config ever falls through.
 document.documentElement.lang = previewLang;
 
-if (cmp && typeof cmp.init === 'function') {
-  cmp.init({
-    storageName: 'simplecmp-preview',
-    testing: true,
-    // Always pass both URLs so the upstream policy-links rendering
-    // logic (banner + modal) emits the two-link box layout — the
-    // imprint link must appear next to the privacy link whenever an
-    // imprint URL is configured. `#` placeholders keep the layout
-    // demoable when nothing is configured yet.
-    privacyPolicy: previewPrivacy,
-    imprint: previewImprint,
-    lang: previewLang,
-    // The bundle's `dt()` translator falls back to this lang when the
-    // primary lookup misses a key. Default upstream is "zz" (the
-    // placeholder block), so any locale we don't explicitly fill ends
-    // up showing my placeholder copy. English is a safer baseline.
-    fallbackLang: 'en',
-    services: [
-      { name: 'preview-functional', purposes: ['functional'], required: true },
-      { name: 'preview-analytics', purposes: ['analytics'] },
-      { name: 'preview-marketing', purposes: ['marketing'] },
-    ],
-    // Service-specific copy (title/description for each demo service).
-    // The bundle already translates banner shell and purposes
-    // (Cookie-Einstellungen, Akzeptieren, …) for every locale in
-    // its built-in registry. We only need to provide the per-service
-    // strings — keyed per locale. `zz` stays as a final placeholder.
-    translations: {
+// Service-specific copy baked here; the BE-designer overrides come in
+// via `previewOverrides` and get deep-merged on top before
+// `cmp.init()` reads the final tree. Keeping the baked block as a
+// separate variable lets us merge cleanly without duplicating the
+// init-config literal.
+const baseTranslations = {
       zz: {
         'preview-functional': {
           title: 'Essential services',
@@ -166,7 +201,37 @@ if (cmp && typeof cmp.init === 'function') {
           description: 'Gepersonaliseerde aanbiedingen op basis van uw interesses.',
         },
       },
-    },
+};
+
+// Merge BE-designer overrides into the baked block. `previewOverrides`
+// is already shaped as `{ <lang>: { …nested… } }` so we can deep-merge
+// it directly; missing-language case falls through to the base block.
+const mergedTranslations = previewOverrides
+  ? deepMerge({ ...baseTranslations }, previewOverrides)
+  : baseTranslations;
+
+if (cmp && typeof cmp.init === 'function') {
+  cmp.init({
+    storageName: 'simplecmp-preview',
+    testing: true,
+    // Always pass both URLs so the upstream policy-links rendering
+    // logic (banner + modal) emits the two-link box layout — the
+    // imprint link must appear next to the privacy link whenever an
+    // imprint URL is configured. `#` placeholders keep the layout
+    // demoable when nothing is configured yet.
+    privacyPolicy: previewPrivacy,
+    imprint: previewImprint,
+    lang: previewLang,
+    // Default upstream is "zz" (the placeholder block); fall back to
+    // English so locales we don't ship strings for at least show
+    // readable defaults instead of placeholder copy.
+    fallbackLang: 'en',
+    services: [
+      { name: 'preview-functional', purposes: ['functional'], required: true },
+      { name: 'preview-analytics', purposes: ['analytics'] },
+      { name: 'preview-marketing', purposes: ['marketing'] },
+    ],
+    translations: mergedTranslations,
   });
 
   // Make Accept/Decline clicks inert in the preview. Real FE flows

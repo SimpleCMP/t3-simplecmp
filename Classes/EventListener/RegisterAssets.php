@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
@@ -68,6 +69,7 @@ final readonly class RegisterAssets
         private AssetCollector $assetCollector,
         private ServiceRepository $serviceRepository,
         private ThemeRepository $themeRepository,
+        private TranslationOverrideRepository $overrideRepository,
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
         private LoggerInterface $logger,
@@ -232,6 +234,83 @@ final readonly class RegisterAssets
      *
      * @return array<string, mixed>|null
      */
+    /**
+     * Read per-site translation overrides from the BE designer's
+     * repository and expand the dotted-key map (e.g.
+     * `consentNotice.description` => 'Hallo!') into the nested
+     * `{ <lang>: { consentNotice: { description: 'Hallo!' } } }`
+     * shape that the bundle's translation tree expects.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildOverrideTranslations(string $siteIdentifier): array
+    {
+        $rows = $this->overrideRepository->findBySite($siteIdentifier);
+        if ($rows === null || $rows === []) {
+            return [];
+        }
+        $out = [];
+        foreach ($rows as $lang => $entries) {
+            $tree = [];
+            foreach ($entries as $dottedKey => $value) {
+                $this->assignNested($tree, explode('.', $dottedKey), $value);
+            }
+            if ($tree !== []) {
+                $out[$lang] = $tree;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Recursively assign `$value` into `$tree` at the path described
+     * by `$path`. Intermediate keys become nested arrays.
+     *
+     * @param array<string, mixed> $tree
+     * @param list<string> $path
+     */
+    private function assignNested(array &$tree, array $path, mixed $value): void
+    {
+        $node = &$tree;
+        $last = array_pop($path);
+        foreach ($path as $segment) {
+            if (!isset($node[$segment]) || !is_array($node[$segment])) {
+                $node[$segment] = [];
+            }
+            $node = &$node[$segment];
+        }
+        if ($last !== null) {
+            $node[$last] = $value;
+        }
+    }
+
+    /**
+     * Deep-merge `$override` on top of `$base`. Scalar values in
+     * `$override` win; arrays merge recursively. Used to layer the
+     * designer's overrides on top of the services-library
+     * translations without losing intermediate keys either side has
+     * defined.
+     *
+     * @param array<string, mixed> $base
+     * @param array<string, mixed> $override
+     * @return array<string, mixed>
+     */
+    private function mergeTranslationsDeep(array $base, array $override): array
+    {
+        foreach ($override as $key => $value) {
+            if (
+                isset($base[$key])
+                && is_array($base[$key])
+                && is_array($value)
+            ) {
+                $base[$key] = $this->mergeTranslationsDeep($base[$key], $value);
+                continue;
+            }
+            $base[$key] = $value;
+        }
+        return $base;
+    }
+
     private function buildInitConfig(object $settings, Site $site): ?array
     {
         // `??` (null-coalesce), NOT `?:` (truthy-fallback). The Elvis form
@@ -254,8 +333,18 @@ final readonly class RegisterAssets
                 'label' => (string) $get('simplecmp.floatingTriggerLabel', 'Cookie settings'),
             ],
         ];
-        if ($serviceTranslations !== []) {
-            $config['translations'] = $serviceTranslations;
+        // Merge: bundle defaults < service translations from the
+        // services library < per-site BE-designer overrides. The
+        // designer overrides take final precedence so editors can
+        // pick formal vs informal tone (Du/Sie etc.) per language
+        // without forking strings the bundle ships with.
+        $translations = $serviceTranslations;
+        $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier());
+        if ($overrideTranslations !== []) {
+            $translations = $this->mergeTranslationsDeep($translations, $overrideTranslations);
+        }
+        if ($translations !== []) {
+            $config['translations'] = $translations;
         }
 
         $privacy = (string) $get('simplecmp.privacyPolicyUrl', '');

@@ -35,6 +35,10 @@
       <trans-unit id="designer.group.typography"><source>Typography</source></trans-unit>
       <trans-unit id="designer.group.shape"><source>Shape</source></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
+      <trans-unit id="designer.group.overrides"><source>Override banner texts</source></trans-unit>
+      <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for the currently picked preview language (%s). Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
+      <trans-unit id="designer.overrides.placeholder"><source>(uses bundle default)</source></trans-unit>
+      <trans-unit id="designer.overrides.activeBadge"><source>override active</source></trans-unit>
 
       <trans-unit id="designer.field.color-primary"><source>Primary color (Accept button background)</source></trans-unit>
       <trans-unit id="designer.field.color-primary-hover"><source>Primary hover (Accept button hover state)</source></trans-unit>
