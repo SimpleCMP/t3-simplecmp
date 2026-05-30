@@ -15,16 +15,42 @@
  * specificity `:host { ... }` rules tie, last-in wins.
  */
 const cmp = window.SimpleCMP;
+
+// Language for the SimpleCMP bundle — driven by `?lang=<code>` set by
+// the BE module's language picker so the editor previews the banner in
+// whichever locale they pick. Falls back to `en` if the query is
+// missing or contains anything other than a 2/3-letter code.
+const previewLang = (() => {
+  const raw = new URLSearchParams(window.location.search).get('lang') || '';
+  return /^[a-z]{2,3}$/i.test(raw) ? raw.toLowerCase() : 'en';
+})();
+
+// Mirror onto <html lang="…"> so the bundle's own detector
+// (`document.documentElement.lang`) lands on the same value if its
+// explicit `lang` config ever falls through.
+document.documentElement.lang = previewLang;
+
 if (cmp && typeof cmp.init === 'function') {
   cmp.init({
     storageName: 'simplecmp-preview',
     testing: true,
     privacyPolicy: '#',
+    lang: previewLang,
+    // The bundle's `dt()` translator falls back to this lang when the
+    // primary lookup misses a key. Default upstream is "zz" (the
+    // placeholder block), so any locale we don't explicitly fill ends
+    // up showing my placeholder copy. English is a safer baseline.
+    fallbackLang: 'en',
     services: [
       { name: 'preview-functional', purposes: ['functional'], required: true },
       { name: 'preview-analytics', purposes: ['analytics'] },
       { name: 'preview-marketing', purposes: ['marketing'] },
     ],
+    // Service-specific copy (title/description for each demo service).
+    // The bundle already translates banner shell and purposes
+    // (Cookie-Einstellungen, Akzeptieren, …) for every locale in
+    // its built-in registry. We only need to provide the per-service
+    // strings — keyed per locale. `zz` stays as a final placeholder.
     translations: {
       zz: {
         'preview-functional': {
@@ -38,6 +64,90 @@ if (cmp && typeof cmp.init === 'function') {
         'preview-marketing': {
           title: 'Marketing',
           description: 'Personalised offers based on your interests.',
+        },
+      },
+      en: {
+        'preview-functional': {
+          title: 'Essential services',
+          description: 'Required for the site to function correctly.',
+        },
+        'preview-analytics': {
+          title: 'Analytics',
+          description: 'Anonymous visitor statistics so we can improve the site.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Personalised offers based on your interests.',
+        },
+      },
+      de: {
+        'preview-functional': {
+          title: 'Essenzielle Dienste',
+          description: 'Notwendig, damit die Seite korrekt funktioniert.',
+        },
+        'preview-analytics': {
+          title: 'Analyse',
+          description: 'Anonyme Besucherstatistik zur Verbesserung der Seite.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Personalisierte Angebote auf Basis Ihrer Interessen.',
+        },
+      },
+      fr: {
+        'preview-functional': {
+          title: 'Services essentiels',
+          description: 'Nécessaires au bon fonctionnement du site.',
+        },
+        'preview-analytics': {
+          title: 'Analyse',
+          description: 'Statistiques de visiteurs anonymes pour améliorer le site.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Offres personnalisées basées sur vos centres d’intérêt.',
+        },
+      },
+      it: {
+        'preview-functional': {
+          title: 'Servizi essenziali',
+          description: 'Necessari per il corretto funzionamento del sito.',
+        },
+        'preview-analytics': {
+          title: 'Analisi',
+          description: 'Statistiche anonime dei visitatori per migliorare il sito.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Offerte personalizzate in base ai tuoi interessi.',
+        },
+      },
+      es: {
+        'preview-functional': {
+          title: 'Servicios esenciales',
+          description: 'Necesarios para el correcto funcionamiento del sitio.',
+        },
+        'preview-analytics': {
+          title: 'Analítica',
+          description: 'Estadísticas anónimas de visitantes para mejorar el sitio.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Ofertas personalizadas según tus intereses.',
+        },
+      },
+      nl: {
+        'preview-functional': {
+          title: 'Essentiële diensten',
+          description: 'Noodzakelijk voor de juiste werking van de site.',
+        },
+        'preview-analytics': {
+          title: 'Analyse',
+          description: 'Anonieme bezoekersstatistieken om de site te verbeteren.',
+        },
+        'preview-marketing': {
+          title: 'Marketing',
+          description: 'Gepersonaliseerde aanbiedingen op basis van uw interesses.',
         },
       },
     },

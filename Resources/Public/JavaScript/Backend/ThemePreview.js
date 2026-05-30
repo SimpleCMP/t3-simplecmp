@@ -13,8 +13,54 @@ class ThemePreview {
   initialize() {
     this._timer = null;
     document.addEventListener('input', this.onInput, true);
+    document.addEventListener('change', this.onChange);
     window.addEventListener('message', this.onMessage);
   }
+
+  /**
+   * Language picker — when the editor picks a different locale, swap
+   * the iframe's `?lang=` query so the SimpleCMP bundle re-mounts
+   * with the new language. Updates the URL silently as well so a
+   * browser refresh stays on the picked locale.
+   *
+   * Pure iframe-src swap rather than re-init via postMessage because
+   * SimpleCMP's language is resolved once at `init()` time and the
+   * cleanest way to re-resolve it is a fresh document load.
+   */
+  onChange = (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement) || !target.hasAttribute('data-preview-language-picker')) {
+      return;
+    }
+    const iframe = document.querySelector('[data-preview-iframe]');
+    if (!iframe) return;
+    // Use the URL API so the cache-buster query `?<hash>` that
+    // `f:uri.resource` puts on the base path is preserved. A plain
+    // string-concat with `?lang=` would produce `?<hash>?lang=` and
+    // URLSearchParams in the iframe would silently misparse it.
+    const rawBase = target.getAttribute('data-preview-iframe-base') || iframe.src;
+    const lang = target.value || 'en';
+    let url;
+    try {
+      url = new URL(rawBase, window.location.origin);
+      url.searchParams.set('lang', lang);
+    } catch (_) {
+      const sep = rawBase.includes('?') ? '&' : '?';
+      iframe.src = `${rawBase}${sep}lang=${encodeURIComponent(lang)}`;
+      return;
+    }
+    iframe.src = url.toString();
+
+    // Keep BE URL in sync via the option's pre-built action URL so a
+    // browser refresh lands on the same site+language combination.
+    const opt = target.options[target.selectedIndex];
+    const href = opt?.getAttribute('data-href');
+    if (href) {
+      try {
+        window.history.replaceState(null, '', href);
+      } catch (_) { /* older browsers — best-effort */ }
+    }
+  };
 
   onInput = (event) => {
     const target = event.target;

@@ -14,6 +14,13 @@
 
       <trans-unit id="designer.sitePicker.label"><source>Site</source></trans-unit>
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source></trans-unit>
+      <trans-unit id="designer.languagePicker.label"><source>Preview language</source></trans-unit>
+
+      <!-- Empty-state shown when no site has the SimpleCMP Site Set in its dependencies -->
+      <trans-unit id="designer.emptyState.title"><source>No site uses SimpleCMP yet</source></trans-unit>
+      <trans-unit id="designer.emptyState.message"><source>Banner design can only be configured for sites whose configuration includes the &quot;%s&quot; Site Set. None of your sites does at the moment, so the FE bundle never loads and there is nothing to theme here.</source></trans-unit>
+      <trans-unit id="designer.emptyState.knownSites"><source>Sites detected in this installation:</source></trans-unit>
+      <trans-unit id="designer.emptyState.howTo"><source>Add the SimpleCMP set to one of the configs above by appending these lines to the `dependencies:` block, then reload this module:</source></trans-unit>
 
       <trans-unit id="designer.group.brand"><source>Brand colors</source></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source></trans-unit>

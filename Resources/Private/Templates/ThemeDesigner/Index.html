@@ -10,6 +10,40 @@
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
     </p>
 
+    <f:if condition="{hasAvailableSites}">
+        <f:else>
+            <f:be.infobox
+                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.title')}"
+                state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING')}">
+                <p>
+                    <f:translate
+                        key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.message"
+                        arguments="{0: setIdentifier}"/>
+                </p>
+                <f:if condition="{allSites}">
+                    <p class="mb-1">
+                        <strong>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.knownSites"/>
+                        </strong>
+                    </p>
+                    <ul class="mb-2">
+                        <f:for each="{allSites}" as="siteId">
+                            <li><code>config/sites/{siteId}/config.yaml</code></li>
+                        </f:for>
+                    </ul>
+                </f:if>
+                <p class="mb-1">
+                    <strong>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.howTo"/>
+                    </strong>
+                </p>
+<pre class="mb-0"><code>dependencies:
+  - {setIdentifier}</code></pre>
+            </f:be.infobox>
+        </f:else>
+
+        <f:then>
+
     <form method="post" action="{uri_save}">
         <input type="hidden" name="site" value="{site}" />
 
@@ -17,11 +51,26 @@
             <label for="simplecmp-designer-site" class="form-label mb-0">
                 <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.label" /></strong>
             </label>
-            <select id="simplecmp-designer-site" data-list-filter="site" class="form-select form-select-sm" style="width:auto">
-                <f:for each="{availableSites}" as="opt">
-                    <option value="{opt}" {f:if(condition: '{opt} == {site}', then: 'selected')}>{opt}</option>
+            <select id="simplecmp-designer-site" class="form-select form-select-sm" style="width:auto"
+                    onchange="if (this.value) window.location.assign(this.value);">
+                <f:for each="{siteOptions}" as="opt">
+                    <option value="{opt.url}" {f:if(condition: '{opt.id} == {site}', then: 'selected')}>{opt.id}</option>
                 </f:for>
             </select>
+            <f:if condition="{hasLanguageChoice}">
+                <label for="simplecmp-designer-language" class="form-label mb-0 ms-3">
+                    <strong>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.languagePicker.label" />
+                    </strong>
+                </label>
+                <select id="simplecmp-designer-language" class="form-select form-select-sm" style="width:auto"
+                        data-preview-language-picker
+                        data-preview-iframe-base="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}">
+                    <f:for each="{languageOptions}" as="opt">
+                        <option value="{opt.code}" data-href="{opt.url}" {f:if(condition: '{opt.code} == {previewLanguage}', then: 'selected')}>{opt.label}</option>
+                    </f:for>
+                </select>
+            </f:if>
             <f:if condition="{hasCustomTheme}">
                 <span class="badge bg-info text-dark">
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.customBadge" />
@@ -59,8 +108,14 @@
                     <p class="text-body-secondary small mb-2">
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
                     </p>
+                    <!--
+                        `f:uri.resource` produces `…/Preview/index.html?<cache-buster>`,
+                        so the lang param must be joined with `&`, not `?`. With `?lang=`
+                        the URL becomes `?<cb>?lang=de` and the iframe's URLSearchParams
+                        parses `<cb>?lang` as the first param name → `lang` is invisible.
+                    -->
                     <iframe data-preview-iframe
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}"
                             title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>
@@ -94,6 +149,9 @@
         <option value="'Source Sans Pro', sans-serif">Source Sans Pro</option>
         <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
     </datalist>
+
+        </f:then>
+    </f:if>
 </f:section>
 
 <f:section name="Fields">

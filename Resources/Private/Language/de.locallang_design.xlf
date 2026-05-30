@@ -14,6 +14,13 @@
 
       <trans-unit id="designer.sitePicker.label"><source>Site</source><target>Site</target></trans-unit>
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source><target>Eigenes Design aktiv</target></trans-unit>
+      <trans-unit id="designer.languagePicker.label"><source>Preview language</source><target>Vorschau-Sprache</target></trans-unit>
+
+      <!-- Empty-state -->
+      <trans-unit id="designer.emptyState.title"><source>No site uses SimpleCMP yet</source><target>Noch keine Site nutzt SimpleCMP</target></trans-unit>
+      <trans-unit id="designer.emptyState.message"><source>Banner design can only be configured for sites whose configuration includes the &quot;%s&quot; Site Set. None of your sites does at the moment, so the FE bundle never loads and there is nothing to theme here.</source><target>Banner-Design kann nur für Sites konfiguriert werden, deren Konfiguration das Site-Set „%s“ enthält. Aktuell tut das keine deiner Sites — das Frontend-Bundle wird nirgends geladen und es gibt hier nichts zu gestalten.</target></trans-unit>
+      <trans-unit id="designer.emptyState.knownSites"><source>Sites detected in this installation:</source><target>In dieser Installation gefundene Sites:</target></trans-unit>
+      <trans-unit id="designer.emptyState.howTo"><source>Add the SimpleCMP set to one of the configs above by appending these lines to the `dependencies:` block, then reload this module:</source><target>Füge das SimpleCMP-Set zu einer der obigen Configs hinzu, indem du diese Zeilen unter den `dependencies:`-Block hängst, und lade das Modul neu:</target></trans-unit>
 
       <trans-unit id="designer.group.brand"><source>Brand colors</source><target>Markenfarben</target></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source><target>Text &amp; Hintergrund</target></trans-unit>
