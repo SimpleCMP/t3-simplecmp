@@ -38,6 +38,10 @@ class ThemePreview {
       this.swapPreviewTone(target);
       return;
     }
+    if (target instanceof HTMLSelectElement && target.getAttribute('data-token') === 'theme') {
+      this.swapPreviewTheme(target);
+      return;
+    }
   };
 
   swapPreviewLanguage(select) {
@@ -70,6 +74,25 @@ class ThemePreview {
       try {
         window.history.replaceState(null, '', href);
       } catch (_) { /* older browsers — best-effort */ }
+    }
+  }
+
+  swapPreviewTheme(select) {
+    // `theme` is consumed by cmp.init() at boot time (it picks the
+    // adapter `<style>` element the bundle injects into <head>), so
+    // we need a fresh document load — same reason the language and
+    // tone pickers reload the iframe instead of postMessaging an
+    // update.
+    const iframe = document.querySelector('[data-preview-iframe]');
+    if (!iframe) return;
+    const value = select.value || 'default';
+    try {
+      const url = new URL(iframe.src, window.location.origin);
+      url.searchParams.set('theme', value);
+      iframe.src = url.toString();
+    } catch (_) {
+      const sep = iframe.src.includes('?') ? '&' : '?';
+      iframe.src = `${iframe.src}${sep}theme=${encodeURIComponent(value)}`;
     }
   }
 
@@ -130,6 +153,11 @@ class ThemePreview {
     document.querySelectorAll('[data-token]').forEach((input) => {
       const key = input.getAttribute('data-token');
       if (!key) return;
+      // `theme` is a config-time bundle flag, not a CSS variable. Skip
+      // it here so the postMessage payload stays purely token-oriented;
+      // a theme change is handled separately via an iframe-src swap
+      // (see `swapPreviewTheme`) that re-runs `cmp.init()`.
+      if (key === 'theme') return;
       // Radios pose as a group of inputs all sharing `data-token`. Only
       // the checked one carries the user's choice; the rest are noise.
       if (input.type === 'radio') {

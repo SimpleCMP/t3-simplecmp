@@ -124,6 +124,14 @@ final class ThemeDesignerController extends ActionController
         // default. Default mirrors the original hard-coded
         // bottom-right corner.
         'position' => 'bottom-right',
+        // CSS-framework adapter — picks one of the upstream theme
+        // overlays so the consent UI inherits the host site's design
+        // tokens (e.g. Bootstrap 5's `--bs-*`). The value flows
+        // straight through to `cmp.init({ theme: ... })`; the bundle
+        // injects the matching adapter `<style>` element. Default
+        // `default` is no-op: the bundle's own tokens (plus this
+        // designer's per-token overrides) apply unchanged.
+        'theme' => 'default',
     ];
 
     /**
@@ -230,6 +238,22 @@ final class ThemeDesignerController extends ActionController
         ],
         'shape' => ['radius'],
         'placement' => ['position'],
+        'framework' => ['theme'],
+    ];
+
+    /**
+     * Allowed values for the `theme` token. Keys match the upstream
+     * bundle's `Theme` union (`src/ui/themes/index.ts`); labels are
+     * the human-readable strings the BE select-box shows. Adding a
+     * new entry requires the upstream bundle to ship the matching
+     * adapter (otherwise `cmp.init({ theme: ... })` warns and falls
+     * back to default at runtime).
+     *
+     * @var array<string, string>
+     */
+    public const array THEMES = [
+        'default' => 'Default (SimpleCMP eigene Token)',
+        'bootstrap5' => 'Bootstrap 5 (übernimmt --bs-* der Site)',
     ];
 
     public function __construct(
@@ -316,6 +340,12 @@ final class ThemeDesignerController extends ActionController
         // the position-name → grid-cell mapping.
         $positionOptions = $this->buildPositionOptions();
 
+        // CSS-framework picker — flat {key, label} list for a select.
+        $themeOptions = [];
+        foreach (self::THEMES as $key => $label) {
+            $themeOptions[] = ['key' => $key, 'label' => $label];
+        }
+
         // Translation overrides — text fields keyed by dotted-path,
         // scoped to the currently selected preview language so editors
         // see / edit one language at a time. The Vorschau-Sprache
@@ -359,6 +389,7 @@ final class ThemeDesignerController extends ActionController
             'policyUrls' => $policyUrls,
             'siteSettingsUri' => $siteSettingsUri,
             'positionOptions' => $positionOptions,
+            'themeOptions' => $themeOptions,
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
@@ -707,6 +738,11 @@ final class ThemeDesignerController extends ActionController
             // Enum guard for `position` — silently drop unknown values
             // so a tampered POST can't leak garbage CSS into the page.
             if ($key === 'position' && !isset(self::POSITIONS[$value])) {
+                continue;
+            }
+            // Same enum guard for `theme` — only allow values the
+            // upstream bundle ships an adapter for.
+            if ($key === 'theme' && !isset(self::THEMES[$value])) {
                 continue;
             }
             $clean[$key] = $value;

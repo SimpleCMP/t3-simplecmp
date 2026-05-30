@@ -45,6 +45,15 @@ const previewTone = (() => {
 })();
 const previewTones = previewTone === 'informal' ? { [previewLang]: 'informal' } : undefined;
 
+// CSS-framework adapter — the bundle ships `default` (no adapter)
+// and `bootstrap5` (re-binds `--simplecmp-*` to `--bs-*`). Anything
+// else falls through to `default` so a typo doesn't break the
+// preview. The bundle warns on unknown values at its own end.
+const previewTheme = (() => {
+  const raw = (previewParams.get('theme') || '').toLowerCase();
+  return raw === 'bootstrap5' ? 'bootstrap5' : 'default';
+})();
+
 // Per-site translation overrides for the active preview language —
 // the controller base64-encodes the dotted-key → value map and the
 // template puts it on the iframe URL. Decode and expand to a nested
@@ -244,6 +253,7 @@ if (cmp && typeof cmp.init === 'function') {
     translations: mergedTranslations,
   };
   if (previewTones) initConfig.tones = previewTones;
+  if (previewTheme !== 'default') initConfig.theme = previewTheme;
   cmp.init(initConfig);
 
   // Make Accept/Decline clicks inert in the preview. Real FE flows

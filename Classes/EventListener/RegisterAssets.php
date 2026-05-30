@@ -165,6 +165,14 @@ final readonly class RegisterAssets
                 }
                 continue;
             }
+            // `theme` is not a CSS var — it's a bundle config flag
+            // handled separately in `buildInitConfig()`. Don't emit a
+            // `--simplecmp-theme` declaration; the bundle would ignore
+            // it anyway, and emitting it would just pollute the
+            // shadow-DOM rule.
+            if ($token === 'theme') {
+                continue;
+            }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
             $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ';';
@@ -380,6 +388,17 @@ final readonly class RegisterAssets
         $tones = $this->buildTones($site->getIdentifier());
         if ($tones !== []) {
             $config['tones'] = $tones;
+        }
+        // `theme` lives in the same theme repo (per-site row) as the
+        // colour / typography tokens — the BE designer surfaces all
+        // of them in one form. Forward to the bundle's `theme` config
+        // field so it can inject the matching framework adapter
+        // (e.g. Bootstrap 5's `--bs-*` mapping). Suppress when
+        // `default` so the bundle treats it as unset.
+        $themeTokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        $themeChoice = isset($themeTokens['theme']) ? (string) $themeTokens['theme'] : 'default';
+        if ($themeChoice !== '' && $themeChoice !== 'default') {
+            $config['theme'] = $themeChoice;
         }
         $translations = $serviceTranslations;
         $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier());

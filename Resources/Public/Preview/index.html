@@ -15,16 +15,28 @@
 </style>
 </head>
 <body>
-  <script src="../JavaScript/simplecmp.global.js"></script>
   <!--
-    Load init.js with the parent URL's query string appended so the
+    Bundle + init.js both pick up the parent URL's query string so the
     cache-buster `f:uri.resource` puts on the iframe src (`?<hash>`)
-    propagates here. Without it browsers serve a stale init.js across
-    extension updates and the editor never sees changes to the demo
-    config (services, translations, banner config like `imprint`).
+    propagates here. Without it browsers serve a stale bundle / init.js
+    across extension updates and the editor never sees changes (new
+    config flags, theme adapter, …).
+
+    The bundle is an IIFE (not an ES module), so it loads via a
+    dynamically-inserted `<script>` with the buster appended to the
+    src URL. init.js IS a module — it loads via dynamic `import()`
+    once the bundle has registered `window.SimpleCMP` on the global.
   -->
-  <script type="module">
-    import('./init.js' + window.location.search);
+  <script>
+    (function () {
+      var buster = window.location.search || '';
+      var s = document.createElement('script');
+      s.src = '../JavaScript/simplecmp.global.js' + buster;
+      s.onload = function () {
+        import('./init.js' + buster);
+      };
+      document.head.appendChild(s);
+    })();
   </script>
 </body>
 </html>
