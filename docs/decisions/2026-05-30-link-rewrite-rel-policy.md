@@ -117,7 +117,9 @@ blocker:
 
 Part B needs cross-repo FE engine work (stylesheet re-injection) and is
 a feature, not a fix — so it is intentionally decoupled from Part A.
-Should be captured as a REQ when picked up.
+Captured as **REQ-N8** in the upstream
+[`simplecmp/docs/requirements.md`](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
+("Nice-to-have, später" track).
 
 ## References
 
