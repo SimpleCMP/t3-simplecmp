@@ -32,6 +32,7 @@ class Discovery {
       done: root.getAttribute('data-i18n-done') || 'Done. Visited {current} of {total} URLs.',
       noUrls: root.getAttribute('data-i18n-no-urls') || 'No URLs to visit. Paste at least one URL and try again.',
       sitemapResult: root.getAttribute('data-i18n-sitemap-result') || 'Sitemap {url} → {count} URLs',
+      sitemapBlocked: root.getAttribute('data-i18n-sitemap-blocked') || 'Sitemap {url} was not loaded — only sitemaps on this website ({hosts}) can be fetched. Enter a full http(s) address on your own site.',
       sitemapError: root.getAttribute('data-i18n-sitemap-error') || 'Failed to fetch sitemap: {error}',
       iframeError: root.getAttribute('data-i18n-iframe-error') || 'iframe load error',
       cleared: root.getAttribute('data-i18n-cleared') || 'Discovery state cleared.',
@@ -153,10 +154,20 @@ class Discovery {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       this.renderUrls(data.urls || [], data.sitemapUrl || '');
-      this.appendLog(
-        data.urls?.length > 0 ? 'ok' : 'warn',
-        this.t(this.i18n.sitemapResult, { url: data.sitemapUrl, count: data.urls?.length || 0 }),
-      );
+      if (data.blocked) {
+        this.appendLog(
+          'warn',
+          this.t(this.i18n.sitemapBlocked, {
+            url: data.sitemapUrl,
+            hosts: (data.allowedHosts || []).join(', '),
+          }),
+        );
+      } else {
+        this.appendLog(
+          data.urls?.length > 0 ? 'ok' : 'warn',
+          this.t(this.i18n.sitemapResult, { url: data.sitemapUrl, count: data.urls?.length || 0 }),
+        );
+      }
       this.saveState();
     } catch (err) {
       this.appendLog('error', this.t(this.i18n.sitemapError, { error: err.message }));

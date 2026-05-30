@@ -10,6 +10,42 @@ development.
 
 ## Unreleased
 
+### Security
+
+- **Discovery sitemap fetch is now constrained to the site's own hosts
+  (SSRF fix).** The *Discover trackers* module fetched an admin-supplied
+  `sitemapUrl` server-side — and recursed into sitemap-index `<loc>`s —
+  with no restriction on the target host, so a backend user could point
+  it at internal services or the cloud-metadata endpoint
+  (`169.254.169.254`). `SitemapFetcher` now refuses any URL that isn't
+  `http`/`https` on a host belonging to the selected Site (base +
+  language hosts); it also rejects embedded credentials
+  (`user:pass@host`) and protocol-relative URLs. The check runs on every
+  server-side fetch, including recursed sub-sitemaps, and **fails closed**
+  when the Site can't be resolved. Redirects are constrained to
+  `http`/`https`. `verify => false` is retained for local self-signed
+  certs but is now bounded by the host allowlist. Known residual: the
+  allowlist is host-only (any port), and a pre-existing open redirect on
+  the site's own host could still bounce a fetch — both narrow given the
+  host constraint. New `SitemapFetcher::isFetchableUrl()` +
+  `DiscoveryController::siteHosts()`.
+
+### Added
+
+- **Off-host sitemaps via robots.txt discovery (no admin config).** So a
+  site that legitimately serves its sitemap from another host (e.g. a
+  CDN) still works under the new SSRF allowlist, the Discover module now
+  reads the site's own `robots.txt` and trusts the hosts its `Sitemap:`
+  directives name — the trust is anchored in a file the site itself
+  serves, so a backend user can't point discovery elsewhere. robots.txt
+  is fetched only from a site host, and declared URLs are filtered to
+  public `http`/`https` on non-IP-literal hosts (so a tampered robots.txt
+  still can't bless `169.254.x`/`10.x`/`::1` — without any DNS lookup).
+  Declared sitemaps are also tried first during auto-detect. New
+  `SitemapFetcher::robotsSitemapUrls()` / `parseRobots()` +
+  `DiscoveryController::resolveAllowlist()`; 15 new unit tests cover the
+  SSRF allowlist + robots policy.
+
 ### Fixed
 
 - **Universal blocking no longer breaks third-party stylesheets or

@@ -306,6 +306,7 @@
       <trans-unit id="discover.log.done"><source>Done. Visited {current} of {total} URLs.</source><target>Fertig. {current} von {total} URLs besucht.</target></trans-unit>
       <trans-unit id="discover.log.noUrls"><source>No URLs to visit. Paste at least one URL and try again.</source><target>Keine URLs zu besuchen. Bitte mindestens eine URL einfügen und erneut versuchen.</target></trans-unit>
       <trans-unit id="discover.log.sitemapResult"><source>Sitemap {url} → {count} URLs</source><target>Sitemap {url} → {count} URLs</target></trans-unit>
+      <trans-unit id="discover.log.sitemapBlocked"><source>Sitemap {url} was not loaded — only sitemaps on this website ({hosts}) can be fetched. Enter a full http(s) address on your own site.</source><target>Sitemap {url} wurde nicht geladen – es können nur Sitemaps auf dieser Website ({hosts}) abgerufen werden. Bitte eine vollständige http(s)-Adresse der eigenen Website angeben.</target></trans-unit>
       <trans-unit id="discover.log.sitemapError"><source>Failed to fetch sitemap: {error}</source><target>Sitemap konnte nicht abgerufen werden: {error}</target></trans-unit>
       <trans-unit id="discover.log.iframeError"><source>iframe load error</source><target>Fehler beim Laden im Frame</target></trans-unit>
       <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source><target>Tracker-Erfassung ist deaktiviert</target></trans-unit>

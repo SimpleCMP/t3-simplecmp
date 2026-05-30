@@ -306,6 +306,7 @@
       <trans-unit id="discover.log.done"><source>Done. Visited {current} of {total} URLs.</source></trans-unit>
       <trans-unit id="discover.log.noUrls"><source>No URLs to visit. Paste at least one URL and try again.</source></trans-unit>
       <trans-unit id="discover.log.sitemapResult"><source>Sitemap {url} → {count} URLs</source></trans-unit>
+      <trans-unit id="discover.log.sitemapBlocked"><source>Sitemap {url} was not loaded — only sitemaps on this website ({hosts}) can be fetched. Enter a full http(s) address on your own site.</source></trans-unit>
       <trans-unit id="discover.log.sitemapError"><source>Failed to fetch sitemap: {error}</source></trans-unit>
       <trans-unit id="discover.log.iframeError"><source>iframe load error</source></trans-unit>
       <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source></trans-unit>

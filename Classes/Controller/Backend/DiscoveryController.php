@@ -56,10 +56,11 @@ final class DiscoveryController extends ActionController
         $site = $this->normalizeSite($site, $availableSites);
         $siteObject = $this->resolveSite($site);
         $baseUrl = $siteObject !== null ? (string) $siteObject->getBase() : '';
+        [$allowedHosts, $robotsSitemaps] = $this->resolveAllowlist($siteObject, $baseUrl);
         if ($sitemapUrl === '') {
-            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl);
+            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl, $allowedHosts, $robotsSitemaps);
         } else {
-            $urls = $this->sitemapFetcher->fetch($sitemapUrl);
+            $urls = $this->sitemapFetcher->fetch($sitemapUrl, $allowedHosts);
         }
 
         $moduleTemplate = $this->initModuleTemplate();
@@ -99,10 +100,19 @@ final class DiscoveryController extends ActionController
         $site = $this->normalizeSite($site, $availableSites);
         $siteObject = $this->resolveSite($site);
         $baseUrl = $siteObject !== null ? (string) $siteObject->getBase() : '';
+        [$allowedHosts, $robotsSitemaps] = $this->resolveAllowlist($siteObject, $baseUrl);
+        $blocked = false;
         if ($sitemapUrl === '') {
-            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl);
+            [$sitemapUrl, $urls] = $this->autoDetectSitemap($siteObject, $baseUrl, $allowedHosts, $robotsSitemaps);
+        } elseif (!$this->sitemapFetcher->isFetchableUrl($sitemapUrl, $allowedHosts)) {
+            // Admin typed a URL that isn't an http/https address on one of
+            // the site's own hosts — refused by the SSRF guard. Flag it so
+            // the JS explains *why* nothing came back instead of showing a
+            // misleading "→ 0 URLs".
+            $blocked = true;
+            $urls = [];
         } else {
-            $urls = $this->sitemapFetcher->fetch($sitemapUrl);
+            $urls = $this->sitemapFetcher->fetch($sitemapUrl, $allowedHosts);
         }
 
         $response = $this->responseFactory->createResponse()
@@ -112,6 +122,8 @@ final class DiscoveryController extends ActionController
             'baseUrl' => $baseUrl,
             'sitemapUrl' => $sitemapUrl,
             'urls' => $urls,
+            'blocked' => $blocked,
+            'allowedHosts' => $allowedHosts,
         ], JSON_THROW_ON_ERROR));
         return $response;
     }
@@ -130,16 +142,23 @@ final class DiscoveryController extends ActionController
      * if nothing worked — the admin then sees what we tried and can
      * type the right URL into the Refetch input.
      *
+     * @param list<string> $allowedHosts site hosts the fetch may target
+     * @param list<string> $priorityCandidates sitemap URLs the site's
+     *        robots.txt declares — tried before the conventional guesses
      * @return array{0: string, 1: list<string>}
      */
-    private function autoDetectSitemap(?Site $site, string $baseUrl): array
-    {
+    private function autoDetectSitemap(
+        ?Site $site,
+        string $baseUrl,
+        array $allowedHosts,
+        array $priorityCandidates = [],
+    ): array {
         if ($baseUrl === '') {
             return ['', []];
         }
         $rootUrl = $this->sitemapFetcher->defaultSitemapUrl($baseUrl);
 
-        $candidates = [$rootUrl];
+        $candidates = [...$priorityCandidates, $rootUrl];
         if ($site !== null) {
             foreach ($site->getLanguages() as $language) {
                 // SiteLanguage::getBase() returns the full resolved URI
@@ -155,12 +174,70 @@ final class DiscoveryController extends ActionController
         }
 
         foreach (array_unique($candidates) as $candidate) {
-            $urls = $this->sitemapFetcher->fetch($candidate);
+            $urls = $this->sitemapFetcher->fetch($candidate, $allowedHosts);
             if ($urls !== []) {
                 return [$candidate, $urls];
             }
         }
         return [$rootUrl, []];
+    }
+
+    /**
+     * Resolve the SSRF host allowlist for a discovery request: the
+     * site's own hosts ({@see siteHosts()}) PLUS any host the site's own
+     * robots.txt blesses via a `Sitemap:` directive — so a sitemap
+     * legitimately hosted off-site (e.g. a CDN) works automatically,
+     * without an admin allowlist field, because the trust is anchored in
+     * a file the site itself serves. Also returns those declared sitemap
+     * URLs so auto-detect can try them before the conventional guesses.
+     *
+     * @return array{0: list<string>, 1: list<string>} [allowedHosts, robotsSitemapUrls]
+     */
+    private function resolveAllowlist(?Site $site, string $baseUrl): array
+    {
+        $hosts = $this->siteHosts($site);
+        if ($baseUrl === '') {
+            return [$hosts, []];
+        }
+        // robotsSitemapUrls() fetches robots.txt only from a $hosts host
+        // and returns URLs already filtered to public http/https on
+        // non-IP-literal hosts, so extracting their hosts is safe.
+        $robotsSitemaps = $this->sitemapFetcher->robotsSitemapUrls($baseUrl, $hosts);
+        foreach ($robotsSitemaps as $url) {
+            $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?: ''));
+            if ($host !== '' && !in_array($host, $hosts, true)) {
+                $hosts[] = $host;
+            }
+        }
+        return [$hosts, $robotsSitemaps];
+    }
+
+    /**
+     * The selected site's own hostnames (base + per-language bases) —
+     * the SSRF allowlist passed to {@see SitemapFetcher::fetch()}. The
+     * sitemap (and any sub-sitemaps) must live on one of these; an
+     * admin-supplied URL on any other host is refused. Returns an empty
+     * list for an unresolved site, which makes the fetcher fail-closed.
+     *
+     * @return list<string>
+     */
+    private function siteHosts(?Site $site): array
+    {
+        if ($site === null) {
+            return [];
+        }
+        $hosts = [];
+        $base = strtolower($site->getBase()->getHost());
+        if ($base !== '') {
+            $hosts[] = $base;
+        }
+        foreach ($site->getLanguages() as $language) {
+            $host = strtolower($language->getBase()->getHost());
+            if ($host !== '' && !in_array($host, $hosts, true)) {
+                $hosts[] = $host;
+            }
+        }
+        return $hosts;
     }
 
     /**
