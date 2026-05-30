@@ -30,7 +30,7 @@
             "gdpr",
             {
                 "name": "gpp",
-                "requireOrigin": "id5-sync"
+                "requireOrigin": "id5-sync.com"
             },
             {
                 "name": "3pi",
@@ -38,8 +38,7 @@
             }
         ],
         "origins": [
-            "id5-sync.com",
-            "id5-sync"
+            "id5-sync.com"
         ]
     }
 }
