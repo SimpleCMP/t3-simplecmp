@@ -114,9 +114,16 @@ Add a service for each, or pass \`record: { silenceProductionWarning: true }\` i
       :host {
         display: block;
         position: fixed;
-        right: var(--simplecmp-spacing);
-        bottom: var(--simplecmp-spacing);
-        max-width: 30rem;
+        /* Banner placement — overridable via three tokens, all set
+           together by the integrator (t3-simplecmp ships a 3x3
+           picker). Default mirrors the original hard-coded
+           bottom-right corner. */
+        inset: var(
+          --simplecmp-banner-inset,
+          auto var(--simplecmp-spacing) var(--simplecmp-spacing) auto
+        );
+        transform: var(--simplecmp-banner-transform, none);
+        max-width: var(--simplecmp-banner-max-width, 30rem);
         z-index: var(--simplecmp-z-index);
       }
 
