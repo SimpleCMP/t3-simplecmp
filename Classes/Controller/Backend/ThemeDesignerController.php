@@ -85,9 +85,17 @@ final class ThemeDesignerController extends ActionController
      * by convention. When upstream adds a new informal pack, append
      * its language code here and the toggle becomes available.
      *
+     * **Native-speaker review status** (per upstream `informal/
+     * index.ts`):
+     *   - `de`: reviewed
+     *   - `fr`, `it`, `es`, `nl`: draft, native-speaker review
+     *     pending. Wording is grammatically clean and tonally
+     *     consistent but hasn't been audited against brand-voice
+     *     norms or regional variants.
+     *
      * @var list<string>
      */
-    public const array LANGUAGES_WITH_INFORMAL_TONE = ['de'];
+    public const array LANGUAGES_WITH_INFORMAL_TONE = ['de', 'es', 'fr', 'it', 'nl'];
 
     private const string TONE_FORMAL = 'formal';
     private const string TONE_INFORMAL = 'informal';
