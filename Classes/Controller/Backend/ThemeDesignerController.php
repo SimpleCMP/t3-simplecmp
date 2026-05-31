@@ -254,6 +254,7 @@ final class ThemeDesignerController extends ActionController
     public const array THEMES = [
         'default' => 'Default (SimpleCMP eigene Token)',
         'bootstrap5' => 'Bootstrap 5 (übernimmt --bs-* der Site)',
+        'tailwind4' => 'Tailwind 4 (übernimmt @theme-Tokens der Site)',
     ];
 
     public function __construct(

@@ -45,13 +45,16 @@ const previewTone = (() => {
 })();
 const previewTones = previewTone === 'informal' ? { [previewLang]: 'informal' } : undefined;
 
-// CSS-framework adapter — the bundle ships `default` (no adapter)
-// and `bootstrap5` (re-binds `--simplecmp-*` to `--bs-*`). Anything
-// else falls through to `default` so a typo doesn't break the
-// preview. The bundle warns on unknown values at its own end.
+// CSS-framework adapter — the bundle ships `default` (no adapter),
+// `bootstrap5` (`--bs-*`), and `tailwind4` (`@theme` tokens with
+// shadcn/ui semantic-name fallback). Anything else falls through to
+// `default` so a typo doesn't break the preview. The bundle warns on
+// unknown values at its own end. Keep this whitelist in sync with
+// `ThemeDesignerController::THEMES`.
+const KNOWN_THEMES = new Set(['bootstrap5', 'tailwind4']);
 const previewTheme = (() => {
   const raw = (previewParams.get('theme') || '').toLowerCase();
-  return raw === 'bootstrap5' ? 'bootstrap5' : 'default';
+  return KNOWN_THEMES.has(raw) ? raw : 'default';
 })();
 
 // Per-site translation overrides for the active preview language —
