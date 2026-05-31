@@ -57,6 +57,16 @@ const previewTheme = (() => {
   return KNOWN_THEMES.has(raw) ? raw : 'default';
 })();
 
+// Banner-template picker — `standard` (default), `compact`,
+// `stacked`. Unknown values fall back to `standard` so a typo
+// doesn't break the preview. Keep in sync with
+// `ThemeDesignerController::LAYOUTS`.
+const KNOWN_LAYOUTS = new Set(['compact', 'stacked']);
+const previewLayout = (() => {
+  const raw = (previewParams.get('layout') || '').toLowerCase();
+  return KNOWN_LAYOUTS.has(raw) ? raw : 'standard';
+})();
+
 // Per-site translation overrides for the active preview language —
 // the controller base64-encodes the dotted-key → value map and the
 // template puts it on the iframe URL. Decode and expand to a nested
@@ -257,6 +267,7 @@ if (cmp && typeof cmp.init === 'function') {
   };
   if (previewTones) initConfig.tones = previewTones;
   if (previewTheme !== 'default') initConfig.theme = previewTheme;
+  if (previewLayout !== 'standard') initConfig.layout = previewLayout;
   cmp.init(initConfig);
 
   // Make Accept/Decline clicks inert in the preview. Real FE flows

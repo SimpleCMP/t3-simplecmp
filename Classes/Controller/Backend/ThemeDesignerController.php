@@ -134,6 +134,14 @@ final class ThemeDesignerController extends ActionController
         // `default` is no-op: the bundle's own tokens (plus this
         // designer's per-token overrides) apply unchanged.
         'theme' => 'default',
+        // Banner button-row template. `standard` ships three equally-
+        // styled buttons (Configure | Decline | Accept); `compact`
+        // drops Configure so the first layer is a two-button row;
+        // `stacked` keeps all three but lays them vertically full-
+        // width for narrow viewports. All three templates preserve
+        // the equal-prominence compliance baseline — they only
+        // differ in which buttons appear + how they're arranged.
+        'layout' => 'standard',
     ];
 
     /**
@@ -241,6 +249,7 @@ final class ThemeDesignerController extends ActionController
         'shape' => ['radius'],
         'placement' => ['position'],
         'framework' => ['theme'],
+        'template' => ['layout'],
     ];
 
     /**
@@ -257,6 +266,22 @@ final class ThemeDesignerController extends ActionController
         'default' => 'Default (SimpleCMP eigene Token)',
         'bootstrap5' => 'Bootstrap 5 (übernimmt --bs-* der Site)',
         'tailwind4' => 'Tailwind 4 (übernimmt @theme-Tokens der Site)',
+    ];
+
+    /**
+     * Allowed values for the `layout` token. Keys match the
+     * upstream bundle's `layout` config field; labels are the
+     * human-readable strings the BE select-box shows. Adding a
+     * new entry requires the upstream bundle to ship the matching
+     * render branch (otherwise `cmp.init({ layout: ... })` falls
+     * back to the standard template at runtime).
+     *
+     * @var array<string, string>
+     */
+    public const array LAYOUTS = [
+        'standard' => 'Drei Buttons nebeneinander (Konfigurieren, Ablehnen, Akzeptieren)',
+        'compact' => 'Zwei Buttons (Ablehnen, Akzeptieren — kein Konfigurieren auf Ebene 1)',
+        'stacked' => 'Drei Buttons untereinander (für schmale Viewports / Mobile)',
     ];
 
     public function __construct(
@@ -350,6 +375,12 @@ final class ThemeDesignerController extends ActionController
             $themeOptions[] = ['key' => $key, 'label' => $label];
         }
 
+        // Banner-template picker — same flat shape as themeOptions.
+        $layoutOptions = [];
+        foreach (self::LAYOUTS as $key => $label) {
+            $layoutOptions[] = ['key' => $key, 'label' => $label];
+        }
+
         // Compliance audit — runs the legal-requirement checks against
         // the live site config (settings + service registry). Results
         // mirror the upstream `simplecmp.audit()` JS surface so a
@@ -424,6 +455,7 @@ final class ThemeDesignerController extends ActionController
             'siteSettingsUri' => $siteSettingsUri,
             'positionOptions' => $positionOptions,
             'themeOptions' => $themeOptions,
+            'layoutOptions' => $layoutOptions,
             'auditResults' => $auditResults,
             'auditFailed' => $auditFailed,
             'auditPassed' => $auditPassed,
@@ -809,6 +841,11 @@ final class ThemeDesignerController extends ActionController
             // Same enum guard for `theme` — only allow values the
             // upstream bundle ships an adapter for.
             if ($key === 'theme' && !isset(self::THEMES[$value])) {
+                continue;
+            }
+            // Same enum guard for `layout` — only allow values the
+            // upstream bundle ships a render branch for.
+            if ($key === 'layout' && !isset(self::LAYOUTS[$value])) {
                 continue;
             }
             $clean[$key] = $value;

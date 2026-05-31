@@ -42,7 +42,31 @@ class ThemePreview {
       this.swapPreviewTheme(target);
       return;
     }
+    if (target instanceof HTMLSelectElement && target.getAttribute('data-token') === 'layout') {
+      this.swapPreviewLayout(target);
+      return;
+    }
   };
+
+  swapPreviewLayout(select) {
+    // `layout` (like `theme` and `tone`) is consumed at cmp.init()
+    // time — the bundle's banner component reads `config.layout`
+    // once to pick which buttons to render, and there's no
+    // postMessage-driven re-render path. Reload the iframe with
+    // the new `?layout=` query so init runs again under the new
+    // template.
+    const iframe = document.querySelector('[data-preview-iframe]');
+    if (!iframe) return;
+    const value = select.value || 'standard';
+    try {
+      const url = new URL(iframe.src, window.location.origin);
+      url.searchParams.set('layout', value);
+      iframe.src = url.toString();
+    } catch (_) {
+      const sep = iframe.src.includes('?') ? '&' : '?';
+      iframe.src = `${iframe.src}${sep}layout=${encodeURIComponent(value)}`;
+    }
+  }
 
   swapPreviewLanguage(select) {
     const iframe = document.querySelector('[data-preview-iframe]');
@@ -153,11 +177,12 @@ class ThemePreview {
     document.querySelectorAll('[data-token]').forEach((input) => {
       const key = input.getAttribute('data-token');
       if (!key) return;
-      // `theme` is a config-time bundle flag, not a CSS variable. Skip
-      // it here so the postMessage payload stays purely token-oriented;
-      // a theme change is handled separately via an iframe-src swap
-      // (see `swapPreviewTheme`) that re-runs `cmp.init()`.
-      if (key === 'theme') return;
+      // `theme` and `layout` are config-time bundle flags, not CSS
+      // variables. Skip them here so the postMessage payload stays
+      // purely token-oriented; theme/layout changes are handled
+      // separately via an iframe-src swap (see swapPreviewTheme /
+      // swapPreviewLayout) that re-runs `cmp.init()`.
+      if (key === 'theme' || key === 'layout') return;
       // Radios pose as a group of inputs all sharing `data-token`. Only
       // the checked one carries the user's choice; the rest are noise.
       if (input.type === 'radio') {

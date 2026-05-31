@@ -82,6 +82,7 @@
       <trans-unit id="designer.group.shape"><source>Shape</source><target>Form</target></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source><target>Banner-Position</target></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source><target>CSS-Framework</target></trans-unit>
+      <trans-unit id="designer.group.template"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source><target>Banner-Texte überschreiben</target></trans-unit>
       <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source><target>Überschreibe einzelne Bundle-Strings — pro Sprache. Damit kannst du den Tonfall wählen (Du/Sie) oder einen Button-Text komplett neu setzen. Lass ein Feld leer, um den Bundle-Default zu verwenden.</target></trans-unit>
       <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source><target>Sprache, die du gerade bearbeitest</target></trans-unit>
@@ -123,6 +124,8 @@
       <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source><target>Wo der Banner auf dem Bildschirm steht</target></trans-unit>
       <trans-unit id="designer.field.theme"><source>Framework adapter</source><target>Framework-Adapter</target></trans-unit>
       <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design tokens (plus your per-token overrides above). Picking a framework re-binds those tokens to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source><target>„Default" verwendet SimpleCMPs eigene Design-Tokens (zusätzlich zu deinen Token-Overrides oben). Mit einem Framework werden die Tokens an die CSS-Variablen der Site gebunden (z. B. Bootstrap 5 --bs-*) — deine Farb-Overrides setzen sich trotzdem durch.</target></trans-unit>
+      <trans-unit id="designer.field.layout"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
+      <trans-unit id="designer.field.layout.hint"><source>Which buttons appear on the banner and how they are arranged. All three templates style the buttons identically — only their visibility and arrangement differs. "Compact" hides the "Configure" button on layer 1, so visitors reach the per-purpose settings via the persistent revocation trigger instead.</source><target>Welche Buttons auf dem Banner erscheinen und wie sie angeordnet sind. Alle drei Vorlagen gestalten die Buttons gleichwertig — nur Sichtbarkeit und Anordnung unterscheiden sich. „Kompakt" blendet den „Konfigurieren"-Button auf Ebene 1 aus; Besucher öffnen die Detail-Einstellungen dann über den Widerrufs-Trigger.</target></trans-unit>
       <trans-unit id="designer.action.detectFonts"><source>Detect fonts from active site</source><target>Schriften der aktiven Site erkennen</target></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source><target>Live-Vorschau</target></trans-unit>

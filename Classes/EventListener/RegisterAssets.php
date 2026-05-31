@@ -165,12 +165,12 @@ final readonly class RegisterAssets
                 }
                 continue;
             }
-            // `theme` is not a CSS var — it's a bundle config flag
-            // handled separately in `buildInitConfig()`. Don't emit a
-            // `--simplecmp-theme` declaration; the bundle would ignore
-            // it anyway, and emitting it would just pollute the
-            // shadow-DOM rule.
-            if ($token === 'theme') {
+            // `theme` and `layout` are not CSS vars — they're bundle
+            // config flags handled separately in `buildInitConfig()`.
+            // Don't emit `--simplecmp-theme` / `--simplecmp-layout`
+            // declarations; the bundle would ignore them and they'd
+            // pollute the shadow-DOM rule.
+            if ($token === 'theme' || $token === 'layout') {
                 continue;
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
@@ -399,6 +399,14 @@ final readonly class RegisterAssets
         $themeChoice = isset($themeTokens['theme']) ? (string) $themeTokens['theme'] : 'default';
         if ($themeChoice !== '' && $themeChoice !== 'default') {
             $config['theme'] = $themeChoice;
+        }
+        // Banner-template picker — same persistence path as theme,
+        // forwarded to the bundle's `layout` config field. `standard`
+        // is the bundle's own default; suppress to keep the init
+        // payload minimal.
+        $layoutChoice = isset($themeTokens['layout']) ? (string) $themeTokens['layout'] : 'standard';
+        if ($layoutChoice !== '' && $layoutChoice !== 'standard') {
+            $config['layout'] = $layoutChoice;
         }
         $translations = $serviceTranslations;
         $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier());

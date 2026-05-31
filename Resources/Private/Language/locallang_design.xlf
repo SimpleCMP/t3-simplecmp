@@ -82,6 +82,7 @@
       <trans-unit id="designer.group.shape"><source>Shape</source></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source></trans-unit>
+      <trans-unit id="designer.group.template"><source>Banner template</source></trans-unit>
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source></trans-unit>
       <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
       <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source></trans-unit>
@@ -123,6 +124,8 @@
       <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source></trans-unit>
       <trans-unit id="designer.field.theme"><source>Framework adapter</source></trans-unit>
       <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design tokens (plus your per-token overrides above). Picking a framework re-binds those tokens to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source></trans-unit>
+      <trans-unit id="designer.field.layout"><source>Banner template</source></trans-unit>
+      <trans-unit id="designer.field.layout.hint"><source>Which buttons appear on the banner and how they are arranged. All three templates style the buttons identically — only their visibility and arrangement differs. "Compact" hides the "Configure" button on layer 1, so visitors reach the per-purpose settings via the persistent revocation trigger instead.</source></trans-unit>
       <trans-unit id="designer.action.detectFonts"><source>Detect fonts from active site</source></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source></trans-unit>
