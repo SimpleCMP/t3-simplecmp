@@ -239,18 +239,6 @@
                             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
                         <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions}" />
-                        <f:if condition="{group} == 'typography'">
-                            <div class="mt-2">
-                                <button type="button"
-                                        class="btn btn-default btn-sm"
-                                        data-detect-fonts
-                                        data-detect-fonts-url="{siteBaseUrl}">
-                                    <core:icon identifier="actions-search" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.detectFonts" />
-                                </button>
-                                <small class="text-body-secondary ms-2 detect-fonts-status" data-detect-fonts-status></small>
-                            </div>
-                        </f:if>
                     </fieldset>
                 </f:for>
 
@@ -425,17 +413,6 @@
         </div>
     </form>
 
-    <datalist id="simplecmp-font-suggestions">
-        <option value='system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'>System UI</option>
-        <option value="Arial, Helvetica, sans-serif">Arial / Helvetica</option>
-        <option value="Georgia, 'Times New Roman', serif">Georgia</option>
-        <option value="'Inter', sans-serif">Inter</option>
-        <option value="'Roboto', sans-serif">Roboto</option>
-        <option value="'Open Sans', sans-serif">Open Sans</option>
-        <option value="'Source Sans Pro', sans-serif">Source Sans Pro</option>
-        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
-    </datalist>
-
         </f:then>
     </f:if>
 </f:section>
@@ -447,56 +424,6 @@
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.{key}" />
             </label>
             <f:switch expression="{key}">
-                <f:case value="font-family">
-                    <input type="text"
-                           id="token-{key}"
-                           name="tokens[{key}]"
-                           value="{tokens.{key}}"
-                           class="form-control form-control-sm"
-                           list="simplecmp-font-suggestions"
-                           data-token="{key}" />
-                </f:case>
-                <f:case value="font-family-heading">
-                    <input type="text"
-                           id="token-{key}"
-                           name="tokens[{key}]"
-                           value="{tokens.{key}}"
-                           class="form-control form-control-sm"
-                           list="simplecmp-font-suggestions"
-                           data-token="{key}" />
-                </f:case>
-                <f:case value="font-size">
-                    <input type="text"
-                           id="token-{key}"
-                           name="tokens[{key}]"
-                           value="{tokens.{key}}"
-                           class="form-control form-control-sm"
-                           style="width:7rem"
-                           pattern="^\d+(\.\d+)?(px|rem|em)$"
-                           placeholder="0.95rem"
-                           data-token="{key}" />
-                </f:case>
-                <f:case value="font-size-heading">
-                    <input type="text"
-                           id="token-{key}"
-                           name="tokens[{key}]"
-                           value="{tokens.{key}}"
-                           class="form-control form-control-sm"
-                           style="width:7rem"
-                           pattern="^\d+(\.\d+)?(px|rem|em)$"
-                           placeholder="20px"
-                           data-token="{key}" />
-                </f:case>
-                <f:case value="radius">
-                    <input type="text"
-                           id="token-{key}"
-                           name="tokens[{key}]"
-                           value="{tokens.{key}}"
-                           class="form-control form-control-sm"
-                           style="width:7rem"
-                           pattern="^\d+(\.\d+)?(px|rem|em)$"
-                           data-token="{key}" />
-                </f:case>
                 <f:case value="position">
                     <div class="simplecmp-position-picker" role="radiogroup"
                          aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.position')}">

@@ -39,7 +39,7 @@ final class ThemeDesignerControllerTest extends TestCase
         $clean = ThemeDesignerController::sanitizeTokens([
             'color-primary' => '#15775a',  // default — drop
             'color-text' => '#000000',     // custom — keep
-            'radius' => '6px',             // default — drop
+            'color-bg' => '#ffffff',       // default — drop
         ]);
         self::assertSame(['color-text' => '#000000'], $clean);
     }
@@ -49,19 +49,19 @@ final class ThemeDesignerControllerTest extends TestCase
     {
         $clean = ThemeDesignerController::sanitizeTokens([
             'color-primary' => '',
-            'font-family' => '   ',  // whitespace only
-            'radius' => '12px',
+            'color-text' => '   ',  // whitespace only
+            'color-bg' => '#fefefe',
         ]);
-        self::assertSame(['radius' => '12px'], $clean);
+        self::assertSame(['color-bg' => '#fefefe'], $clean);
     }
 
     #[Test]
     public function sanitizeTrimsWhitespace(): void
     {
         $clean = ThemeDesignerController::sanitizeTokens([
-            'font-family' => '  Inter, sans-serif  ',
+            'color-text' => '  #112233  ',
         ]);
-        self::assertSame(['font-family' => 'Inter, sans-serif'], $clean);
+        self::assertSame(['color-text' => '#112233'], $clean);
     }
 
     #[Test]
@@ -69,10 +69,10 @@ final class ThemeDesignerControllerTest extends TestCase
     {
         $clean = ThemeDesignerController::sanitizeTokens([
             'color-primary' => ['not', 'a', 'string'],
-            'radius' => 12,
-            'font-family' => 'Inter',
+            'color-text' => 12,
+            'color-bg' => '#abcdef',
         ]);
-        self::assertSame(['font-family' => 'Inter'], $clean);
+        self::assertSame(['color-bg' => '#abcdef'], $clean);
     }
 
     #[Test]

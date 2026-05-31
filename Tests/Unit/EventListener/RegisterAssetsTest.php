@@ -582,6 +582,15 @@ final class RegisterAssetsTest extends TestCase
             siteIdentifier: 'corporate',
         );
         $this->themes = $this->createMock(ThemeRepository::class);
+        // `radius` is no longer an editable token in the BE designer
+        // (that simplification followed the framework-adapter
+        // introduction — the chosen `theme` already binds the radius
+        // to the host site's token). But the FE asset listener
+        // doesn't filter against the BE's editable set; it forwards
+        // whatever's in the repo. This test pins that behaviour:
+        // legacy customizations from before the simplification keep
+        // rendering until the editor saves the form (which would
+        // strip the obsolete key via sanitize).
         $this->themes->method('findBySite')
             ->with('corporate')
             ->willReturn([

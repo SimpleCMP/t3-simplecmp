@@ -78,8 +78,6 @@
       <trans-unit id="designer.group.brand"><source>Brand colors</source><target>Markenfarben</target></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source><target>Text &amp; Hintergrund</target></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source><target>Erweiterte Farben</target></trans-unit>
-      <trans-unit id="designer.group.typography"><source>Typography</source><target>Typografie</target></trans-unit>
-      <trans-unit id="designer.group.shape"><source>Shape</source><target>Form</target></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source><target>Banner-Position</target></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source><target>CSS-Framework</target></trans-unit>
       <trans-unit id="designer.group.template"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
@@ -116,17 +114,11 @@
       <trans-unit id="designer.field.color-bg-alt"><source>Alternate background (badges, required-pill)</source><target>Alternativhintergrund (Badges, Pflicht-Marker)</target></trans-unit>
       <trans-unit id="designer.field.color-border"><source>Border</source><target>Rahmen</target></trans-unit>
       <trans-unit id="designer.field.color-danger"><source>Decline color</source><target>Ablehnen-Farbe</target></trans-unit>
-      <trans-unit id="designer.field.font-family"><source>Body font family (CSS font-family stack)</source><target>Fließtext-Schriftfamilie (CSS-font-family-Stack)</target></trans-unit>
-      <trans-unit id="designer.field.font-family-heading"><source>Heading font family</source><target>Überschrift-Schriftfamilie</target></trans-unit>
-      <trans-unit id="designer.field.font-size"><source>Body font size (px or rem)</source><target>Fließtext-Schriftgröße (px oder rem)</target></trans-unit>
-      <trans-unit id="designer.field.font-size-heading"><source>Heading font size (px or rem)</source><target>Überschrift-Schriftgröße (px oder rem)</target></trans-unit>
-      <trans-unit id="designer.field.radius"><source>Corner radius (e.g. 6px)</source><target>Eckenradius (z. B. 6px)</target></trans-unit>
       <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source><target>Wo der Banner auf dem Bildschirm steht</target></trans-unit>
       <trans-unit id="designer.field.theme"><source>Framework adapter</source><target>Framework-Adapter</target></trans-unit>
       <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design tokens (plus your per-token overrides above). Picking a framework re-binds those tokens to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source><target>„Default" verwendet SimpleCMPs eigene Design-Tokens (zusätzlich zu deinen Token-Overrides oben). Mit einem Framework werden die Tokens an die CSS-Variablen der Site gebunden (z. B. Bootstrap 5 --bs-*) — deine Farb-Overrides setzen sich trotzdem durch.</target></trans-unit>
       <trans-unit id="designer.field.layout"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
       <trans-unit id="designer.field.layout.hint"><source>Which buttons appear on the banner and how they are arranged. All three templates style the buttons identically — only their visibility and arrangement differs. "Compact" hides the "Configure" button on layer 1, so visitors reach the per-purpose settings via the persistent revocation trigger instead.</source><target>Welche Buttons auf dem Banner erscheinen und wie sie angeordnet sind. Alle drei Vorlagen gestalten die Buttons gleichwertig — nur Sichtbarkeit und Anordnung unterscheiden sich. „Kompakt" blendet den „Konfigurieren"-Button auf Ebene 1 aus; Besucher öffnen die Detail-Einstellungen dann über den Widerrufs-Trigger.</target></trans-unit>
-      <trans-unit id="designer.action.detectFonts"><source>Detect fonts from active site</source><target>Schriften der aktiven Site erkennen</target></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source><target>Live-Vorschau</target></trans-unit>
       <trans-unit id="designer.preview.help"><source>The consent banner updates as you edit. Click Configure inside the banner to see the modal with all services.</source><target>Das Einwilligungs-Banner aktualisiert sich beim Bearbeiten. „Konfigurieren" im Banner anklicken, um den Dialog mit allen Diensten zu sehen.</target></trans-unit>

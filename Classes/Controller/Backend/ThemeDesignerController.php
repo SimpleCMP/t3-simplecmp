@@ -108,6 +108,19 @@ final class ThemeDesignerController extends ActionController
      * @var array<string, string>
      */
     public const array DEFAULT_TOKENS = [
+        // Brand-relevant colors stay editable — operators want their
+        // accept button on their actual brand color even when the
+        // chosen `theme` framework would otherwise bind it to the
+        // framework's primary (e.g. Bootstrap's blue). Typography
+        // (`font-family`, `font-size`) and shape (`radius`) used to
+        // be editable here too; they were removed because the
+        // framework adapters (`bootstrap5`, `tailwind4`) already
+        // bind those to the host site's tokens (`--bs-body-font-
+        // family`, `--bs-border-radius`, `--font-sans`, `--radius-md`,
+        // …). On `default` (no framework) the bundle's `tokens.ts`
+        // ships sensible system-stack defaults. Either way the editor
+        // doesn't need per-banner overrides for fonts or radius —
+        // those are site-design concerns handled outside this module.
         'color-primary' => '#15775a',
         'color-primary-hover' => '#0f5d44',
         'color-text' => '#1a232c',
@@ -116,17 +129,6 @@ final class ThemeDesignerController extends ActionController
         'color-bg-alt' => '#f5f7f9',
         'color-border' => '#dde2e7',
         'color-danger' => '#da2c43',
-        'radius' => '6px',
-        // Typography. `--simplecmp-font-family-heading` defaults to
-        // `var(--simplecmp-font-family)` upstream (same font for body
-        // and headings) — but for the BE designer's "if equals default,
-        // don't persist" sanitize logic, we need a literal default
-        // string. Keeping it equal to font-family means no row gets
-        // persisted unless admin explicitly sets a heading font.
-        'font-family' => 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-        'font-family-heading' => 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-        'font-size' => '0.95rem',
-        'font-size-heading' => '20px',
         // Banner placement — one of the nine `POSITION_*` keys below.
         // Translated by the FE asset listener into the upstream
         // `--simplecmp-banner-inset` / `-transform` / `-max-width`
@@ -248,13 +250,6 @@ final class ThemeDesignerController extends ActionController
             'color-text-muted',
             'color-bg-alt',
         ],
-        'typography' => [
-            'font-family',
-            'font-size',
-            'font-family-heading',
-            'font-size-heading',
-        ],
-        'shape' => ['radius'],
         'placement' => ['position'],
         'framework' => ['theme'],
         'template' => ['layout'],
@@ -475,7 +470,6 @@ final class ThemeDesignerController extends ActionController
             'overridesEncoded' => $overridesEncoded,
             'toneForLang' => $toneForLang,
             'hasInformalTone' => $hasInformalTone,
-            'siteBaseUrl' => $this->siteBaseUrl($site),
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
             'hasCustomTheme' => $hasCustomTheme,
@@ -507,21 +501,6 @@ final class ThemeDesignerController extends ActionController
         return $ids;
     }
 
-    /**
-     * Active site's base URL, used by the BE detect-fonts JS to load
-     * the FE in a hidden iframe and read its computed body/heading
-     * typography. Empty string if the site doesn't expose a base
-     * (shouldn't happen for sites with the SimpleCMP set).
-     */
-    private function siteBaseUrl(string $siteIdentifier): string
-    {
-        try {
-            $site = $this->siteFinder->getSiteByIdentifier($siteIdentifier);
-        } catch (\Throwable) {
-            return '';
-        }
-        return (string) $site->getBase();
-    }
 
     /**
      * Read the privacy + imprint URLs the site has configured in its
@@ -922,9 +901,6 @@ final class ThemeDesignerController extends ActionController
         );
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/ThemePreview.js'
-        );
-        $this->pageRenderer->loadJavaScriptModule(
-            '@simplecmp/t3-simplecmp/Backend/DetectFonts.js'
         );
         return $moduleTemplate;
     }
