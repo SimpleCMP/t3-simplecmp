@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
 
 use TYPO3\CMS\Core\Site\Entity\Site;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 
 /**
@@ -41,8 +42,40 @@ final readonly class ComplianceCheckService
     public function __construct(
         private ServiceRepository $serviceRepository,
         private TranslationOverrideRepository $overrideRepository,
+        private ThemeRepository $themeRepository,
     ) {
     }
+
+    /**
+     * Theme-token pairs that visually relate to each other. When the
+     * editor overrides one but leaves the other at the bundle's
+     * default, the rendered banner gets a visual mismatch — e.g.
+     * primary stays brand-red but the hover state reverts to the
+     * default's faded green. The heuristic flags these imbalances
+     * so the editor confirms the choice (intentional) or completes
+     * the pair (forgot).
+     *
+     * Why each pair matters:
+     *   - color-primary / color-primary-hover: focus-outline + link
+     *     colors carry the primary; hover should track it so the
+     *     accent feels coherent on `:hover` / `:focus-visible`.
+     *   - color-bg / color-bg-alt: bg is the banner card surface,
+     *     bg-alt is the button surface. Their relationship defines
+     *     the button-stands-out-from-card affordance; tuning one
+     *     without the other tends to either erase the button shape
+     *     or make it scream.
+     *   - color-text / color-text-muted: body text and the muted
+     *     policy-link text — when one is overridden the muted
+     *     value should usually move with it (lighter shade of the
+     *     new body color, not the default's grey-on-new-body).
+     *
+     * @var list<array{tokens: array{0: string, 1: string}, label: string}>
+     */
+    private const array PAIRED_TOKENS = [
+        ['tokens' => ['color-primary', 'color-primary-hover'], 'label' => 'Primärfarbe + Hover'],
+        ['tokens' => ['color-bg', 'color-bg-alt'], 'label' => 'Karten- + Button-Hintergrund'],
+        ['tokens' => ['color-text', 'color-text-muted'], 'label' => 'Text + dezenter Text'],
+    ];
 
     /**
      * Decline-label phrases that read as deferral rather than refusal.
@@ -164,6 +197,7 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkServicesHavePurposes();
         $results[] = $this->checkDeclineLabelClarity($site);
         $results[] = $this->checkNoMarketingNudgeInDescription($site);
+        $results[] = $this->checkPairedTokenOverrides($site);
 
         return $results;
     }
@@ -364,6 +398,61 @@ final readonly class ComplianceCheckService
             [
                 'count' => count($hits),
                 'sample' => "\n  - " . implode("\n  - ", $hits),
+            ],
+        );
+    }
+
+    /**
+     * Heuristic — flags theme-token pairs where the editor overrode
+     * one half but left the other at the bundle's default. The
+     * resulting banner gets a visual mismatch (hover state stops
+     * tracking primary, button background no longer relates to the
+     * card surface, etc.). Warning severity — the editor may have
+     * intentionally left one at the default and just wants the
+     * confirmation hint; the audit names the pair so they can.
+     *
+     * TYPO3-only check: the BE designer's theme-override surface is
+     * the only place a token "override set" exists. Upstream
+     * `simplecmp` consumes overrides via raw CSS variables at FE
+     * mount, with no per-token override-vs-default distinction.
+     *
+     * @return Result
+     */
+    private function checkPairedTokenOverrides(Site $site): array
+    {
+        $tokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        // Drop non-color tokens — `position`, `theme`, `layout` aren't
+        // pairs and would otherwise dilute the check's scope.
+        $colorOverrides = [];
+        foreach ($tokens as $key => $_) {
+            if (is_string($key) && str_starts_with($key, 'color-')) {
+                $colorOverrides[$key] = true;
+            }
+        }
+        $imbalances = [];
+        foreach (self::PAIRED_TOKENS as $pair) {
+            [$a, $b] = $pair['tokens'];
+            $aSet = isset($colorOverrides[$a]);
+            $bSet = isset($colorOverrides[$b]);
+            if ($aSet xor $bSet) {
+                $imbalances[] = sprintf(
+                    '%s — „%s" überschrieben, „%s" auf Default',
+                    $pair['label'],
+                    $aSet ? $a : $b,
+                    $aSet ? $b : $a,
+                );
+            }
+        }
+        if ($imbalances === []) {
+            return $this->pass('heuristic-paired-token-overrides', '1.2');
+        }
+        return $this->fail(
+            'heuristic-paired-token-overrides',
+            '1.2',
+            'warning',
+            [
+                'count' => count($imbalances),
+                'sample' => "\n  - " . implode("\n  - ", $imbalances),
             ],
         );
     }

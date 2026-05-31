@@ -68,6 +68,10 @@
       <trans-unit id="designer.audit.pass.heuristic-no-marketing-nudge-in-description"><source>Banner descriptions stay clear of marketing-nudge language.</source></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-no-marketing-nudge-in-description"><source>%d banner description(s) contain marketing-nudge phrases that push visitors toward accepting — EDPB 03/2022 Stirring and CNIL recommendation 17.09.2020 rule this out. Replace the flagged phrases with neutral wording: %s</source></trans-unit>
 
+      <trans-unit id="designer.audit.title.heuristic-paired-token-overrides"><source>Paired color tokens overridden together</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-paired-token-overrides"><source>Related color tokens have been overridden as pairs — visual relationships stay coherent.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-paired-token-overrides"><source>%d color-token pair(s) are out of balance — only one half was overridden, the other still uses the bundle default. The rendered banner will show mismatched hover states or surface relationships. Either tune both or revert one: %s</source></trans-unit>
+
       <trans-unit id="designer.compliance.title"><source>Compliance reference</source></trans-unit>
       <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source></trans-unit>
       <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source></trans-unit>
