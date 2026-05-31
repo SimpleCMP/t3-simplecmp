@@ -72,6 +72,88 @@
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
     </p>
 
+    <!--
+        Compliance audit (legal-requirement check) — runs against the
+        live site config via `ComplianceCheckService` which mirrors
+        the upstream `simplecmp.audit()` engine. Renders only when a
+        site is selected. Editors see findings as the first thing
+        above the design form so a config that violates a hard
+        requirement is obvious before they reach for a color picker.
+    -->
+    <f:if condition="{hasAvailableSites}">
+        <f:if condition="{auditFailed}">
+            <f:then>
+                <div class="alert alert-{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'danger', else: 'warning')} mt-3">
+                    <h2 class="h5 mb-2">
+                        <core:icon identifier="{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'actions-exclamation', else: 'actions-info')}" size="small"/>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.title"/>
+                        <span class="badge text-bg-{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'danger', else: 'warning')} ms-2">
+                            <f:if condition="{auditCriticalCount}">
+                                <f:then>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.criticalCount" arguments="{0: auditCriticalCount}"/>
+                                </f:then>
+                                <f:else>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.warningCount" arguments="{0: auditWarningCount}"/>
+                                </f:else>
+                            </f:if>
+                        </span>
+                    </h2>
+                    <p class="mb-2 small">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.intro"/>
+                    </p>
+                    <ul class="list-unstyled mb-0">
+                        <f:for each="{auditFailed}" as="finding">
+                            <li class="mb-2 d-flex align-items-start gap-2">
+                                <span class="badge text-bg-{f:if(condition: '{finding.severity} == \'critical\'', then: 'danger', else: 'warning')} flex-shrink-0">
+                                    <f:if condition="{finding.severity} == 'critical'">
+                                        <f:then>
+                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical"/>
+                                        </f:then>
+                                        <f:else>
+                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning"/>
+                                        </f:else>
+                                    </f:if>
+                                </span>
+                                <div>
+                                    <strong>{finding.title}</strong>
+                                    <span class="text-body-secondary small ms-1">(§{finding.section})</span>
+                                    <div class="small">{finding.detail}</div>
+                                </div>
+                            </li>
+                        </f:for>
+                    </ul>
+                    <f:if condition="{auditPassed}">
+                        <details class="mt-3">
+                            <summary class="small text-body-secondary">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.passedToggle" arguments="{0: '{auditPassed -> f:count()}'}"/>
+                            </summary>
+                            <ul class="list-unstyled small mt-2 mb-0">
+                                <f:for each="{auditPassed}" as="finding">
+                                    <li class="mb-1">
+                                        <span class="badge text-bg-success me-1">OK</span>
+                                        {finding.title}
+                                        <span class="text-body-secondary">(§{finding.section})</span>
+                                    </li>
+                                </f:for>
+                            </ul>
+                        </details>
+                    </f:if>
+                </div>
+            </f:then>
+            <f:else>
+                <div class="alert alert-success mt-3">
+                    <core:icon identifier="actions-check" size="small"/>
+                    <strong>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassed"/>
+                    </strong>
+                    <span class="text-body-secondary ms-1 small">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassedDetail" arguments="{0: '{auditResults -> f:count()}'}"/>
+                    </span>
+                </div>
+            </f:else>
+        </f:if>
+    </f:if>
+
     <f:if condition="{hasAvailableSites}">
         <f:else>
             <f:be.infobox

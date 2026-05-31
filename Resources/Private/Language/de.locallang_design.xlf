@@ -12,6 +12,17 @@
       <trans-unit id="designer.title"><source>Banner design</source><target>Banner-Design</target></trans-unit>
       <trans-unit id="designer.intro"><source>Customise how the SimpleCMP consent banner looks on your site. Each Site Set has its own theme; changes take effect on the next frontend page render.</source><target>Passe das Aussehen des SimpleCMP-Einwilligungs-Banners auf deiner Website an. Jedes Site Set hat sein eigenes Design; Änderungen werden mit dem nächsten Frontend-Aufruf wirksam.</target></trans-unit>
 
+      <!-- Compliance-audit banner shown above the form -->
+      <trans-unit id="designer.audit.title"><source>Compliance check</source><target>Rechts-Audit</target></trans-unit>
+      <trans-unit id="designer.audit.intro"><source>The banner configuration was checked against the SimpleCMP legal-compliance reference (current GDPR / ePrivacy / DSK / VG Hannover / EDPB lines). Address each finding below; section numbers point into the upstream `docs/legal-compliance.md`.</source><target>Die Banner-Konfiguration wurde gegen die SimpleCMP-Compliance-Referenz geprüft (aktuelle DSGVO / ePrivacy / DSK / VG Hannover / EDPB-Linie). Bitte die folgenden Befunde bearbeiten; die §-Nummern verweisen in die Upstream-Datei `docs/legal-compliance.md`.</target></trans-unit>
+      <trans-unit id="designer.audit.allPassed"><source>All compliance checks passed.</source><target>Alle Compliance-Checks bestanden.</target></trans-unit>
+      <trans-unit id="designer.audit.allPassedDetail"><source>%d checks ran against the current site configuration; no findings.</source><target>%d Checks gegen die aktuelle Site-Konfiguration geprüft, keine Befunde.</target></trans-unit>
+      <trans-unit id="designer.audit.passedToggle"><source>Show %d checks that passed</source><target>%d bestandene Checks anzeigen</target></trans-unit>
+      <trans-unit id="designer.audit.criticalCount"><source>%d critical issue(s)</source><target>%d kritische(s) Problem(e)</target></trans-unit>
+      <trans-unit id="designer.audit.warningCount"><source>%d warning(s)</source><target>%d Warnung(en)</target></trans-unit>
+      <trans-unit id="designer.audit.severity.critical"><source>Critical</source><target>Kritisch</target></trans-unit>
+      <trans-unit id="designer.audit.severity.warning"><source>Warning</source><target>Warnung</target></trans-unit>
+
       <trans-unit id="designer.sitePicker.label"><source>Site</source><target>Site</target></trans-unit>
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source><target>Eigenes Design aktiv</target></trans-unit>
       <trans-unit id="designer.languagePicker.label"><source>Preview language</source><target>Vorschau-Sprache</target></trans-unit>

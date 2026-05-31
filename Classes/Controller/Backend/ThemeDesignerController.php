@@ -10,8 +10,10 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
+use SimpleCMP\T3SimpleCmp\Service\ComplianceCheckService;
 
 /**
  * BE module *Websites → SimpleCMP → Banner design*.
@@ -264,6 +266,7 @@ final class ThemeDesignerController extends ActionController
         private readonly TranslationOverrideRepository $overrideRepository,
         private readonly SiteFinder $siteFinder,
         private readonly \TYPO3\CMS\Backend\Routing\UriBuilder $backendUriBuilder,
+        private readonly ComplianceCheckService $complianceCheck,
     ) {
     }
 
@@ -347,6 +350,23 @@ final class ThemeDesignerController extends ActionController
             $themeOptions[] = ['key' => $key, 'label' => $label];
         }
 
+        // Compliance audit — runs the legal-requirement checks against
+        // the live site config (settings + service registry). Results
+        // mirror the upstream `simplecmp.audit()` JS surface so a
+        // single CHANGELOG entry on either side prompts the other to
+        // re-sync. The template renders them as an inline-banner at
+        // the top of the form so editors see findings before they
+        // touch any other control.
+        $auditResults = $this->complianceCheck->audit(
+            $this->siteFinder->getSiteByIdentifier($site)
+        );
+        $auditWorstSeverity = $this->complianceCheck->worstSeverity($auditResults);
+        // Split into failed (rendered as actionable items) vs passed
+        // (rendered as a collapsed "all green" group). Editors care
+        // most about what's broken; the green list is for confidence.
+        $auditFailed = array_values(array_filter($auditResults, static fn (array $r) => $r['passed'] === false));
+        $auditPassed = array_values(array_filter($auditResults, static fn (array $r) => $r['passed'] === true));
+
         // Translation overrides — text fields keyed by dotted-path,
         // scoped to the currently selected preview language so editors
         // see / edit one language at a time. The Vorschau-Sprache
@@ -391,6 +411,12 @@ final class ThemeDesignerController extends ActionController
             'siteSettingsUri' => $siteSettingsUri,
             'positionOptions' => $positionOptions,
             'themeOptions' => $themeOptions,
+            'auditResults' => $auditResults,
+            'auditFailed' => $auditFailed,
+            'auditPassed' => $auditPassed,
+            'auditWorstSeverity' => $auditWorstSeverity,
+            'auditCriticalCount' => count(array_filter($auditResults, static fn (array $r) => $r['severity'] === 'critical')),
+            'auditWarningCount' => count(array_filter($auditResults, static fn (array $r) => $r['severity'] === 'warning')),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
