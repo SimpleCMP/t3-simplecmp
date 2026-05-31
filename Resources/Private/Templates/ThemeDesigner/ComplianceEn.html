@@ -1,0 +1,420 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <style>
+        /* Compliance reference — see Compliance.html (German variant) for
+           the canonical styling notes; rules below are byte-identical so
+           the two variants stay visually in lockstep. */
+        .simplecmp-compliance-toc {
+            border: 1px solid var(--token-color-stroke-default, #d7d7d7);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            background: var(--typo3-component-bg-secondary, #f5f7f9);
+        }
+        .simplecmp-compliance-toc ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .simplecmp-compliance-toc li { padding: 0.15rem 0; }
+        .simplecmp-compliance section { scroll-margin-top: 1rem; }
+        .simplecmp-compliance section:target {
+            background: rgba(13, 110, 253, 0.06);
+            border-left: 3px solid var(--typo3-component-primary-color, #0a7cb9);
+            padding-left: 1rem;
+            margin-left: -1rem;
+        }
+        .simplecmp-compliance h2 { margin-top: 2rem; padding-top: 0.5rem; }
+        .simplecmp-compliance h3 { margin-top: 1.5rem; }
+        .simplecmp-compliance .fix-box {
+            background: rgba(13, 110, 253, 0.04);
+            border-left: 3px solid var(--typo3-component-primary-color, #0a7cb9);
+            padding: 0.75rem 1rem;
+            border-radius: 0 4px 4px 0;
+            margin: 0.5rem 0;
+        }
+        .simplecmp-compliance .source-box {
+            font-size: 0.875rem;
+            color: var(--token-color-text-secondary, #5f6b78);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+    </style>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="mb-0">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.title"/>
+        </h1>
+        <a href="{uri_backToDesigner}" class="btn btn-default btn-sm">
+            <core:icon identifier="actions-view-go-back" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.backToDesigner"/>
+        </a>
+    </div>
+
+    <p class="text-body-secondary">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.intro"/>
+    </p>
+
+    <nav class="simplecmp-compliance-toc mb-4" aria-label="Table of contents">
+        <strong>Contents</strong>
+        <ul class="mt-2">
+            <li><a href="#section-1-1">§1.1 — Active opt-in, no pre-selection</a></li>
+            <li><a href="#section-1-2">§1.2 — Equal-prominence buttons &amp; WCAG contrast</a></li>
+            <li><a href="#section-1-3">§1.3 — "Reject all" on the first layer</a></li>
+            <li><a href="#section-1-4">§1.4 — Granular consent per purpose</a></li>
+            <li><a href="#section-1-5">§1.5 — Privacy policy &amp; imprint links</a></li>
+            <li><a href="#section-1-6">§1.6 — Persistent revocation trigger</a></li>
+            <li><a href="#section-1-7">§1.7 — No tracking before consent</a></li>
+            <li><a href="#section-2">§2 — Dark patterns (forbidden designs)</a></li>
+        </ul>
+    </nav>
+
+    <div class="simplecmp-compliance">
+
+        <section id="section-1-1">
+            <h2>§1.1 — Active opt-in, no pre-selection</h2>
+            <p>
+                Valid consent requires an <strong>active action</strong> by the visitor.
+                Pre-selected checkboxes, "continue browsing" as consent, or ignoring
+                the banner are all insufficient. The CJEU decided this in 2019
+                with Planet49 (C-673/17) and the German BGH confirmed it in 2020
+                with "Cookie II" (I ZR 7/16); the EDPB Guidelines 05/2020 and the
+                German DSK guidance (December 2022) draw the same line.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li>All non-essential services default to "off". In the
+                        SimpleCMP service registry, that means no
+                        <code>default: true</code> unless the service is
+                        genuinely essential and marked <code>required: true</code>
+                        accordingly.
+                    </li>
+                    <li>Closing the banner via the Esc key, browser back button
+                        or "X" button must not be counted as consent.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: CJEU Planet49 (01.10.2019), BGH I ZR 7/16 "Cookie II"
+                (28.05.2020), EDPB Guidelines 05/2020 on consent, DSK guidance
+                on telemedia v1.1 (December 2022).
+            </p>
+        </section>
+
+        <section id="section-1-2">
+            <h2>§1.2 — Equal-prominence buttons &amp; WCAG contrast</h2>
+            <p>
+                The accept and reject buttons must not differ visually — same size,
+                same font weight, same background color, same border. Meaning is
+                carried by the label, never by visual weight. The German BGH's
+                "Cookie II" ruling (I ZR 7/16) and the Austrian DSB's ORF.at
+                decision (D124.0507/24, October 2024) drew this line precisely:
+                a "green accept button next to a faded grey reject link" is
+                unlawful.
+            </p>
+            <p>
+                The text contrast of every button against its background must
+                meet the WCAG AA threshold of at least <strong>4.5:1</strong>.
+                The Austrian DSB explicitly cited contrast as a manipulation
+                indicator in the ORF case — a barely-readable reject button
+                works similarly to one that's invisible.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li>SimpleCMP renders the buttons identically by default —
+                        background, border, font weight and padding match across
+                        Accept, Reject and Configure. The DOM audit (in the
+                        banner above the designer form) verifies this after
+                        render.
+                    </li>
+                    <li>If you override the brand colors, check the accept-text
+                        contrast against the accept-background for readability.
+                        The DOM audit warns automatically when the value falls
+                        below 4.5:1.
+                    </li>
+                    <li>Custom CSS overrides in the theme module that target
+                        only one of the three buttons (e.g. setting "Decline"
+                        to grey) break the equal-prominence baseline — please
+                        avoid them.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: BGH I ZR 7/16 "Cookie II" (28.05.2020), Austrian DSB
+                D124.0507/24 (28.10.2024), CNIL recommendation on cookie banners
+                (17.09.2020), WCAG 2.1 SC 1.4.3 Contrast (Minimum).
+            </p>
+        </section>
+
+        <section id="section-1-3">
+            <h2>§1.3 — "Reject all" must be available on the first layer</h2>
+            <p>
+                The reject button belongs on the same layer as the accept button
+                — not hidden behind a "Settings" step. The German VG Hannover
+                ruled explicitly in March 2025 (case 10 A 5385/22): a banner
+                with "Accept all" and "Settings", but no "Reject all" on the
+                first layer, is unlawful. A link to a second layer with the
+                reject option is not enough.
+            </p>
+            <p>
+                The reasoning follows GDPR Art. 7(3) ("as easy as giving
+                consent") and Art. 4(11) ("freely given"). The German
+                Datenschutzkonferenz, the French CNIL and the Dutch AP take
+                the same position; the Austrian DSB decided a similar case
+                against ORF.at (D124.0507/24, October 2024).
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li>The site setting <code>simplecmp.hideDeclineAll</code>
+                        stays at <code>false</code> (default). Setting it to
+                        <code>true</code> violates established case law.
+                    </li>
+                    <li>The reject button must be visually equivalent to the
+                        accept button — same size, same font weight, comparable
+                        contrast. Color softening ("grey link" vs "green
+                        button") is also classed as illegitimate manipulation
+                        by supervisory authorities.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: VG Hannover 10 A 5385/22 (19.03.2025), Austrian DSB
+                D124.0507/24 (28.10.2024), EDPB Cookie Banner Taskforce Report
+                (January 2023), CNIL cookie-banner recommendation (17.09.2020),
+                Autoriteit Persoonsgegevens — Clear cookie banners (NL).
+            </p>
+        </section>
+
+        <section id="section-1-4">
+            <h2>§1.4 — Granular consent per purpose</h2>
+            <p>
+                Consent must be <strong>purpose-specific</strong>. Bundling
+                "Analytics + Advertising + Personalisation" into a single
+                checkbox is unlawful; the visitor must be able to decide
+                separately per processing purpose (EDPB Guidelines 05/2020,
+                paragraphs 42 ff.).
+            </p>
+            <p>
+                In practice: on the second banner layer (settings dialog), one
+                toggle appears per purpose category. "Accept all" may bundle,
+                but only because the visitor has the fine-grained alternative
+                on the second layer.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li>Every service in the SimpleCMP service registry needs at
+                        least one entry in the <code>purposes</code> field.
+                    </li>
+                    <li>Multiple services sharing a purpose are grouped under
+                        that purpose category on the second layer — one toggle
+                        per service, shared heading.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: GDPR Art. 6(1)(a), EDPB Guidelines 05/2020 on consent
+                (paragraphs 42–53).
+            </p>
+        </section>
+
+        <section id="section-1-5">
+            <h2>§1.5 — Privacy policy &amp; imprint links</h2>
+            <p>
+                Before the click, the visitor must be able to recognise
+                <strong>who</strong> is responsible for the data processing
+                and <strong>where</strong> the full information lives. GDPR
+                Art. 13 requires this. In German, Austrian and Swiss law a
+                second obligation applies: the imprint (TMG, ECG, UWG) must
+                be <strong>separately reachable</strong> — its own link, not
+                a sub-point of the privacy policy.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.privacyPolicyUrl</code> in the site
+                        settings points to the site's privacy policy. Without
+                        this value, the banner's mandatory link stays empty.
+                    </li>
+                    <li><code>simplecmp.imprintUrl</code> points to the
+                        imprint. It appears in the banner directly next to the
+                        privacy policy.
+                    </li>
+                    <li>In the SimpleCMP service registry, services that
+                        transfer data to third countries (especially the US)
+                        should disclose that through their description.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: GDPR Art. 13, TMG (Germany), ECG (Austria), UWG
+                (Switzerland), CJEU C-604/22 IAB Europe (07.03.2024) —
+                obligations for joint controllers.
+            </p>
+        </section>
+
+        <section id="section-1-6">
+            <h2>§1.6 — Persistent revocation trigger</h2>
+            <p>
+                GDPR Art. 7(3) requires: withdrawing consent must be <em>as
+                easy</em> as giving it. The visitor must not be forced to
+                create an account or send an email — a visible, clickable
+                affordance in the footer or as a "floating trigger" is
+                sufficient and is what every supervisory authority expects.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.floatingTriggerLabel</code> gets a
+                        descriptive label ("Cookie settings", "Privacy
+                        options"). An empty label effectively disables the
+                        trigger — the visitor can no longer find the
+                        withdrawal path.
+                    </li>
+                    <li>The trigger must be reachable from
+                        <strong>every page</strong>, not just the landing.
+                        SimpleCMP renders it across the entire site.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: GDPR Art. 7(3), DSK guidance on telemedia (December
+                2022).
+            </p>
+        </section>
+
+        <section id="section-1-7">
+            <h2>§1.7 — No tracking before consent</h2>
+            <p>
+                § 25 TDDDG (formerly TTDSG) and Art. 5(3) of the ePrivacy
+                Directive are explicit: <strong>before</strong> consent,
+                neither cookies nor LocalStorage entries may be set, nor may
+                third-party scripts load. Even merely-embedded Google Fonts
+                count as an unlawful US data transfer (LG München I, case 3
+                O 17493/20). VG Hannover confirmed in 2025 that Google Tag
+                Manager and similar trackers must wait for consent too.
+            </p>
+            <p>
+                The Dutch supervisory authority levied a €600,000 fine against
+                a pharmacy in 2024 for setting tracking cookies before the
+                banner click — a good indicator for the level of sanction
+                risk.
+            </p>
+            <div class="fix-box">
+                <strong>What this means for the configuration:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.universalBlocking.enabled</code> must
+                        be active. This arms the runtime block for
+                        JS-injected scripts and iframes.
+                    </li>
+                    <li>The server-side HTML rewriter in TYPO3 complements
+                        this, gating declarative <code>&lt;script&gt;</code>
+                        tags per purpose until consent is granted.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Sources: § 25 TDDDG (14.05.2024), Art. 5(3) ePrivacy Directive
+                2002/58/EC, LG München I 3 O 17493/20 (20.01.2022), VG
+                Hannover 10 A 5385/22 (19.03.2025), Autoriteit Persoonsgegevens
+                — pharmacy decision.
+            </p>
+        </section>
+
+        <section id="section-2">
+            <h2>§2 — Dark patterns: what is legally forbidden</h2>
+            <p>
+                The EDPB Guidelines 03/2022 (v2.0, February 2023) list six
+                categories of "deceptive design" on digital platforms. While
+                the guidelines nominally target social-media interfaces,
+                supervisory authorities apply the same lens to consent
+                banners. The DSA (Art. 25, in force February 2024) codifies
+                an additional prohibition for very large online platforms.
+            </p>
+            <h3 id="section-2-2">Skipping — reject harder than accept</h3>
+            <p>
+                Reject-via-link instead of reject-via-button. Reject hidden
+                behind "Settings". Reject only available after manually
+                deselecting every vendor. The "X" in the top corner counted
+                as consent. All explicitly unlawful (VG Hannover 2025).
+            </p>
+            <h3 id="section-2-3">Stirring — emotional &amp; visual manipulation</h3>
+            <p>
+                Bright-green accept button next to faded-grey reject. Marketing
+                language on accept ("Improve your experience") versus neutral
+                wording on reject. Sad emoji on "Reject". The Austrian DSB
+                ruled in the ORF.at case (2024) that contrast ratios below
+                WCAG AA (3:1) count as manipulation.
+            </p>
+            <h3>Hindering — friction on the privacy-positive path</h3>
+            <p>
+                "Save" requires scrolling through a list. "Are you sure?"
+                confirmation on reject. "Reject all" works only after each
+                category was individually toggled off. All forbidden.
+            </p>
+            <h3>Overloading — exhaustion through too many options</h3>
+            <p>
+                800 vendors in a flat list. 12 purpose categories on the first
+                layer. The fix is progressive disclosure and a maximum of 4–6
+                purpose categories on layer 1, with vendor lists in
+                expandable accordions.
+            </p>
+            <h3>Fickle — shifting layouts &amp; meanings</h3>
+            <p>
+                Toggle semantics flip between visits ("on = enabled" vs "on =
+                disabled"). The banner looks different on the second visit.
+                Also forbidden — consistency is mandatory.
+            </p>
+            <h3>Left in the Dark — hidden critical information</h3>
+            <p>
+                Third-country transfer hidden away. "Legitimate interest"
+                toggle silently pre-activated. The "essential cookies"
+                category quietly includes analytics trackers too. All
+                unlawful.
+            </p>
+            <div class="fix-box">
+                <strong>SimpleCMP defaults:</strong> the banner ships
+                out-of-the-box <em>without</em> these patterns. The buttons
+                render with equal prominence, closing via "X" or Esc does
+                not count as consent, "legitimate interest" toggles cannot
+                be activated, and per-purpose granularity is mandatory in
+                the banner layout. What you should still avoid: <em>your
+                own</em> theme overrides that break button symmetry (e.g.
+                fading the reject-button color in the designer).
+            </div>
+            <p class="source-box">
+                Sources: EDPB Guidelines 03/2022 v2.0 on deceptive design
+                patterns (14.02.2023), DSA Art. 25 (Regulation 2022/2065, in
+                force 17.02.2024), Austrian DSB D124.0507/24, VG Hannover
+                10 A 5385/22.
+            </p>
+        </section>
+    </div>
+
+    <div class="mt-4 border-top pt-3">
+        <a href="{uri_backToDesigner}" class="btn btn-default btn-sm">
+            <core:icon identifier="actions-view-go-back" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.backToDesigner"/>
+        </a>
+    </div>
+
+    <f:if condition="{activeSection}">
+        <script>
+            // Smooth-scroll to the requested section on landing. The
+            // browser already honors the `#section-…` fragment but
+            // when the link comes from another window/tab the focus
+            // doesn't always land cleanly, so re-trigger explicitly.
+            (function () {
+                var target = document.getElementById('section-{activeSection}');
+                if (target && target.scrollIntoView) {
+                    target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                }
+            })();
+        </script>
+    </f:if>
+</f:section>
+
+</html>

@@ -797,7 +797,14 @@ final class ThemeDesignerController extends ActionController
             'activeSection' => preg_replace('/[^a-z0-9-]/', '', strtolower($section)) ?? '',
             'uri_backToDesigner' => $this->uri('index'),
         ]);
-        return $moduleTemplate->renderResponse('ThemeDesigner/Compliance');
+        // The compliance reference has two language variants — German
+        // and English. Pick by BE-user language. Anything else falls
+        // through to English since it's the wider default in the
+        // SimpleCMP ecosystem; the only narrowing case is `de`.
+        $template = $this->beUserLanguage() === 'de'
+            ? 'ThemeDesigner/Compliance'
+            : 'ThemeDesigner/ComplianceEn';
+        return $moduleTemplate->renderResponse($template);
     }
 
     public function resetAction(string $site = ''): ResponseInterface
