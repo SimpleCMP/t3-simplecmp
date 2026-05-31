@@ -51,6 +51,12 @@
       <trans-unit id="designer.audit.fail.imprint-url-dach"><source>The imprint URL is missing. DACH jurisdictions require a separately reachable imprint; set `simplecmp.imprintUrl` in the site settings or skip this finding if the site is not aimed at DACH visitors.</source></trans-unit>
 
       <trans-unit id="designer.audit.title.services-have-purposes"><source>Each service declares processing purposes</source></trans-unit>
+
+      <!-- DOM-level check titles. Mirrors upstream `src/audit/dom.ts` IDs. -->
+      <trans-unit id="designer.audit.title.dom-buttons-are-buttons"><source>Banner action elements are real buttons</source></trans-unit>
+      <trans-unit id="designer.audit.title.dom-buttons-equal-styling"><source>Banner buttons are styled identically</source></trans-unit>
+      <trans-unit id="designer.audit.title.dom-buttons-wcag-contrast"><source>Banner buttons meet WCAG AA text contrast</source></trans-unit>
+      <trans-unit id="designer.audit.domHeading"><source>From the rendered banner</source></trans-unit>
       <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source></trans-unit>
       <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source></trans-unit>
 

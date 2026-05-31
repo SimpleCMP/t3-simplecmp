@@ -60,6 +60,7 @@
         <strong>Inhalt</strong>
         <ul class="mt-2">
             <li><a href="#section-1-1">§1.1 — Aktive Einwilligung, keine Vor-Auswahl</a></li>
+            <li><a href="#section-1-2">§1.2 — Gleichwertige Buttons &amp; WCAG-Kontrast</a></li>
             <li><a href="#section-1-3">§1.3 — „Alle ablehnen" auf der ersten Ebene</a></li>
             <li><a href="#section-1-4">§1.4 — Granulare Einwilligung pro Zweck</a></li>
             <li><a href="#section-1-5">§1.5 — Datenschutzerklärung &amp; Impressum</a></li>
@@ -99,6 +100,54 @@
                 Quellen: EuGH Planet49 (01.10.2019), BGH I ZR 7/16 „Cookie II" (28.05.2020),
                 EDPB-Leitlinien 05/2020 zur Einwilligung, DSK-Orientierungshilfe Telemedien
                 v1.1 (Dezember 2022).
+            </p>
+        </section>
+
+        <section id="section-1-2">
+            <h2>§1.2 — Gleichwertige Buttons &amp; WCAG-Kontrast</h2>
+            <p>
+                Der Akzeptieren-Button und der Ablehnen-Button dürfen sich nicht
+                visuell unterscheiden — gleiche Größe, gleiche Schriftstärke,
+                gleiche Hintergrundfarbe, gleiche Border. Die Bedeutung wird
+                ausschließlich über die Beschriftung getragen, nicht über
+                visuelles Gewicht. Das BGH-„Cookie II"-Urteil (I ZR 7/16) und
+                der österreichische DSB-Bescheid D124.0507/24 (ORF.at, Oktober
+                2024) ziehen genau diese Linie: ein „grüner Akzeptieren-Button
+                neben blassgrauem Ablehnen-Link" ist unzulässig.
+            </p>
+            <p>
+                Der Textkontrast jedes Buttons gegen seinen Hintergrund muss
+                mindestens das WCAG-AA-Verhältnis von <strong>4.5:1</strong>
+                erreichen. Der DSB hat den Kontrast in der ORF-Sache explizit
+                als Manipulationsindikator gewertet — ein nur knapp lesbarer
+                Ablehnen-Button funktioniert ähnlich wie ein gar nicht
+                erkennbarer.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li>SimpleCMP rendert die Buttons standardmäßig gleichwertig
+                        — Hintergrund, Border, Schriftstärke und Padding sind
+                        für Akzeptieren, Ablehnen und Konfigurieren identisch.
+                        Der DOM-Audit (im Banner oberhalb des Designers) prüft
+                        das nach dem Render.
+                    </li>
+                    <li>Wer die Brand-Farben überschreibt, sollte den
+                        Akzeptieren-Hintergrund gegen den Akzeptieren-Text auf
+                        Lesbarkeit prüfen. Der DOM-Audit warnt automatisch
+                        wenn die 4.5:1-Schwelle unterschritten wird.
+                    </li>
+                    <li>Eigene CSS-Overrides im Theme-Modul, die nur einen der
+                        drei Buttons betreffen (z. B. „Decline" auf grau
+                        setzen), brechen die Gleichwertigkeit — solche
+                        Overrides bitte vermeiden.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: BGH I ZR 7/16 „Cookie II" (28.05.2020), DSB Österreich
+                D124.0507/24 (28.10.2024), CNIL-Empfehlung Cookie-Banner
+                (17.09.2020), WCAG 2.1 SC 1.4.3 Contrast (Minimum).
             </p>
         </section>
 
@@ -281,7 +330,7 @@
                 (Art. 25, ab Februar 2024 in Kraft) kodifiziert ein zusätzliches Verbot
                 für große Plattformen.
             </p>
-            <h3>Skipping — Ablehnen schwerer als Akzeptieren</h3>
+            <h3 id="section-2-2">Skipping — Ablehnen schwerer als Akzeptieren</h3>
             <p>
                 Reject-via-Link statt Reject-via-Button. Reject hinter „Einstellungen"
                 versteckt. Reject erst nach manuellem Abwählen jedes einzelnen

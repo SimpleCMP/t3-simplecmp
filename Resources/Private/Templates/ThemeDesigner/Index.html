@@ -147,6 +147,23 @@
                             </ul>
                         </details>
                     </f:if>
+                    <!--
+                        DOM-level findings — populated by ThemePreview.js
+                        after the preview iframe boots, the banner mounts,
+                        and `simplecmp.auditDom()` posts results to the
+                        parent. Heading + container start empty; JS reveals
+                        the section when actionable findings arrive. The
+                        i18n map (translated server-side via $GLOBALS['LANG'])
+                        carries the per-check titles + compliance links so
+                        the JS module stays free of locallang strings.
+                    -->
+                    <div data-dom-audit class="mt-3" hidden>
+                        <p class="mb-2 small fw-semibold">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
+                        </p>
+                        <ul class="list-unstyled mb-0" data-dom-audit-list></ul>
+                    </div>
+                    <script type="application/json" data-dom-audit-i18n>{domAuditI18nJson -> f:format.raw()}</script>
                 </div>
             </f:then>
             <f:else>
@@ -158,6 +175,23 @@
                     <span class="text-body-secondary ms-1 small">
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassedDetail" arguments="{0: '{auditResults -> f:count()}'}"/>
                     </span>
+                    <!--
+                        Same DOM-audit container as in the failure branch.
+                        Config passes don't mean the rendered banner is
+                        compliance-clean — colour overrides can still
+                        break WCAG contrast. If `auditDom()` surfaces a
+                        finding, the JS reveals this section and the
+                        green alert keeps its overall framing (since
+                        config-side everything's fine) while the DOM-
+                        finding flags the live issue.
+                    -->
+                    <div data-dom-audit class="mt-3" hidden>
+                        <p class="mb-2 small fw-semibold">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
+                        </p>
+                        <ul class="list-unstyled mb-0" data-dom-audit-list></ul>
+                    </div>
+                    <script type="application/json" data-dom-audit-i18n>{domAuditI18nJson -> f:format.raw()}</script>
                 </div>
             </f:else>
         </f:if>

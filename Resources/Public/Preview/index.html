@@ -16,11 +16,18 @@
 </head>
 <body>
   <!--
-    Bundle + init.js both pick up the parent URL's query string so the
-    cache-buster `f:uri.resource` puts on the iframe src (`?<hash>`)
-    propagates here. Without it browsers serve a stale bundle / init.js
-    across extension updates and the editor never sees changes (new
-    config flags, theme adapter, …).
+    Bundle + init.js are loaded with cache-busting query strings so
+    the BE designer's iframe never serves a stale module after the
+    extension updates.
+
+    The parent BE module's iframe `src` carries a cache-buster from
+    `f:uri.resource` (based on the index.html mtime); we propagate
+    that as a baseline. But init.js / simplecmp.global.js can change
+    independently of index.html, so we ALSO append a per-load
+    timestamp. The timestamp gets serialised once per iframe load,
+    not once per page render — that's fine; the BE module reloads
+    the iframe on every relevant user action (language switch,
+    theme/layout/tone change) which produces a fresh window.
 
     The bundle is an IIFE (not an ES module), so it loads via a
     dynamically-inserted `<script>` with the buster appended to the
@@ -29,7 +36,10 @@
   -->
   <script>
     (function () {
-      var buster = window.location.search || '';
+      var parentBuster = window.location.search || '';
+      var loadBuster = (parentBuster.indexOf('?') === -1 && parentBuster.indexOf('&') === -1 ? '?' : '&')
+        + 'cb=' + Date.now();
+      var buster = parentBuster + loadBuster;
       var s = document.createElement('script');
       s.src = '../JavaScript/simplecmp.global.js' + buster;
       s.onload = function () {

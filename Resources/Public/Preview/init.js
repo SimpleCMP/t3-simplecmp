@@ -270,6 +270,29 @@ if (cmp && typeof cmp.init === 'function') {
   if (previewLayout !== 'standard') initConfig.layout = previewLayout;
   cmp.init(initConfig);
 
+  // Run the DOM-level compliance audit after the banner mounts and
+  // post results to the parent so the BE designer can merge them
+  // with the server-rendered config-audit findings. Two rAF frames
+  // give the bundle time to paint the banner inside its own rAF
+  // cycle and for the shadow-DOM style adoption to land — a single
+  // rAF can race against that. If somehow the banner isn't visible
+  // yet (e.g. consent already granted in a prior preview),
+  // `auditDom()` returns "no banner mounted" infos that the parent
+  // renders as skipped — harmless.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const audit = window.SimpleCMP?.auditDom;
+      if (typeof audit !== 'function') return;
+      const results = audit();
+      try {
+        window.parent?.postMessage({ type: 'simplecmp-dom-audit', results }, '*');
+      } catch (_) {
+        // Parent may be cross-origin in unusual setups; the BE module
+        // is always same-origin so this is just defensive.
+      }
+    });
+  });
+
   // Make Accept/Decline clicks inert in the preview. Real FE flows
   // (`manager.saveAndApplyConsents`, `simplecmp:accept|decline` events,
   // localStorage writes, banner unmount) are visitor concerns; the BE
@@ -376,6 +399,26 @@ window.addEventListener('message', (event) => {
     return;
   }
   applyTokens(data.tokens);
+  // Re-run the DOM-level audit after token updates — the editor may
+  // have just set a color combination that breaks WCAG contrast. The
+  // iframe's `cmp.init()` only ran once, so `auditDom()` wouldn't
+  // re-fire on its own. Two rAF frames so the computed styles AND
+  // any cascading shadow-DOM style adoption land before the audit
+  // reads them (single rAF reads pre-flush in some browsers).
+  // Resolve `auditDom` lazily from `window.SimpleCMP` so a re-load of
+  // the bundle (which we don't do today, but might in future
+  // hot-reload flows) picks up the new function reference instead of
+  // a stale closure.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const audit = window.SimpleCMP?.auditDom;
+      if (typeof audit !== 'function') return;
+      const results = audit();
+      try {
+        window.parent?.postMessage({ type: 'simplecmp-dom-audit', results }, '*');
+      } catch (_) { /* same defensive cross-origin guard as boot-time */ }
+    });
+  });
 });
 
 // Signal to the parent that the iframe is ready so the first postMessage

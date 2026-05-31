@@ -165,8 +165,87 @@ class ThemePreview {
       // form state so it shows the admin's unsaved values, not bundle
       // defaults.
       this.send();
+      return;
+    }
+    if (event.data?.type === 'simplecmp-dom-audit' && Array.isArray(event.data.results)) {
+      // The preview iframe ran `simplecmp.auditDom()` after the banner
+      // mounted and posted its findings. Render the failed ones inline
+      // into the existing audit banner so editors see config-side and
+      // DOM-side findings in one place.
+      this.renderDomAudit(event.data.results);
+      return;
     }
   };
+
+  /**
+   * Merge DOM-audit results into the existing audit banner. The server
+   * pre-rendered:
+   *   - `<div data-dom-audit hidden>` placeholder section
+   *   - `<ul data-dom-audit-list>` empty list inside it
+   *   - `<script data-dom-audit-i18n>` JSON map: id → {title, section, complianceUri}
+   * This handler reads the i18n map, builds one <li> per failed
+   * finding, and unhides the section. Passing findings stay collapsed
+   * (only actionable items get rendered — different posture than the
+   * server-rendered config-audit list which optionally folds passes
+   * into a <details>).
+   */
+  renderDomAudit(results) {
+    const section = document.querySelector('[data-dom-audit]');
+    const list = document.querySelector('[data-dom-audit-list]');
+    const i18nNode = document.querySelector('[data-dom-audit-i18n]');
+    if (!section || !list || !i18nNode) return;
+    let i18n = {};
+    try {
+      i18n = JSON.parse(i18nNode.textContent || '{}');
+    } catch (_) {
+      // Malformed JSON — bail silently. The findings just don't render.
+      return;
+    }
+    const failed = results.filter((r) => r && r.passed === false);
+    list.innerHTML = '';
+    if (failed.length === 0) {
+      section.hidden = true;
+      return;
+    }
+    for (const result of failed) {
+      const meta = i18n[result.id] || { title: result.title, section: result.section };
+      const li = document.createElement('li');
+      li.className = 'mb-2 d-flex align-items-start gap-2';
+      const badge = document.createElement('span');
+      badge.className =
+        'badge text-bg-' + (result.severity === 'critical' ? 'danger' : 'warning') + ' flex-shrink-0';
+      badge.textContent = result.severity === 'critical' ? 'Kritisch' : 'Warnung';
+      const body = document.createElement('div');
+      const titleEl = document.createElement('strong');
+      titleEl.textContent = meta.title || result.id;
+      body.appendChild(titleEl);
+      if (meta.complianceUri) {
+        const link = document.createElement('a');
+        link.href = meta.complianceUri;
+        link.target = 'simplecmp-compliance';
+        link.className = 'ms-1 small text-decoration-none';
+        link.textContent = '§' + (meta.section || result.section);
+        body.appendChild(link);
+      } else {
+        const sect = document.createElement('span');
+        sect.className = 'text-body-secondary small ms-1';
+        sect.textContent = '(§' + result.section + ')';
+        body.appendChild(sect);
+      }
+      const detail = document.createElement('div');
+      detail.className = 'small';
+      // The detail string from the upstream bundle is English with
+      // multi-line context (e.g. "Mismatched properties: …"). Render
+      // as preformatted-ish so the bullet-list inside survives.
+      detail.style.whiteSpace = 'pre-wrap';
+      detail.textContent = result.detail;
+      body.appendChild(detail);
+      li.appendChild(badge);
+      li.appendChild(body);
+      list.appendChild(li);
+    }
+    section.hidden = false;
+  }
 
   send() {
     const iframe = document.querySelector('[data-preview-iframe]');

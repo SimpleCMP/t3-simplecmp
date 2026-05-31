@@ -465,6 +465,15 @@ final class ThemeDesignerController extends ActionController
             'auditWorstSeverity' => $auditWorstSeverity,
             'auditCriticalCount' => count(array_filter($auditResults, static fn (array $r) => $r['severity'] === 'critical')),
             'auditWarningCount' => count(array_filter($auditResults, static fn (array $r) => $r['severity'] === 'warning')),
+            // Server-rendered i18n map for the DOM-level audit. The
+            // preview iframe calls `simplecmp.auditDom()` after mount
+            // and posts results to the parent; the BE-side JS reads
+            // this map to render the findings in the editor's BE
+            // language. Each entry maps a check ID to its localized
+            // title + severity-label strings. Section pointers are
+            // 1.2 / 2.2 — same `Compliance.html` page anchors as the
+            // config-audit findings.
+            'domAuditI18nJson' => $this->buildDomAuditI18nMap(),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
@@ -719,6 +728,50 @@ final class ThemeDesignerController extends ActionController
     {
         $value = strtolower(trim($tone));
         return $value === self::TONE_INFORMAL ? self::TONE_INFORMAL : null;
+    }
+
+    /**
+     * Build a JSON-encoded localization map for the DOM-audit IDs.
+     * The preview iframe calls `simplecmp.auditDom()` after banner
+     * mount and posts back the raw English findings; the BE-side JS
+     * reads this map to render them in the editor's BE language and
+     * link each finding's section reference to the matching
+     * Compliance.html anchor.
+     *
+     * Mirrors `ComplianceCheckService::audit()` in shape but limited
+     * to the static fields the client-side JS needs (title, section
+     * pointer, deep-link). Keep in lockstep with upstream's
+     * `src/audit/dom.ts`: a new DOM check upstream requires adding
+     * the matching trans-unit + an entry here.
+     */
+    private function buildDomAuditI18nMap(): string
+    {
+        $lang = $GLOBALS['LANG'] ?? null;
+        $translate = static function (string $key) use ($lang): string {
+            if (!is_object($lang) || !method_exists($lang, 'sL')) {
+                return $key;
+            }
+            $value = (string) $lang->sL(
+                'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:' . $key
+            );
+            return $value !== '' ? $value : $key;
+        };
+        $ids = [
+            'dom-buttons-are-buttons' => '2.2',
+            'dom-buttons-equal-styling' => '1.2',
+            'dom-buttons-wcag-contrast' => '1.2',
+        ];
+        $out = [];
+        foreach ($ids as $id => $section) {
+            $anchor = str_replace('.', '-', $section);
+            $out[$id] = [
+                'title' => $translate('designer.audit.title.' . $id),
+                'section' => $section,
+                'complianceUri' => $this->uri('compliance', ['section' => $anchor])
+                    . '#section-' . $anchor,
+            ];
+        }
+        return (string) json_encode($out, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
