@@ -80,6 +80,7 @@ return [
                 'index',
                 'save',
                 'reset',
+                'compliance',
             ],
         ],
     ],

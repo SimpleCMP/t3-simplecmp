@@ -29,8 +29,9 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
  *     id: string,
  *     section: string,
  *     severity: 'critical' | 'warning' | 'info',
- *     title: string,
- *     detail: string,
+ *     titleKey: string,
+ *     detailKey: string,
+ *     context: array<string, scalar>,
  *     passed: bool,
  * }
  */
@@ -93,21 +94,9 @@ final readonly class ComplianceCheckService
     {
         $url = (string) $settings->get('simplecmp.privacyPolicyUrl', '');
         if ($url !== '' && $url !== '#') {
-            return $this->pass(
-                'privacy-policy-url',
-                '1.5',
-                'Privacy-policy URL configured',
-                'Privacy policy URL is set.',
-            );
+            return $this->pass('privacy-policy-url', '1.5');
         }
-        return $this->fail(
-            'privacy-policy-url',
-            '1.5',
-            'critical',
-            'Privacy-policy URL configured',
-            'GDPR Art. 13 requires the privacy policy to be linked before consent is captured. '
-            . 'Set `simplecmp.privacyPolicyUrl` in the site’s settings.',
-        );
+        return $this->fail('privacy-policy-url', '1.5', 'critical');
     }
 
     /**
@@ -121,22 +110,9 @@ final readonly class ComplianceCheckService
         // Surface the check anyway so the BE makes it visible that
         // the property is being honoured.
         if ((bool) $settings->get('simplecmp.hideDeclineAll', false) === true) {
-            return $this->fail(
-                'first-layer-reject',
-                '1.3',
-                'critical',
-                '"Reject all" available on first layer',
-                'VG Hannover 10 A 5385/22 (19.03.2025) and the EDPB Cookie Banner Taskforce '
-                . 'require a first-layer Reject affordance. The site setting '
-                . '`simplecmp.hideDeclineAll` is true; switch it to false (or remove it).',
-            );
+            return $this->fail('first-layer-reject', '1.3', 'critical');
         }
-        return $this->pass(
-            'first-layer-reject',
-            '1.3',
-            '"Reject all" available on first layer',
-            'Reject affordance is present on the first banner layer.',
-        );
+        return $this->pass('first-layer-reject', '1.3');
     }
 
     /**
@@ -159,30 +135,13 @@ final readonly class ComplianceCheckService
             }
         }
         if ($offenders === []) {
-            return $this->pass(
-                'opt-in-defaults',
-                '1.1',
-                'Non-essential services default to OFF',
-                'All non-essential services default to OFF.',
-            );
+            return $this->pass('opt-in-defaults', '1.1');
         }
-        $sample = implode(', ', array_slice($offenders, 0, 5));
-        $more = count($offenders) > 5 ? sprintf(', … (%d more)', count($offenders) - 5) : '';
-        return $this->fail(
-            'opt-in-defaults',
-            '1.1',
-            'critical',
-            'Non-essential services default to OFF',
-            sprintf(
-                '%d non-essential service(s) have `default: true` (pre-consent granted): %s%s. '
-                . 'Pre-ticked consent fails Planet49 (CJEU C-673/17) and BGH Cookie II. '
-                . 'Either mark the service required (if it truly is essential) or remove '
-                . 'the default flag in the SimpleCMP service registry.',
-                count($offenders),
-                $sample,
-                $more,
-            ),
-        );
+        return $this->fail('opt-in-defaults', '1.1', 'critical', [
+            'count' => count($offenders),
+            'sample' => implode(', ', array_slice($offenders, 0, 5)),
+            'more' => count($offenders) > 5 ? count($offenders) - 5 : 0,
+        ]);
     }
 
     /**
@@ -191,23 +150,9 @@ final readonly class ComplianceCheckService
     private function checkPreConsentBlocking(object $settings): array
     {
         if ((bool) $settings->get('simplecmp.universalBlocking.enabled', true) === true) {
-            return $this->pass(
-                'pre-consent-blocking',
-                '1.7',
-                'Pre-consent tracking blocked',
-                'Pre-consent runtime blocking is enabled (`simplecmp.universalBlocking.enabled`).',
-            );
+            return $this->pass('pre-consent-blocking', '1.7');
         }
-        return $this->fail(
-            'pre-consent-blocking',
-            '1.7',
-            'critical',
-            'Pre-consent tracking blocked',
-            'Without `simplecmp.universalBlocking.enabled`, third-party scripts can dispatch '
-            . 'requests before the visitor has chosen — § 25 TDDDG and Art. 5(3) ePrivacy '
-            . 'require prior consent for any non-essential storage/access. Enable the '
-            . 'setting in the site configuration.',
-        );
+        return $this->fail('pre-consent-blocking', '1.7', 'critical');
     }
 
     /**
@@ -222,22 +167,9 @@ final readonly class ComplianceCheckService
         // affordance to reopen consent.
         $label = (string) $settings->get('simplecmp.floatingTriggerLabel', '');
         if (trim($label) !== '') {
-            return $this->pass(
-                'persistent-revocation-trigger',
-                '1.6',
-                'Persistent revocation trigger enabled',
-                'Persistent revocation trigger is configured with a non-empty label.',
-            );
+            return $this->pass('persistent-revocation-trigger', '1.6');
         }
-        return $this->fail(
-            'persistent-revocation-trigger',
-            '1.6',
-            'warning',
-            'Persistent revocation trigger enabled',
-            'GDPR Art. 7(3) demands withdrawal to be as easy as granting consent. With an '
-            . 'empty `simplecmp.floatingTriggerLabel`, the visitor has no visible affordance '
-            . 'to reopen the consent banner. Set a label (e.g. "Cookie-Einstellungen").',
-        );
+        return $this->fail('persistent-revocation-trigger', '1.6', 'warning');
     }
 
     /**
@@ -247,23 +179,9 @@ final readonly class ComplianceCheckService
     {
         $url = (string) $settings->get('simplecmp.imprintUrl', '');
         if ($url !== '' && $url !== '#') {
-            return $this->pass(
-                'imprint-url-dach',
-                '1.5',
-                'Imprint URL configured (DACH compliance)',
-                'Imprint URL is set.',
-            );
+            return $this->pass('imprint-url-dach', '1.5');
         }
-        return $this->fail(
-            'imprint-url-dach',
-            '1.5',
-            'warning',
-            'Imprint URL configured (DACH compliance)',
-            'German TMG / Austrian ECG / Swiss UWG require a separately reachable Impressum. '
-            . 'Surface the link next to the privacy policy in the banner by setting '
-            . '`simplecmp.imprintUrl` in the site settings. Skip this finding only if '
-            . 'the site is not targeted at DACH visitors.',
-        );
+        return $this->fail('imprint-url-dach', '1.5', 'warning');
     }
 
     /**
@@ -280,62 +198,60 @@ final readonly class ComplianceCheckService
             }
         }
         if ($offenders === []) {
-            return $this->pass(
-                'services-have-purposes',
-                '1.4',
-                'Each service declares processing purposes',
-                'All services declare at least one purpose.',
-            );
+            return $this->pass('services-have-purposes', '1.4');
         }
-        $sample = implode(', ', array_slice($offenders, 0, 5));
-        $more = count($offenders) > 5 ? sprintf(', … (%d more)', count($offenders) - 5) : '';
-        return $this->fail(
-            'services-have-purposes',
-            '1.4',
-            'warning',
-            'Each service declares processing purposes',
-            sprintf(
-                '%d service(s) have no purposes declared: %s%s. EDPB 05/2020 §42 requires '
-                . 'consent to be specific per purpose. Tag each service with at least one '
-                . 'purpose category in the SimpleCMP service registry.',
-                count($offenders),
-                $sample,
-                $more,
-            ),
-        );
+        return $this->fail('services-have-purposes', '1.4', 'warning', [
+            'count' => count($offenders),
+            'sample' => implode(', ', array_slice($offenders, 0, 5)),
+            'more' => count($offenders) > 5 ? count($offenders) - 5 : 0,
+        ]);
     }
 
     /**
+     * Build a passing result. Title + detail are deferred to the
+     * template via translation keys (`designer.audit.title.<id>` and
+     * `designer.audit.pass.<id>`), so the messages render in the
+     * editor's BE language without the service needing to know about
+     * i18n.
+     *
      * @return Result
      */
-    private function pass(string $id, string $section, string $title, string $detail): array
+    private function pass(string $id, string $section): array
     {
         return [
             'id' => $id,
             'section' => $section,
             'severity' => 'info',
-            'title' => $title,
-            'detail' => $detail,
+            'titleKey' => 'designer.audit.title.' . $id,
+            'detailKey' => 'designer.audit.pass.' . $id,
+            'context' => [],
             'passed' => true,
         ];
     }
 
     /**
+     * Build a failing result. The detail key is
+     * `designer.audit.fail.<id>` and may consume `context` arguments
+     * (count / sample / more) for `sprintf`-style placeholders so the
+     * BE shows e.g. "3 Dienste sind betroffen: foo, bar, baz" in
+     * German without the service having to assemble the sentence.
+     *
+     * @param array<string, scalar> $context
      * @return Result
      */
     private function fail(
         string $id,
         string $section,
         string $severity,
-        string $title,
-        string $detail,
+        array $context = [],
     ): array {
         return [
             'id' => $id,
             'section' => $section,
             'severity' => $severity,
-            'title' => $title,
-            'detail' => $detail,
+            'titleKey' => 'designer.audit.title.' . $id,
+            'detailKey' => 'designer.audit.fail.' . $id,
+            'context' => $context,
             'passed' => false,
         ];
     }

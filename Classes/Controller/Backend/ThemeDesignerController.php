@@ -361,6 +361,19 @@ final class ThemeDesignerController extends ActionController
             $this->siteFinder->getSiteByIdentifier($site)
         );
         $auditWorstSeverity = $this->complianceCheck->worstSeverity($auditResults);
+        // Enrich each finding with a clickable URL pointing at the
+        // compliance-reference view, anchored to the matching
+        // section. The reference replaces the previous "(§1.3)" plain-
+        // text with a link an editor can actually follow to read why
+        // the check exists and what to fix. Section ID `1.3` → URL
+        // anchor `1-3` (dots aren't valid in HTML5 fragment ids
+        // anywhere they'd matter for our routing).
+        foreach ($auditResults as $i => $finding) {
+            $anchor = str_replace('.', '-', $finding['section']);
+            $auditResults[$i]['sectionAnchor'] = $anchor;
+            $auditResults[$i]['complianceUri'] = $this->uri('compliance', ['section' => $anchor])
+                . '#section-' . $anchor;
+        }
         // Split into failed (rendered as actionable items) vs passed
         // (rendered as a collapsed "all green" group). Editors care
         // most about what's broken; the green list is for confidence.
@@ -687,6 +700,32 @@ final class ThemeDesignerController extends ActionController
     {
         $value = strtolower(trim($tone));
         return $value === self::TONE_INFORMAL ? self::TONE_INFORMAL : null;
+    }
+
+    /**
+     * Standalone reference view that explains the legal requirements
+     * the compliance audit checks against, in the editor's BE
+     * language. Linked from each audit finding via the `§X.Y` anchor
+     * (`?section=1-3` → opens at `#section-1-3`) so an editor can
+     * jump straight to the explanation of the failing check.
+     *
+     * Renders a Fluid template with structured German content
+     * (initially German-only; English source kept in
+     * `simplecmp/docs/legal-compliance.md` for engineers). The view
+     * has no save/persistence — it's read-only reference material.
+     */
+    public function complianceAction(string $section = ''): ResponseInterface
+    {
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('SimpleCMP');
+        $moduleTemplate->assignMultiple([
+            // The fragment used by the audit banner to jump to a specific
+            // §-section. Template sets the anchor on each heading + can
+            // emit a tiny scrollIntoView script for the active one.
+            'activeSection' => preg_replace('/[^a-z0-9-]/', '', strtolower($section)) ?? '',
+            'uri_backToDesigner' => $this->uri('index'),
+        ]);
+        return $moduleTemplate->renderResponse('ThemeDesigner/Compliance');
     }
 
     public function resetAction(string $site = ''): ResponseInterface

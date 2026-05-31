@@ -14,7 +14,7 @@
 
       <!-- Compliance-audit banner shown above the form -->
       <trans-unit id="designer.audit.title"><source>Compliance check</source><target>Rechts-Audit</target></trans-unit>
-      <trans-unit id="designer.audit.intro"><source>The banner configuration was checked against the SimpleCMP legal-compliance reference (current GDPR / ePrivacy / DSK / VG Hannover / EDPB lines). Address each finding below; section numbers point into the upstream `docs/legal-compliance.md`.</source><target>Die Banner-Konfiguration wurde gegen die SimpleCMP-Compliance-Referenz geprüft (aktuelle DSGVO / ePrivacy / DSK / VG Hannover / EDPB-Linie). Bitte die folgenden Befunde bearbeiten; die §-Nummern verweisen in die Upstream-Datei `docs/legal-compliance.md`.</target></trans-unit>
+      <trans-unit id="designer.audit.intro"><source>The banner configuration was checked against current data-protection requirements (GDPR / ePrivacy / DSK / VG Hannover / EDPB). Click the section reference on any finding to read the full explanation in the compliance reference.</source><target>Die Banner-Konfiguration wurde gegen die aktuelle Datenschutz-Rechtsprechung geprüft (DSGVO / ePrivacy / DSK / VG Hannover / EDPB). Klicke auf den §-Verweis eines Befunds, um die ausführliche Erklärung in der Rechts-Referenz zu öffnen.</target></trans-unit>
       <trans-unit id="designer.audit.allPassed"><source>All compliance checks passed.</source><target>Alle Compliance-Checks bestanden.</target></trans-unit>
       <trans-unit id="designer.audit.allPassedDetail"><source>%d checks ran against the current site configuration; no findings.</source><target>%d Checks gegen die aktuelle Site-Konfiguration geprüft, keine Befunde.</target></trans-unit>
       <trans-unit id="designer.audit.passedToggle"><source>Show %d checks that passed</source><target>%d bestandene Checks anzeigen</target></trans-unit>
@@ -22,6 +22,41 @@
       <trans-unit id="designer.audit.warningCount"><source>%d warning(s)</source><target>%d Warnung(en)</target></trans-unit>
       <trans-unit id="designer.audit.severity.critical"><source>Critical</source><target>Kritisch</target></trans-unit>
       <trans-unit id="designer.audit.severity.warning"><source>Warning</source><target>Warnung</target></trans-unit>
+      <trans-unit id="designer.audit.openReference"><source>Open compliance reference</source><target>Rechts-Referenz öffnen</target></trans-unit>
+      <trans-unit id="designer.audit.sectionLink"><source>Read about §%s in the compliance reference</source><target>§%s in der Rechts-Referenz nachlesen</target></trans-unit>
+
+      <!-- Per-check title + pass/fail detail strings. Mirrors upstream simplecmp.audit() check IDs. -->
+      <trans-unit id="designer.audit.title.privacy-policy-url"><source>Privacy-policy URL configured</source><target>Datenschutzerklärungs-URL hinterlegt</target></trans-unit>
+      <trans-unit id="designer.audit.pass.privacy-policy-url"><source>The privacy-policy URL is set in the site configuration.</source><target>Die URL der Datenschutzerklärung ist in den Site-Einstellungen hinterlegt.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.privacy-policy-url"><source>The privacy-policy URL is missing. Set `simplecmp.privacyPolicyUrl` in the site settings — the banner cannot render the required link otherwise.</source><target>Die URL der Datenschutzerklärung fehlt. Hinterlege sie unter `simplecmp.privacyPolicyUrl` in den Site-Einstellungen — sonst kann der Banner den verpflichtenden Link nicht anzeigen.</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.first-layer-reject"><source>"Reject all" available on the first layer</source><target>„Alle ablehnen" auf der ersten Ebene verfügbar</target></trans-unit>
+      <trans-unit id="designer.audit.pass.first-layer-reject"><source>The Reject affordance is present on the first banner layer.</source><target>Der Ablehnen-Button ist auf der ersten Banner-Ebene vorhanden.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.first-layer-reject"><source>`simplecmp.hideDeclineAll` is enabled — that removes the Reject button from the first layer, which courts treat as unlawful. Switch the setting off.</source><target>`simplecmp.hideDeclineAll` ist aktiv — das entfernt den Ablehnen-Button von der ersten Ebene, was Gerichte als rechtswidrig einstufen. Schalte die Einstellung ab.</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.opt-in-defaults"><source>Non-essential services default to OFF</source><target>Nicht-essenzielle Dienste sind standardmäßig aus</target></trans-unit>
+      <trans-unit id="designer.audit.pass.opt-in-defaults"><source>All non-essential services start in the "off" state.</source><target>Alle nicht-essenziellen Dienste starten im „aus"-Zustand.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.opt-in-defaults"><source>%d service(s) start pre-checked even though they are not essential: %s. Pre-ticked consent is invalid. Either mark them as required (genuinely essential) or remove the default flag in the service registry.</source><target>%d Dienst(e) starten vorausgewählt, obwohl sie nicht essenziell sind: %s. Voreingestellte Einwilligung ist unwirksam. Markiere die Dienste entweder als wirklich essenziell oder entferne die Default-Markierung im Dienst-Register.</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.pre-consent-blocking"><source>Pre-consent tracking blocked</source><target>Tracking vor Einwilligung blockiert</target></trans-unit>
+      <trans-unit id="designer.audit.pass.pre-consent-blocking"><source>Pre-consent runtime blocking is enabled.</source><target>Die Blockierung vor Einwilligung ist aktiv.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.pre-consent-blocking"><source>Pre-consent blocking is off — third-party scripts may fire before the visitor has made any choice, which violates the rule that no non-essential cookies/storage may be set before consent. Enable `simplecmp.universalBlocking.enabled` in the site settings.</source><target>Die Blockierung vor Einwilligung ist aus — Drittanbieter-Skripte können laufen, bevor der Besucher zugestimmt hat. Das verstößt gegen die Regel, dass nicht-essenzielle Cookies/Speicher erst nach Einwilligung gesetzt werden dürfen. Aktiviere `simplecmp.universalBlocking.enabled` in den Site-Einstellungen.</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.persistent-revocation-trigger"><source>Persistent revocation trigger enabled</source><target>Widerrufs-Trigger dauerhaft sichtbar</target></trans-unit>
+      <trans-unit id="designer.audit.pass.persistent-revocation-trigger"><source>The persistent revocation trigger has a visible label.</source><target>Der Widerrufs-Trigger hat eine sichtbare Beschriftung.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.persistent-revocation-trigger"><source>`simplecmp.floatingTriggerLabel` is empty — the visitor has no visible affordance to reopen the consent banner. Set a label, e.g. "Cookie settings".</source><target>`simplecmp.floatingTriggerLabel` ist leer — der Besucher hat keine sichtbare Möglichkeit, den Banner wieder zu öffnen. Hinterlege eine Beschriftung, z. B. „Cookie-Einstellungen".</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.imprint-url-dach"><source>Imprint URL configured (DACH)</source><target>Impressum-URL hinterlegt (DACH)</target></trans-unit>
+      <trans-unit id="designer.audit.pass.imprint-url-dach"><source>The imprint URL is set in the site configuration.</source><target>Die Impressum-URL ist in den Site-Einstellungen hinterlegt.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.imprint-url-dach"><source>The imprint URL is missing. DACH jurisdictions require a separately reachable imprint; set `simplecmp.imprintUrl` in the site settings or skip this finding if the site is not aimed at DACH visitors.</source><target>Die Impressum-URL fehlt. In Deutschland, Österreich und der Schweiz ist ein separat erreichbares Impressum vorgeschrieben — hinterlege `simplecmp.imprintUrl` in den Site-Einstellungen, oder ignoriere diesen Hinweis wenn die Site nicht an DACH-Besucher gerichtet ist.</target></trans-unit>
+
+      <trans-unit id="designer.audit.title.services-have-purposes"><source>Each service declares processing purposes</source><target>Jeder Dienst nennt seine Verarbeitungszwecke</target></trans-unit>
+      <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source><target>Alle Dienste nennen mindestens einen Verarbeitungszweck.</target></trans-unit>
+      <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source><target>%d Dienst(e) haben keinen Zweck hinterlegt: %s. Einwilligung muss zweckbezogen sein — vergib jedem Dienst mindestens eine Zweck-Kategorie im Dienst-Register.</target></trans-unit>
+
+      <trans-unit id="designer.compliance.title"><source>Compliance reference</source><target>Rechts-Referenz</target></trans-unit>
+      <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source><target>Zurück zum Banner-Design</target></trans-unit>
+      <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source><target>Diese Referenz erklärt die rechtlichen Anforderungen, gegen die der SimpleCMP-Audit prüft. Jede Sektion entspricht einer §-Nummer im Compliance-Audit-Banner oberhalb des Design-Formulars.</target></trans-unit>
 
       <trans-unit id="designer.sitePicker.label"><source>Site</source><target>Site</target></trans-unit>
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source><target>Eigenes Design aktiv</target></trans-unit>

@@ -14,7 +14,7 @@
 
       <!-- Compliance-audit banner shown above the form -->
       <trans-unit id="designer.audit.title"><source>Compliance check</source></trans-unit>
-      <trans-unit id="designer.audit.intro"><source>The banner configuration was checked against the SimpleCMP legal-compliance reference (current GDPR / ePrivacy / DSK / VG Hannover / EDPB lines). Address each finding below; section numbers point into the upstream `docs/legal-compliance.md`.</source></trans-unit>
+      <trans-unit id="designer.audit.intro"><source>The banner configuration was checked against current data-protection requirements (GDPR / ePrivacy / DSK / VG Hannover / EDPB). Click the section reference on any finding to read the full explanation in the compliance reference.</source></trans-unit>
       <trans-unit id="designer.audit.allPassed"><source>All compliance checks passed.</source></trans-unit>
       <trans-unit id="designer.audit.allPassedDetail"><source>%d checks ran against the current site configuration; no findings.</source></trans-unit>
       <trans-unit id="designer.audit.passedToggle"><source>Show %d checks that passed</source></trans-unit>
@@ -22,6 +22,41 @@
       <trans-unit id="designer.audit.warningCount"><source>%d warning(s)</source></trans-unit>
       <trans-unit id="designer.audit.severity.critical"><source>Critical</source></trans-unit>
       <trans-unit id="designer.audit.severity.warning"><source>Warning</source></trans-unit>
+      <trans-unit id="designer.audit.openReference"><source>Open compliance reference</source></trans-unit>
+      <trans-unit id="designer.audit.sectionLink"><source>Read about §%s in the compliance reference</source></trans-unit>
+
+      <!-- Per-check title + pass/fail detail strings. Mirrors upstream simplecmp.audit() check IDs. -->
+      <trans-unit id="designer.audit.title.privacy-policy-url"><source>Privacy-policy URL configured</source></trans-unit>
+      <trans-unit id="designer.audit.pass.privacy-policy-url"><source>The privacy-policy URL is set in the site configuration.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.privacy-policy-url"><source>The privacy-policy URL is missing. Set `simplecmp.privacyPolicyUrl` in the site settings — the banner cannot render the required link otherwise.</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.first-layer-reject"><source>"Reject all" available on the first layer</source></trans-unit>
+      <trans-unit id="designer.audit.pass.first-layer-reject"><source>The Reject affordance is present on the first banner layer.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.first-layer-reject"><source>`simplecmp.hideDeclineAll` is enabled — that removes the Reject button from the first layer, which courts treat as unlawful. Switch the setting off.</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.opt-in-defaults"><source>Non-essential services default to OFF</source></trans-unit>
+      <trans-unit id="designer.audit.pass.opt-in-defaults"><source>All non-essential services start in the "off" state.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.opt-in-defaults"><source>%d service(s) start pre-checked even though they are not essential: %s. Pre-ticked consent is invalid. Either mark them as required (genuinely essential) or remove the default flag in the service registry.</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.pre-consent-blocking"><source>Pre-consent tracking blocked</source></trans-unit>
+      <trans-unit id="designer.audit.pass.pre-consent-blocking"><source>Pre-consent runtime blocking is enabled.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.pre-consent-blocking"><source>Pre-consent blocking is off — third-party scripts may fire before the visitor has made any choice, which violates the rule that no non-essential cookies/storage may be set before consent. Enable `simplecmp.universalBlocking.enabled` in the site settings.</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.persistent-revocation-trigger"><source>Persistent revocation trigger enabled</source></trans-unit>
+      <trans-unit id="designer.audit.pass.persistent-revocation-trigger"><source>The persistent revocation trigger has a visible label.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.persistent-revocation-trigger"><source>`simplecmp.floatingTriggerLabel` is empty — the visitor has no visible affordance to reopen the consent banner. Set a label, e.g. "Cookie settings".</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.imprint-url-dach"><source>Imprint URL configured (DACH)</source></trans-unit>
+      <trans-unit id="designer.audit.pass.imprint-url-dach"><source>The imprint URL is set in the site configuration.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.imprint-url-dach"><source>The imprint URL is missing. DACH jurisdictions require a separately reachable imprint; set `simplecmp.imprintUrl` in the site settings or skip this finding if the site is not aimed at DACH visitors.</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.services-have-purposes"><source>Each service declares processing purposes</source></trans-unit>
+      <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source></trans-unit>
+
+      <trans-unit id="designer.compliance.title"><source>Compliance reference</source></trans-unit>
+      <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source></trans-unit>
+      <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source></trans-unit>
 
       <trans-unit id="designer.sitePicker.label"><source>Site</source></trans-unit>
       <trans-unit id="designer.sitePicker.customBadge"><source>Custom theme active</source></trans-unit>

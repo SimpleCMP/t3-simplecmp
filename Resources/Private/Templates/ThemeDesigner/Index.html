@@ -115,9 +115,18 @@
                                     </f:if>
                                 </span>
                                 <div>
-                                    <strong>{finding.title}</strong>
-                                    <span class="text-body-secondary small ms-1">(§{finding.section})</span>
-                                    <div class="small">{finding.detail}</div>
+                                    <strong>
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
+                                    </strong>
+                                    <a href="{finding.complianceUri}"
+                                       target="simplecmp-compliance"
+                                       class="ms-1 small text-decoration-none"
+                                       title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.sectionLink', arguments: '{0: finding.section}')}">§{finding.section}</a>
+                                    <div class="small">
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.detailKey}"
+                                                     arguments="{0: finding.context.count, 1: finding.context.sample}"
+                                                     default="—"/>
+                                    </div>
                                 </div>
                             </li>
                         </f:for>
@@ -131,8 +140,8 @@
                                 <f:for each="{auditPassed}" as="finding">
                                     <li class="mb-1">
                                         <span class="badge text-bg-success me-1">OK</span>
-                                        {finding.title}
-                                        <span class="text-body-secondary">(§{finding.section})</span>
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
+                                        <a href="{finding.complianceUri}" target="simplecmp-compliance" class="ms-1 text-decoration-none text-body-secondary">§{finding.section}</a>
                                     </li>
                                 </f:for>
                             </ul>

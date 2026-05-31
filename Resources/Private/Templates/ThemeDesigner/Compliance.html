@@ -1,0 +1,363 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <style>
+        /* Compliance-Reference layout — text-heavy reading view.
+           Slightly wider line-height for prose; section anchors get
+           a soft highlight on landing so the editor sees what the
+           click jumped to. */
+        .simplecmp-compliance-toc {
+            border: 1px solid var(--token-color-stroke-default, #d7d7d7);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            background: var(--typo3-component-bg-secondary, #f5f7f9);
+        }
+        .simplecmp-compliance-toc ul { list-style: none; padding-left: 0; margin-bottom: 0; }
+        .simplecmp-compliance-toc li { padding: 0.15rem 0; }
+        .simplecmp-compliance section { scroll-margin-top: 1rem; }
+        .simplecmp-compliance section:target {
+            background: rgba(13, 110, 253, 0.06);
+            border-left: 3px solid var(--typo3-component-primary-color, #0a7cb9);
+            padding-left: 1rem;
+            margin-left: -1rem;
+        }
+        .simplecmp-compliance h2 { margin-top: 2rem; padding-top: 0.5rem; }
+        .simplecmp-compliance h3 { margin-top: 1.5rem; }
+        .simplecmp-compliance .fix-box {
+            background: rgba(13, 110, 253, 0.04);
+            border-left: 3px solid var(--typo3-component-primary-color, #0a7cb9);
+            padding: 0.75rem 1rem;
+            border-radius: 0 4px 4px 0;
+            margin: 0.5rem 0;
+        }
+        .simplecmp-compliance .source-box {
+            font-size: 0.875rem;
+            color: var(--token-color-text-secondary, #5f6b78);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+    </style>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="mb-0">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.title"/>
+        </h1>
+        <a href="{uri_backToDesigner}" class="btn btn-default btn-sm">
+            <core:icon identifier="actions-view-go-back" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.backToDesigner"/>
+        </a>
+    </div>
+
+    <p class="text-body-secondary">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.intro"/>
+    </p>
+
+    <nav class="simplecmp-compliance-toc mb-4" aria-label="Inhaltsverzeichnis">
+        <strong>Inhalt</strong>
+        <ul class="mt-2">
+            <li><a href="#section-1-1">§1.1 — Aktive Einwilligung, keine Vor-Auswahl</a></li>
+            <li><a href="#section-1-3">§1.3 — „Alle ablehnen" auf der ersten Ebene</a></li>
+            <li><a href="#section-1-4">§1.4 — Granulare Einwilligung pro Zweck</a></li>
+            <li><a href="#section-1-5">§1.5 — Datenschutzerklärung &amp; Impressum</a></li>
+            <li><a href="#section-1-6">§1.6 — Dauerhafter Widerrufs-Trigger</a></li>
+            <li><a href="#section-1-7">§1.7 — Kein Tracking vor Einwilligung</a></li>
+            <li><a href="#section-2">§2 — Dark Patterns (verbotene Muster)</a></li>
+        </ul>
+    </nav>
+
+    <div class="simplecmp-compliance">
+
+        <section id="section-1-1">
+            <h2>§1.1 — Aktive Einwilligung, keine Vor-Auswahl</h2>
+            <p>
+                Eine wirksame Einwilligung verlangt eine <strong>aktive Handlung</strong> des
+                Besuchers. Vorausgewählte Checkboxen, „Weitersurfen" als Zustimmung oder das
+                Ignorieren des Banners reichen nicht aus. Das hat der EuGH 2019 im Urteil
+                Planet49 (C-673/17) entschieden und der BGH 2020 mit „Cookie II" (I ZR 7/16)
+                bestätigt; die EDPB-Leitlinien 05/2020 und die Orientierungshilfe der DSK
+                (Dezember 2022) ziehen dieselbe Linie.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li>Alle nicht-essenziellen Dienste starten standardmäßig im
+                        Zustand „aus". Im SimpleCMP-Dienst-Register also kein
+                        <code>default: true</code> setzen, außer der Dienst ist
+                        genuin essenziell und entsprechend mit <code>required: true</code>
+                        markiert.
+                    </li>
+                    <li>Schließen per Esc-Taste, Browser-Zurück oder „X"-Button darf
+                        nicht als Einwilligung gewertet werden.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: EuGH Planet49 (01.10.2019), BGH I ZR 7/16 „Cookie II" (28.05.2020),
+                EDPB-Leitlinien 05/2020 zur Einwilligung, DSK-Orientierungshilfe Telemedien
+                v1.1 (Dezember 2022).
+            </p>
+        </section>
+
+        <section id="section-1-3">
+            <h2>§1.3 — „Alle ablehnen" muss auf der ersten Ebene verfügbar sein</h2>
+            <p>
+                Der Ablehnen-Button gehört auf dieselbe Ebene wie der Akzeptieren-Button —
+                nicht versteckt hinter einem „Einstellungen"-Schritt. Das VG Hannover hat
+                im März 2025 (Az. 10 A 5385/22) ausdrücklich entschieden: ein Banner mit
+                „Alle akzeptieren" und „Einstellungen", aber ohne „Alle ablehnen" auf der
+                ersten Ebene, ist unzulässig. Ein Link zu einer zweiten Ebene mit der
+                Ablehnen-Option genügt nicht.
+            </p>
+            <p>
+                Die Begründung folgt Art. 7(3) DSGVO („so einfach wie die Einwilligung")
+                und Art. 4(11) („freiwillig"). Die Datenschutzkonferenz, die CNIL
+                (Frankreich) und die AP (Niederlande) vertreten dieselbe Position; der
+                österreichische DSB hat einen ähnlichen Fall gegen ORF.at entschieden
+                (D124.0507/24, Oktober 2024).
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li>Die Site-Einstellung <code>simplecmp.hideDeclineAll</code> bleibt
+                        auf <code>false</code> (Default). Wer sie auf <code>true</code> setzt,
+                        verstößt gegen geltende Rechtsprechung.
+                    </li>
+                    <li>Der Ablehnen-Button muss visuell gleichwertig zum Akzeptieren-Button
+                        sein — gleiche Größe, gleiche Schriftstärke, vergleichbarer Kontrast.
+                        Farbliche Abschwächungen („grauer Link" vs. „grüner Button") werten
+                        Aufsichtsbehörden ebenfalls als unzulässige Manipulation.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: VG Hannover Az. 10 A 5385/22 (19.03.2025), DSB Österreich
+                D124.0507/24 (28.10.2024), EDPB Cookie Banner Taskforce Report
+                (Januar 2023), CNIL Empfehlungen Cookie-Banner (17.09.2020), Autoriteit
+                Persoonsgegevens — Clear cookie banners (NL).
+            </p>
+        </section>
+
+        <section id="section-1-4">
+            <h2>§1.4 — Granulare Einwilligung pro Zweck</h2>
+            <p>
+                Einwilligung muss <strong>zweckbezogen</strong> sein. „Analyse + Werbung +
+                Personalisierung" in einer einzigen Checkbox zusammenzufassen ist
+                unzulässig; der Besucher muss pro Verarbeitungszweck eine eigene
+                Entscheidung treffen können (EDPB-Leitlinien 05/2020, Rn. 42 ff.).
+            </p>
+            <p>
+                In der Praxis heißt das: auf der zweiten Banner-Ebene (Einstellungen-Dialog)
+                erscheint pro Zweck-Kategorie eine eigene Toggle. „Alle akzeptieren" darf
+                bündeln, aber nur weil der Besucher auf der zweiten Ebene die
+                feingranulare Alternative hat.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li>Jeder Dienst im SimpleCMP-Dienst-Register braucht mindestens
+                        einen Zweck-Eintrag (<code>purposes</code>-Feld).
+                    </li>
+                    <li>Mehrere Dienste mit demselben Zweck werden auf der zweiten Ebene
+                        unter einer Zweck-Kategorie gruppiert — pro Dienst eigene
+                        Toggle, gemeinsame Überschrift.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: DSGVO Art. 6(1)(a), EDPB-Leitlinien 05/2020 zur Einwilligung (Rn. 42–53).
+            </p>
+        </section>
+
+        <section id="section-1-5">
+            <h2>§1.5 — Datenschutzerklärung &amp; Impressum-Pflichtlinks</h2>
+            <p>
+                Vor dem Klick muss der Besucher erkennen können, <strong>wer</strong> für
+                die Datenverarbeitung verantwortlich ist und <strong>wo</strong> die
+                vollständigen Informationen stehen. Das verlangt Art. 13 DSGVO. Im
+                deutschen, österreichischen und schweizerischen Recht kommt eine zweite
+                Pflicht hinzu: die Impressums-Angabe (TMG, ECG, UWG) muss
+                <strong>separat erreichbar</strong> sein — also als eigener Link, nicht
+                als Unter-Punkt der Datenschutzerklärung.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.privacyPolicyUrl</code> in den Site-Einstellungen
+                        zeigt auf die Datenschutzerklärung der Site. Ohne diesen Wert
+                        bleibt der Pflicht-Link im Banner leer.
+                    </li>
+                    <li><code>simplecmp.imprintUrl</code> zeigt auf das Impressum.
+                        Erscheint im Banner direkt neben der Datenschutzerklärung.
+                    </li>
+                    <li>Im SimpleCMP-Dienst-Register sollten Dienste, die Daten an
+                        Drittländer übermitteln (insbesondere die USA), das durch
+                        eine entsprechende Beschreibung kenntlich machen.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: DSGVO Art. 13, TMG (Deutschland), ECG (Österreich), UWG
+                (Schweiz), EuGH C-604/22 IAB Europe (07.03.2024) — Pflichten gegenüber
+                gemeinsam Verantwortlichen.
+            </p>
+        </section>
+
+        <section id="section-1-6">
+            <h2>§1.6 — Dauerhafter Widerrufs-Trigger</h2>
+            <p>
+                Art. 7(3) DSGVO verlangt: der Widerruf einer Einwilligung muss <em>so
+                einfach</em> sein wie ihre Erteilung. Der Besucher darf nicht gezwungen
+                sein, ein Konto anzulegen oder eine E-Mail zu schreiben — eine sichtbare,
+                klickbare Schaltfläche im Footer oder als „Floating Trigger" reicht aus
+                und wird von allen Aufsichtsbehörden so erwartet.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.floatingTriggerLabel</code> bekommt eine
+                        sprechende Beschriftung („Cookie-Einstellungen",
+                        „Datenschutz-Optionen"). Ein leeres Label deaktiviert den
+                        Trigger faktisch — der Besucher findet den Widerruf nicht mehr.
+                    </li>
+                    <li>Der Trigger muss auf <strong>jeder Seite</strong> erreichbar sein,
+                        nicht nur auf der Startseite. SimpleCMP rendert ihn über den
+                        kompletten Site-Auftritt hinweg.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: DSGVO Art. 7(3), DSK-Orientierungshilfe (Dezember 2022).
+            </p>
+        </section>
+
+        <section id="section-1-7">
+            <h2>§1.7 — Kein Tracking vor Einwilligung</h2>
+            <p>
+                § 25 TDDDG (vormals TTDSG) und Art. 5(3) der ePrivacy-Richtlinie sagen
+                klar: <strong>vor</strong> der Einwilligung dürfen weder Cookies noch
+                LocalStorage-Einträge gesetzt werden, noch dürfen Skripte von
+                Drittanbietern laden. Selbst „nur eingebundene" Google-Fonts gelten als
+                unzulässige Datenübermittlung in die USA (LG München I, Az. 3 O 17493/20).
+                Das VG Hannover bestätigte 2025 ausdrücklich, dass auch Google Tag
+                Manager und ähnliche Tracker erst nach Einwilligung laden dürfen.
+            </p>
+            <p>
+                Die niederländische Aufsichtsbehörde verhängte 2024 eine
+                600.000-Euro-Geldbuße gegen eine Apotheke, die vor dem Banner-Klick
+                Tracking-Cookies setzte — ein guter Indikator für die Höhe der
+                Sanktionsrisiken.
+            </p>
+            <div class="fix-box">
+                <strong>Was das für die Konfiguration bedeutet:</strong>
+                <ul class="mb-0">
+                    <li><code>simplecmp.universalBlocking.enabled</code> muss aktiviert
+                        sein. Das schaltet die Laufzeit-Sperre für JS-eingefügte Skripte
+                        und Iframes scharf.
+                    </li>
+                    <li>Zusätzlich greift die serverseitige HTML-Umschreibung in TYPO3,
+                        die deklarative <code>&lt;script&gt;</code>-Tags pro Zweck
+                        gated, bis die Einwilligung vorliegt.
+                    </li>
+                </ul>
+            </div>
+            <p class="source-box">
+                Quellen: § 25 TDDDG (14.05.2024), Art. 5(3) ePrivacy-Richtlinie
+                2002/58/EG, LG München I 3 O 17493/20 (20.01.2022), VG Hannover 10 A
+                5385/22 (19.03.2025), Autoriteit Persoonsgegevens — Apothekenbescheid.
+            </p>
+        </section>
+
+        <section id="section-2">
+            <h2>§2 — Dark Patterns: was rechtlich verboten ist</h2>
+            <p>
+                Die EDPB-Leitlinien 03/2022 (v2.0, Februar 2023) benennen sechs
+                Kategorien von „irreführenden Designs" auf digitalen Plattformen. Auch
+                wenn die Leitlinien nominell auf Social-Media-Oberflächen zielen, wenden
+                die Aufsichtsbehörden dieselbe Logik auf Cookie-Banner an. Der DSA
+                (Art. 25, ab Februar 2024 in Kraft) kodifiziert ein zusätzliches Verbot
+                für große Plattformen.
+            </p>
+            <h3>Skipping — Ablehnen schwerer als Akzeptieren</h3>
+            <p>
+                Reject-via-Link statt Reject-via-Button. Reject hinter „Einstellungen"
+                versteckt. Reject erst nach manuellem Abwählen jedes einzelnen
+                Vendors. Das „X" oben rechts, das als Akzeptieren zählt. Alles
+                ausdrücklich rechtswidrig (VG Hannover 2025).
+            </p>
+            <h3>Stirring — emotionale &amp; visuelle Manipulation</h3>
+            <p>
+                Knallgrüner Akzeptieren-Button neben blassgrauem Reject. Marketing-Sprache
+                im Akzeptieren („Verbessere deine Erfahrung") gegenüber neutraler Sprache
+                im Ablehnen. Trauriges Emoji bei „Ablehnen". Der österreichische DSB hat
+                im ORF.at-Fall (2024) ausdrücklich entschieden, dass Farbkontraste mit
+                weniger als WCAG-AA-Verhältnis (3:1) als manipulativ gelten.
+            </p>
+            <h3>Hindering — Reibung im datenschutz-freundlichen Pfad</h3>
+            <p>
+                „Speichern" verlangt Scrollen durch eine Liste. „Sind Sie sicher?"-
+                Rückfrage bei Ablehnung. „Alle ablehnen" funktioniert erst, nachdem
+                jede Kategorie einzeln umgeschaltet wurde. Auch verboten.
+            </p>
+            <h3>Overloading — Wahlerschöpfung durch Optionen-Flut</h3>
+            <p>
+                800 Vendoren in einer flachen Liste. 12 Zweck-Kategorien auf der ersten
+                Ebene. Die Lösung sind progressive Disclosure und maximal 4–6
+                Zweck-Kategorien auf Ebene 1, Vendor-Listen in aufklappbaren Akkordeons.
+            </p>
+            <h3>Fickle — wechselnde Layouts &amp; Bedeutungen</h3>
+            <p>
+                Toggle-Semantik flippt zwischen Besuchen („an = ein" vs. „an = aus").
+                Banner sieht beim zweiten Besuch anders aus. Auch verboten —
+                Konsistenz ist Pflicht.
+            </p>
+            <h3>Left in the Dark — versteckte kritische Informationen</h3>
+            <p>
+                Drittland-Übermittlung versteckt. „Berechtigtes Interesse"-Toggle still
+                voraktiviert. „Essenzielle Cookies"-Kategorie enthält heimlich auch
+                Analyse-Tracker. Alles unzulässig.
+            </p>
+            <div class="fix-box">
+                <strong>SimpleCMP-Defaults:</strong> der Banner kommt out-of-the-box
+                <em>ohne</em> diese Muster. Die Buttons rendern gleichwertig, das
+                Schließen via „X" oder Esc gilt nicht als Zustimmung, „berechtigtes
+                Interesse"-Toggles sind nicht aktivierbar, und die per-Zweck-Granularität
+                ist im Banner-Layout zwingend. Was hier zu vermeiden bleibt, sind
+                <em>eigene</em> Theme-Anpassungen, die die Symmetrie der Buttons brechen
+                (z. B. den Ablehnen-Button im Designer farblich abschwächen).
+            </div>
+            <p class="source-box">
+                Quellen: EDPB-Leitlinien 03/2022 v2.0 zu irreführenden Designs
+                (14.02.2023), DSA Art. 25 (Verordnung 2022/2065, in Kraft 17.02.2024),
+                DSB Österreich D124.0507/24, VG Hannover 10 A 5385/22.
+            </p>
+        </section>
+    </div>
+
+    <div class="mt-4 border-top pt-3">
+        <a href="{uri_backToDesigner}" class="btn btn-default btn-sm">
+            <core:icon identifier="actions-view-go-back" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.compliance.backToDesigner"/>
+        </a>
+    </div>
+
+    <f:if condition="{activeSection}">
+        <script>
+            // Smooth-scroll to the requested section on landing. The
+            // browser already honors the `#section-…` fragment but
+            // when the link comes from another window/tab the focus
+            // doesn't always land cleanly, so re-trigger explicitly.
+            (function () {
+                var target = document.getElementById('section-{activeSection}');
+                if (target && target.scrollIntoView) {
+                    target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                }
+            })();
+        </script>
+    </f:if>
+</f:section>
+
+</html>
