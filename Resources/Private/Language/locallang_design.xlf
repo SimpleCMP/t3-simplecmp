@@ -60,6 +60,14 @@
       <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source></trans-unit>
       <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source></trans-unit>
 
+      <trans-unit id="designer.audit.title.heuristic-decline-label-clarity"><source>Reject button labels read as clear refusal</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-decline-label-clarity"><source>The reject button labels read as clear refusal across configured languages.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-decline-label-clarity"><source>%d reject button label(s) read as deferral or postponement instead of refusal — the EDPB Deceptive-Design Guidelines (03/2022) flag this as Skipping. Either revert to the bundle default or rephrase: %s</source></trans-unit>
+
+      <trans-unit id="designer.audit.title.heuristic-no-marketing-nudge-in-description"><source>Banner description avoids marketing nudges</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-no-marketing-nudge-in-description"><source>Banner descriptions stay clear of marketing-nudge language.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-no-marketing-nudge-in-description"><source>%d banner description(s) contain marketing-nudge phrases that push visitors toward accepting — EDPB 03/2022 Stirring and CNIL recommendation 17.09.2020 rule this out. Replace the flagged phrases with neutral wording: %s</source></trans-unit>
+
       <trans-unit id="designer.compliance.title"><source>Compliance reference</source></trans-unit>
       <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source></trans-unit>
       <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source></trans-unit>

@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
 
 use TYPO3\CMS\Core\Site\Entity\Site;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 
 /**
  * PHP mirror of the upstream `simplecmp` bundle's
@@ -39,8 +40,108 @@ final readonly class ComplianceCheckService
 {
     public function __construct(
         private ServiceRepository $serviceRepository,
+        private TranslationOverrideRepository $overrideRepository,
     ) {
     }
+
+    /**
+     * Decline-label phrases that read as deferral rather than refusal.
+     * Mirrors upstream `src/audit/heuristics.ts` WEAK_DECLINE_PATTERNS.
+     *
+     * @var array<string, list<array{phrase: string, reason: string}>>
+     */
+    private const array WEAK_DECLINE_PATTERNS = [
+        'de' => [
+            ['phrase' => 'vielleicht später', 'reason' => 'verschiebt die Entscheidung statt sie zu treffen'],
+            ['phrase' => 'nicht jetzt', 'reason' => 'klingt aufschiebend, nicht ablehnend'],
+            ['phrase' => 'überspringen', 'reason' => 'klingt nach „später", nicht „nein"'],
+            ['phrase' => 'schließen', 'reason' => 'beschreibt eine UI-Aktion, nicht eine Ablehnung'],
+            ['phrase' => 'weiter ohne', 'reason' => 'unklar — was genau wird abgelehnt?'],
+        ],
+        'en' => [
+            ['phrase' => 'maybe later', 'reason' => 'defers instead of refuses'],
+            ['phrase' => 'not now', 'reason' => 'sounds like postponement, not refusal'],
+            ['phrase' => 'skip', 'reason' => 'reads as "later", not "no"'],
+            ['phrase' => 'close', 'reason' => 'describes a UI action, not a rejection'],
+            ['phrase' => 'continue without', 'reason' => 'ambiguous — what is actually being rejected?'],
+            ['phrase' => 'remind me later', 'reason' => 'defers instead of refuses'],
+        ],
+        'fr' => [
+            ['phrase' => 'plus tard', 'reason' => 'reporte au lieu de refuser'],
+            ['phrase' => 'pas maintenant', 'reason' => 'sonne comme un report, pas un refus'],
+            ['phrase' => 'fermer', 'reason' => 'décrit une action UI, pas un refus'],
+        ],
+        'it' => [
+            ['phrase' => 'più tardi', 'reason' => 'rimanda invece di rifiutare'],
+            ['phrase' => 'non ora', 'reason' => 'suona come un rinvio, non un rifiuto'],
+            ['phrase' => 'chiudi', 'reason' => "descrive un'azione UI, non un rifiuto"],
+        ],
+        'es' => [
+            ['phrase' => 'más tarde', 'reason' => 'aplaza en lugar de rechazar'],
+            ['phrase' => 'ahora no', 'reason' => 'suena como aplazamiento, no rechazo'],
+            ['phrase' => 'cerrar', 'reason' => 'describe una acción UI, no un rechazo'],
+        ],
+        'nl' => [
+            ['phrase' => 'later', 'reason' => 'verschuift de keuze in plaats van te weigeren'],
+            ['phrase' => 'niet nu', 'reason' => 'klinkt als uitstel, geen weigering'],
+            ['phrase' => 'sluiten', 'reason' => 'beschrijft een UI-actie, geen weigering'],
+            ['phrase' => 'overslaan', 'reason' => 'klinkt als "later", niet "nee"'],
+        ],
+    ];
+
+    /**
+     * Marketing-nudge phrases in banner descriptions.
+     * Mirrors upstream `src/audit/heuristics.ts` MARKETING_NUDGE_PATTERNS.
+     *
+     * @var array<string, list<array{phrase: string, reason: string}>>
+     */
+    private const array MARKETING_NUDGE_PATTERNS = [
+        'de' => [
+            ['phrase' => 'erlebnis verbessern', 'reason' => '„Erlebnis" ist Marketing-Sprache'],
+            ['phrase' => 'verbessere dein erlebnis', 'reason' => 'manipulativer Nudge zur Zustimmung'],
+            ['phrase' => 'verbessern sie ihr erlebnis', 'reason' => 'manipulativer Nudge zur Zustimmung'],
+            ['phrase' => 'volle funktionalität', 'reason' => 'suggeriert eingeschränkten Service bei Ablehnung'],
+            ['phrase' => 'volles erlebnis', 'reason' => 'suggeriert eingeschränkten Service bei Ablehnung'],
+            ['phrase' => 'vertrauensvolle partner', 'reason' => 'vage — benenne die Verantwortlichen'],
+            ['phrase' => 'optimal erleben', 'reason' => '„optimal" ist subjektiv und manipulativ'],
+            ['phrase' => 'personalisieren sie ihren besuch', 'reason' => 'Marketing-Nudge zur Zustimmung'],
+            ['phrase' => 'personalisiere deinen besuch', 'reason' => 'Marketing-Nudge zur Zustimmung'],
+        ],
+        'en' => [
+            ['phrase' => 'improve your experience', 'reason' => 'marketing nudge toward acceptance'],
+            ['phrase' => 'enhance your experience', 'reason' => 'marketing nudge toward acceptance'],
+            ['phrase' => 'get the full experience', 'reason' => 'suggests degraded service on refusal'],
+            ['phrase' => 'full functionality', 'reason' => 'suggests degraded service on refusal'],
+            ['phrase' => 'trusted partners', 'reason' => 'vague — name the controllers'],
+            ['phrase' => 'personalize your visit', 'reason' => 'marketing nudge toward acceptance'],
+            ['phrase' => 'continue to enjoy', 'reason' => 'marketing nudge'],
+            ['phrase' => 'tailored experience', 'reason' => 'marketing nudge toward acceptance'],
+        ],
+        'fr' => [
+            ['phrase' => 'meilleure expérience', 'reason' => 'langage marketing, pousse vers l’acceptation'],
+            ['phrase' => 'expérience optimale', 'reason' => '« optimal » est subjectif et manipulateur'],
+            ['phrase' => 'partenaires de confiance', 'reason' => 'vague — nommer les responsables'],
+            ['phrase' => 'personnaliser votre visite', 'reason' => 'nudge marketing vers l’acceptation'],
+        ],
+        'it' => [
+            ['phrase' => 'migliore esperienza', 'reason' => 'linguaggio marketing, spinge verso l’accettazione'],
+            ['phrase' => 'esperienza ottimale', 'reason' => '«ottimale» è soggettivo e manipolativo'],
+            ['phrase' => 'partner di fiducia', 'reason' => 'vago — nominare i titolari'],
+            ['phrase' => 'personalizza la tua visita', 'reason' => 'nudge marketing verso l’accettazione'],
+        ],
+        'es' => [
+            ['phrase' => 'mejor experiencia', 'reason' => 'lenguaje marketing, empuja hacia la aceptación'],
+            ['phrase' => 'experiencia óptima', 'reason' => '«óptima» es subjetiva y manipuladora'],
+            ['phrase' => 'socios de confianza', 'reason' => 'vago — nombrar los responsables'],
+            ['phrase' => 'personalizar tu visita', 'reason' => 'nudge marketing hacia la aceptación'],
+        ],
+        'nl' => [
+            ['phrase' => 'betere ervaring', 'reason' => 'marketingtaal, duwt richting acceptatie'],
+            ['phrase' => 'optimale ervaring', 'reason' => '"optimaal" is subjectief en manipulatief'],
+            ['phrase' => 'vertrouwde partners', 'reason' => 'vaag — noem de verwerkingsverantwoordelijken'],
+            ['phrase' => 'personaliseer je bezoek', 'reason' => 'marketingnudge richting acceptatie'],
+        ],
+    ];
 
     /**
      * Run all checks against the site and return per-check findings.
@@ -61,6 +162,8 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkPersistentRevocationTrigger($settings);
         $results[] = $this->checkImprintUrlDach($settings);
         $results[] = $this->checkServicesHavePurposes();
+        $results[] = $this->checkDeclineLabelClarity($site);
+        $results[] = $this->checkNoMarketingNudgeInDescription($site);
 
         return $results;
     }
@@ -205,6 +308,126 @@ final readonly class ComplianceCheckService
             'sample' => implode(', ', array_slice($offenders, 0, 5)),
             'more' => count($offenders) > 5 ? count($offenders) - 5 : 0,
         ]);
+    }
+
+    /**
+     * Heuristic — flags weak / deferring decline labels in editor
+     * overrides. Mirrors upstream
+     * `heuristics.checkDeclineLabelClarity` predicate by language.
+     *
+     * @return Result
+     */
+    private function checkDeclineLabelClarity(Site $site): array
+    {
+        $hits = $this->scanOverrideKey(
+            $site->getIdentifier(),
+            'decline',
+            self::WEAK_DECLINE_PATTERNS,
+            includeMatchedPhrase: false,
+        );
+        if ($hits === []) {
+            return $this->pass('heuristic-decline-label-clarity', '2.2');
+        }
+        return $this->fail(
+            'heuristic-decline-label-clarity',
+            '2.2',
+            'warning',
+            [
+                'count' => count($hits),
+                'sample' => "\n  - " . implode("\n  - ", $hits),
+            ],
+        );
+    }
+
+    /**
+     * Heuristic — flags marketing-nudge phrases in description
+     * overrides. Mirrors upstream
+     * `heuristics.checkNoMarketingNudgeInDescription`.
+     *
+     * @return Result
+     */
+    private function checkNoMarketingNudgeInDescription(Site $site): array
+    {
+        $hits = $this->scanOverrideKey(
+            $site->getIdentifier(),
+            'consentNotice.description',
+            self::MARKETING_NUDGE_PATTERNS,
+            includeMatchedPhrase: true,
+        );
+        if ($hits === []) {
+            return $this->pass('heuristic-no-marketing-nudge-in-description', '2.3');
+        }
+        return $this->fail(
+            'heuristic-no-marketing-nudge-in-description',
+            '2.3',
+            'warning',
+            [
+                'count' => count($hits),
+                'sample' => "\n  - " . implode("\n  - ", $hits),
+            ],
+        );
+    }
+
+    /**
+     * Walk every language's override at `$dottedKey`, run each text
+     * against the per-language pattern list, return one summary line
+     * per hit. `includeMatchedPhrase` controls whether the matched
+     * phrase is quoted in the summary (useful for marketing nudges
+     * where the phrase IS the point) vs. quoting the full text
+     * (useful for short labels like decline where the full label is
+     * the point).
+     *
+     * @param array<string, list<array{phrase: string, reason: string}>> $patterns
+     * @return list<string>
+     */
+    private function scanOverrideKey(
+        string $siteIdentifier,
+        string $dottedKey,
+        array $patterns,
+        bool $includeMatchedPhrase,
+    ): array {
+        $rows = $this->overrideRepository->findBySite($siteIdentifier);
+        if ($rows === null || $rows === []) {
+            return [];
+        }
+        $hits = [];
+        foreach ($rows as $lang => $entry) {
+            $text = $entry['overrides'][$dottedKey] ?? null;
+            if (!is_string($text) || trim($text) === '') {
+                continue;
+            }
+            $hit = $this->findPatternHit($patterns, (string) $lang, $text);
+            if ($hit === null) {
+                continue;
+            }
+            $hits[] = $includeMatchedPhrase
+                ? sprintf('[%s] "%s" — %s', $lang, $hit['phrase'], $hit['reason'])
+                : sprintf('[%s] "%s" — %s', $lang, $text, $hit['reason']);
+        }
+        return $hits;
+    }
+
+    /**
+     * Case-insensitive substring match — first hit wins. Returns
+     * `null` when the language has no pattern list or no phrase
+     * matches.
+     *
+     * @param array<string, list<array{phrase: string, reason: string}>> $patterns
+     * @return array{phrase: string, reason: string}|null
+     */
+    private function findPatternHit(array $patterns, string $lang, string $text): ?array
+    {
+        $list = $patterns[strtolower($lang)] ?? null;
+        if ($list === null) {
+            return null;
+        }
+        $haystack = mb_strtolower($text);
+        foreach ($list as $pattern) {
+            if (str_contains($haystack, mb_strtolower($pattern['phrase']))) {
+                return $pattern;
+            }
+        }
+        return null;
     }
 
     /**
