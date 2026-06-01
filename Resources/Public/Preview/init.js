@@ -51,7 +51,7 @@ const previewTones = previewTone === 'informal' ? { [previewLang]: 'informal' } 
 // `default` so a typo doesn't break the preview. The bundle warns on
 // unknown values at its own end. Keep this whitelist in sync with
 // `ThemeDesignerController::THEMES`.
-const KNOWN_THEMES = new Set(['bootstrap5', 'tailwind4']);
+const KNOWN_THEMES = new Set(['bootstrap5', 'tailwind4', 'bulma', 'pico']);
 const previewTheme = (() => {
   const raw = (previewParams.get('theme') || '').toLowerCase();
   return KNOWN_THEMES.has(raw) ? raw : 'default';

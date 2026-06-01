@@ -269,6 +269,8 @@ final class ThemeDesignerController extends ActionController
         'default' => 'Default (SimpleCMP eigene Token)',
         'bootstrap5' => 'Bootstrap 5 (übernimmt --bs-* der Site)',
         'tailwind4' => 'Tailwind 4 (übernimmt @theme-Tokens der Site)',
+        'bulma' => 'Bulma 1+ (übernimmt --bulma-* der Site)',
+        'pico' => 'Pico CSS 2 (übernimmt --pico-* der Site)',
     ];
 
     /**
