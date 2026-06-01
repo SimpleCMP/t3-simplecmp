@@ -197,10 +197,20 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkServicesHavePurposes();
         $results[] = $this->checkDeclineLabelClarity($site);
         $results[] = $this->checkNoMarketingNudgeInDescription($site);
+        $results[] = $this->checkDescriptionLength($site);
         $results[] = $this->checkPairedTokenOverrides($site);
 
         return $results;
     }
+
+    /**
+     * Length thresholds for the banner-description heuristic.
+     * Mirrors upstream `src/audit/heuristics.ts` constants. Keep
+     * in lockstep — a value change upstream is a re-sync trigger
+     * here.
+     */
+    private const int DESCRIPTION_MIN_CHARS = 80;
+    private const int DESCRIPTION_MAX_CHARS = 600;
 
     /**
      * Worst severity across a result set. Mirrors upstream
@@ -400,6 +410,51 @@ final readonly class ComplianceCheckService
                 'sample' => "\n  - " . implode("\n  - ", $hits),
             ],
         );
+    }
+
+    /**
+     * Heuristic — flags banner-description overrides that fall
+     * outside the readable length band. Mirrors upstream
+     * `heuristics.checkDescriptionLength` predicate.
+     *
+     * @return Result
+     */
+    private function checkDescriptionLength(Site $site): array
+    {
+        $rows = $this->overrideRepository->findBySite($site->getIdentifier());
+        if ($rows === null || $rows === []) {
+            return $this->pass('heuristic-description-length', '2.1');
+        }
+        $issues = [];
+        foreach ($rows as $lang => $entry) {
+            $text = $entry['overrides']['consentNotice.description'] ?? null;
+            if (!is_string($text) || trim($text) === '') {
+                continue;
+            }
+            $len = mb_strlen($text);
+            if ($len < self::DESCRIPTION_MIN_CHARS) {
+                $issues[] = sprintf(
+                    '[%s] %d Zeichen — unter %d, vermutlich fehlt die Zweck-/Verantwortlicher-Information für „informierte" Einwilligung.',
+                    $lang,
+                    $len,
+                    self::DESCRIPTION_MIN_CHARS,
+                );
+            } elseif ($len > self::DESCRIPTION_MAX_CHARS) {
+                $issues[] = sprintf(
+                    '[%s] %d Zeichen — über %d; Overloading-Risiko (EDPB 03/2022). Auf das Wesentliche kürzen oder Details ins Modal verschieben.',
+                    $lang,
+                    $len,
+                    self::DESCRIPTION_MAX_CHARS,
+                );
+            }
+        }
+        if ($issues === []) {
+            return $this->pass('heuristic-description-length', '2.1');
+        }
+        return $this->fail('heuristic-description-length', '2.1', 'warning', [
+            'count' => count($issues),
+            'sample' => "\n  - " . implode("\n  - ", $issues),
+        ]);
     }
 
     /**

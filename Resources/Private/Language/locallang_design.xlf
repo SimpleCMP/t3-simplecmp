@@ -79,6 +79,10 @@
       <trans-unit id="designer.audit.pass.heuristic-paired-token-overrides"><source>Related color tokens have been overridden as pairs — visual relationships stay coherent.</source></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-paired-token-overrides"><source>%d color-token pair(s) are out of balance — only one half was overridden, the other still uses the bundle default. The rendered banner will show mismatched hover states or surface relationships. Either tune both or revert one: %s</source></trans-unit>
 
+      <trans-unit id="designer.audit.title.heuristic-description-length"><source>Banner description sits in a readable length range</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-description-length"><source>Banner descriptions are in the informative-but-readable range across configured languages.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-description-length"><source>%d banner description(s) are outside the recommended 80–600 character range. Too short (below 80) typically lacks the purpose enumeration the "informed" consent prong requires; too long (above 600) risks EDPB 03/2022 § Overloading. Findings: %s</source></trans-unit>
+
       <trans-unit id="designer.compliance.title"><source>Compliance reference</source></trans-unit>
       <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source></trans-unit>
       <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source></trans-unit>
