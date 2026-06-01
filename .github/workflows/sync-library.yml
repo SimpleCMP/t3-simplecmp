@@ -66,7 +66,7 @@ jobs:
       typo3DatabaseName: func_t3_simplecmp
     steps:
       - name: Checkout ext (release/v14)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: release/v14
           fetch-depth: 0
@@ -89,7 +89,7 @@ jobs:
           echo "full_sha=$FULL" >> "$GITHUB_OUTPUT"
 
       - name: Checkout services-library at dispatched SHA
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: SimpleCMP/services-library
           ref: ${{ steps.resolve.outputs.full_sha }}
@@ -165,7 +165,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor
           key: composer-8.4-${{ hashFiles('composer.json') }}
