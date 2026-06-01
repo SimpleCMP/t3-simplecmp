@@ -195,6 +195,41 @@
                 </div>
             </f:else>
         </f:if>
+
+        <!--
+            Live-FE audit block — independent of the config audit (which
+            runs server-side and renders the alert above). The button
+            opens a hidden iframe at `<siteBaseUrl>?simplecmp_audit=1`
+            and renders the bundle's audit-mode response inline. Always
+            rendered when a site URL is available; the BE preview can
+            be compliance-clean while the live FE still has CSS-cascade
+            issues, so this affordance lives outside the alert branches.
+        -->
+        <f:if condition="{siteBaseUrl}">
+            <div class="mt-3 p-3 border rounded bg-body-tertiary"
+                 data-fe-audit-i18n-running="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.running')}"
+                 data-fe-audit-i18n-done="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.done')}"
+                 data-fe-audit-i18n-heading="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.heading')}"
+                 data-fe-audit-i18n-all-passed="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.allPassed')}"
+                 data-fe-audit-i18n-timeout="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.timeout')}"
+                 data-fe-audit-i18n-severity-critical="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical')}"
+                 data-fe-audit-i18n-severity-warning="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning')}">
+                <button type="button"
+                        class="btn btn-default btn-sm"
+                        data-fe-audit-trigger
+                        data-fe-audit-url="{siteBaseUrl}">
+                    <core:icon identifier="actions-refresh" size="small"/>
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.run"/>
+                </button>
+                <small class="ms-2 text-body-secondary" data-fe-audit-status>
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.idle"/>
+                </small>
+                <div data-fe-audit class="mt-2" hidden>
+                    <p class="mb-2 small fw-semibold" data-fe-audit-heading></p>
+                    <ul class="list-unstyled mb-0" data-fe-audit-list></ul>
+                </div>
+            </div>
+        </f:if>
     </f:if>
 
     <f:if condition="{hasAvailableSites}">

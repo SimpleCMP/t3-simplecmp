@@ -474,6 +474,12 @@ final class ThemeDesignerController extends ActionController
             // 1.2 / 2.2 — same `Compliance.html` page anchors as the
             // config-audit findings.
             'domAuditI18nJson' => $this->buildDomAuditI18nMap(),
+            // Live-FE audit needs the site's base URL — it loads
+            // `<siteBase>?simplecmp_audit=1` in a hidden iframe and
+            // expects the bundle there to post audit results back.
+            // Empty string when the site doesn't expose a base
+            // (shouldn't happen for SimpleCMP-Set sites).
+            'siteBaseUrl' => $this->siteBaseUrl($site),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
@@ -772,6 +778,22 @@ final class ThemeDesignerController extends ActionController
             ];
         }
         return (string) json_encode($out, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Active site's base URL — surfaced as a view variable so the
+     * BE designer's "Live-FE-Audit" button can load
+     * `<siteBase>?simplecmp_audit=1` in a hidden iframe. Empty
+     * string when the site doesn't expose a base.
+     */
+    private function siteBaseUrl(string $siteIdentifier): string
+    {
+        try {
+            $site = $this->siteFinder->getSiteByIdentifier($siteIdentifier);
+        } catch (\Throwable) {
+            return '';
+        }
+        return (string) $site->getBase();
     }
 
     /**

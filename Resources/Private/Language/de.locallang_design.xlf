@@ -57,6 +57,13 @@
       <trans-unit id="designer.audit.title.dom-buttons-equal-styling"><source>Banner buttons are styled identically</source><target>Banner-Buttons sind gleichwertig gestylt</target></trans-unit>
       <trans-unit id="designer.audit.title.dom-buttons-wcag-contrast"><source>Banner buttons meet WCAG AA text contrast</source><target>Banner-Buttons erfüllen WCAG-AA-Textkontrast</target></trans-unit>
       <trans-unit id="designer.audit.domHeading"><source>From the rendered banner</source><target>Aus dem gerenderten Banner</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.run"><source>Run live FE audit</source><target>Live-FE-Audit ausführen</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.idle"><source>Tests the banner on the live site (catches host-CSS conflicts the BE preview can't see)</source><target>Prüft den Banner auf der Live-Site (findet CSS-Konflikte, die die BE-Vorschau nicht sehen kann)</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.running"><source>Running on live FE…</source><target>Läuft auf der Live-Site …</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.done"><source>Last live FE check: %s</source><target>Letzter Live-FE-Check: %s</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.heading"><source>From the live frontend (%s)</source><target>Vom Live-Frontend (%s)</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.allPassed"><source>All checks on the live frontend passed.</source><target>Alle Checks im Live-Frontend bestanden.</target></trans-unit>
+      <trans-unit id="designer.audit.feAudit.timeout"><source>No response from %s after 10 seconds. Check that the site is reachable and that the SimpleCMP bundle is loaded there.</source><target>Keine Antwort von %s nach 10 Sekunden. Bitte prüfe, ob die Site erreichbar ist und das SimpleCMP-Bundle dort geladen wird.</target></trans-unit>
       <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source><target>Alle Dienste nennen mindestens einen Verarbeitungszweck.</target></trans-unit>
       <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source><target>%d Dienst(e) haben keinen Zweck hinterlegt: %s. Einwilligung muss zweckbezogen sein — vergib jedem Dienst mindestens eine Zweck-Kategorie im Dienst-Register.</target></trans-unit>
 

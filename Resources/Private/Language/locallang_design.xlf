@@ -57,6 +57,13 @@
       <trans-unit id="designer.audit.title.dom-buttons-equal-styling"><source>Banner buttons are styled identically</source></trans-unit>
       <trans-unit id="designer.audit.title.dom-buttons-wcag-contrast"><source>Banner buttons meet WCAG AA text contrast</source></trans-unit>
       <trans-unit id="designer.audit.domHeading"><source>From the rendered banner</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.run"><source>Run live FE audit</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.idle"><source>Tests the banner on the live site (catches host-CSS conflicts the BE preview can't see)</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.running"><source>Running on live FE…</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.done"><source>Last live FE check: %s</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.heading"><source>From the live frontend (%s)</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.allPassed"><source>All checks on the live frontend passed.</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.timeout"><source>No response from %s after 10 seconds. Check that the site is reachable and that the SimpleCMP bundle is loaded there.</source></trans-unit>
       <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source></trans-unit>
       <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source></trans-unit>
 

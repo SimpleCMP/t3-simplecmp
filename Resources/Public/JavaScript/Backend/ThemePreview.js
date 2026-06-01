@@ -14,7 +14,161 @@ class ThemePreview {
     this._timer = null;
     document.addEventListener('input', this.onInput, true);
     document.addEventListener('change', this.onChange);
+    document.addEventListener('click', this.onClick);
     window.addEventListener('message', this.onMessage);
+  }
+
+  /**
+   * Click delegate — picks up the "Live-FE-Audit ausführen" button
+   * anywhere in the module. Keeps the handler installed at document
+   * level so the button works even if the audit-banner re-renders
+   * around it (which doesn't happen today but is cheap insurance).
+   */
+  onClick = (event) => {
+    const trigger = event.target.closest?.('[data-fe-audit-trigger]');
+    if (!trigger) return;
+    event.preventDefault();
+    this.runFeAudit(trigger);
+  };
+
+  /**
+   * Mount a hidden iframe at `<siteBaseUrl>?simplecmp_audit=1`,
+   * listen for the `simplecmp-audit-from-fe` postMessage the
+   * bundle's audit-mode handler emits, render the findings, and
+   * tear the iframe down.
+   *
+   * The iframe is sized 1024×768 so the banner mounts at a
+   * representative viewport — narrower can hide layout overflow,
+   * wider doesn't help since we only audit the banner. Positioned
+   * off-screen so the editor doesn't see it. 10-second hard timeout
+   * in case the bundle doesn't respond (site down, bundle not
+   * loaded, X-Frame-Options blocking).
+   */
+  runFeAudit(trigger) {
+    const url = trigger.getAttribute('data-fe-audit-url');
+    if (!url) return;
+    const statusEl = document.querySelector('[data-fe-audit-status]');
+    const containerEl = document.querySelector('[data-fe-audit]');
+    const listEl = document.querySelector('[data-fe-audit-list]');
+    const headingEl = document.querySelector('[data-fe-audit-heading]');
+    if (!statusEl || !containerEl || !listEl || !headingEl) return;
+    const i18n = this._readDomAuditI18n();
+
+    trigger.disabled = true;
+    statusEl.textContent = this._stringFromLocale('running', 'Running on live FE…');
+    containerEl.hidden = true;
+    listEl.innerHTML = '';
+
+    const auditUrl = new URL(url, window.location.origin);
+    auditUrl.searchParams.set('simplecmp_audit', '1');
+    auditUrl.searchParams.set('cb', Date.now().toString());
+    // Belt-and-suspenders: ALSO add the audit marker as a hash
+    // fragment so TYPO3's language redirect (which drops query
+    // strings going `/` → `/de/`) doesn't disarm the audit. The
+    // bundle's `isAuditMode()` checks both surfaces.
+    auditUrl.hash = 'simplecmp_audit=1';
+    const iframe = document.createElement('iframe');
+    iframe.src = auditUrl.toString();
+    iframe.style.cssText =
+      'position: fixed; left: -9999px; top: -9999px; width: 1024px; height: 768px; border: 0;';
+    iframe.dataset.feAuditIframe = '1';
+    document.body.appendChild(iframe);
+
+    const cleanup = () => {
+      window.removeEventListener('message', handler);
+      clearTimeout(timeout);
+      iframe.remove();
+      trigger.disabled = false;
+    };
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      const tmpl = this._stringFromLocale('timeout', 'No response from %s after 10s.');
+      statusEl.textContent = tmpl.replace('%s', auditUrl.host);
+    }, 10000);
+
+    const handler = (event) => {
+      if (event.data?.type !== 'simplecmp-audit-from-fe') return;
+      if (!Array.isArray(event.data.results)) return;
+      cleanup();
+      this._renderFeAuditResults(event.data, i18n, { statusEl, containerEl, listEl, headingEl });
+    };
+    window.addEventListener('message', handler);
+  }
+
+  _readDomAuditI18n() {
+    const node = document.querySelector('[data-dom-audit-i18n]');
+    if (!node) return {};
+    try {
+      return JSON.parse(node.textContent || '{}');
+    } catch (_) {
+      return {};
+    }
+  }
+
+  _stringFromLocale(suffix, fallback) {
+    // The template renders all FE-audit-related localized strings as
+    // `data-fe-audit-i18n-<kebab-case-suffix>` attributes on the
+    // wrapping div. Callers pass camelCase suffixes; we kebab-case
+    // them here so HTML5 attribute semantics (kebab) match either
+    // way without forcing callers to remember the convention.
+    const wrapper = document.querySelector('[data-fe-audit-i18n-running]');
+    if (!wrapper) return fallback;
+    const kebab = suffix.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+    const value = wrapper.getAttribute(`data-fe-audit-i18n-${kebab}`);
+    return value && value !== '' ? value : fallback;
+  }
+
+  _renderFeAuditResults(payload, i18n, els) {
+    const failed = payload.results.filter((r) => r && r.passed === false);
+    const headingTmpl = this._stringFromLocale('heading', 'From the live frontend (%s)');
+    els.headingEl.textContent = headingTmpl.replace('%s', payload.location?.host || 'frontend');
+    els.statusEl.textContent = this._stringFromLocale('done', 'Last live FE check: %s').replace(
+      '%s',
+      new Date().toLocaleTimeString()
+    );
+    els.listEl.innerHTML = '';
+    if (failed.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'small text-success';
+      li.textContent = this._stringFromLocale('allPassed', 'All checks on the live frontend passed.');
+      els.listEl.appendChild(li);
+      els.containerEl.hidden = false;
+      return;
+    }
+    for (const result of failed) {
+      const meta = i18n[result.id] || { title: result.title, section: result.section };
+      const li = document.createElement('li');
+      li.className = 'mb-2 d-flex align-items-start gap-2';
+      const badge = document.createElement('span');
+      badge.className =
+        'badge text-bg-' + (result.severity === 'critical' ? 'danger' : 'warning') + ' flex-shrink-0';
+      badge.textContent =
+        result.severity === 'critical'
+          ? this._stringFromLocale('severity-critical', 'Critical')
+          : this._stringFromLocale('severity-warning', 'Warning');
+      const body = document.createElement('div');
+      const titleEl = document.createElement('strong');
+      titleEl.textContent = meta.title || result.id;
+      body.appendChild(titleEl);
+      if (meta.complianceUri) {
+        const link = document.createElement('a');
+        link.href = meta.complianceUri;
+        link.target = 'simplecmp-compliance';
+        link.className = 'ms-1 small text-decoration-none';
+        link.textContent = '§' + (meta.section || result.section);
+        body.appendChild(link);
+      }
+      const detail = document.createElement('div');
+      detail.className = 'small';
+      detail.style.whiteSpace = 'pre-wrap';
+      detail.textContent = result.detail;
+      body.appendChild(detail);
+      li.appendChild(badge);
+      li.appendChild(body);
+      els.listEl.appendChild(li);
+    }
+    els.containerEl.hidden = false;
   }
 
   /**
