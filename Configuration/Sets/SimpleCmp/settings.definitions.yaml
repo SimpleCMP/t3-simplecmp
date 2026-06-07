@@ -88,3 +88,25 @@ settings:
     description: 'Hosts the rewriter should pass through without gating, in addition to the site''s own host. One per line. Exact match (e.g. `cdn.example.com`) or wildcard form `*.example.com` matching the apex + every subdomain. The site''s own host is always allowlisted automatically. Use this for vendor CDNs, your own infrastructure, or known-safe hosts you don''t want to surface as consent decisions.'
     type: stringlist
     default: []
+
+# `simplecmp.trackers` is intentionally NOT defined here — TYPO3
+# site-setting types are scalar only (string, int, bool, stringlist,
+# url, …), there is no nested-array type that the BE form module
+# could render. The setting is still readable at runtime via
+# `$site->getSettings()->get('simplecmp.trackers')`, so integrators
+# add it directly in `config/sites/<id>/settings.yaml`:
+#
+#   simplecmp:
+#     trackers:
+#       - type: matomo
+#         url: https://matomo.example.com/
+#         siteId: 99
+#       - type: ga4
+#         measurementId: G-XXXXXXXXXX
+#       - type: gtm
+#         containerId: GTM-XXXXXXX
+#
+# The TrackerMaterializer event listener (see Classes/EventListener)
+# upserts a `tx_t3simplecmp_service` row per entry, registers the
+# loader script with `data-name="<service_id>"`, and emits the
+# bootstrap inline JS. Origins flow into the CSP via CspPolicyMutator.

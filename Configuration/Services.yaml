@@ -4,8 +4,18 @@ services:
     autoconfigure: true
     public: false
 
+  _instanceof:
+    # Auto-tag every bundled / third-party tracker provider so the
+    # registry collects them via the !tagged_iterator below.
+    SimpleCMP\T3SimpleCmp\Tracker\TrackerProviderInterface:
+      tags: ['simplecmp.tracker_provider']
+
   SimpleCMP\T3SimpleCmp\:
     resource: '../Classes/*'
+
+  SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry:
+    arguments:
+      $providers: !tagged_iterator simplecmp.tracker_provider
 
   SimpleCMP\T3SimpleCmp\Command\GenerateBridgeSecretCommand:
     tags:
