@@ -109,11 +109,15 @@ final readonly class RegisterAssets
         // patches + creates the manager immediately, then defers the
         // banner/modal mount to DOMContentLoaded. So head-priority is
         // safe regardless of whether universalBlocking is on.
+        // `csp => true` opts the asset into TYPO3 v14's nonce attachment
+        // (see AssetRenderer::render — without this flag, the rendered
+        // <script> tag has no nonce and the Report-Only / strict CSP
+        // logs a script-src-elem violation against the inline init).
         $this->assetCollector->addJavaScript(
             'simplecmp-bundle',
             'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js',
             [],
-            ['priority' => true],
+            ['priority' => true, 'csp' => true],
         );
 
         // Inline init right after — AssetCollector preserves insertion order
@@ -126,7 +130,7 @@ final readonly class RegisterAssets
                 json_encode($config, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
             ),
             [],
-            ['priority' => true],
+            ['priority' => true, 'csp' => true],
         );
 
         // Theme injection stays at the default (end of body) — its
@@ -207,6 +211,8 @@ final readonly class RegisterAssets
         $this->assetCollector->addInlineJavaScript(
             'simplecmp-theme-' . $site->getIdentifier(),
             $script,
+            [],
+            ['csp' => true],
         );
     }
 
