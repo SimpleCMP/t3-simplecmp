@@ -22,19 +22,27 @@
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.heading" />
             </h1>
 
-            <f:form action="list" method="get" class="d-flex align-items-center gap-2">
+            <!--
+                Plain `select` driving window.location.assign() with
+                pre-built per-site URLs from the controller. An Extbase
+                "form method get" would drop the BE-module route token
+                on submission, so TYPO3 would re-render the module
+                inside a nested chrome and the navigation tabs would
+                appear twice.
+            -->
+            <div class="d-flex align-items-center gap-2">
                 <label for="t3simplecmp-tracker-site" class="form-label mb-0 small text-body-secondary">
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.site" />
                 </label>
-                <f:form.select id="t3simplecmp-tracker-site"
-                               name="site"
-                               value="{selectedSite}"
-                               class="form-select form-select-sm"
-                               optionLabelField="label"
-                               optionValueField="identifier"
-                               options="{sites}"
-                               additionalAttributes="{onchange: 'this.form.submit()'}" />
-            </f:form>
+                <select id="t3simplecmp-tracker-site"
+                        class="form-select form-select-sm"
+                        style="width:auto"
+                        onchange="if (this.value) window.location.assign(this.value);">
+                    <f:for each="{siteOptions}" as="opt">
+                        <option value="{opt.url}" {f:if(condition: '{opt.identifier} == {selectedSite}', then: 'selected')}>{opt.label}</option>
+                    </f:for>
+                </select>
+            </div>
         </div>
 
         <p class="text-body-secondary">

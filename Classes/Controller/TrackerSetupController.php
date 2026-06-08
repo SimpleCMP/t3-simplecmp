@@ -31,6 +31,14 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class TrackerSetupController extends ActionController
 {
+    /**
+     * Composer/Site-Set identifier of this extension. Sites without
+     * this set in their resolved dependencies don't actually run
+     * SimpleCMP on the FE — picking trackers for them would be a
+     * no-op, so they're filtered out of the site selector.
+     */
+    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+
     protected ModuleTemplate $moduleTemplate;
 
     public function __construct(
@@ -67,9 +75,28 @@ final class TrackerSetupController extends ActionController
             $providerOptions[$type] = $this->translate('module.trackerSetup.providerLabel.' . $type) ?: ucfirst($type);
         }
 
+        // Pre-build per-site URLs so the template's site-picker can
+        // drive a `<select onchange="window.location.assign(...)">`
+        // instead of an Extbase `<f:form method="get">`. The form path
+        // loses the BE-module route token on submission, which makes
+        // TYPO3 render the response inside a nested module shell — the
+        // backend navigation appears twice.
+        $siteOptions = [];
+        foreach ($sites as $entry) {
+            $siteOptions[] = [
+                'identifier' => $entry['identifier'],
+                'label' => $entry['label'],
+                'url' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                    'simplecmp_detections.TrackerSetup_list',
+                    ['site' => $entry['identifier']],
+                ),
+            ];
+        }
+
         $this->moduleTemplate->assignMultiple([
             'hasSites' => true,
             'sites' => $sites,
+            'siteOptions' => $siteOptions,
             'selectedSite' => $selected,
             'yamlTrackers' => $yamlTrackers,
             'dbTrackers' => $this->enrichForRendering($dbTrackers),
@@ -210,12 +237,22 @@ final class TrackerSetupController extends ActionController
     // ----- helpers -----
 
     /**
+     * Sites where SimpleCMP actually runs — i.e. have
+     * `simplecmp/t3-simplecmp` in their resolved Site-Set dependencies.
+     * Any other site can't render the consent UI, so showing trackers
+     * for them in the picker would be misleading. Auto-generated
+     * siteroot placeholders (which have empty Sets) drop out by the
+     * same rule.
+     *
      * @return list<array{identifier: string, label: string}>
      */
     private function collectSites(): array
     {
         $out = [];
         foreach ($this->siteFinder->getAllSites() as $site) {
+            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+                continue;
+            }
             $title = (string) ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());
             $out[] = [
                 'identifier' => $site->getIdentifier(),
