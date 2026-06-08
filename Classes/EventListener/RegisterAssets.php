@@ -201,7 +201,15 @@ final readonly class RegisterAssets
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
-            $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ';';
+            // `!important` is required because the framework adapters
+            // (bootstrap5 / tailwind4 / bulma / pico) inject a light-DOM
+            // `<style>` with `:where(simplecmp-*) { --simplecmp-color-primary:
+            //  var(--bs-primary); }` — that custom-property inherits into the
+            // shadow DOM and wins over our shadow-root `:host` declaration
+            // (inherited values trump :host-set values at equal specificity).
+            // Without `!important` the editor's custom colours never reach
+            // the rendered banner on the FE Live.
+            $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ' !important;';
         }
 
         $rules = [];
