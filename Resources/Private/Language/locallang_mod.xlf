@@ -341,6 +341,9 @@
       <trans-unit id="module.trackerSetup.providerLabel.matomo"><source>Matomo Analytics</source></trans-unit>
       <trans-unit id="module.trackerSetup.providerLabel.ga4"><source>Google Analytics 4</source></trans-unit>
       <trans-unit id="module.trackerSetup.providerLabel.gtm"><source>Google Tag Manager</source></trans-unit>
+      <trans-unit id="module.trackerSetup.tmRecommendation.heading"><source>Using more than 2 trackers? Consider a Tag Manager.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.tmRecommendation.body"><source>Each extra tracker multiplies CSP entries, Service-DB rows, and editor friction. A Tag Manager (Matomo TM for privacy-first, Google TM for marketing-driven sites) reduces all of that to a single SimpleCMP service — and lets marketing add or swap tags without TYPO3 deployments. Server-side TM goes further: first-party cookies, no third-party DNS, ITP-resilient.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.tmRecommendation.docsLink"><source>Read the full Tag-Manager-First recommendation</source></trans-unit>
     </body>
   </file>
 </xliff>
