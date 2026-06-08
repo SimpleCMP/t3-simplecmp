@@ -23,6 +23,12 @@ services:
         command: 'simplecmp:generate-bridge-secret'
         description: 'Generate a fresh HMAC secret for the SimpleCMP bridge webhook nonces.'
 
+  SimpleCMP\T3SimpleCmp\Command\DemoRunCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:demo:run'
+        description: 'Reset SimpleCMP demo state and seed a fresh detections batch via the CMS-bridge webhook so the BE Detektionen module has rows ready for a live presentation.'
+
   # PSR-15 middlewares: TYPO3 instantiates these via `makeInstance`, which
   # only reads from public services in the DI container. Without `public:
   # true` the autowired constructor args (repositories) silently fail and
