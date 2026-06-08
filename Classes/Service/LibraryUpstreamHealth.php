@@ -35,6 +35,7 @@ final readonly class LibraryUpstreamHealth
     public const string CACHE_IDENTIFIER = 't3_simplecmp_library_upstream_health';
     private const int TIMEOUT_SECONDS = 3;
     private const int CACHE_TTL_SECONDS = 1800; // 30 minutes
+    private const int FAILURE_TTL_SECONDS = 300; // 5 min — negative-cache failed probes
 
     public function __construct(
         private RequestFactory $requestFactory,
@@ -73,6 +74,12 @@ final readonly class LibraryUpstreamHealth
         $key = $this->cacheKey($upstreamUrl);
         $cached = $cache->get($key);
         if (is_array($cached) && ($cached['bundleDataHash'] ?? null) === $bundleDataHash) {
+            // Negative-cache hit: a recent probe failed. Don't re-probe
+            // within the failure window — an unreachable/slow upstream
+            // must not make callers wait the request timeout again.
+            if (!empty($cached['failed'])) {
+                return null;
+            }
             unset($cached['bundleDataHash']);
             /** @var array{serviceCount: int|null, sourceSha: string|null, dataHash: string|null, lastSyncAt: int|null, fetchedAt: int} $cached */
             return $cached;
@@ -80,6 +87,14 @@ final readonly class LibraryUpstreamHealth
 
         $snapshot = $this->fetchFromUpstream($upstreamUrl);
         if ($snapshot === null) {
+            // Negative-cache the failure for a short window so repeated
+            // renders / button presses don't each hang on the network.
+            $cache->set(
+                $key,
+                ['bundleDataHash' => $bundleDataHash, 'failed' => true],
+                [],
+                self::FAILURE_TTL_SECONDS,
+            );
             return null;
         }
         $cache->set(
@@ -89,6 +104,41 @@ final readonly class LibraryUpstreamHealth
             self::CACHE_TTL_SECONDS,
         );
         return $snapshot;
+    }
+
+    /**
+     * Cache-only read of the health snapshot — never makes a network
+     * call. The BE list render uses this so opening the Bibliothek tab
+     * can never block on a slow/unreachable upstream. Returns the cached
+     * snapshot when present and captured against the same bundle hash;
+     * null on cold cache or a negative-cached failure. The actual probe
+     * is triggered explicitly by the "Jetzt prüfen" button
+     * (LibraryBrowserController::refreshUpstreamHealthAction).
+     *
+     * @return array{
+     *     serviceCount: int|null,
+     *     sourceSha: string|null,
+     *     dataHash: string|null,
+     *     lastSyncAt: int|null,
+     *     fetchedAt: int,
+     * }|null
+     */
+    public function cachedSnapshot(?string $upstreamUrl, ?string $bundleDataHash): ?array
+    {
+        if ($upstreamUrl === null || $upstreamUrl === '') {
+            return null;
+        }
+        $cache = $this->cacheManager->getCache(self::CACHE_IDENTIFIER);
+        $cached = $cache->get($this->cacheKey($upstreamUrl));
+        if (!is_array($cached) || ($cached['bundleDataHash'] ?? null) !== $bundleDataHash) {
+            return null;
+        }
+        if (!empty($cached['failed'])) {
+            return null;
+        }
+        unset($cached['bundleDataHash']);
+        /** @var array{serviceCount: int|null, sourceSha: string|null, dataHash: string|null, lastSyncAt: int|null, fetchedAt: int} $cached */
+        return $cached;
     }
 
     /**

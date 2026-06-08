@@ -331,8 +331,32 @@ final class LibraryBrowserController extends ActionController
      */
     public function refreshUpstreamHealthAction(): ResponseInterface
     {
+        // Explicit, user-triggered probe: flush the cache, then probe
+        // ONCE here (the list render only reads cache and never probes).
+        // A failed probe is negative-cached by snapshot(), so this can't
+        // hang on every press.
         $this->upstreamHealth->flush();
+        $url = $this->firstConfiguredUpstreamUrl();
+        if ($url !== null) {
+            $this->upstreamHealth->snapshot($url, $this->bundledLibrary->dataHash());
+        }
         return $this->redirect('list');
+    }
+
+    /**
+     * First site-configured upstream URL across all sites, or null.
+     * Multi-site installs typically share one upstream; we use the
+     * first non-empty one we see (same rule as buildUpstreamStatus).
+     */
+    private function firstConfiguredUpstreamUrl(): ?string
+    {
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $url = $site->getSettings()->get('simplecmp.libraryUpstreamUrl');
+            if (is_string($url) && $url !== '') {
+                return $url;
+            }
+        }
+        return null;
     }
 
     // ---------------------------------------------------------------------
@@ -418,8 +442,12 @@ final class LibraryBrowserController extends ActionController
         // configured. Multi-site installs typically share one upstream;
         // we use the first one we see. Bundle dataHash drives cache
         // invalidation on the next composer update.
+        // Cache-only read — the list render must NEVER block on the
+        // network (a slow/unreachable upstream would otherwise hang every
+        // Bibliothek-tab load). The probe runs only on the explicit
+        // "Jetzt prüfen" button (refreshUpstreamHealthAction).
         $snapshot = $firstUpstreamUrl !== null
-            ? $this->upstreamHealth->snapshot($firstUpstreamUrl, $bundleDataHash)
+            ? $this->upstreamHealth->cachedSnapshot($firstUpstreamUrl, $bundleDataHash)
             : null;
 
         // Drift comparison is on dataHash (content over service JSON

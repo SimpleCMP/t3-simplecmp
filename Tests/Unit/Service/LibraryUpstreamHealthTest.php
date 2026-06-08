@@ -173,19 +173,26 @@ final class LibraryUpstreamHealthTest extends TestCase
     }
 
     #[Test]
-    public function returnsNullOnNetworkErrorAndDoesNotCache(): void
+    public function returnsNullOnNetworkErrorAndNegativeCaches(): void
     {
+        // Probe only ONCE even across two calls — the failure is
+        // negative-cached so an unreachable/slow upstream can't make
+        // every caller hang on the network timeout again.
         $this->requestFactory->expects(self::once())
             ->method('request')
             ->willThrowException(new \RuntimeException('connection refused'));
 
         $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
         self::assertNull($health->snapshot('https://lib.example/v1', 'a'));
-        self::assertFalse($this->fakeCache->get('h_' . sha1('https://lib.example/v1')));
+        self::assertNull($health->snapshot('https://lib.example/v1', 'a'));
+
+        $cached = $this->fakeCache->get('h_' . sha1('https://lib.example/v1'));
+        self::assertIsArray($cached);
+        self::assertTrue($cached['failed'] ?? false, 'failed probe must be negative-cached');
     }
 
     #[Test]
-    public function returnsNullOnNon2xx(): void
+    public function returnsNullOnNon2xxAndNegativeCaches(): void
     {
         $this->requestFactory->expects(self::once())
             ->method('request')
@@ -193,7 +200,49 @@ final class LibraryUpstreamHealthTest extends TestCase
 
         $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
         self::assertNull($health->snapshot('https://lib.example/v1', 'a'));
-        self::assertFalse($this->fakeCache->get('h_' . sha1('https://lib.example/v1')));
+        self::assertNull($health->snapshot('https://lib.example/v1', 'a'));
+
+        $cached = $this->fakeCache->get('h_' . sha1('https://lib.example/v1'));
+        self::assertIsArray($cached);
+        self::assertTrue($cached['failed'] ?? false, 'non-2xx probe must be negative-cached');
+    }
+
+    #[Test]
+    public function cachedSnapshotNeverProbes(): void
+    {
+        // Cache-only read must NEVER touch the network — this is what
+        // keeps the BE Bibliothek tab instant regardless of upstream
+        // reachability.
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertNull(
+            $health->cachedSnapshot('https://lib.example/v1', 'a'),
+            'cold cache → null, no probe',
+        );
+    }
+
+    #[Test]
+    public function cachedSnapshotReturnsStoredSnapshotWithoutProbing(): void
+    {
+        // One probe to seed the cache; cachedSnapshot then reads it back
+        // with no further network call (enforced by expects(once)).
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willReturn($this->httpResponse(200, json_encode([
+                'serviceCount' => 367,
+                'sourceSha' => str_repeat('a', 40),
+                'dataHash' => str_repeat('c', 64),
+                'lastSyncAt' => '2026-05-28T08:17:03Z',
+            ]) ?: ''));
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        $health->snapshot('https://lib.example/v1', 'h');
+
+        $snap = $health->cachedSnapshot('https://lib.example/v1', 'h');
+        self::assertIsArray($snap);
+        self::assertSame(367, $snap['serviceCount']);
+        self::assertArrayNotHasKey('bundleDataHash', $snap);
     }
 
     #[Test]
