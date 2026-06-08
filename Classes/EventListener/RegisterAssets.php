@@ -154,6 +154,21 @@ final readonly class RegisterAssets
         if ($tokens === null || $tokens === []) {
             return;
         }
+
+        // Color-lock: when `colorPaletteLocked` is `1` (default), the
+        // BE may have stored per-token color overrides anyway (they're
+        // visible inside the "Eigene Farben" accordion) but the FE
+        // ignores them and uses the audited SAFE_PALETTE values
+        // instead. The lock is a UX guarantee: editors who clicked
+        // away from custom colors get the verified set back, no
+        // accidental compliance drift.
+        $locked = ($tokens['colorPaletteLocked'] ?? '1') === '1';
+        if ($locked) {
+            foreach (\SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController::SAFE_PALETTE as $key => $safeValue) {
+                $tokens[$key] = $safeValue;
+            }
+        }
+
         $declarations = [];
         foreach ($tokens as $token => $value) {
             if (!is_string($token) || !is_scalar($value)) {
@@ -169,22 +184,61 @@ final readonly class RegisterAssets
                 }
                 continue;
             }
-            // `theme` and `layout` are not CSS vars — they're bundle
-            // config flags handled separately in `buildInitConfig()`.
-            // Don't emit `--simplecmp-theme` / `--simplecmp-layout`
-            // declarations; the bundle would ignore them and they'd
-            // pollute the shadow-DOM rule.
-            if ($token === 'theme' || $token === 'layout') {
+            // `theme`, `layout`, `colorPaletteLocked`, `triggerPosition`
+            // are bundle config flags / BE-only state — not CSS vars.
+            // Skip them so they don't pollute the shadow-DOM rule
+            // (`triggerPosition` flows through cmp.init's
+            // `floatingTrigger.position` instead).
+            if (in_array($token, ['theme', 'layout', 'colorPaletteLocked', 'triggerPosition'], true)) {
+                continue;
+            }
+            // `color-trigger-bg` is the optional trigger-button background
+            // override. It needs a per-trigger rule scoped via
+            // `:host(simplecmp-trigger)`, not the generic shared `:host`
+            // rule — emit it separately below.
+            if ($token === 'color-trigger-bg') {
                 continue;
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
             $declarations[] = '--simplecmp-' . $token . ': ' . (string) $value . ';';
         }
-        if ($declarations === []) {
+
+        $rules = [];
+        if ($declarations !== []) {
+            $rules[] = ':host { ' . implode(' ', $declarations) . ' }';
+        }
+
+        // Trigger-button background override. `:host(simplecmp-trigger)`
+        // is scoped — when this rule is adopted into the banner's or
+        // modal's shadow root it won't match. Only inside the trigger
+        // shadow root does the host selector succeed and the rule
+        // applies. `!important` because the bundle's static styles set
+        // the trigger background from var(--simplecmp-color-primary)
+        // with normal cascade weight, and we need to override that
+        // without changing the primary token (which is used elsewhere).
+        $triggerBg = $tokens['color-trigger-bg'] ?? '';
+        if (is_string($triggerBg) && $triggerBg !== '') {
+            $rules[] = ':host(simplecmp-trigger) button { background: ' . $triggerBg . ' !important; }';
+            $rules[] = ':host(simplecmp-trigger) button:hover { background: ' . $triggerBg . ' !important; filter: brightness(0.92); }';
+        }
+
+        // Purpose-group: indent the "▾ N Dienst" toggle button so it
+        // sits flush under the `.meta` block in the row above. The
+        // bundle renders `.header` as a flex row with `checkbox +
+        // .meta` (gap 8px; checkbox 13px wide with 4px/3px margins =
+        // total 28px before .meta starts). The toggle button is
+        // outside that flex row and starts at the host content edge —
+        // shift it right by the same 28px to line up the visual
+        // hierarchy. Scoped via :host(simplecmp-purpose-group) so the
+        // rule is inert when the same sheet is adopted into other
+        // simplecmp-* shadow roots.
+        $rules[] = ':host(simplecmp-purpose-group) .toggle-services { margin-left: 28px; }';
+
+        if ($rules === []) {
             return;
         }
-        $css = ':host { ' . implode(' ', $declarations) . ' }';
+        $css = implode(' ', $rules);
         $payload = [
             'css' => $css,
             'selectors' => self::THEME_SELECTORS,
@@ -225,9 +279,25 @@ final readonly class RegisterAssets
      *
      * @return list<string>
      */
+    /**
+     * Read the saved `triggerPosition` token for the site and clamp it
+     * to one of the four allowed corner enums. Falls back to
+     * `bottom-right` if the token is missing or holds a tampered
+     * value.
+     */
+    private function resolveTriggerPosition(Site $site): string
+    {
+        $tokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        $candidate = $tokens['triggerPosition'] ?? null;
+        if (is_string($candidate) && isset(\SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController::TRIGGER_POSITIONS[$candidate])) {
+            return $candidate;
+        }
+        return 'bottom-right';
+    }
+
     private function positionDeclarations(string $position): array
     {
-        $defs = \SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController::POSITIONS[$position] ?? null;
+        $defs = \SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController::POSITIONS[$position] ?? null;
         if ($defs === null) {
             return [];
         }
@@ -237,6 +307,13 @@ final readonly class RegisterAssets
         ];
         if (!empty($defs['maxWidth'])) {
             $out[] = '--simplecmp-banner-max-width: ' . $defs['maxWidth'] . ';';
+        }
+        // Full-width bar variants look wrong with the card's rounded
+        // corners and drop-shadow. Flatten them so the banner reads as
+        // a notification bar rather than a stretched card.
+        if (str_ends_with($position, '-full')) {
+            $out[] = '--simplecmp-radius: 0;';
+            $out[] = '--simplecmp-shadow: none;';
         }
         return $out;
     }
@@ -380,6 +457,12 @@ final readonly class RegisterAssets
             'acceptAll' => true,
             'floatingTrigger' => [
                 'label' => (string) $get('simplecmp.floatingTriggerLabel', 'Cookie settings'),
+                // Trigger corner is themed per site via the BE
+                // Designer's `triggerPosition` token. Defaults to
+                // bottom-right; the bundle's `<simplecmp-trigger>`
+                // component reads this and applies its corresponding
+                // `:host([position='…'])` rule.
+                'position' => $this->resolveTriggerPosition($site),
             ],
         ];
         // Resolution chain (lowest → highest precedence):

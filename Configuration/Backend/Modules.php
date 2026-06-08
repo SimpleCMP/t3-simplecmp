@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use SimpleCMP\T3SimpleCmp\Controller\Backend\DetectionReviewController;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\DiscoveryController;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\LibraryBrowserController;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\RegistryListController;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\TrackerSetupController;
+use SimpleCMP\T3SimpleCmp\Controller\DetectionReviewController;
+use SimpleCMP\T3SimpleCmp\Controller\DiscoveryController;
+use SimpleCMP\T3SimpleCmp\Controller\LibraryBrowserController;
+use SimpleCMP\T3SimpleCmp\Controller\RegistryListController;
+use SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController;
+use SimpleCMP\T3SimpleCmp\Controller\TrackerSetupController;
 
 /**
  * Backend module registration.

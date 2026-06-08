@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * TCA for incoming CMS-bridge webhook detections. Read-only — the
  * dedicated SimpleCMP backend module is the canonical UI for triage;
- * see `Classes/Controller/Backend/DetectionReviewController.php`. There
+ * see `Classes/Controller/DetectionReviewController.php`. There
  * are no admin-editable fields on the row because the new model derives
  * resolution state from registry coverage rather than a flag.
  */

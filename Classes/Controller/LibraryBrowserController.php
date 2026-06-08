@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
@@ -214,14 +214,14 @@ final class LibraryBrowserController extends ActionController
             'uri_resetFilters' => $this->uri('list'),
             'filtersActive' => $filterArg !== [],
             'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\DetectionReview_list',
+                'simplecmp_detections.DetectionReview_list',
             ),
             'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\RegistryList_list',
+                'simplecmp_detections.RegistryList_list',
             ),
             'uri_libraryTab' => $this->uri('list'),
             'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
+                'simplecmp_detections.TrackerSetup_list',
             ),
             'topRecommended' => $topRecommendedInline,
             'recommendationHeadline' => $headline,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -216,16 +216,16 @@ final class DetectionReviewController extends ActionController
             'filtersActive' => $filterArg !== [],
             'uri_detectionsTab' => $this->uri('list'),
             'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\RegistryList_list',
+                'simplecmp_detections.RegistryList_list',
             ),
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\LibraryBrowser_list',
+                'simplecmp_detections.LibraryBrowser_list',
             ),
             'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
+                'simplecmp_detections.TrackerSetup_list',
             ),
             'uri_discover' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\Discovery_index',
+                'simplecmp_detections.Discovery_index',
             ),
             'uri_reclassifyUnknowns' => $this->uri('reclassifyUnknowns'),
         ]);

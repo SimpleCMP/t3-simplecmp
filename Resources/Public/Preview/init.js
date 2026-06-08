@@ -268,6 +268,16 @@ if (cmp && typeof cmp.init === 'function') {
   if (previewTones) initConfig.tones = previewTones;
   if (previewTheme !== 'default') initConfig.theme = previewTheme;
   if (previewLayout !== 'standard') initConfig.layout = previewLayout;
+  // Render the floating trigger so the editor can see it in the
+  // preview — without a `floatingTrigger` entry the bundle skips it,
+  // which would hide whatever `triggerPosition` value the editor just
+  // picked. Default position is bottom-right, overridden by the
+  // `triggerPosition` query param when present.
+  const previewTriggerPosition = (previewParams.get('triggerPosition') || 'bottom-right').toLowerCase();
+  initConfig.floatingTrigger = {
+    label: 'Cookie settings',
+    position: previewTriggerPosition,
+  };
   cmp.init(initConfig);
 
   // Run the DOM-level compliance audit after the banner mounts and
@@ -361,10 +371,21 @@ const BANNER_POSITION_DECLS = {
   'bottom-left':   { inset: 'auto auto var(--simplecmp-spacing) var(--simplecmp-spacing)', transform: 'none', maxWidth: null },
   'bottom-center': { inset: 'auto auto var(--simplecmp-spacing) 50%', transform: 'translateX(-50%)', maxWidth: 'min(30rem, calc(100vw - 2 * var(--simplecmp-spacing)))' },
   'bottom-right':  { inset: 'auto var(--simplecmp-spacing) var(--simplecmp-spacing) auto', transform: 'none', maxWidth: null },
+  'top-full':      { inset: '0 0 auto 0',                                                 transform: 'none', maxWidth: '100%' },
+  'bottom-full':   { inset: 'auto 0 0 0',                                                 transform: 'none', maxWidth: '100%' },
 };
 
 function applyTokens(tokens) {
   const decls = [];
+  // `!important` is required: framework adapters (bootstrap5,
+  // tailwind4, …) inject a light-DOM `<style data-simplecmp-theme>`
+  // with the same custom-property keys. In CSS-variable cascade those
+  // adapter rules win over our shadow-DOM `:host` re-definitions —
+  // probably because the adapter's `:where(simplecmp-banner)` matches
+  // the light-DOM tree directly, and the resulting computed value
+  // becomes the inherited value the shadow tree sees. `!important`
+  // forces our override regardless of which adapter is currently
+  // active.
   for (const [key, value] of Object.entries(tokens || {})) {
     if (typeof key !== 'string' || typeof value !== 'string' || value === '') {
       continue;
@@ -375,14 +396,61 @@ function applyTokens(tokens) {
     if (key === 'position') {
       const def = BANNER_POSITION_DECLS[value];
       if (!def) continue;
-      decls.push(`--simplecmp-banner-inset: ${def.inset};`);
-      decls.push(`--simplecmp-banner-transform: ${def.transform};`);
-      if (def.maxWidth) decls.push(`--simplecmp-banner-max-width: ${def.maxWidth};`);
+      decls.push(`--simplecmp-banner-inset: ${def.inset} !important;`);
+      decls.push(`--simplecmp-banner-transform: ${def.transform} !important;`);
+      if (def.maxWidth) decls.push(`--simplecmp-banner-max-width: ${def.maxWidth} !important;`);
+      // Full-width bar variants flatten the card silhouette so the
+      // result reads as a notification bar, mirroring the FE-side
+      // declarations from RegisterAssets::positionDeclarations().
+      if (value === 'top-full' || value === 'bottom-full') {
+        decls.push('--simplecmp-radius: 0 !important;');
+        decls.push('--simplecmp-shadow: none !important;');
+      }
       continue;
     }
-    decls.push(`--simplecmp-${key}: ${value};`);
+    // `colorPaletteLocked` is a BE-only state flag — not a CSS var.
+    // Skip it so it doesn't pollute the `:host` rule.
+    if (key === 'colorPaletteLocked') {
+      continue;
+    }
+    // `triggerPosition` only takes effect at cmp.init() time — handled
+    // by the iframe-src-swap in ThemePreview.js, not by CSS-var live-
+    // updates. Skip it here too.
+    if (key === 'triggerPosition') {
+      continue;
+    }
+    // `color-trigger-bg` is an optional override of the trigger button
+    // background. The bundle's static styles set the trigger bg from
+    // `var(--simplecmp-color-primary)`, so we need a per-trigger rule
+    // scoped via `:host(simplecmp-trigger)` rather than a custom-prop
+    // declaration on the shared :host. Handled separately below.
+    if (key === 'color-trigger-bg') {
+      continue;
+    }
+    decls.push(`--simplecmp-${key}: ${value} !important;`);
   }
-  themeSheet.replaceSync(decls.length === 0 ? '' : `:host { ${decls.join(' ')} }`);
+  const rules = [];
+  if (decls.length > 0) {
+    rules.push(`:host { ${decls.join(' ')} }`);
+  }
+  // Trigger-button background override. Mirrors the FE-side rule
+  // from RegisterAssets::injectTheme(). `:host(simplecmp-trigger)` is
+  // scoped, so when this sheet is adopted into the banner or modal
+  // shadow root the rule is inert there — only inside the trigger
+  // shadow root does it match and override the default
+  // `background: var(--simplecmp-color-primary)`.
+  const triggerBg = tokens?.['color-trigger-bg'];
+  if (typeof triggerBg === 'string' && triggerBg !== '') {
+    rules.push(`:host(simplecmp-trigger) button { background: ${triggerBg} !important; }`);
+    rules.push(`:host(simplecmp-trigger) button:hover { background: ${triggerBg} !important; filter: brightness(0.92); }`);
+  }
+  // Purpose-group: indent the "▾ N Dienst" toggle button so it lines
+  // up under the .meta block above. Mirror of the FE-side rule from
+  // RegisterAssets::injectTheme(). The 28px equals the checkbox's
+  // total occupied width (margin-left 4px + width 13px + margin-right
+  // 3px + flex gap 8px) inside the .header row.
+  rules.push(`:host(simplecmp-purpose-group) .toggle-services { margin-left: 28px; }`);
+  themeSheet.replaceSync(rules.length === 0 ? '' : rules.join(' '));
   adoptInto(document);
 }
 

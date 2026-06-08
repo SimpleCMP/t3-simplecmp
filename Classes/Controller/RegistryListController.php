@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -147,14 +147,14 @@ final class RegistryListController extends ActionController
             'uri_orphansFilter' => $this->uri('list', ['source' => 'orphaned']),
             'filtersActive' => $filterArg !== [],
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\LibraryBrowser_list',
+                'simplecmp_detections.LibraryBrowser_list',
             ),
             'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\DetectionReview_list',
+                'simplecmp_detections.DetectionReview_list',
             ),
             'uri_registryTab' => $this->uri('list'),
             'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
+                'simplecmp_detections.TrackerSetup_list',
             ),
         ]);
         return $moduleTemplate->renderResponse('RegistryList/List');

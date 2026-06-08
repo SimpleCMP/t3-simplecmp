@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
@@ -76,16 +76,16 @@ final class TrackerSetupController extends ActionController
             'providerOptions' => $providerOptions,
             // Sibling-tab URIs for the shared ModuleNav partial.
             'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\DetectionReview_list',
+                'simplecmp_detections.DetectionReview_list',
             ),
             'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\RegistryList_list',
+                'simplecmp_detections.RegistryList_list',
             ),
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\LibraryBrowser_list',
+                'simplecmp_detections.LibraryBrowser_list',
             ),
             'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
+                'simplecmp_detections.TrackerSetup_list',
             ),
         ]);
 
@@ -292,30 +292,46 @@ final class TrackerSetupController extends ActionController
      * $values), a label, a kind hint (`text`, `number`, `bool`,
      * `url`), and an optional required flag.
      *
+     * Labels and help texts come from `locallang_mod.xlf` under the
+     * `module.trackerSetup.field.<type>.<name>.{label,help}` keys, so
+     * the BE language picker swaps them automatically.
+     *
      * @return list<array{name: string, label: string, kind: string, required: bool, help: ?string}>
      */
     private function describeFieldsFor(string $type): array
     {
-        return match ($type) {
+        $shape = match ($type) {
             'matomo' => [
-                ['name' => 'url', 'label' => 'Matomo URL', 'kind' => 'url', 'required' => true, 'help' => 'Base URL of the install, with trailing slash (https://matomo.example.com/)'],
-                ['name' => 'siteId', 'label' => 'Site ID', 'kind' => 'text', 'required' => true, 'help' => null],
-                ['name' => 'disableCookies', 'label' => 'Disable cookies (cookieless mode)', 'kind' => 'bool', 'required' => false, 'help' => 'Runs Matomo without _pk_* cookies'],
-                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => 'Override for setups with two Matomo instances. Default: "matomo".'],
+                ['name' => 'url', 'kind' => 'url', 'required' => true],
+                ['name' => 'siteId', 'kind' => 'text', 'required' => true],
+                ['name' => 'disableCookies', 'kind' => 'bool', 'required' => false],
+                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
             'ga4' => [
-                ['name' => 'measurementId', 'label' => 'Measurement ID', 'kind' => 'text', 'required' => true, 'help' => 'Format: G-XXXXXXXXXX'],
-                ['name' => 'anonymizeIp', 'label' => 'Anonymize IP', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON (DACH compliance). Disable only with reason.'],
-                ['name' => 'consentMode', 'label' => 'Consent Mode v2', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON. Emits the v2 default-deny block.'],
-                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => null],
+                ['name' => 'measurementId', 'kind' => 'text', 'required' => true],
+                ['name' => 'anonymizeIp', 'kind' => 'bool', 'required' => false],
+                ['name' => 'consentMode', 'kind' => 'bool', 'required' => false],
+                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
             'gtm' => [
-                ['name' => 'containerId', 'label' => 'Container ID', 'kind' => 'text', 'required' => true, 'help' => 'Format: GTM-XXXXXXX'],
-                ['name' => 'consentDefault', 'label' => 'Default-deny via Consent Mode v2', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON. Pre-denies all storage types.'],
-                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => null],
+                ['name' => 'containerId', 'kind' => 'text', 'required' => true],
+                ['name' => 'consentDefault', 'kind' => 'bool', 'required' => false],
+                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
             default => [],
         };
+
+        $out = [];
+        foreach ($shape as $field) {
+            $labelKey = 'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.label';
+            $helpKey = 'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.help';
+            $help = $this->translate($helpKey);
+            $out[] = $field + [
+                'label' => $this->translate($labelKey),
+                'help' => $help !== '' ? $help : null,
+            ];
+        }
+        return $out;
     }
 
     /**

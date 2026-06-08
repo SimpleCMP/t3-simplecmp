@@ -5,7 +5,7 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
-    <style>
+    <f:asset.css identifier="simplecmp-designer-position-picker">
         /* 3x3 banner-position picker — radios styled as a 3x3 grid of
            small cells; each cell has a dot indicating where the banner
            would sit within the cell. */
@@ -65,7 +65,100 @@
         .simplecmp-position-cell:has(input:checked) .simplecmp-position-dot {
             background: #fff;
         }
-    </style>
+
+        /* Colors accordion — visible disclosure indicator. Native
+           <details> markers don't render reliably inside a flex summary,
+           so we hide the native marker and supply a chevron icon that
+           rotates 90° when the accordion is open. */
+        .simplecmp-colors-summary {
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+        }
+        .simplecmp-colors-summary::-webkit-details-marker { display: none; }
+        .simplecmp-colors-summary::marker { content: ''; }
+        .simplecmp-colors-chevron {
+            display: inline-flex;
+            transition: transform .15s ease;
+        }
+        details[open] > .simplecmp-colors-summary .simplecmp-colors-chevron {
+            transform: rotate(90deg);
+        }
+
+        /* Toggle the two summary badges + the "Eigene Farben aktiv"
+           warning based on the live state of the colorPaletteLocked
+           toggle. Checkbox CHECKED = custom colors on (value="0" wins
+           over hidden input). */
+        .simplecmp-colors-badge-custom,
+        .simplecmp-colors-unlocked-warning {
+            display: none;
+        }
+        details.simplecmp-colors-accordion:has(#token-colorPaletteLocked:checked) .simplecmp-colors-badge-safe {
+            display: none;
+        }
+        details.simplecmp-colors-accordion:has(#token-colorPaletteLocked:checked) .simplecmp-colors-badge-custom {
+            display: inline-flex;
+        }
+        details.simplecmp-colors-accordion:has(#token-colorPaletteLocked:checked) .simplecmp-colors-unlocked-warning {
+            display: block;
+        }
+
+        /* Style-preset cards — highlight the one whose `data-preset-
+           position` matches the currently checked position radio. CSS
+           `:has()` correlates the radio state with the matching card
+           across the form. Four explicit rules, one per preset-mapped
+           position (the keys of `ThemeDesignerController::STYLE_PRESETS`).
+           Adding a new preset means adding one rule here. */
+        .simplecmp-style-preset {
+            position: relative;
+            transition: border-color .15s, background .15s, box-shadow .15s;
+        }
+        .simplecmp-style-preset.is-active,
+        form:has(input[name="tokens[position]"][value="bottom-right"]:checked) .simplecmp-style-preset[data-preset-position="bottom-right"],
+        form:has(input[name="tokens[position]"][value="bottom-full"]:checked) .simplecmp-style-preset[data-preset-position="bottom-full"],
+        form:has(input[name="tokens[position]"][value="top-full"]:checked) .simplecmp-style-preset[data-preset-position="top-full"],
+        form:has(input[name="tokens[position]"][value="middle-center"]:checked) .simplecmp-style-preset[data-preset-position="middle-center"] {
+            border-color: var(--typo3-component-primary-color, #0a7cb9);
+            background: color-mix(in srgb, var(--typo3-component-primary-color, #0a7cb9) 8%, transparent);
+            box-shadow: inset 0 0 0 1px var(--typo3-component-primary-color, #0a7cb9);
+        }
+        .simplecmp-style-preset.is-active::after,
+        form:has(input[name="tokens[position]"][value="bottom-right"]:checked) .simplecmp-style-preset[data-preset-position="bottom-right"]::after,
+        form:has(input[name="tokens[position]"][value="bottom-full"]:checked) .simplecmp-style-preset[data-preset-position="bottom-full"]::after,
+        form:has(input[name="tokens[position]"][value="top-full"]:checked) .simplecmp-style-preset[data-preset-position="top-full"]::after,
+        form:has(input[name="tokens[position]"][value="middle-center"]:checked) .simplecmp-style-preset[data-preset-position="middle-center"]::after {
+            content: '✓';
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: var(--typo3-component-primary-color, #0a7cb9);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* Override text fields — clear-text button overlaid on the
+           right edge of the input/textarea. CSS reserves room on the
+           right side of the field so the user's text never sits under
+           the button. The button is hidden by default and revealed
+           only when the field has content (ThemePreview.js toggles
+           `hidden` based on input events). */
+        .simplecmp-override-input {
+            padding-right: 2.2rem;
+        }
+        .simplecmp-override-clear {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+        .simplecmp-override-default {
+            font-style: italic;
+        }
+        .simplecmp-override-default[data-override-default-empty] {
+            opacity: 0.6;
+        }
+    </f:asset.css>
 
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
     <p class="text-body-secondary">
@@ -206,7 +299,7 @@
             issues, so this affordance lives outside the alert branches.
         -->
         <f:if condition="{siteBaseUrl}">
-            <div class="mt-3 p-3 border rounded bg-body-tertiary"
+            <div class="mt-3 mb-4 p-3 border rounded bg-body-tertiary"
                  data-fe-audit-i18n-running="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.running')}"
                  data-fe-audit-i18n-done="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.done')}"
                  data-fe-audit-i18n-heading="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.heading')}"
@@ -302,14 +395,89 @@
 
         <div class="row">
             <div class="col-md-6">
-                <f:for each="{fieldGroups}" as="fields" key="group">
+
+                <fieldset class="mb-4 simplecmp-style-presets">
+                    <legend class="h5">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.stylePresets" />
+                    </legend>
+                    <p class="text-body-secondary small mb-2">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.stylePresets.intro" />
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 align-items-stretch">
+                        <f:for each="{stylePresets}" as="preset" key="key">
+                            <button type="button"
+                                    class="btn btn-default text-start simplecmp-style-preset"
+                                    style="flex:1 1 13rem;min-width:13rem;white-space:normal;padding:.75rem;line-height:1.4"
+                                    data-style-preset="{key}"
+                                    data-preset-position="{preset.tokens.position}"
+                                    title="{preset.description}">
+                                <strong class="d-block mb-1">{preset.label}</strong>
+                                <small class="d-block text-body-secondary" style="white-space:normal">{preset.description}</small>
+                            </button>
+                        </f:for>
+                    </div>
+                </fieldset>
+
+                <f:for each="{otherFieldGroups}" as="fields" key="group">
                     <fieldset class="mb-4">
                         <legend class="h5">
                             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
-                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions}" />
+                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet}" />
                     </fieldset>
                 </f:for>
+
+                <details class="simplecmp-colors-accordion mb-4" {f:if(condition: '!{colorPaletteLocked}', then: 'open')}>
+                    <summary class="simplecmp-colors-summary h5 d-flex align-items-center gap-2">
+                        <span class="simplecmp-colors-chevron" aria-hidden="true">
+                            <core:icon identifier="actions-chevron-right" size="small" />
+                        </span>
+                        <span><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.colors" /></span>
+                        <span class="badge bg-success simplecmp-colors-badge-safe" style="font-weight:normal">
+                            <core:icon identifier="actions-lock" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.complianceSafe" />
+                        </span>
+                        <span class="badge bg-warning text-dark simplecmp-colors-badge-custom" style="font-weight:normal">
+                            <core:icon identifier="actions-exclamation-triangle" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.customRisk" />
+                        </span>
+                    </summary>
+
+                    <div class="mt-3 p-3 border rounded bg-light bg-opacity-50">
+                        <div class="form-check form-switch mb-3">
+                            <input type="hidden" name="tokens[colorPaletteLocked]" value="1" />
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="token-colorPaletteLocked"
+                                   name="tokens[colorPaletteLocked]"
+                                   value="0"
+                                   data-token="colorPaletteLocked"
+                                   {f:if(condition: '!{colorPaletteLocked}', then: 'checked')}>
+                            <label class="form-check-label" for="token-colorPaletteLocked">
+                                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom" /></strong>
+                            </label>
+                            <div class="form-text small">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom.help" />
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning small mb-3 simplecmp-colors-unlocked-warning" role="note">
+                            <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning" /></strong>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning.body" />
+                        </div>
+
+                        <fieldset class="simplecmp-colors-fieldset" {f:if(condition: '{colorPaletteLocked}', then: 'disabled')}>
+                            <f:for each="{colorFieldGroups}" as="fields" key="group">
+                                <fieldset class="mb-3">
+                                    <legend class="h6">
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
+                                    </legend>
+                                    <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet}" />
+                                </fieldset>
+                            </f:for>
+                        </fieldset>
+                    </div>
+                </details>
 
                 <fieldset class="mb-4">
                     <legend class="h5">
@@ -376,7 +544,7 @@
 
                     <input type="hidden" name="language" value="{overrideLanguage}"/>
                     <f:for each="{overrideKeys}" as="row">
-                        <div class="mb-3">
+                        <div class="mb-3 simplecmp-override-row" data-override-row data-override-key="{row.key}">
                             <label for="override-{row.key}" class="form-label d-flex align-items-center justify-content-between mb-1">
                                 <span class="fw-semibold">
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.label.{row.key}" default="{row.key}"/>
@@ -390,31 +558,64 @@
                             <div class="d-block mb-1">
                                 <code class="text-body-secondary small">{row.key}</code>
                             </div>
-                            <f:switch expression="{row.kind}">
-                                <f:case value="text">
-                                    <textarea id="override-{row.key}"
-                                              name="overrides[{overrideLanguage}][{row.key}]"
-                                              class="form-control form-control-sm"
-                                              rows="2"
-                                              placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}">{row.value}</textarea>
-                                </f:case>
-                                <f:defaultCase>
-                                    <input type="text"
-                                           id="override-{row.key}"
-                                           name="overrides[{overrideLanguage}][{row.key}]"
-                                           value="{row.value}"
-                                           class="form-control form-control-sm"
-                                           placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.placeholder')}"/>
-                                </f:defaultCase>
-                            </f:switch>
+                            <div class="simplecmp-override-input-wrap position-relative">
+                                <f:switch expression="{row.kind}">
+                                    <f:case value="text">
+                                        <textarea id="override-{row.key}"
+                                                  name="overrides[{overrideLanguage}][{row.key}]"
+                                                  class="form-control form-control-sm simplecmp-override-input"
+                                                  data-override-input
+                                                  rows="2">{row.value}</textarea>
+                                    </f:case>
+                                    <f:defaultCase>
+                                        <input type="text"
+                                               id="override-{row.key}"
+                                               name="overrides[{overrideLanguage}][{row.key}]"
+                                               value="{row.value}"
+                                               class="form-control form-control-sm simplecmp-override-input"
+                                               data-override-input />
+                                    </f:defaultCase>
+                                </f:switch>
+                                <button type="button"
+                                        class="btn btn-default btn-sm simplecmp-override-clear"
+                                        data-override-clear
+                                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
+                                        aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
+                                        {f:if(condition: '!{row.value}', then: 'hidden')}>
+                                    <core:icon identifier="actions-close" size="small"/>
+                                </button>
+                            </div>
+                            <small class="d-block text-body-secondary mt-1 simplecmp-override-default" data-override-default>
+                                <span class="fw-semibold">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultLabel" />:
+                                </span>
+                                <em data-override-default-text>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultFallback" />
+                                </em>
+                            </small>
                         </div>
                     </f:for>
                 </fieldset>
             </div>
 
             <div class="col-md-6">
-                <div class="sticky-top" style="top:1rem">
-                    <h5><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
+                <!--
+                    `position: sticky` works only when no ancestor uses
+                    `overflow: hidden/clip` and the element's height
+                    fits the viewport. The TYPO3 BE module's Bootstrap
+                    `.sticky-top` class resolves to `position: static`
+                    in this template (verified empirically), so we set
+                    the position directly and constrain the wrapper so
+                    it always fits.
+                -->
+                <div data-preview-sticky style="position: sticky; top: calc(var(--module-docheader-height, 6rem) + .75rem); max-height: calc(100vh - var(--module-docheader-height, 6rem) - 1.5rem); overflow-y: auto; padding-right: .25rem">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5 class="mb-0"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
+                        <span class="badge bg-warning text-dark" data-unsaved-indicator hidden style="font-weight:normal">
+                            <core:icon identifier="actions-exclamation-triangle" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.unsaved" />
+                        </span>
+                    </div>
                     <p class="text-body-secondary small mb-2">
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
                     </p>
@@ -426,9 +627,10 @@
                         name → `lang` is invisible.
                     -->
                     <iframe data-preview-iframe
+                            data-safe-palette="{safePaletteJson}"
                             src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&tone={toneForLang}&theme={tokens.theme}&layout={tokens.layout}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
                             title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
-                            style="width:100%;height:520px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
+                            style="width:100%;height:440px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>
 
                     <div class="alert alert-{f:if(condition: '{policyUrls.hasPrivacy} && {policyUrls.hasImprint}', then: 'info', else: 'warning')} mt-3 mb-0 py-2 small">
@@ -539,6 +741,81 @@
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.layout.hint" />
                     </small>
                 </f:case>
+                <f:case value="triggerPosition">
+                    <select id="token-{key}"
+                            name="tokens[{key}]"
+                            class="form-select form-select-sm"
+                            data-token="{key}"
+                            style="max-width:18rem">
+                        <f:for each="{triggerOptions}" as="opt">
+                            <option value="{opt.key}" {f:if(condition: '{tokens.triggerPosition} == {opt.key}', then: 'selected')}>
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.option.{opt.key}" default="{opt.label}" />
+                            </option>
+                        </f:for>
+                    </select>
+                    <small class="d-block text-body-secondary mt-1">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.hint" />
+                    </small>
+                </f:case>
+                <f:case value="color-trigger-bg">
+                    <!--
+                        Trigger-button background is an OPTIONAL override.
+                        Default state = empty value = inherit from
+                        --simplecmp-color-primary. The hidden empty field
+                        keeps that state submittable when the visible
+                        color input is disabled; HTML form serialization
+                        picks the last input with a given name, and
+                        disabled inputs are skipped, so a disabled visible
+                        input lets the hidden empty win.
+                    -->
+                    <!--
+                        Trigger-button background is an OPTIONAL override.
+                        Empty value = inherit from --simplecmp-color-primary.
+                        The hidden empty field ensures the "default" state
+                        round-trips; when the visible color input is
+                        disabled, browser form serialisation skips it and
+                        the hidden empty wins. Picking a colour re-enables
+                        the visible input (its value then overrides the
+                        hidden empty thanks to last-input-wins).
+                    -->
+                    <input type="hidden" name="tokens[color-trigger-bg]" value="" />
+                    <div class="d-flex align-items-center gap-2 simplecmp-trigger-bg-row" data-trigger-bg-row>
+                        <input type="color"
+                               id="token-{key}"
+                               name="tokens[{key}]"
+                               value="{triggerBgValue}"
+                               class="form-control form-control-color"
+                               style="width:2.4rem;height:2.4rem;padding:2px"
+                               data-token="{key}" />
+                        <span class="simplecmp-color-swatch"
+                              data-swatch-for="token-{key}"
+                              style="display:inline-block;width:3rem;height:1.8rem;background-color:{triggerBgValue};border:1px solid #dde2e7;border-radius:.25rem;flex:none"
+                              aria-hidden="true"></span>
+                        <code class="text-body-secondary"
+                              data-trigger-bg-display
+                              data-unset-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.unset')}">
+                            <f:if condition="{triggerBgIsSet}">
+                                <f:then>{triggerBgValue}</f:then>
+                                <f:else>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.unset" />
+                                </f:else>
+                            </f:if>
+                        </code>
+                        <button type="button"
+                                class="btn btn-default btn-sm ms-auto"
+                                data-trigger-bg-reset
+                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.reset')}">
+                            <core:icon identifier="actions-undo" size="small"/>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.reset" />
+                        </button>
+                        <button type="button"
+                                class="btn btn-default btn-sm ms-auto"
+                                data-trigger-bg-enable>
+                            <core:icon identifier="actions-edit-pick-date" size="small"/>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.setCustom" />
+                        </button>
+                    </div>
+                </f:case>
                 <f:defaultCase>
                     <div class="d-flex align-items-center gap-2">
                         <input type="color"
@@ -548,8 +825,17 @@
                                class="form-control form-control-color"
                                style="width:2.4rem;height:2.4rem;padding:2px"
                                data-token="{key}" />
+                        <span class="simplecmp-color-swatch"
+                              data-swatch-for="token-{key}"
+                              style="display:inline-block;width:3rem;height:1.8rem;background-color:{tokens.{key}};border:1px solid #dde2e7;border-radius:.25rem;flex:none"
+                              aria-hidden="true"></span>
                         <code class="text-body-secondary">{tokens.{key}}</code>
                     </div>
+                    <f:if condition="{key} == 'color-primary'">
+                        <small class="d-block text-body-secondary mt-1">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-primary.hint" />
+                        </small>
+                    </f:if>
                 </f:defaultCase>
             </f:switch>
         </div>

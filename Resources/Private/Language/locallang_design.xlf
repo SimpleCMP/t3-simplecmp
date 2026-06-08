@@ -75,9 +75,12 @@
       <trans-unit id="designer.audit.pass.heuristic-no-marketing-nudge-in-description"><source>Banner descriptions stay clear of marketing-nudge language.</source></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-no-marketing-nudge-in-description"><source>%d banner description(s) contain marketing-nudge phrases that push visitors toward accepting — EDPB 03/2022 Stirring and CNIL recommendation 17.09.2020 rule this out. Replace the flagged phrases with neutral wording: %s</source></trans-unit>
 
-      <trans-unit id="designer.audit.title.heuristic-paired-token-overrides"><source>Paired color tokens overridden together</source></trans-unit>
-      <trans-unit id="designer.audit.pass.heuristic-paired-token-overrides"><source>Related color tokens have been overridden as pairs — visual relationships stay coherent.</source></trans-unit>
-      <trans-unit id="designer.audit.fail.heuristic-paired-token-overrides"><source>%d color-token pair(s) are out of balance — only one half was overridden, the other still uses the bundle default. The rendered banner will show mismatched hover states or surface relationships. Either tune both or revert one: %s</source></trans-unit>
+      <trans-unit id="designer.audit.title.heuristic-paired-token-overrides"><source>Paired color values overridden together</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-paired-token-overrides"><source>Related color values have been overridden as pairs — visual relationships stay coherent.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-paired-token-overrides"><source>%d color pair(s) are out of balance — only one half was overridden, the other still uses the default. The rendered banner will show mismatched hover states or surface relationships. Either tune both or revert one: %s</source></trans-unit>
+      <trans-unit id="designer.audit.title.heuristic-banner-contrast"><source>Banner contrast meets WCAG-AA</source></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-banner-contrast"><source>Banner text and primary-button colors pass the 4.5:1 contrast threshold.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-banner-contrast"><source>%d color pair(s) fall below the WCAG-AA contrast threshold of 4.5:1 — visitors may struggle to read the banner: %s</source></trans-unit>
 
       <trans-unit id="designer.audit.title.heuristic-description-length"><source>Banner description sits in a readable length range</source></trans-unit>
       <trans-unit id="designer.audit.pass.heuristic-description-length"><source>Banner descriptions are in the informative-but-readable range across configured languages.</source></trans-unit>
@@ -110,13 +113,32 @@
       <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source></trans-unit>
       <trans-unit id="designer.group.template"><source>Banner template</source></trans-unit>
+      <trans-unit id="designer.group.trigger"><source>Floating trigger</source></trans-unit>
+      <trans-unit id="designer.field.triggerPosition"><source>Trigger corner</source></trans-unit>
+      <trans-unit id="designer.field.triggerPosition.hint"><source>Where the persistent "cookie settings" button sits after the visitor closes the banner. Four corners, no center options — the trigger is meant to stay out of the way.</source></trans-unit>
+      <trans-unit id="designer.field.color-trigger-bg"><source>Trigger background (optional)</source></trans-unit>
       <trans-unit id="designer.group.overrides"><source>Override banner texts</source></trans-unit>
+      <trans-unit id="designer.unsaved"><source>Unsaved changes</source></trans-unit>
+      <trans-unit id="designer.group.colors"><source>Colors</source></trans-unit>
+      <trans-unit id="designer.group.stylePresets"><source>Banner style</source></trans-unit>
+      <trans-unit id="designer.stylePresets.intro"><source>Pick a preset for the banner shape. The position picker below lets you fine-tune the exact placement.</source></trans-unit>
+      <trans-unit id="designer.colors.complianceSafe"><source>Compliance-safe palette active</source></trans-unit>
+      <trans-unit id="designer.colors.customRisk"><source>Custom colors — compliance not guaranteed</source></trans-unit>
+      <trans-unit id="designer.colors.useCustom"><source>Use custom colors</source></trans-unit>
+      <trans-unit id="designer.colors.useCustom.help"><source>Off: the banner ships with the audited safe palette (equal-prominence buttons, WCAG-AA contrast). On: edit the colors freely — you take responsibility for the compliance check.</source></trans-unit>
+      <trans-unit id="designer.colors.unlocked.warning"><source>Custom colors active.</source></trans-unit>
+      <trans-unit id="designer.colors.unlocked.warning.body"><source>The values you set here override the safe palette on the live site. Check the compliance status box below for warnings on contrast or button equal-prominence.</source></trans-unit>
       <trans-unit id="designer.overrides.intro"><source>Override individual bundle strings for one language at a time. Use this to choose formal vs. informal tone (Du/Sie etc.) or to fully rewrite a button label. Leave a field empty to fall back to the bundle's default.</source></trans-unit>
       <trans-unit id="designer.overrides.scopeLabel"><source>Editing language</source></trans-unit>
       <trans-unit id="designer.overrides.toneLabel"><source>Tone</source></trans-unit>
       <trans-unit id="designer.overrides.toneFormal"><source>Formal</source></trans-unit>
       <trans-unit id="designer.overrides.toneInformal"><source>Informal</source></trans-unit>
       <trans-unit id="designer.overrides.placeholder"><source>(uses bundle default)</source></trans-unit>
+      <trans-unit id="designer.overrides.clear"><source>Clear field</source></trans-unit>
+      <trans-unit id="designer.overrides.defaultLabel"><source>Default</source></trans-unit>
+      <trans-unit id="designer.overrides.defaultFallback"><source>the bundle's translation in this language — see the live preview on the right</source></trans-unit>
+      <trans-unit id="designer.overrides.defaultLoading"><source>(loading…)</source></trans-unit>
+      <trans-unit id="designer.overrides.defaultMissing"><source>(no default text)</source></trans-unit>
       <trans-unit id="designer.overrides.activeBadge"><source>override active</source></trans-unit>
       <!-- Per-key human-readable labels for the override fieldset. The dotted bundle key still renders below in <code> for editors who know the bundle internals. -->
       <trans-unit id="designer.overrides.label.consentNotice.title"><source>Banner heading</source></trans-unit>
@@ -135,7 +157,8 @@
       <trans-unit id="designer.overrides.label.save"><source>"Save" button label</source></trans-unit>
       <trans-unit id="designer.overrides.label.ok"><source>"OK" button label (banner accept)</source></trans-unit>
 
-      <trans-unit id="designer.field.color-primary"><source>Primary color (Accept button background)</source></trans-unit>
+      <trans-unit id="designer.field.color-primary"><source>Primary color (modal accent, focus outlines)</source></trans-unit>
+      <trans-unit id="designer.field.color-primary.hint"><source>Used by the Save/Accept buttons inside the Configure modal and by focus-rings on every interactive element. In the banner's default state all three buttons stay equal-prominence (BGH "Cookie II" baseline), so primary appears subtle there — open the modal to see it.</source></trans-unit>
       <trans-unit id="designer.field.color-primary-hover"><source>Primary hover (Accept button hover state)</source></trans-unit>
       <trans-unit id="designer.field.color-text"><source>Body text</source></trans-unit>
       <trans-unit id="designer.field.color-text-muted"><source>Muted text (descriptions, hints)</source></trans-unit>
@@ -145,9 +168,17 @@
       <trans-unit id="designer.field.color-danger"><source>Decline color</source></trans-unit>
       <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source></trans-unit>
       <trans-unit id="designer.field.theme"><source>Framework adapter</source></trans-unit>
-      <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design tokens (plus your per-token overrides above). Picking a framework re-binds those tokens to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source></trans-unit>
+      <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design values (plus your overrides above). Picking a framework re-binds those values to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source></trans-unit>
       <trans-unit id="designer.field.layout"><source>Banner template</source></trans-unit>
       <trans-unit id="designer.field.layout.hint"><source>Which buttons appear on the banner and how they are arranged. All three templates style the buttons identically — only their visibility and arrangement differs. "Compact" hides the "Configure" button on layer 1, so visitors reach the per-purpose settings via the persistent revocation trigger instead.</source></trans-unit>
+
+      <trans-unit id="designer.field.triggerPosition.option.bottom-right"><source>Bottom right</source></trans-unit>
+      <trans-unit id="designer.field.triggerPosition.option.bottom-left"><source>Bottom left</source></trans-unit>
+      <trans-unit id="designer.field.triggerPosition.option.top-right"><source>Top right</source></trans-unit>
+      <trans-unit id="designer.field.triggerPosition.option.top-left"><source>Top left</source></trans-unit>
+      <trans-unit id="designer.field.color-trigger-bg.reset"><source>Use primary color</source></trans-unit>
+      <trans-unit id="designer.field.color-trigger-bg.setCustom"><source>Custom color</source></trans-unit>
+      <trans-unit id="designer.field.color-trigger-bg.unset"><source>(default)</source></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source></trans-unit>
       <trans-unit id="designer.preview.help"><source>The consent banner updates as you edit. Click Configure inside the banner to see the modal with all services.</source></trans-unit>

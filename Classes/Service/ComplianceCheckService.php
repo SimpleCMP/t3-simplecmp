@@ -199,6 +199,7 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkNoMarketingNudgeInDescription($site);
         $results[] = $this->checkDescriptionLength($site);
         $results[] = $this->checkPairedTokenOverrides($site);
+        $results[] = $this->checkBannerContrast($site);
 
         return $results;
     }
@@ -510,6 +511,127 @@ final readonly class ComplianceCheckService
                 'sample' => "\n  - " . implode("\n  - ", $imbalances),
             ],
         );
+    }
+
+    /**
+     * Banner contrast — verifies that the colour pairs the visitor
+     * actually reads against meet WCAG 2.1 AA contrast (4.5:1 for
+     * body text).
+     *
+     * Three pairs are evaluated against the live token state:
+     *   1. body text on banner background (color-text vs color-bg)
+     *   2. muted text on banner background (text-muted vs color-bg)
+     *   3. primary-button text on primary (white text on
+     *      color-primary — the bundle hardcodes white text on the
+     *      modal Save/Accept buttons)
+     *
+     * When `colorPaletteLocked` is `1`, the FE renders SAFE_PALETTE
+     * regardless of stored overrides — the check skips entirely
+     * (the palette is audited offline at design time, no per-render
+     * verification needed).
+     *
+     * Returns a `warning` rather than `critical` finding: the
+     * surrounding `Eigene Farben aktiv` alert already signals risk,
+     * and listing concrete failing pairs is a follow-up nudge.
+     *
+     * @return array<string, mixed>
+     */
+    private function checkBannerContrast(Site $site): array
+    {
+        $stored = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        // Color-lock active → SAFE_PALETTE wins on the live site, no
+        // contrast risk from this site's tokens.
+        if (($stored['colorPaletteLocked'] ?? '1') === '1') {
+            return $this->pass('heuristic-banner-contrast', '2.1');
+        }
+
+        // Merge stored values on top of DEFAULT_TOKENS so missing keys
+        // resolve to their defaults (matching the FE render path).
+        $tokens = array_merge(
+            \SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController::DEFAULT_TOKENS,
+            array_filter($stored, static fn($v) => is_string($v) && $v !== ''),
+        );
+
+        $checks = [
+            ['name' => 'Fließtext auf Banner-Hintergrund', 'fg' => $tokens['color-text'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
+            ['name' => 'Dezenter Text auf Banner-Hintergrund', 'fg' => $tokens['color-text-muted'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
+            // The bundle's modal Save/Accept buttons render with
+            // `color: white` against `background: var(--simplecmp-color-primary)`.
+            ['name' => 'Akzeptieren-/Speichern-Button (Modal)', 'fg' => '#ffffff', 'bg' => $tokens['color-primary'] ?? null],
+        ];
+
+        $failures = [];
+        foreach ($checks as $c) {
+            if (!is_string($c['fg']) || !is_string($c['bg'])) {
+                continue;
+            }
+            $ratio = $this->contrastRatio($c['fg'], $c['bg']);
+            if ($ratio === null || $ratio >= 4.5) {
+                continue;
+            }
+            $failures[] = sprintf(
+                '%s: %s auf %s = %s:1 (Ziel ≥ 4.5:1)',
+                $c['name'],
+                $c['fg'],
+                $c['bg'],
+                number_format($ratio, 1, ',', ''),
+            );
+        }
+
+        if ($failures === []) {
+            return $this->pass('heuristic-banner-contrast', '2.1');
+        }
+        return $this->fail(
+            'heuristic-banner-contrast',
+            '2.1',
+            'warning',
+            [
+                'count' => count($failures),
+                'sample' => "\n  - " . implode("\n  - ", $failures),
+            ],
+        );
+    }
+
+    /**
+     * WCAG 2.1 contrast ratio between two `#rrggbb` colour values,
+     * computed via the relative-luminance formula. Returns null if
+     * either input isn't a valid 6-digit hex.
+     */
+    private function contrastRatio(string $hexA, string $hexB): ?float
+    {
+        $a = $this->relativeLuminance($hexA);
+        $b = $this->relativeLuminance($hexB);
+        if ($a === null || $b === null) {
+            return null;
+        }
+        $lighter = max($a, $b);
+        $darker = min($a, $b);
+        return ($lighter + 0.05) / ($darker + 0.05);
+    }
+
+    /**
+     * Relative luminance per WCAG 2.1 §1.4.3. Accepts `#rgb` or
+     * `#rrggbb` hex notation; returns null otherwise.
+     */
+    private function relativeLuminance(string $hex): ?float
+    {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+            return null;
+        }
+        $rgb = [
+            hexdec(substr($hex, 0, 2)) / 255,
+            hexdec(substr($hex, 2, 2)) / 255,
+            hexdec(substr($hex, 4, 2)) / 255,
+        ];
+        $linear = array_map(
+            static fn(float $c): float => $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4,
+            $rgb,
+        );
+        return 0.2126 * $linear[0] + 0.7152 * $linear[1] + 0.0722 * $linear[2];
     }
 
     /**

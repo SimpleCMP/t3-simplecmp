@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -121,14 +121,17 @@ final class ThemeDesignerController extends ActionController
         // ships sensible system-stack defaults. Either way the editor
         // doesn't need per-banner overrides for fonts or radius —
         // those are site-design concerns handled outside this module.
-        'color-primary' => '#15775a',
-        'color-primary-hover' => '#0f5d44',
+        // Color-token defaults mirror SAFE_PALETTE so new sites that
+        // open the designer with `colorPaletteLocked` ON see a
+        // consistent set whether the lock is engaged or not.
+        'color-primary' => '#1f4f8f',
+        'color-primary-hover' => '#16386b',
         'color-text' => '#1a232c',
         'color-text-muted' => '#5f6b78',
         'color-bg' => '#ffffff',
         'color-bg-alt' => '#f5f7f9',
         'color-border' => '#dde2e7',
-        'color-danger' => '#da2c43',
+        'color-danger' => '#b22839',
         // Banner placement — one of the nine `POSITION_*` keys below.
         // Translated by the FE asset listener into the upstream
         // `--simplecmp-banner-inset` / `-transform` / `-max-width`
@@ -152,6 +155,69 @@ final class ThemeDesignerController extends ActionController
         // the equal-prominence compliance baseline — they only
         // differ in which buttons appear + how they're arranged.
         'layout' => 'standard',
+        // Color-lock flag. When `1` (the default), the FE renders
+        // with {@see SAFE_PALETTE} regardless of the per-token
+        // `color-*` overrides above — equal-prominence button colors
+        // and WCAG-AA contrast are guaranteed. Set to `0` from the
+        // BE "Eigene Farben" accordion to unlock the picker; the
+        // ComplianceCheckService then surfaces a warning so the
+        // editor sees their custom colors carry compliance risk.
+        'colorPaletteLocked' => '1',
+        // Floating trigger ("Fenster-Zurückholer") placement. One of
+        // the four corner enums the bundle's `<simplecmp-trigger>`
+        // component recognises (`bottom-right`, `bottom-left`,
+        // `top-right`, `top-left`). Flows through to the cmp.init
+        // call's `floatingTrigger.position` config.
+        'triggerPosition' => 'bottom-right',
+        // Optional override for the trigger's background colour. When
+        // empty, the trigger uses `--simplecmp-color-primary` (the
+        // bundle default). When set to a hex value, RegisterAssets
+        // emits a per-trigger CSS rule that overrides the background.
+        // Useful when the editor wants the floating button to stand
+        // out visually from the rest of the brand colour usage.
+        'color-trigger-bg' => '',
+    ];
+
+    /**
+     * Allowed values for the `triggerPosition` token. Hardcoded to the
+     * four corners the bundle's `<simplecmp-trigger>` component
+     * implements `:host([position='…']) button { … }` style rules for
+     * (search `simplecmp-trigger` in `simplecmp.global.js`).
+     *
+     * @var array<string, string>
+     */
+    public const array TRIGGER_POSITIONS = [
+        'bottom-right' => 'Bottom right',
+        'bottom-left' => 'Bottom left',
+        'top-right' => 'Top right',
+        'top-left' => 'Top left',
+    ];
+
+    /**
+     * Compliance-safe color palette applied when `colorPaletteLocked`
+     * is `1`. Verified to meet:
+     *   - WCAG AA contrast (4.5:1) text-on-background and primary-on-text
+     *   - Equal perceived prominence between primary (accept) and the
+     *     decline button (which uses `color-text` against `color-bg`)
+     *     so the BGH "Cookie II" equal-prominence baseline holds
+     *   - No red/green-only differentiation that would fail color-blind
+     *     users
+     *
+     * Edit with care — the values here are tuned against an
+     * accessibility check; arbitrary swaps re-introduce compliance
+     * risk and the lock loses meaning.
+     *
+     * @var array<string, string>
+     */
+    public const array SAFE_PALETTE = [
+        'color-primary' => '#1f4f8f',
+        'color-primary-hover' => '#16386b',
+        'color-text' => '#1a232c',
+        'color-text-muted' => '#5f6b78',
+        'color-bg' => '#ffffff',
+        'color-bg-alt' => '#f5f7f9',
+        'color-border' => '#dde2e7',
+        'color-danger' => '#b22839',
     ];
 
     /**
@@ -225,6 +291,25 @@ final class ThemeDesignerController extends ActionController
             'transform' => 'none',
             'maxWidth' => null,
         ],
+        // Full-width bar variants. They stretch edge-to-edge (no
+        // spacing, no centering) and override the banner-card radius
+        // + shadow to zero so the result looks like a top/bottom
+        // notification bar rather than a corner card. Implemented
+        // here as ordinary `POSITIONS` entries (instead of a separate
+        // token) so the existing FE asset listener emits them via
+        // the same CSS-var route.
+        'top-full' => [
+            'label' => 'Top full width',
+            'inset' => '0 0 auto 0',
+            'transform' => 'none',
+            'maxWidth' => '100%',
+        ],
+        'bottom-full' => [
+            'label' => 'Bottom full width',
+            'inset' => 'auto 0 0 0',
+            'transform' => 'none',
+            'maxWidth' => '100%',
+        ],
     ];
 
     /**
@@ -253,6 +338,7 @@ final class ThemeDesignerController extends ActionController
         'placement' => ['position'],
         'framework' => ['theme'],
         'template' => ['layout'],
+        'trigger' => ['triggerPosition', 'color-trigger-bg'],
     ];
 
     /**
@@ -266,11 +352,11 @@ final class ThemeDesignerController extends ActionController
      * @var array<string, string>
      */
     public const array THEMES = [
-        'default' => 'Default (SimpleCMP eigene Token)',
-        'bootstrap5' => 'Bootstrap 5 (übernimmt --bs-* der Site)',
-        'tailwind4' => 'Tailwind 4 (übernimmt @theme-Tokens der Site)',
-        'bulma' => 'Bulma 1+ (übernimmt --bulma-* der Site)',
-        'pico' => 'Pico CSS 2 (übernimmt --pico-* der Site)',
+        'default' => 'Eigenständiges SimpleCMP-Design',
+        'bootstrap5' => 'Bootstrap 5 (übernimmt die Bootstrap-Farben der Site)',
+        'tailwind4' => 'Tailwind 4 (übernimmt die Tailwind-Farben der Site)',
+        'bulma' => 'Bulma 1+ (übernimmt die Bulma-Farben der Site)',
+        'pico' => 'Pico CSS 2 (übernimmt die Pico-Farben der Site)',
     ];
 
     /**
@@ -287,6 +373,42 @@ final class ThemeDesignerController extends ActionController
         'standard' => 'Drei Buttons nebeneinander (Konfigurieren, Ablehnen, Akzeptieren)',
         'compact' => 'Zwei Buttons (Ablehnen, Akzeptieren — kein Konfigurieren auf Ebene 1)',
         'stacked' => 'Drei Buttons untereinander (für schmale Viewports / Mobile)',
+    ];
+
+    /**
+     * Curated "one-click" style presets — each entry bundles the token
+     * combination that makes a recognisable banner shape (corner card,
+     * bottom bar, top bar, centered modal). The BE renders them as a
+     * row of clickable cards above the position picker; activating one
+     * writes the listed tokens into the form.
+     *
+     * Each preset MUST reference only tokens that already exist in
+     * `DEFAULT_TOKENS`. New presets that need new tokens should add
+     * those alongside their entry here.
+     *
+     * @var array<string, array{label: string, description: string, tokens: array<string, string>}>
+     */
+    public const array STYLE_PRESETS = [
+        'card-bottom-right' => [
+            'label' => 'Karte unten rechts',
+            'description' => 'Klassische Card in der unteren rechten Ecke. Bewährt für die meisten Sites.',
+            'tokens' => ['position' => 'bottom-right'],
+        ],
+        'bar-bottom' => [
+            'label' => 'Vollbreite Leiste unten',
+            'description' => 'Notification-Bar über die volle Browser-Breite am unteren Rand. Ohne Schatten + Radius.',
+            'tokens' => ['position' => 'bottom-full'],
+        ],
+        'bar-top' => [
+            'label' => 'Vollbreite Leiste oben',
+            'description' => 'Notification-Bar über die volle Browser-Breite am oberen Rand.',
+            'tokens' => ['position' => 'top-full'],
+        ],
+        'modal-center' => [
+            'label' => 'Zentriertes Modal',
+            'description' => 'Card mittig im Viewport. Wirkt fokussierter, kann aber als Dark-Pattern wahrgenommen werden.',
+            'tokens' => ['position' => 'middle-center'],
+        ],
     ];
 
     public function __construct(
@@ -386,6 +508,12 @@ final class ThemeDesignerController extends ActionController
             $layoutOptions[] = ['key' => $key, 'label' => $label];
         }
 
+        // Trigger-corner picker — four-entry enum, same shape.
+        $triggerOptions = [];
+        foreach (self::TRIGGER_POSITIONS as $key => $label) {
+            $triggerOptions[] = ['key' => $key, 'label' => $label];
+        }
+
         // Compliance audit — runs the legal-requirement checks against
         // the live site config (settings + service registry). Results
         // mirror the upstream `simplecmp.audit()` JS surface so a
@@ -461,6 +589,7 @@ final class ThemeDesignerController extends ActionController
             'positionOptions' => $positionOptions,
             'themeOptions' => $themeOptions,
             'layoutOptions' => $layoutOptions,
+            'triggerOptions' => $triggerOptions,
             'auditResults' => $auditResults,
             'auditFailed' => $auditFailed,
             'auditPassed' => $auditPassed,
@@ -489,6 +618,29 @@ final class ThemeDesignerController extends ActionController
             'hasInformalTone' => $hasInformalTone,
             'tokens' => $tokens,
             'fieldGroups' => self::FIELD_GROUPS,
+            // Color-related groups go behind an accordion in the BE
+            // because the default compliance-locked mode means editors
+            // don't need to see them at all. Splitting the groups here
+            // keeps the template free of dynamic-key gymnastics.
+            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced'])),
+            'otherFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['placement', 'framework', 'template', 'trigger'])),
+            'colorPaletteLocked' => ($tokens['colorPaletteLocked'] ?? '1') === '1',
+            // Pre-computed access helpers for the `color-trigger-bg`
+            // field — Fluid can't reliably evaluate `tokens.color-trigger-bg`
+            // because the dash trips the dot-path parser. The "(default)"
+            // state is represented as an empty string in storage; the
+            // template falls back to a primary-color placeholder so the
+            // color input always has a valid value attribute.
+            'triggerBgValue' => ($tokens['color-trigger-bg'] ?? '') !== '' ? $tokens['color-trigger-bg'] : '#0a7cb9',
+            'triggerBgIsSet' => ($tokens['color-trigger-bg'] ?? '') !== '',
+            'stylePresets' => self::STYLE_PRESETS,
+            // The BE preview iframe applies whichever color tokens the
+            // form holds, but when the lock is engaged the FE-Live
+            // ignores the form values and uses SAFE_PALETTE instead.
+            // Expose the palette as JSON so ThemePreview.js can match
+            // that behavior — locked → send safe colors, unlocked →
+            // send form values.
+            'safePaletteJson' => json_encode(self::SAFE_PALETTE, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_HEX_QUOT | JSON_HEX_APOS),
             'hasCustomTheme' => $hasCustomTheme,
             'uri_save' => $this->uri('save'),
             'uri_reset' => $this->uri('reset', ['site' => $site]),
@@ -919,6 +1071,21 @@ final class ThemeDesignerController extends ActionController
             if ($key === 'layout' && !isset(self::LAYOUTS[$value])) {
                 continue;
             }
+            // `colorPaletteLocked` is a boolean-stored-as-string. The BE
+            // form submits "0" or "1"; anything else is discarded so
+            // the default ("1" = locked) wins.
+            if ($key === 'colorPaletteLocked' && !in_array($value, ['0', '1'], true)) {
+                continue;
+            }
+            // Same enum guard for `triggerPosition` — only allow the
+            // four corner enums the bundle implements rules for.
+            if ($key === 'triggerPosition' && !isset(self::TRIGGER_POSITIONS[$value])) {
+                continue;
+            }
+            // `color-trigger-bg` accepts any non-empty hex; empty is
+            // the implicit "use --simplecmp-color-primary" fallback.
+            // Already skipped by the outer `$value === '' || === $default`
+            // check above.
             $clean[$key] = $value;
         }
         return $clean;

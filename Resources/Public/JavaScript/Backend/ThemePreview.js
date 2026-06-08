@@ -14,8 +14,87 @@ class ThemePreview {
     this._timer = null;
     document.addEventListener('input', this.onInput, true);
     document.addEventListener('change', this.onChange);
+    document.addEventListener('change', this.onColorLockToggle);
     document.addEventListener('click', this.onClick);
     window.addEventListener('message', this.onMessage);
+    this._initTriggerBgRow();
+
+    // Mark the form dirty on any user-side input that touches a
+    // theme token, an override field, or the tone toggle. The
+    // indicator badge sits next to the preview heading and points
+    // the editor at the Save button. We DON'T flip the flag from
+    // the Save action itself (the form does a full POST + redirect,
+    // so the indicator state is reset implicitly by the new page).
+    document.addEventListener('input', this.onMaybeDirty, true);
+    document.addEventListener('change', this.onMaybeDirty, true);
+    this._initDirtyIndicator();
+  }
+
+  /**
+   * Sync the optional-color-trigger-bg row's initial state from the
+   * color picker's `value`. Fluid can't reliably evaluate
+   * `tokens.color-trigger-bg` (dash in the key trips path parsing), so
+   * the template just renders both Reset and Enable buttons and lets
+   * JS hide the wrong one on first paint. The hidden empty <input>
+   * already takes care of the form-submission default-state path.
+   */
+  _initTriggerBgRow() {
+    const row = document.querySelector('[data-trigger-bg-row]');
+    if (!row) return;
+    const colorInput = row.querySelector('input[type="color"][data-token]');
+    if (!colorInput) return;
+    const resetBtn = row.querySelector('[data-trigger-bg-reset]');
+    const enableBtn = row.querySelector('[data-trigger-bg-enable]');
+    const swatch = row.querySelector('[data-swatch-for]');
+    const display = row.querySelector('[data-trigger-bg-display]');
+    // The template sets the visible color input value to the stored
+    // color when set, or a primary-color placeholder when unset. Use
+    // `data-trigger-bg-display`'s text (which Fluid renders as the
+    // unset label when no value is stored) to detect the unset case.
+    const unsetLabel = display?.getAttribute('data-unset-label') || '(default)';
+    const isUnset = display?.textContent.trim() === unsetLabel.trim();
+    if (isUnset) {
+      colorInput.disabled = true;
+      if (resetBtn) resetBtn.hidden = true;
+      if (enableBtn) enableBtn.hidden = false;
+      if (swatch) swatch.style.backgroundColor = 'transparent';
+    } else {
+      colorInput.disabled = false;
+      if (resetBtn) resetBtn.hidden = false;
+      if (enableBtn) enableBtn.hidden = true;
+    }
+  }
+
+  _initDirtyIndicator() {
+    this._dirty = false;
+    // No `beforeunload` guard on purpose — the designer lives inside
+    // the BE module iframe and the editor switches sites / languages
+    // / tabs constantly. A native confirm-prompt on every switch would
+    // train the editor to dismiss it reflexively. The inline badge
+    // beside the preview heading is enough — it's hard to miss while
+    // editing because it sits in the sticky pane.
+  }
+
+  onMaybeDirty = (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    // Anything inside the designer form that the editor can change
+    // counts as a "dirty" mutation. Limit to elements we know about
+    // so unrelated BE-chrome events (search, dropdowns) don't trip
+    // the flag.
+    const isThemeInput = target.hasAttribute?.('data-token')
+      || target.hasAttribute?.('data-override-field')
+      || target.id === 'override-tone-toggle'
+      || target.hasAttribute?.('data-preview-language-picker');
+    if (!isThemeInput) return;
+    this._setDirty(true);
+  };
+
+  _setDirty(value) {
+    if (this._dirty === value) return;
+    this._dirty = value;
+    const badge = document.querySelector('[data-unsaved-indicator]');
+    if (badge) badge.hidden = !value;
   }
 
   /**
@@ -25,11 +104,148 @@ class ThemePreview {
    * around it (which doesn't happen today but is cheap insurance).
    */
   onClick = (event) => {
+    const styleTrigger = event.target.closest?.('[data-style-preset]');
+    if (styleTrigger) {
+      event.preventDefault();
+      this.applyStylePreset(styleTrigger);
+      return;
+    }
+    const triggerBgReset = event.target.closest?.('[data-trigger-bg-reset]');
+    if (triggerBgReset) {
+      event.preventDefault();
+      this.resetTriggerBg(triggerBgReset);
+      return;
+    }
+    const triggerBgEnable = event.target.closest?.('[data-trigger-bg-enable]');
+    if (triggerBgEnable) {
+      event.preventDefault();
+      this.enableTriggerBg(triggerBgEnable);
+      return;
+    }
+    const overrideClear = event.target.closest?.('[data-override-clear]');
+    if (overrideClear) {
+      event.preventDefault();
+      this.clearOverrideField(overrideClear);
+      return;
+    }
     const trigger = event.target.closest?.('[data-fe-audit-trigger]');
     if (!trigger) return;
     event.preventDefault();
     this.runFeAudit(trigger);
   };
+
+  /**
+   * Reset the optional `color-trigger-bg` override back to "use primary
+   * color" (empty value). Disables the visible color input so it drops
+   * out of form serialisation — the parallel hidden empty field wins —
+   * and clears the swatch + display label. Hides the reset button until
+   * the editor sets a new color (which re-enables the input).
+   */
+  resetTriggerBg(button) {
+    const row = button.closest('[data-trigger-bg-row]');
+    if (!row) return;
+    const colorInput = row.querySelector('input[type="color"][data-token]');
+    const swatch = row.querySelector('[data-swatch-for]');
+    const display = row.querySelector('[data-trigger-bg-display]');
+    const enableBtn = row.querySelector('[data-trigger-bg-enable]');
+    if (!colorInput) return;
+    colorInput.disabled = true;
+    button.hidden = true;
+    if (enableBtn) enableBtn.hidden = false;
+    if (swatch) swatch.style.backgroundColor = 'transparent';
+    if (display) {
+      const unsetLabel = display.getAttribute('data-unset-label') || '(default)';
+      display.textContent = unsetLabel;
+    }
+    // Push the cleared state to the preview immediately — `send()` now
+    // skips disabled inputs, so the trigger-bg override rule drops out.
+    this._setDirty(true);
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => this.send(), 0);
+  }
+
+  /**
+   * Clear an override text field and hide its clear-button. The
+   * override's "active" badge in the label is server-rendered, so
+   * after clearing we DON'T strip it client-side — the user still
+   * needs to Save for the change to land, and the badge correctly
+   * reflects the persisted state until then. The dirty indicator
+   * already signals the unsaved state.
+   */
+  clearOverrideField(button) {
+    const row = button.closest('[data-override-row]');
+    if (!row) return;
+    const input = row.querySelector('[data-override-input]');
+    if (!input) return;
+    input.value = '';
+    button.hidden = true;
+    input.focus();
+    this._setDirty(true);
+    // Fire a real `input` event so listeners (form-state, etc.) react.
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  /**
+   * Companion to `resetTriggerBg`. Re-enable the color picker so the
+   * editor can pick a custom override; swaps button visibility back to
+   * the Reset state and opens the native picker so the editor doesn't
+   * have to click twice.
+   */
+  enableTriggerBg(button) {
+    const row = button.closest('[data-trigger-bg-row]');
+    if (!row) return;
+    const colorInput = row.querySelector('input[type="color"][data-token]');
+    const swatch = row.querySelector('[data-swatch-for]');
+    const display = row.querySelector('[data-trigger-bg-display]');
+    const resetBtn = row.querySelector('[data-trigger-bg-reset]');
+    if (!colorInput) return;
+    colorInput.disabled = false;
+    button.hidden = true;
+    if (resetBtn) resetBtn.hidden = false;
+    if (swatch) swatch.style.backgroundColor = colorInput.value;
+    if (display) display.textContent = colorInput.value;
+    this._setDirty(true);
+    // Open the picker so picking a colour is a single follow-up click.
+    try { colorInput.click(); } catch (_) { /* not all browsers honour this */ }
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => this.send(), 0);
+  }
+
+  /**
+   * Live-toggle the `disabled` attribute on the colors fieldset so the
+   * color pickers grey out the moment the editor flips the "Eigene
+   * Farben verwenden" switch. CSS `:has()` already handles the warning-
+   * banner + badge visibility; this handler covers the one piece that
+   * CSS can't express (a real `disabled` attribute on form controls).
+   */
+  onColorLockToggle = (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.id !== 'token-colorPaletteLocked') return;
+    const fieldset = document.querySelector('.simplecmp-colors-fieldset');
+    if (!fieldset) return;
+    // Checkbox CHECKED = custom colors on = fieldset enabled.
+    fieldset.disabled = !target.checked;
+  };
+
+  /**
+   * Click on a style-preset card → set the position radio in the
+   * existing 9-slot picker to match the preset's bundled position
+   * and trigger the preview update by dispatching a `change` event.
+   */
+  applyStylePreset(card) {
+    const targetPosition = card.getAttribute('data-preset-position');
+    if (!targetPosition) return;
+    const radio = document.querySelector('input[type="radio"][name="tokens[position]"][value="' + targetPosition + '"]');
+    if (!radio) return;
+    radio.checked = true;
+    // `input` is what triggers send() (the debounced postMessage to
+    // the preview iframe); `change` is what the form actually persists.
+    // Fire both so the preview updates instantly AND a subsequent save
+    // captures the new value.
+    radio.dispatchEvent(new Event('input', { bubbles: true }));
+    radio.dispatchEvent(new Event('change', { bubbles: true }));
+  }
 
   /**
    * Mount a hidden iframe at `<siteBaseUrl>?simplecmp_audit=1`,
@@ -200,7 +416,29 @@ class ThemePreview {
       this.swapPreviewLayout(target);
       return;
     }
+    if (target instanceof HTMLSelectElement && target.getAttribute('data-token') === 'triggerPosition') {
+      this.swapPreviewTriggerPosition(target);
+      return;
+    }
   };
+
+  swapPreviewTriggerPosition(select) {
+    // Same iframe-reload pattern as layout / theme / tone: the bundle
+    // consumes `floatingTrigger.position` at cmp.init() time. We
+    // re-encode it onto the iframe URL via a custom `triggerPosition`
+    // query param that Preview/init.js feeds into `cmp.init()`.
+    const iframe = document.querySelector('[data-preview-iframe]');
+    if (!iframe) return;
+    const value = select.value || 'bottom-right';
+    try {
+      const url = new URL(iframe.src, window.location.origin);
+      url.searchParams.set('triggerPosition', value);
+      iframe.src = url.toString();
+    } catch (_) {
+      const sep = iframe.src.includes('?') ? '&' : '?';
+      iframe.src = `${iframe.src}${sep}triggerPosition=${encodeURIComponent(value)}`;
+    }
+  }
 
   swapPreviewLayout(select) {
     // `layout` (like `theme` and `tone`) is consumed at cmp.init()
@@ -300,14 +538,33 @@ class ThemePreview {
 
   onInput = (event) => {
     const target = event.target;
-    if (!(target instanceof Element) || !target.hasAttribute('data-token')) {
+    if (!(target instanceof Element)) return;
+    // Override text fields share `onInput` with token fields but only
+    // care about the clear-button visibility — they don't trigger a
+    // postMessage to the preview iframe (overrides are submitted via
+    // a separate POST/redirect that re-renders the page).
+    if (target.hasAttribute?.('data-override-input')) {
+      const row = target.closest('[data-override-row]');
+      const clearBtn = row?.querySelector('[data-override-clear]');
+      if (clearBtn) clearBtn.hidden = !target.value;
       return;
     }
-    // For color pickers, the adjacent <code> shows the hex value; keep
-    // it in sync as the user drags through the picker.
+    if (!target.hasAttribute('data-token')) {
+      return;
+    }
+    // For color pickers, the adjacent <code> shows the hex value AND
+    // the visual swatch beside the picker shows the color as a filled
+    // box — both kept in sync as the user drags through the picker so
+    // they don't have to wait for the iframe round-trip to see what
+    // colour is selected. Especially relevant for `color-primary`,
+    // which the banner only uses for focus outlines + modal accents
+    // (subtle by design — equal-prominence compliance baseline).
     if (target instanceof HTMLInputElement && target.type === 'color') {
-      const label = target.parentElement?.querySelector('code');
+      const row = target.parentElement;
+      const label = row?.querySelector('code');
       if (label) label.textContent = target.value;
+      const swatch = row?.querySelector('[data-swatch-for="' + target.id + '"]');
+      if (swatch) swatch.style.backgroundColor = target.value;
     }
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.send(), 120);
@@ -410,6 +667,11 @@ class ThemePreview {
     document.querySelectorAll('[data-token]').forEach((input) => {
       const key = input.getAttribute('data-token');
       if (!key) return;
+      // Disabled inputs aren't part of the form submission, and the
+      // preview should mirror that — otherwise a disabled trigger-bg
+      // picker would keep colouring the live preview even after the
+      // editor resets the field to "use primary color".
+      if (input.disabled) return;
       // `theme` and `layout` are config-time bundle flags, not CSS
       // variables. Skip them here so the postMessage payload stays
       // purely token-oriented; theme/layout changes are handled
@@ -422,9 +684,43 @@ class ThemePreview {
         if (input.checked) tokens[key] = input.value;
         return;
       }
+      // Checkboxes: only contribute when checked. The hidden sibling
+      // (e.g. for `colorPaletteLocked`) already supplies the off-state
+      // value so the iframe sees a coherent state on every send.
+      if (input.type === 'checkbox') {
+        if (input.checked) tokens[key] = input.value;
+        return;
+      }
       tokens[key] = input.value;
     });
+
+    // Lock semantics — when the editor leaves the "Eigene Farben"
+    // toggle off, the FE-Live renders with SAFE_PALETTE (overriding
+    // whatever color-* values are still stored in the form). The
+    // preview iframe needs to mirror that or the editor would see
+    // their custom colors in the preview but not on the actual site.
+    const locked = (tokens.colorPaletteLocked ?? '1') === '1';
+    if (locked) {
+      const safe = this._safePalette();
+      for (const [k, v] of Object.entries(safe)) {
+        tokens[k] = v;
+      }
+    }
+
     iframe.contentWindow.postMessage({ type: 'simplecmp-theme-preview', tokens }, '*');
+  }
+
+  /** Parse the SAFE_PALETTE JSON the controller renders into the iframe element. */
+  _safePalette() {
+    if (this._safePaletteCache) return this._safePaletteCache;
+    const iframe = document.querySelector('[data-preview-iframe][data-safe-palette]');
+    if (!iframe) return (this._safePaletteCache = {});
+    try {
+      this._safePaletteCache = JSON.parse(iframe.getAttribute('data-safe-palette') || '{}');
+    } catch (_) {
+      this._safePaletteCache = {};
+    }
+    return this._safePaletteCache;
   }
 }
 

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Controller\Backend;
+namespace SimpleCMP\T3SimpleCmp\Tests\Unit\Controller;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController;
+use SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController;
 
 /**
  * Unit tests for the pure `sanitizeTokens` transformation.
