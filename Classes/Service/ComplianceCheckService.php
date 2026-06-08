@@ -200,6 +200,7 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkDescriptionLength($site);
         $results[] = $this->checkPairedTokenOverrides($site);
         $results[] = $this->checkBannerContrast($site);
+        $results[] = $this->checkButtonEqualProminence($site);
 
         return $results;
     }
@@ -588,6 +589,52 @@ final readonly class ComplianceCheckService
             [
                 'count' => count($failures),
                 'sample' => "\n  - " . implode("\n  - ", $failures),
+            ],
+        );
+    }
+
+    /**
+     * Banner-button equal-prominence — BGH "Cookie II" (1 BvR 2783/19,
+     * 2020) requires that Accept and Decline (and Configure) on the
+     * first banner layer not differ in visual weight. Out of the box
+     * the bundle gives all three buttons the same neutral background
+     * (`--simplecmp-color-bg-alt`). Editors can break that baseline
+     * by setting `color-accept-bg`, `color-decline-bg`, or
+     * `color-configure-bg` independently — when they do, surface a
+     * warning so the compliance trade-off is visible.
+     *
+     * @return Result
+     */
+    private function checkButtonEqualProminence(Site $site): array
+    {
+        $stored = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        // Color-lock active → SAFE_PALETTE wins on the live site and
+        // any per-button overrides are inert. No equal-prominence risk.
+        if (($stored['colorPaletteLocked'] ?? '1') === '1') {
+            return $this->pass('heuristic-button-equal-prominence', '2.1');
+        }
+        $overrides = [];
+        $labels = [
+            'color-accept-bg' => 'Akzeptieren',
+            'color-decline-bg' => 'Ablehnen',
+            'color-configure-bg' => 'Konfigurieren',
+        ];
+        foreach ($labels as $key => $label) {
+            $value = $stored[$key] ?? '';
+            if (is_string($value) && $value !== '') {
+                $overrides[] = $label . ': ' . $value;
+            }
+        }
+        if ($overrides === []) {
+            return $this->pass('heuristic-button-equal-prominence', '2.1');
+        }
+        return $this->fail(
+            'heuristic-button-equal-prominence',
+            '2.1',
+            'warning',
+            [
+                'count' => count($overrides),
+                'sample' => "\n  - " . implode("\n  - ", $overrides),
             ],
         );
     }

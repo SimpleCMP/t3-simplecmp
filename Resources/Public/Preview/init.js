@@ -427,6 +427,11 @@ function applyTokens(tokens) {
     if (key === 'color-trigger-bg') {
       continue;
     }
+    // Per-banner-button background overrides — scoped via
+    // `:host(simplecmp-banner) .cn-<button>` below.
+    if (key === 'color-accept-bg' || key === 'color-decline-bg' || key === 'color-configure-bg') {
+      continue;
+    }
     decls.push(`--simplecmp-${key}: ${value} !important;`);
   }
   const rules = [];
@@ -443,6 +448,21 @@ function applyTokens(tokens) {
   if (typeof triggerBg === 'string' && triggerBg !== '') {
     rules.push(`:host(simplecmp-trigger) button { background: ${triggerBg} !important; }`);
     rules.push(`:host(simplecmp-trigger) button:hover { background: ${triggerBg} !important; filter: brightness(0.92); }`);
+  }
+  // Per-banner-button background overrides. Each opt-in; setting any of
+  // these breaks the BGH "Cookie II" equal-prominence baseline (the
+  // BE-side compliance audit surfaces the warning). Mirror of the FE
+  // rules in RegisterAssets::injectTheme().
+  const buttonOverrides = {
+    'color-accept-bg': '.cn-accept',
+    'color-decline-bg': '.cn-decline',
+    'color-configure-bg': '.cn-configure',
+  };
+  for (const [tokenKey, selector] of Object.entries(buttonOverrides)) {
+    const value = tokens?.[tokenKey];
+    if (typeof value !== 'string' || value === '') continue;
+    rules.push(`:host(simplecmp-banner) ${selector} { background: ${value} !important; }`);
+    rules.push(`:host(simplecmp-banner) ${selector}:hover { background: ${value} !important; filter: brightness(0.92); }`);
   }
   // Purpose-group: indent the "▾ N Dienst" toggle button so it lines
   // up under the .meta block above. Mirror of the FE-side rule from

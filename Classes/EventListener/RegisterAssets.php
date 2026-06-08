@@ -199,6 +199,11 @@ final readonly class RegisterAssets
             if ($token === 'color-trigger-bg') {
                 continue;
             }
+            // Banner-button background overrides — per-button scoped
+            // rules emitted below the host rule.
+            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg'], true)) {
+                continue;
+            }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
             // `!important` is required because the framework adapters
@@ -229,6 +234,26 @@ final readonly class RegisterAssets
         if (is_string($triggerBg) && $triggerBg !== '') {
             $rules[] = ':host(simplecmp-trigger) button { background: ' . $triggerBg . ' !important; }';
             $rules[] = ':host(simplecmp-trigger) button:hover { background: ' . $triggerBg . ' !important; filter: brightness(0.92); }';
+        }
+
+        // Banner-button background overrides. Each is opt-in and scoped
+        // via `:host(simplecmp-banner) .cn-<button>`. Setting any of
+        // these breaks the BGH "Cookie II" equal-prominence baseline —
+        // ComplianceCheckService surfaces the warning. `!important` so
+        // these rules win over the bundle's `button { background: var(
+        // --simplecmp-color-bg-alt) }` static style.
+        $buttonOverrides = [
+            'color-accept-bg' => '.cn-accept',
+            'color-decline-bg' => '.cn-decline',
+            'color-configure-bg' => '.cn-configure',
+        ];
+        foreach ($buttonOverrides as $tokenKey => $selector) {
+            $value = $tokens[$tokenKey] ?? '';
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+            $rules[] = ':host(simplecmp-banner) ' . $selector . ' { background: ' . $value . ' !important; }';
+            $rules[] = ':host(simplecmp-banner) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
         }
 
         // Purpose-group: indent the "▾ N Dienst" toggle button so it

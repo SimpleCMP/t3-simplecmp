@@ -423,7 +423,7 @@
                         <legend class="h5">
                             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
-                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet}" />
+                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
                     </fieldset>
                 </f:for>
 
@@ -472,7 +472,7 @@
                                     <legend class="h6">
                                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                                     </legend>
-                                    <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet}" />
+                                    <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
                                 </fieldset>
                             </f:for>
                         </fieldset>
@@ -758,63 +758,16 @@
                     </small>
                 </f:case>
                 <f:case value="color-trigger-bg">
-                    <!--
-                        Trigger-button background is an OPTIONAL override.
-                        Default state = empty value = inherit from
-                        --simplecmp-color-primary. The hidden empty field
-                        keeps that state submittable when the visible
-                        color input is disabled; HTML form serialization
-                        picks the last input with a given name, and
-                        disabled inputs are skipped, so a disabled visible
-                        input lets the hidden empty win.
-                    -->
-                    <!--
-                        Trigger-button background is an OPTIONAL override.
-                        Empty value = inherit from --simplecmp-color-primary.
-                        The hidden empty field ensures the "default" state
-                        round-trips; when the visible color input is
-                        disabled, browser form serialisation skips it and
-                        the hidden empty wins. Picking a colour re-enables
-                        the visible input (its value then overrides the
-                        hidden empty thanks to last-input-wins).
-                    -->
-                    <input type="hidden" name="tokens[color-trigger-bg]" value="" />
-                    <div class="d-flex align-items-center gap-2 simplecmp-trigger-bg-row" data-trigger-bg-row>
-                        <input type="color"
-                               id="token-{key}"
-                               name="tokens[{key}]"
-                               value="{triggerBgValue}"
-                               class="form-control form-control-color"
-                               style="width:2.4rem;height:2.4rem;padding:2px"
-                               data-token="{key}" />
-                        <span class="simplecmp-color-swatch"
-                              data-swatch-for="token-{key}"
-                              style="display:inline-block;width:3rem;height:1.8rem;background-color:{triggerBgValue};border:1px solid #dde2e7;border-radius:.25rem;flex:none"
-                              aria-hidden="true"></span>
-                        <code class="text-body-secondary"
-                              data-trigger-bg-display
-                              data-unset-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.unset')}">
-                            <f:if condition="{triggerBgIsSet}">
-                                <f:then>{triggerBgValue}</f:then>
-                                <f:else>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.unset" />
-                                </f:else>
-                            </f:if>
-                        </code>
-                        <button type="button"
-                                class="btn btn-default btn-sm ms-auto"
-                                data-trigger-bg-reset
-                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.reset')}">
-                            <core:icon identifier="actions-undo" size="small"/>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.reset" />
-                        </button>
-                        <button type="button"
-                                class="btn btn-default btn-sm ms-auto"
-                                data-trigger-bg-enable>
-                            <core:icon identifier="actions-edit-pick-date" size="small"/>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-trigger-bg.setCustom" />
-                        </button>
-                    </div>
+                    <f:render section="OptionalColorField" arguments="{field: optionalColors.triggerBg}" />
+                </f:case>
+                <f:case value="color-accept-bg">
+                    <f:render section="OptionalColorField" arguments="{field: optionalColors.acceptBg}" />
+                </f:case>
+                <f:case value="color-decline-bg">
+                    <f:render section="OptionalColorField" arguments="{field: optionalColors.declineBg}" />
+                </f:case>
+                <f:case value="color-configure-bg">
+                    <f:render section="OptionalColorField" arguments="{field: optionalColors.configureBg}" />
                 </f:case>
                 <f:defaultCase>
                     <div class="d-flex align-items-center gap-2">
@@ -840,6 +793,59 @@
             </f:switch>
         </div>
     </f:for>
+</f:section>
+
+<f:section name="OptionalColorField">
+    <!--
+        Shared markup for the 4 optional-colour fields (color-trigger-bg,
+        color-accept-bg, color-decline-bg, color-configure-bg). Empty
+        value = inherit from the bundle default (primary for trigger,
+        bg-alt for banner buttons). The hidden empty <input> ensures the
+        "default" state round-trips on form submit; when the visible
+        color picker is disabled, browser serialisation skips it and the
+        hidden empty wins. Picking a colour re-enables the visible input
+        (its value then overrides the hidden empty thanks to last-input-
+        wins). JS in ThemePreview.js handles the reset/enable buttons.
+    -->
+    <input type="hidden" name="tokens[{field.key}]" value="" />
+    <div class="d-flex align-items-center gap-2 simplecmp-optional-color-row"
+         data-optional-color-row
+         data-optional-color-key="{field.key}">
+        <input type="color"
+               id="token-{field.key}"
+               name="tokens[{field.key}]"
+               value="{field.value}"
+               class="form-control form-control-color"
+               style="width:2.4rem;height:2.4rem;padding:2px"
+               data-token="{field.key}" />
+        <span class="simplecmp-color-swatch"
+              data-swatch-for="token-{field.key}"
+              style="display:inline-block;width:3rem;height:1.8rem;background-color:{field.value};border:1px solid #dde2e7;border-radius:.25rem;flex:none"
+              aria-hidden="true"></span>
+        <code class="text-body-secondary"
+              data-optional-color-display
+              data-unset-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset')}">
+            <f:if condition="{field.isSet}">
+                <f:then>{field.value}</f:then>
+                <f:else>
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset" />
+                </f:else>
+            </f:if>
+        </code>
+        <button type="button"
+                class="btn btn-default btn-sm ms-auto"
+                data-optional-color-reset
+                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset')}">
+            <core:icon identifier="actions-undo" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset" />
+        </button>
+        <button type="button"
+                class="btn btn-default btn-sm ms-auto"
+                data-optional-color-enable>
+            <core:icon identifier="actions-edit-pick-date" size="small"/>
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.setCustom" />
+        </button>
+    </div>
 </f:section>
 
 </html>

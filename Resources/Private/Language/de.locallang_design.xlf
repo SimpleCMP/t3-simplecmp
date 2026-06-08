@@ -82,6 +82,10 @@
       <trans-unit id="designer.audit.pass.heuristic-banner-contrast"><source>Banner text and primary-button colors pass the 4.5:1 contrast threshold.</source><target>Banner-Texte und Primary-Button-Farben erfüllen den 4,5:1-Kontrast.</target></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-banner-contrast"><source>%d color pair(s) fall below the WCAG-AA contrast threshold of 4.5:1 — visitors may struggle to read the banner: %s</source><target>%d Farb-Paar(e) unterschreiten den WCAG-AA-Kontrast von 4,5:1 — Besucher können das Banner möglicherweise schlecht lesen: %s</target></trans-unit>
 
+      <trans-unit id="designer.audit.title.heuristic-button-equal-prominence"><source>Banner buttons are equal-prominence</source><target>Banner-Buttons sind gleichwertig gestaltet</target></trans-unit>
+      <trans-unit id="designer.audit.pass.heuristic-button-equal-prominence"><source>Accept, Decline and Configure share the same neutral background — visitors aren't nudged toward Accept (BGH "Cookie II", 1 BvR 2783/19).</source><target>Akzeptieren, Ablehnen und Konfigurieren teilen denselben neutralen Hintergrund — Besucher werden nicht in Richtung „Akzeptieren" gedrängt (BGH „Cookie II", 1 BvR 2783/19).</target></trans-unit>
+      <trans-unit id="designer.audit.fail.heuristic-button-equal-prominence"><source>%d banner button(s) carry a custom background — this breaks the equal-prominence baseline required by BGH "Cookie II". Visitors may be nudged toward the more prominent option, which the courts treat as invalid consent: %s</source><target>%d Banner-Button(s) haben einen eigenen Hintergrund — das durchbricht die von BGH „Cookie II" geforderte Gleichwertigkeit. Besucher könnten zu der prominenter dargestellten Option gedrängt werden, was Gerichte als unwirksame Einwilligung werten: %s</target></trans-unit>
+
       <trans-unit id="designer.audit.title.heuristic-description-length"><source>Banner description sits in a readable length range</source><target>Banner-Text in lesbarem Längen-Bereich</target></trans-unit>
       <trans-unit id="designer.audit.pass.heuristic-description-length"><source>Banner descriptions are in the informative-but-readable range across configured languages.</source><target>Die Banner-Texte sind in allen konfigurierten Sprachen im informativen-aber-lesbaren Bereich.</target></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-description-length"><source>%d banner description(s) are outside the recommended 80–600 character range. Too short (below 80) typically lacks the purpose enumeration the "informed" consent prong requires; too long (above 600) risks EDPB 03/2022 § Overloading. Findings: %s</source><target>%d Banner-Text(e) liegen außerhalb des empfohlenen Bereichs von 80–600 Zeichen. Zu kurz (unter 80) fehlt meist die Zweck-Aufzählung, die „informierte" Einwilligung verlangt; zu lang (über 600) riskiert EDPB 03/2022 „Overloading". Befunde: %s</target></trans-unit>
@@ -110,6 +114,7 @@
       <trans-unit id="designer.group.brand"><source>Brand colors</source><target>Markenfarben</target></trans-unit>
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source><target>Text &amp; Hintergrund</target></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source><target>Erweiterte Farben</target></trans-unit>
+      <trans-unit id="designer.group.banner-buttons"><source>Banner buttons (compliance-critical)</source><target>Banner-Buttons (compliance-relevant)</target></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source><target>Banner-Position</target></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source><target>CSS-Framework</target></trans-unit>
       <trans-unit id="designer.group.template"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
@@ -179,6 +184,12 @@
       <trans-unit id="designer.field.color-trigger-bg.reset"><source>Use primary color</source><target>Primärfarbe verwenden</target></trans-unit>
       <trans-unit id="designer.field.color-trigger-bg.setCustom"><source>Custom color</source><target>Eigene Farbe</target></trans-unit>
       <trans-unit id="designer.field.color-trigger-bg.unset"><source>(default)</source><target>(Standard)</target></trans-unit>
+      <trans-unit id="designer.field.color-accept-bg"><source>"Accept" button background (optional)</source><target>Hintergrund „Akzeptieren"-Button (optional)</target></trans-unit>
+      <trans-unit id="designer.field.color-decline-bg"><source>"Decline" button background (optional)</source><target>Hintergrund „Ablehnen"-Button (optional)</target></trans-unit>
+      <trans-unit id="designer.field.color-configure-bg"><source>"Configure" button background (optional)</source><target>Hintergrund „Konfigurieren"-Button (optional)</target></trans-unit>
+      <trans-unit id="designer.field.optionalColor.reset"><source>Reset to default</source><target>Auf Standard zurücksetzen</target></trans-unit>
+      <trans-unit id="designer.field.optionalColor.setCustom"><source>Custom color</source><target>Eigene Farbe</target></trans-unit>
+      <trans-unit id="designer.field.optionalColor.unset"><source>(default)</source><target>(Standard)</target></trans-unit>
 
       <trans-unit id="designer.preview.title"><source>Live preview</source><target>Live-Vorschau</target></trans-unit>
       <trans-unit id="designer.preview.help"><source>The consent banner updates as you edit. Click Configure inside the banner to see the modal with all services.</source><target>Das Einwilligungs-Banner aktualisiert sich beim Bearbeiten. „Konfigurieren" im Banner anklicken, um den Dialog mit allen Diensten zu sehen.</target></trans-unit>

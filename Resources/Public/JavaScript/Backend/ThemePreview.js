@@ -17,7 +17,7 @@ class ThemePreview {
     document.addEventListener('change', this.onColorLockToggle);
     document.addEventListener('click', this.onClick);
     window.addEventListener('message', this.onMessage);
-    this._initTriggerBgRow();
+    this._initOptionalColorRows();
 
     // Mark the form dirty on any user-side input that touches a
     // theme token, an override field, or the tone toggle. The
@@ -31,38 +31,36 @@ class ThemePreview {
   }
 
   /**
-   * Sync the optional-color-trigger-bg row's initial state from the
-   * color picker's `value`. Fluid can't reliably evaluate
-   * `tokens.color-trigger-bg` (dash in the key trips path parsing), so
-   * the template just renders both Reset and Enable buttons and lets
-   * JS hide the wrong one on first paint. The hidden empty <input>
+   * Sync each optional-colour row's initial state from the picker's
+   * stored vs. fallback value. Fluid can't reliably evaluate
+   * `tokens.color-trigger-bg` (dash in the key trips path parsing) so
+   * the template renders both Reset and Enable buttons unconditionally;
+   * JS hides the wrong one on first paint. The hidden empty <input>
    * already takes care of the form-submission default-state path.
+   * Generalised over all `[data-optional-color-row]` so the same logic
+   * drives trigger-bg, accept-bg, decline-bg, configure-bg.
    */
-  _initTriggerBgRow() {
-    const row = document.querySelector('[data-trigger-bg-row]');
-    if (!row) return;
-    const colorInput = row.querySelector('input[type="color"][data-token]');
-    if (!colorInput) return;
-    const resetBtn = row.querySelector('[data-trigger-bg-reset]');
-    const enableBtn = row.querySelector('[data-trigger-bg-enable]');
-    const swatch = row.querySelector('[data-swatch-for]');
-    const display = row.querySelector('[data-trigger-bg-display]');
-    // The template sets the visible color input value to the stored
-    // color when set, or a primary-color placeholder when unset. Use
-    // `data-trigger-bg-display`'s text (which Fluid renders as the
-    // unset label when no value is stored) to detect the unset case.
-    const unsetLabel = display?.getAttribute('data-unset-label') || '(default)';
-    const isUnset = display?.textContent.trim() === unsetLabel.trim();
-    if (isUnset) {
-      colorInput.disabled = true;
-      if (resetBtn) resetBtn.hidden = true;
-      if (enableBtn) enableBtn.hidden = false;
-      if (swatch) swatch.style.backgroundColor = 'transparent';
-    } else {
-      colorInput.disabled = false;
-      if (resetBtn) resetBtn.hidden = false;
-      if (enableBtn) enableBtn.hidden = true;
-    }
+  _initOptionalColorRows() {
+    document.querySelectorAll('[data-optional-color-row]').forEach((row) => {
+      const colorInput = row.querySelector('input[type="color"][data-token]');
+      if (!colorInput) return;
+      const resetBtn = row.querySelector('[data-optional-color-reset]');
+      const enableBtn = row.querySelector('[data-optional-color-enable]');
+      const swatch = row.querySelector('[data-swatch-for]');
+      const display = row.querySelector('[data-optional-color-display]');
+      const unsetLabel = display?.getAttribute('data-unset-label') || '(default)';
+      const isUnset = display?.textContent.trim() === unsetLabel.trim();
+      if (isUnset) {
+        colorInput.disabled = true;
+        if (resetBtn) resetBtn.hidden = true;
+        if (enableBtn) enableBtn.hidden = false;
+        if (swatch) swatch.style.backgroundColor = 'transparent';
+      } else {
+        colorInput.disabled = false;
+        if (resetBtn) resetBtn.hidden = false;
+        if (enableBtn) enableBtn.hidden = true;
+      }
+    });
   }
 
   _initDirtyIndicator() {
@@ -110,16 +108,16 @@ class ThemePreview {
       this.applyStylePreset(styleTrigger);
       return;
     }
-    const triggerBgReset = event.target.closest?.('[data-trigger-bg-reset]');
-    if (triggerBgReset) {
+    const optReset = event.target.closest?.('[data-optional-color-reset]');
+    if (optReset) {
       event.preventDefault();
-      this.resetTriggerBg(triggerBgReset);
+      this.resetOptionalColor(optReset);
       return;
     }
-    const triggerBgEnable = event.target.closest?.('[data-trigger-bg-enable]');
-    if (triggerBgEnable) {
+    const optEnable = event.target.closest?.('[data-optional-color-enable]');
+    if (optEnable) {
       event.preventDefault();
-      this.enableTriggerBg(triggerBgEnable);
+      this.enableOptionalColor(optEnable);
       return;
     }
     const overrideClear = event.target.closest?.('[data-override-clear]');
@@ -135,19 +133,20 @@ class ThemePreview {
   };
 
   /**
-   * Reset the optional `color-trigger-bg` override back to "use primary
-   * color" (empty value). Disables the visible color input so it drops
-   * out of form serialisation — the parallel hidden empty field wins —
-   * and clears the swatch + display label. Hides the reset button until
-   * the editor sets a new color (which re-enables the input).
+   * Reset an optional-colour override (trigger-bg, accept-bg,
+   * decline-bg, configure-bg) back to "default". Disables the visible
+   * color input so it drops out of form serialisation — the parallel
+   * hidden empty field wins — and clears the swatch + display label.
+   * Hides the reset button until the editor sets a new colour (which
+   * re-enables the input).
    */
-  resetTriggerBg(button) {
-    const row = button.closest('[data-trigger-bg-row]');
+  resetOptionalColor(button) {
+    const row = button.closest('[data-optional-color-row]');
     if (!row) return;
     const colorInput = row.querySelector('input[type="color"][data-token]');
     const swatch = row.querySelector('[data-swatch-for]');
-    const display = row.querySelector('[data-trigger-bg-display]');
-    const enableBtn = row.querySelector('[data-trigger-bg-enable]');
+    const display = row.querySelector('[data-optional-color-display]');
+    const enableBtn = row.querySelector('[data-optional-color-enable]');
     if (!colorInput) return;
     colorInput.disabled = true;
     button.hidden = true;
@@ -157,8 +156,8 @@ class ThemePreview {
       const unsetLabel = display.getAttribute('data-unset-label') || '(default)';
       display.textContent = unsetLabel;
     }
-    // Push the cleared state to the preview immediately — `send()` now
-    // skips disabled inputs, so the trigger-bg override rule drops out.
+    // Push the cleared state to the preview immediately — `send()` skips
+    // disabled inputs so the optional-colour override rule drops out.
     this._setDirty(true);
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.send(), 0);
@@ -186,18 +185,18 @@ class ThemePreview {
   }
 
   /**
-   * Companion to `resetTriggerBg`. Re-enable the color picker so the
-   * editor can pick a custom override; swaps button visibility back to
-   * the Reset state and opens the native picker so the editor doesn't
-   * have to click twice.
+   * Companion to `resetOptionalColor`. Re-enable the color picker so
+   * the editor can pick a custom override; swaps button visibility
+   * back to the Reset state and opens the native picker so picking a
+   * colour is a single follow-up click.
    */
-  enableTriggerBg(button) {
-    const row = button.closest('[data-trigger-bg-row]');
+  enableOptionalColor(button) {
+    const row = button.closest('[data-optional-color-row]');
     if (!row) return;
     const colorInput = row.querySelector('input[type="color"][data-token]');
     const swatch = row.querySelector('[data-swatch-for]');
-    const display = row.querySelector('[data-trigger-bg-display]');
-    const resetBtn = row.querySelector('[data-trigger-bg-reset]');
+    const display = row.querySelector('[data-optional-color-display]');
+    const resetBtn = row.querySelector('[data-optional-color-reset]');
     if (!colorInput) return;
     colorInput.disabled = false;
     button.hidden = true;
@@ -205,7 +204,6 @@ class ThemePreview {
     if (swatch) swatch.style.backgroundColor = colorInput.value;
     if (display) display.textContent = colorInput.value;
     this._setDirty(true);
-    // Open the picker so picking a colour is a single follow-up click.
     try { colorInput.click(); } catch (_) { /* not all browsers honour this */ }
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.send(), 0);

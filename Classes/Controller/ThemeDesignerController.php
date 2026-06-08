@@ -176,6 +176,17 @@ final class ThemeDesignerController extends ActionController
         // Useful when the editor wants the floating button to stand
         // out visually from the rest of the brand colour usage.
         'color-trigger-bg' => '',
+        // Optional per-banner-button background overrides. When empty,
+        // all three banner buttons share --simplecmp-color-bg-alt — the
+        // BGH "Cookie II" equal-prominence baseline. Setting any of
+        // these to a hex value emits a scoped rule that overrides ONLY
+        // that button's background. This intentionally BREAKS the
+        // equal-prominence baseline; ComplianceCheckService surfaces a
+        // warning so editors see the compliance cost of what they've
+        // configured.
+        'color-accept-bg' => '',
+        'color-decline-bg' => '',
+        'color-configure-bg' => '',
     ];
 
     /**
@@ -334,6 +345,11 @@ final class ThemeDesignerController extends ActionController
             'color-primary-hover',
             'color-text-muted',
             'color-bg-alt',
+        ],
+        'banner-buttons' => [
+            'color-accept-bg',
+            'color-decline-bg',
+            'color-configure-bg',
         ],
         'placement' => ['position'],
         'framework' => ['theme'],
@@ -622,15 +638,45 @@ final class ThemeDesignerController extends ActionController
             // because the default compliance-locked mode means editors
             // don't need to see them at all. Splitting the groups here
             // keeps the template free of dynamic-key gymnastics.
-            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced'])),
+            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced', 'banner-buttons'])),
             'otherFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['placement', 'framework', 'template', 'trigger'])),
             'colorPaletteLocked' => ($tokens['colorPaletteLocked'] ?? '1') === '1',
-            // Pre-computed access helpers for the `color-trigger-bg`
-            // field — Fluid can't reliably evaluate `tokens.color-trigger-bg`
-            // because the dash trips the dot-path parser. The "(default)"
-            // state is represented as an empty string in storage; the
-            // template falls back to a primary-color placeholder so the
-            // color input always has a valid value attribute.
+            // Pre-computed access helpers for fields that Fluid can't
+            // address via dot-path (dashes trip the parser). For each
+            // optional-color field, `value` is the picker's value
+            // attribute (storage value, or a sensible fallback so the
+            // picker has a valid initial state when unset), `isSet`
+            // gates the (default)-vs-hex display, and `fallback` is the
+            // colour the FE actually uses when unset.
+            // Fluid can't parse dot-paths with dashes (`tokens.color-foo`)
+            // so we expose each optional-colour field under a dot-safe
+            // camelCase alias; the template's `<f:case value="color-…">`
+            // renders shared markup via `<f:render section="OptionalColorField"
+            //   arguments="{field: optionalColors.triggerBg}">`.
+            'optionalColors' => [
+                'triggerBg' => [
+                    'key' => 'color-trigger-bg',
+                    'value' => ($tokens['color-trigger-bg'] ?? '') !== '' ? $tokens['color-trigger-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
+                    'isSet' => ($tokens['color-trigger-bg'] ?? '') !== '',
+                ],
+                'acceptBg' => [
+                    'key' => 'color-accept-bg',
+                    'value' => ($tokens['color-accept-bg'] ?? '') !== '' ? $tokens['color-accept-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
+                    'isSet' => ($tokens['color-accept-bg'] ?? '') !== '',
+                ],
+                'declineBg' => [
+                    'key' => 'color-decline-bg',
+                    'value' => ($tokens['color-decline-bg'] ?? '') !== '' ? $tokens['color-decline-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
+                    'isSet' => ($tokens['color-decline-bg'] ?? '') !== '',
+                ],
+                'configureBg' => [
+                    'key' => 'color-configure-bg',
+                    'value' => ($tokens['color-configure-bg'] ?? '') !== '' ? $tokens['color-configure-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
+                    'isSet' => ($tokens['color-configure-bg'] ?? '') !== '',
+                ],
+            ],
+            // Legacy single-field helpers — kept until the template
+            // switch is fully migrated to `optionalColors[...]`.
             'triggerBgValue' => ($tokens['color-trigger-bg'] ?? '') !== '' ? $tokens['color-trigger-bg'] : '#0a7cb9',
             'triggerBgIsSet' => ($tokens['color-trigger-bg'] ?? '') !== '',
             'stylePresets' => self::STYLE_PRESETS,
