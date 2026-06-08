@@ -157,15 +157,15 @@
       <trans-unit id="designer.overrides.label.save"><source>"Save" button label</source></trans-unit>
       <trans-unit id="designer.overrides.label.ok"><source>"OK" button label (banner accept)</source></trans-unit>
 
-      <trans-unit id="designer.field.color-primary"><source>Primary color (modal accent, focus outlines)</source></trans-unit>
-      <trans-unit id="designer.field.color-primary.hint"><source>Used by the Save/Accept buttons inside the Configure modal and by focus-rings on every interactive element. In the banner's default state all three buttons stay equal-prominence (BGH "Cookie II" baseline), so primary appears subtle there — open the modal to see it.</source></trans-unit>
-      <trans-unit id="designer.field.color-primary-hover"><source>Primary hover (Accept button hover state)</source></trans-unit>
+      <trans-unit id="designer.field.color-primary"><source>Accent color (trigger button, links, focus ring, modal accents)</source></trans-unit>
+      <trans-unit id="designer.field.color-primary.hint"><source>Used by the floating revocation trigger, links, focus rings on interactive elements, and accents inside the Configure modal. It does NOT color the banner's Accept / Decline / Configure buttons — those stay neutral and equal-prominence as required by BGH "Cookie II" so visitors aren't nudged toward Accept. For banner-button background see "Button background" below; for the trigger alone see "Trigger background".</source></trans-unit>
+      <trans-unit id="designer.field.color-primary-hover"><source>Accent hover state (trigger button hover, link hover)</source></trans-unit>
       <trans-unit id="designer.field.color-text"><source>Body text</source></trans-unit>
       <trans-unit id="designer.field.color-text-muted"><source>Muted text (descriptions, hints)</source></trans-unit>
       <trans-unit id="designer.field.color-bg"><source>Card background</source></trans-unit>
-      <trans-unit id="designer.field.color-bg-alt"><source>Alternate background (badges, required-pill)</source></trans-unit>
+      <trans-unit id="designer.field.color-bg-alt"><source>Button background (Accept, Decline, Configure)</source></trans-unit>
       <trans-unit id="designer.field.color-border"><source>Border</source></trans-unit>
-      <trans-unit id="designer.field.color-danger"><source>Decline color</source></trans-unit>
+      <trans-unit id="designer.field.color-danger"><source>Warning color (required-service indicator, validation hints)</source></trans-unit>
       <trans-unit id="designer.field.position"><source>Where the banner sits on screen</source></trans-unit>
       <trans-unit id="designer.field.theme"><source>Framework adapter</source></trans-unit>
       <trans-unit id="designer.field.theme.hint"><source>"Default" keeps SimpleCMP's own design values (plus your overrides above). Picking a framework re-binds those values to the host site's CSS variables (e.g. Bootstrap 5's --bs-*) — your color overrides still win on top.</source></trans-unit>
