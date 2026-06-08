@@ -1,0 +1,167 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'trackerSetup',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab
+}" />
+
+<f:if condition="{hasSites}">
+    <f:then>
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="mb-0">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.heading" />
+            </h1>
+
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[action]" value="list" />
+                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[controller]" value="TrackerSetup" />
+                <label for="t3simplecmp-tracker-site" class="form-label mb-0 small text-body-secondary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.site" />
+                </label>
+                <select id="t3simplecmp-tracker-site"
+                        name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[site]"
+                        class="form-select form-select-sm"
+                        onchange="this.form.submit()">
+                    <f:for each="{sites}" as="row">
+                        <option value="{row.identifier}" {f:if(condition: '{row.identifier} == {selectedSite}', then: 'selected="selected"')}>{row.label}</option>
+                    </f:for>
+                </select>
+            </form>
+        </div>
+
+        <p class="text-body-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.intro" />
+        </p>
+
+        <div class="panel panel-default mb-4">
+            <div class="panel-heading d-flex align-items-center justify-content-between">
+                <strong>
+                    <core:icon identifier="actions-database-import" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbHeading" />
+                </strong>
+
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <core:icon identifier="actions-add" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.add" />
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <f:for each="{providerOptions}" as="label" key="type">
+                            <li>
+                                <a class="dropdown-item" href="{newActionUrl}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[site]={selectedSite}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[type]={type}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[controller]=TrackerSetup&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[action]=new">
+                                    {label}
+                                </a>
+                            </li>
+                        </f:for>
+                    </ul>
+                </div>
+            </div>
+            <div class="panel-body">
+                <f:if condition="{dbTrackers}">
+                    <f:then>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 1%"></th>
+                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.provider" /></th>
+                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.serviceId" /></th>
+                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.summary" /></th>
+                                    <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.actions" /></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <f:for each="{dbTrackers}" as="row">
+                                    <tr>
+                                        <td><core:icon identifier="content-text" size="small" /></td>
+                                        <td><strong>{row.providerLabel}</strong></td>
+                                        <td><code>{row.service_id}</code></td>
+                                        <td class="text-body-secondary small">{row.summary}</td>
+                                        <td class="text-end">
+                                            <f:link.action action="edit"
+                                                           arguments="{uid: row.uid}"
+                                                           class="btn btn-default btn-sm">
+                                                <core:icon identifier="actions-edit" size="small" />
+                                            </f:link.action>
+                                            <form method="post" action="{deleteActionUrl}" class="d-inline">
+                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[uid]" value="{row.uid}" />
+                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[site]" value="{selectedSite}" />
+                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[controller]" value="TrackerSetup" />
+                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[action]" value="delete" />
+                                                <button type="submit" class="btn btn-default btn-sm" onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.deleteConfirm\')}')">
+                                                    <core:icon identifier="actions-delete" size="small" />
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </f:for>
+                            </tbody>
+                        </table>
+                    </f:then>
+                    <f:else>
+                        <div class="text-body-secondary">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbEmpty" />
+                        </div>
+                    </f:else>
+                </f:if>
+            </div>
+        </div>
+
+        <f:if condition="{yamlTrackers}">
+            <div class="panel panel-default mb-3">
+                <div class="panel-heading">
+                    <strong>
+                        <core:icon identifier="actions-document" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.yamlHeading" />
+                    </strong>
+                </div>
+                <div class="panel-body">
+                    <p class="text-body-secondary small mb-3">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.yamlHint" />
+                    </p>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.type" /></th>
+                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.serviceId" /></th>
+                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.config" /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{yamlTrackers}" as="row">
+                                <tr>
+                                    <td><code>{row.type}</code></td>
+                                    <td><code>{row.serviceId}</code></td>
+                                    <td class="text-body-secondary small">
+                                        <f:for each="{row.config}" as="value" key="key" iteration="i">
+                                            <code>{key}</code>=<code>{value}</code><f:if condition="!{i.isLast}">, </f:if>
+                                        </f:for>
+                                    </td>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </f:if>
+
+    </f:then>
+    <f:else>
+        <f:be.infobox state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING')}">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.noSites" />
+        </f:be.infobox>
+    </f:else>
+</f:if>
+
+</f:section>
+
+</html>

@@ -220,6 +220,9 @@ final class LibraryBrowserController extends ActionController
                 'simplecmp_detections.Backend\\RegistryList_list',
             ),
             'uri_libraryTab' => $this->uri('list'),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+            ),
             'topRecommended' => $topRecommendedInline,
             'recommendationHeadline' => $headline,
             'recommendationOverflow' => max(0, count($recommendations) - count($topRecommendedInline)),

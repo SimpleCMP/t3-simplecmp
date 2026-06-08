@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
@@ -59,6 +60,7 @@ final readonly class TrackerMaterializer
     public function __construct(
         private AssetCollector $assetCollector,
         private ServiceRepository $serviceRepository,
+        private ManagedTrackerRepository $managedTrackerRepository,
         private TrackerRegistry $trackerRegistry,
         private LoggerInterface $logger,
     ) {
@@ -82,17 +84,90 @@ final readonly class TrackerMaterializer
         if ($settings->has('simplecmp.enabled') && $settings->get('simplecmp.enabled') === false) {
             return;
         }
-        $trackers = $this->collectTrackerEntries($settings);
-        if ($trackers === []) {
-            return;
-        }
 
-        foreach ($trackers as $entry) {
+        // Two sources of truth, merged in order:
+        //   1. YAML `simplecmp.trackers` — integrator-owned, git-versioned
+        //   2. `tx_t3simplecmp_managed_tracker` — BE-wizard-owned
+        //
+        // YAML wins on `serviceId` collision because file-based config
+        // is the ops-emergency override path. Editors who hit a clash
+        // get a warning in the log and a hint in the BE wizard.
+        $yamlEntries = $this->collectTrackerEntries($settings);
+        $dbEntries = $this->collectManagedTrackerEntries($site->getIdentifier());
+
+        $seenServiceIds = [];
+        $pipeline = [];
+
+        foreach ($yamlEntries as $entry) {
             if (!is_array($entry)) {
                 continue;
             }
+            $candidateId = $this->resolveServiceId($entry);
+            if ($candidateId !== null) {
+                $seenServiceIds[$candidateId] = 'yaml';
+            }
+            $pipeline[] = $entry;
+        }
+
+        foreach ($dbEntries as $entry) {
+            $candidateId = $this->resolveServiceId($entry);
+            if ($candidateId !== null && isset($seenServiceIds[$candidateId])) {
+                $this->logger->warning(
+                    'BE-managed tracker "{id}" collides with YAML — YAML wins, BE row skipped.',
+                    ['id' => $candidateId],
+                );
+                continue;
+            }
+            if ($candidateId !== null) {
+                $seenServiceIds[$candidateId] = 'db';
+            }
+            $pipeline[] = $entry;
+        }
+
+        foreach ($pipeline as $entry) {
             $this->materializeOne($entry);
         }
+    }
+
+    /**
+     * Pull BE-wizard-managed trackers for this site and flatten them
+     * into the same `{type, ...config}` shape the YAML path uses.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function collectManagedTrackerEntries(string $siteIdentifier): array
+    {
+        $out = [];
+        foreach ($this->managedTrackerRepository->findBySite($siteIdentifier) as $row) {
+            $entry = $row['config'];
+            $entry['type'] = $row['tracker_type'];
+            if ($row['service_id'] !== '') {
+                $entry['serviceId'] = $row['service_id'];
+            }
+            $out[] = $entry;
+        }
+        return $out;
+    }
+
+    /**
+     * Best-effort service_id resolution from a raw config entry —
+     * mirrors `materializeOne()`'s lookup but without throwing on
+     * unknown / invalid config (which `materializeOne()` then handles
+     * with a logger warning).
+     *
+     * @param array<string, mixed> $config
+     */
+    private function resolveServiceId(array $config): ?string
+    {
+        if (isset($config['serviceId']) && is_string($config['serviceId']) && $config['serviceId'] !== '') {
+            return $config['serviceId'];
+        }
+        $type = $config['type'] ?? null;
+        if (!is_string($type) || $type === '') {
+            return null;
+        }
+        $provider = $this->trackerRegistry->get($type);
+        return $provider?->getDefaultServiceId();
     }
 
     /**

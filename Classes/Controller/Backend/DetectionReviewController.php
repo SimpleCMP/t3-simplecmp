@@ -221,6 +221,9 @@ final class DetectionReviewController extends ActionController
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\LibraryBrowser_list',
             ),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+            ),
             'uri_discover' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\Discovery_index',
             ),

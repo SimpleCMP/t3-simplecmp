@@ -1,0 +1,416 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SimpleCMP\T3SimpleCmp\Controller\Backend;
+
+use Psr\Http\Message\ResponseInterface;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
+use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
+use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+
+/**
+ * Stage-2 BE wizard for the YAML-tracker-provisioning feature.
+ *
+ * Pairs the file-based `simplecmp.trackers` site-setting with a
+ * database-backed alternative editors can manage through the BE UI
+ * without touching settings.yaml. Both sources feed the same
+ * `TrackerMaterializer` and therefore produce identical FE artefacts
+ * (Service-DB row, loader script with `data-name`, bootstrap inline).
+ *
+ * The list view shows both sources side by side — YAML rows read-only
+ * as a transparency surface, DB rows editable. New trackers added
+ * via this wizard are scoped to the picked site (`tx_t3simplecmp_managed_tracker.site`).
+ */
+final class TrackerSetupController extends ActionController
+{
+    protected ModuleTemplate $moduleTemplate;
+
+    public function __construct(
+        private readonly ModuleTemplateFactory $moduleTemplateFactory,
+        private readonly SiteFinder $siteFinder,
+        private readonly BackendUriBuilder $backendUriBuilder,
+        private readonly ManagedTrackerRepository $managedTrackerRepository,
+        private readonly TrackerRegistry $trackerRegistry,
+    ) {
+    }
+
+    public function initializeAction(): void
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $this->moduleTemplate->setTitle($this->translate('module.trackerSetup.title'));
+        $this->moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
+    }
+
+    public function listAction(?string $site = null): ResponseInterface
+    {
+        $sites = $this->collectSites();
+        if ($sites === []) {
+            $this->moduleTemplate->assign('hasSites', false);
+            return $this->moduleTemplate->renderResponse('TrackerSetup/List');
+        }
+
+        $selected = $this->resolveSelectedSite($site, $sites);
+
+        $yamlTrackers = $this->collectYamlTrackers($selected);
+        $dbTrackers = $this->managedTrackerRepository->findBySite($selected);
+
+        $providerOptions = [];
+        foreach ($this->trackerRegistry->getKnownTypes() as $type) {
+            $providerOptions[$type] = $this->translate('module.trackerSetup.providerLabel.' . $type) ?: ucfirst($type);
+        }
+
+        $this->moduleTemplate->assignMultiple([
+            'hasSites' => true,
+            'sites' => $sites,
+            'selectedSite' => $selected,
+            'yamlTrackers' => $yamlTrackers,
+            'dbTrackers' => $this->enrichForRendering($dbTrackers),
+            'providerOptions' => $providerOptions,
+            'newActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_new',
+            ),
+            'deleteActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_delete',
+            ),
+            // Sibling-tab URIs for the shared ModuleNav partial.
+            'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\DetectionReview_list',
+            ),
+            'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\RegistryList_list',
+            ),
+            'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\LibraryBrowser_list',
+            ),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+            ),
+        ]);
+
+        return $this->moduleTemplate->renderResponse('TrackerSetup/List');
+    }
+
+    public function newAction(string $site, string $type): ResponseInterface
+    {
+        $provider = $this->trackerRegistry->get($type);
+        if ($provider === null) {
+            $this->addFlashMessage(
+                sprintf($this->translate('module.trackerSetup.unknownType'), $type),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
+
+        $this->moduleTemplate->assignMultiple([
+            'site' => $site,
+            'type' => $type,
+            'providerLabel' => $this->translate('module.trackerSetup.providerLabel.' . $type) ?: ucfirst($type),
+            'fields' => $this->describeFieldsFor($type),
+            'values' => [
+                'serviceId' => $provider->getDefaultServiceId(),
+            ],
+            'isNew' => true,
+            'saveActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_save',
+            ),
+            'cancelActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+                ['site' => $site],
+            ),
+        ]);
+        return $this->moduleTemplate->renderResponse('TrackerSetup/Edit');
+    }
+
+    public function editAction(int $uid): ResponseInterface
+    {
+        $row = $this->managedTrackerRepository->findOne($uid);
+        if ($row === null) {
+            $this->addFlashMessage(
+                $this->translate('module.trackerSetup.notFound'),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list');
+        }
+
+        $values = $row['config'];
+        $values['serviceId'] = $row['service_id'];
+
+        $this->moduleTemplate->assignMultiple([
+            'uid' => $uid,
+            'site' => $row['site'],
+            'type' => $row['tracker_type'],
+            'providerLabel' => $this->translate('module.trackerSetup.providerLabel.' . $row['tracker_type']) ?: ucfirst($row['tracker_type']),
+            'fields' => $this->describeFieldsFor($row['tracker_type']),
+            'values' => $values,
+            'isNew' => false,
+            'saveActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_save',
+            ),
+            'cancelActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+                ['site' => $row['site']],
+            ),
+        ]);
+        return $this->moduleTemplate->renderResponse('TrackerSetup/Edit');
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function saveAction(int $uid, string $site, string $type, array $values): ResponseInterface
+    {
+        $provider = $this->trackerRegistry->get($type);
+        if ($provider === null) {
+            $this->addFlashMessage(
+                sprintf($this->translate('module.trackerSetup.unknownType'), $type),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
+
+        $serviceId = trim((string) ($values['serviceId'] ?? '')) ?: $provider->getDefaultServiceId();
+        unset($values['serviceId']);
+
+        // Validate via the provider — buildServiceData throws on missing
+        // required fields. We don't keep the result; we just want the
+        // exception surface.
+        try {
+            $provider->buildServiceData([...$values, 'type' => $type, 'serviceId' => $serviceId]);
+        } catch (\InvalidArgumentException $e) {
+            $this->addFlashMessage(
+                $e->getMessage(),
+                $this->translate('module.trackerSetup.validationFailed'),
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect($uid === 0 ? 'new' : 'edit', null, null, [
+                'uid' => $uid,
+                'site' => $site,
+                'type' => $type,
+            ]);
+        }
+
+        $this->managedTrackerRepository->save(
+            $uid === 0 ? null : $uid,
+            $site,
+            $type,
+            $serviceId,
+            $this->normalizeValues($type, $values),
+        );
+
+        $this->addFlashMessage(
+            $this->translate($uid === 0 ? 'module.trackerSetup.created' : 'module.trackerSetup.updated'),
+            '',
+            ContextualFeedbackSeverity::OK,
+        );
+        return $this->redirect('list', null, null, ['site' => $site]);
+    }
+
+    public function deleteAction(int $uid, string $site): ResponseInterface
+    {
+        $this->managedTrackerRepository->delete($uid);
+        $this->addFlashMessage(
+            $this->translate('module.trackerSetup.deleted'),
+            '',
+            ContextualFeedbackSeverity::OK,
+        );
+        return $this->redirect('list', null, null, ['site' => $site]);
+    }
+
+    // ----- helpers -----
+
+    /**
+     * @return list<array{identifier: string, label: string}>
+     */
+    private function collectSites(): array
+    {
+        $out = [];
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $title = (string) ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());
+            $out[] = [
+                'identifier' => $site->getIdentifier(),
+                'label' => $title === $site->getIdentifier() ? $site->getIdentifier() : $title . ' (' . $site->getIdentifier() . ')',
+            ];
+        }
+        usort($out, static fn(array $a, array $b): int => strcasecmp($a['label'], $b['label']));
+        return $out;
+    }
+
+    /**
+     * @param list<array{identifier: string, label: string}> $sites
+     */
+    private function resolveSelectedSite(?string $requested, array $sites): string
+    {
+        $identifiers = array_column($sites, 'identifier');
+        if ($requested !== null && in_array($requested, $identifiers, true)) {
+            return $requested;
+        }
+        return $identifiers[0] ?? '';
+    }
+
+    /**
+     * Pull YAML-configured trackers for the given site into the same
+     * shape as DB rows, so the template can render both lists with
+     * identical partials.
+     *
+     * @return list<array{type: string, serviceId: string, config: array<string, mixed>}>
+     */
+    private function collectYamlTrackers(string $siteIdentifier): array
+    {
+        try {
+            $site = $this->siteFinder->getSiteByIdentifier($siteIdentifier);
+        } catch (\Throwable) {
+            return [];
+        }
+        $settings = $site->getSettings();
+        $flat = [];
+        foreach ($settings->getIdentifiers() as $identifier) {
+            if (str_starts_with($identifier, 'simplecmp.trackers.')) {
+                $flat[$identifier] = $settings->get($identifier);
+            }
+        }
+        if ($flat === []) {
+            return [];
+        }
+        $tree = ArrayUtility::unflatten($flat);
+        $list = $tree['simplecmp']['trackers'] ?? [];
+        if (!is_array($list)) {
+            return [];
+        }
+
+        $out = [];
+        foreach (array_values($list) as $entry) {
+            if (!is_array($entry) || !isset($entry['type']) || !is_string($entry['type'])) {
+                continue;
+            }
+            $type = $entry['type'];
+            $serviceId = (string) ($entry['serviceId'] ?? '');
+            if ($serviceId === '') {
+                $provider = $this->trackerRegistry->get($type);
+                $serviceId = $provider?->getDefaultServiceId() ?? $type;
+            }
+            $config = $entry;
+            unset($config['type'], $config['serviceId']);
+            $out[] = ['type' => $type, 'serviceId' => $serviceId, 'config' => $config];
+        }
+        return $out;
+    }
+
+    /**
+     * Per-provider field descriptors driving the edit form. Each
+     * field carries the name (= keys the controller reads from
+     * $values), a label, a kind hint (`text`, `number`, `bool`,
+     * `url`), and an optional required flag.
+     *
+     * @return list<array{name: string, label: string, kind: string, required: bool, help: ?string}>
+     */
+    private function describeFieldsFor(string $type): array
+    {
+        return match ($type) {
+            'matomo' => [
+                ['name' => 'url', 'label' => 'Matomo URL', 'kind' => 'url', 'required' => true, 'help' => 'Base URL of the install, with trailing slash (https://matomo.example.com/)'],
+                ['name' => 'siteId', 'label' => 'Site ID', 'kind' => 'text', 'required' => true, 'help' => null],
+                ['name' => 'disableCookies', 'label' => 'Disable cookies (cookieless mode)', 'kind' => 'bool', 'required' => false, 'help' => 'Runs Matomo without _pk_* cookies'],
+                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => 'Override for setups with two Matomo instances. Default: "matomo".'],
+            ],
+            'ga4' => [
+                ['name' => 'measurementId', 'label' => 'Measurement ID', 'kind' => 'text', 'required' => true, 'help' => 'Format: G-XXXXXXXXXX'],
+                ['name' => 'anonymizeIp', 'label' => 'Anonymize IP', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON (DACH compliance). Disable only with reason.'],
+                ['name' => 'consentMode', 'label' => 'Consent Mode v2', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON. Emits the v2 default-deny block.'],
+                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => null],
+            ],
+            'gtm' => [
+                ['name' => 'containerId', 'label' => 'Container ID', 'kind' => 'text', 'required' => true, 'help' => 'Format: GTM-XXXXXXX'],
+                ['name' => 'consentDefault', 'label' => 'Default-deny via Consent Mode v2', 'kind' => 'bool', 'required' => false, 'help' => 'Default ON. Pre-denies all storage types.'],
+                ['name' => 'serviceId', 'label' => 'Service ID (advanced)', 'kind' => 'text', 'required' => false, 'help' => null],
+            ],
+            default => [],
+        };
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     * @return array<string, mixed>
+     */
+    private function normalizeValues(string $type, array $values): array
+    {
+        $out = [];
+        foreach ($this->describeFieldsFor($type) as $field) {
+            $name = $field['name'];
+            if ($name === 'serviceId') {
+                continue;
+            }
+            $raw = $values[$name] ?? null;
+            if ($field['kind'] === 'bool') {
+                $out[$name] = $raw === '1' || $raw === 'on' || $raw === true;
+                continue;
+            }
+            if (is_string($raw)) {
+                $trimmed = trim($raw);
+                if ($trimmed !== '') {
+                    $out[$name] = $trimmed;
+                }
+                continue;
+            }
+            if ($raw !== null && $raw !== '') {
+                $out[$name] = $raw;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @param list<array{uid: int, site: string, tracker_type: string, service_id: string, config: array<string, mixed>, tstamp: int, crdate: int}> $rows
+     * @return list<array{uid: int, site: string, tracker_type: string, service_id: string, config: array<string, mixed>, providerLabel: string, summary: string}>
+     */
+    private function enrichForRendering(array $rows): array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            $type = $row['tracker_type'];
+            $providerLabel = $this->translate('module.trackerSetup.providerLabel.' . $type) ?: ucfirst($type);
+            $summary = $this->buildSummary($type, $row['config']);
+            $out[] = $row + [
+                'providerLabel' => $providerLabel,
+                'summary' => $summary,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function buildSummary(string $type, array $config): string
+    {
+        return match ($type) {
+            'matomo' => sprintf('siteId %s @ %s', $config['siteId'] ?? '?', $config['url'] ?? '?'),
+            'ga4' => (string) ($config['measurementId'] ?? '?'),
+            'gtm' => (string) ($config['containerId'] ?? '?'),
+            default => '',
+        };
+    }
+
+    private function translate(string $key): string
+    {
+        if (str_starts_with($key, 'LLL:')) {
+            return $this->getLanguageService()->sL($key);
+        }
+        return $this->getLanguageService()->sL('LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key);
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
+    }
+}

@@ -1,0 +1,68 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<h1>
+    <f:if condition="{isNew}">
+        <f:then><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.newHeading" /></f:then>
+        <f:else><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.editHeading" /></f:else>
+    </f:if>
+    <small class="text-body-secondary">— {providerLabel}</small>
+</h1>
+
+<f:form action="save" method="post" class="t3simplecmp-tracker-form">
+    <f:form.hidden name="uid" value="{f:if(condition: uid, then: uid, else: '0')}" />
+    <f:form.hidden name="site" value="{site}" />
+    <f:form.hidden name="type" value="{type}" />
+
+    <f:for each="{fields}" as="field">
+        <div class="mb-3">
+            <f:if condition="{field.kind} == 'bool'">
+                <f:then>
+                    <div class="form-check form-switch">
+                        <f:form.checkbox name="values[{field.name}]"
+                                         id="tracker-field-{field.name}"
+                                         class="form-check-input"
+                                         value="1"
+                                         checked="{f:if(condition: '{values.{field.name}}', then: 1, else: 0)}" />
+                        <label class="form-check-label" for="tracker-field-{field.name}">{field.label}</label>
+                    </div>
+                </f:then>
+                <f:else>
+                    <label for="tracker-field-{field.name}" class="form-label">
+                        {field.label}
+                        <f:if condition="{field.required}">
+                            <span class="text-danger">*</span>
+                        </f:if>
+                    </label>
+                    <f:form.textfield name="values[{field.name}]"
+                                      id="tracker-field-{field.name}"
+                                      class="form-control"
+                                      value="{values.{field.name}}"
+                                      additionalAttributes="{f:if(condition: '{field.required}', then: '{required: \'required\'}')}" />
+                </f:else>
+            </f:if>
+            <f:if condition="{field.help}">
+                <div class="form-text text-body-secondary small">{field.help}</div>
+            </f:if>
+        </div>
+    </f:for>
+
+    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <a href="{cancelActionUrl}" class="btn btn-default">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.cancel" />
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <core:icon identifier="actions-save" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.save" />
+        </button>
+    </div>
+</f:form>
+
+</f:section>
+
+</html>

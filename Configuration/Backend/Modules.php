@@ -7,6 +7,7 @@ use SimpleCMP\T3SimpleCmp\Controller\Backend\DiscoveryController;
 use SimpleCMP\T3SimpleCmp\Controller\Backend\LibraryBrowserController;
 use SimpleCMP\T3SimpleCmp\Controller\Backend\RegistryListController;
 use SimpleCMP\T3SimpleCmp\Controller\Backend\ThemeDesignerController;
+use SimpleCMP\T3SimpleCmp\Controller\Backend\TrackerSetupController;
 
 /**
  * Backend module registration.
@@ -64,6 +65,13 @@ return [
             DiscoveryController::class => [
                 'index',
                 'fetchSitemap',
+            ],
+            TrackerSetupController::class => [
+                'list',
+                'new',
+                'edit',
+                'save',
+                'delete',
             ],
         ],
     ],

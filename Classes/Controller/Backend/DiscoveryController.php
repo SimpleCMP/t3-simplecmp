@@ -85,6 +85,9 @@ final class DiscoveryController extends ActionController
             'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\LibraryBrowser_list',
             ),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+            ),
         ]);
         return $moduleTemplate->renderResponse('Discovery/Index');
     }

@@ -153,6 +153,9 @@ final class RegistryListController extends ActionController
                 'simplecmp_detections.Backend\\DetectionReview_list',
             ),
             'uri_registryTab' => $this->uri('list'),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Backend\\TrackerSetup_list',
+            ),
         ]);
         return $moduleTemplate->renderResponse('RegistryList/List');
     }

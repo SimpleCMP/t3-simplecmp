@@ -56,6 +56,24 @@ CREATE TABLE tx_t3simplecmp_translation_override (
     UNIQUE KEY site (site)
 );
 
+CREATE TABLE tx_t3simplecmp_managed_tracker (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+    deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    tracker_type varchar(50) DEFAULT '' NOT NULL,
+    service_id varchar(100) DEFAULT '' NOT NULL,
+    config text,
+
+    PRIMARY KEY (uid),
+    KEY site (site),
+    KEY tracker_type (tracker_type),
+    KEY deleted (deleted)
+);
+
 CREATE TABLE tx_t3simplecmp_library_cache (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,

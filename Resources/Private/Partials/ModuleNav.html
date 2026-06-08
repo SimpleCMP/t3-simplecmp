@@ -47,5 +47,14 @@
             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.library" />
         </a>
     </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'trackerSetup\'', then: 'active')}"
+           href="{uri_trackerSetupTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'trackerSetup\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-cog" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.title" />
+        </a>
+    </li>
 </ul>
 </html>

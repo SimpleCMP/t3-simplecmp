@@ -311,6 +311,36 @@
       <trans-unit id="discover.log.iframeError"><source>iframe load error</source></trans-unit>
       <trans-unit id="discover.secretMissing.title"><source>Tracker detection is off</source></trans-unit>
       <trans-unit id="discover.secretMissing.body"><source>Discovery can't run until you turn detection on. Go back to the detections tab and click "Turn on detection" first.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.title"><source>Tracker Setup</source></trans-unit>
+      <trans-unit id="module.trackerSetup.heading"><source>Tracker Setup</source></trans-unit>
+      <trans-unit id="module.trackerSetup.intro"><source>Provision Matomo, Google Analytics, or Google Tag Manager without writing code. Each tracker registered here gets a Service-DB row, a CSP origin whitelist, and a consent-gated loader script — all automatic.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.site"><source>Site:</source></trans-unit>
+      <trans-unit id="module.trackerSetup.dbHeading"><source>BE-managed trackers</source></trans-unit>
+      <trans-unit id="module.trackerSetup.dbEmpty"><source>No BE-managed trackers yet. Click "Add" to set one up.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.yamlHeading"><source>YAML-provisioned trackers (read-only)</source></trans-unit>
+      <trans-unit id="module.trackerSetup.yamlHint"><source>Defined under simplecmp.trackers in config/sites/&lt;id&gt;/settings.yaml. Edit the file directly to change these. YAML entries win on service_id collision with BE-managed entries.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.add"><source>Add</source></trans-unit>
+      <trans-unit id="module.trackerSetup.save"><source>Save</source></trans-unit>
+      <trans-unit id="module.trackerSetup.cancel"><source>Cancel</source></trans-unit>
+      <trans-unit id="module.trackerSetup.newHeading"><source>New tracker</source></trans-unit>
+      <trans-unit id="module.trackerSetup.editHeading"><source>Edit tracker</source></trans-unit>
+      <trans-unit id="module.trackerSetup.deleteConfirm"><source>Really delete this tracker?</source></trans-unit>
+      <trans-unit id="module.trackerSetup.created"><source>Tracker created.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.updated"><source>Tracker updated.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.deleted"><source>Tracker deleted.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.notFound"><source>Tracker not found.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.unknownType"><source>Unknown tracker type: %s</source></trans-unit>
+      <trans-unit id="module.trackerSetup.validationFailed"><source>Validation failed</source></trans-unit>
+      <trans-unit id="module.trackerSetup.noSites"><source>No sites configured. Add a site under Sites &amp; Settings first.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.provider"><source>Provider</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.serviceId"><source>Service ID</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.summary"><source>Config</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.actions"><source>Actions</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.type"><source>Type</source></trans-unit>
+      <trans-unit id="module.trackerSetup.col.config"><source>Config</source></trans-unit>
+      <trans-unit id="module.trackerSetup.providerLabel.matomo"><source>Matomo Analytics</source></trans-unit>
+      <trans-unit id="module.trackerSetup.providerLabel.ga4"><source>Google Analytics 4</source></trans-unit>
+      <trans-unit id="module.trackerSetup.providerLabel.gtm"><source>Google Tag Manager</source></trans-unit>
     </body>
   </file>
 </xliff>
