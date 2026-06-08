@@ -594,6 +594,10 @@ final class RegisterAssetsTest extends TestCase
         $this->themes->method('findBySite')
             ->with('corporate')
             ->willReturn([
+                // Lock off so custom colors actually reach the script;
+                // when `colorPaletteLocked === '1'` (the default) the
+                // listener replaces every color token with SAFE_PALETTE.
+                'colorPaletteLocked' => '0',
                 'color-primary' => '#cc0066',
                 'radius' => '12px',
             ]);
@@ -618,8 +622,8 @@ final class RegisterAssetsTest extends TestCase
         self::assertStringContainsString('simplecmp-service-toggle', $script);
         self::assertStringContainsString('adoptedStyleSheets', $script);
         // Storage key → CSS custom property name mapping.
-        self::assertStringContainsString('--simplecmp-color-primary: #cc0066;', $script);
-        self::assertStringContainsString('--simplecmp-radius: 12px;', $script);
+        self::assertStringContainsString('--simplecmp-color-primary: #cc0066 !important;', $script);
+        self::assertStringContainsString('--simplecmp-radius: 12px !important;', $script);
         // Rule is scoped to :host so it lands inside the component shadow.
         self::assertStringContainsString(':host {', $script);
     }
@@ -653,6 +657,7 @@ final class RegisterAssetsTest extends TestCase
         ]);
         $this->themes = $this->createMock(ThemeRepository::class);
         $this->themes->method('findBySite')->willReturn([
+            'colorPaletteLocked' => '0',
             'color-primary' => '#cc0066',
             'broken-nested' => ['not', 'scalar'],
         ]);
@@ -666,7 +671,7 @@ final class RegisterAssetsTest extends TestCase
         $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
 
         $script = $captured['simplecmp-theme-default'] ?? '';
-        self::assertStringContainsString('--simplecmp-color-primary: #cc0066;', $script);
+        self::assertStringContainsString('--simplecmp-color-primary: #cc0066 !important;', $script);
         self::assertStringNotContainsString('--simplecmp-broken-nested', $script);
     }
 
