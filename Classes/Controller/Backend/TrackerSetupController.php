@@ -74,12 +74,6 @@ final class TrackerSetupController extends ActionController
             'yamlTrackers' => $yamlTrackers,
             'dbTrackers' => $this->enrichForRendering($dbTrackers),
             'providerOptions' => $providerOptions,
-            'newActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_new',
-            ),
-            'deleteActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_delete',
-            ),
             // Sibling-tab URIs for the shared ModuleNav partial.
             'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Backend\\DetectionReview_list',
@@ -119,13 +113,6 @@ final class TrackerSetupController extends ActionController
                 'serviceId' => $provider->getDefaultServiceId(),
             ],
             'isNew' => true,
-            'saveActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_save',
-            ),
-            'cancelActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
-                ['site' => $site],
-            ),
         ]);
         return $this->moduleTemplate->renderResponse('TrackerSetup/Edit');
     }
@@ -153,13 +140,6 @@ final class TrackerSetupController extends ActionController
             'fields' => $this->describeFieldsFor($row['tracker_type']),
             'values' => $values,
             'isNew' => false,
-            'saveActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_save',
-            ),
-            'cancelActionUrl' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                'simplecmp_detections.Backend\\TrackerSetup_list',
-                ['site' => $row['site']],
-            ),
         ]);
         return $this->moduleTemplate->renderResponse('TrackerSetup/Edit');
     }

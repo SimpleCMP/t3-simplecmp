@@ -22,21 +22,19 @@
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.heading" />
             </h1>
 
-            <form method="get" class="d-flex align-items-center gap-2">
-                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[action]" value="list" />
-                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[controller]" value="TrackerSetup" />
+            <f:form action="list" method="get" class="d-flex align-items-center gap-2">
                 <label for="t3simplecmp-tracker-site" class="form-label mb-0 small text-body-secondary">
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.site" />
                 </label>
-                <select id="t3simplecmp-tracker-site"
-                        name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetuplist[site]"
-                        class="form-select form-select-sm"
-                        onchange="this.form.submit()">
-                    <f:for each="{sites}" as="row">
-                        <option value="{row.identifier}" {f:if(condition: '{row.identifier} == {selectedSite}', then: 'selected="selected"')}>{row.label}</option>
-                    </f:for>
-                </select>
-            </form>
+                <f:form.select id="t3simplecmp-tracker-site"
+                               name="site"
+                               value="{selectedSite}"
+                               class="form-select form-select-sm"
+                               optionLabelField="label"
+                               optionValueField="identifier"
+                               options="{sites}"
+                               additionalAttributes="{onchange: 'this.form.submit()'}" />
+            </f:form>
         </div>
 
         <p class="text-body-secondary">
@@ -58,9 +56,9 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <f:for each="{providerOptions}" as="label" key="type">
                             <li>
-                                <a class="dropdown-item" href="{newActionUrl}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[site]={selectedSite}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[type]={type}&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[controller]=TrackerSetup&tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupnew[action]=new">
-                                    {label}
-                                </a>
+                                <f:link.action action="new"
+                                               arguments="{site: selectedSite, type: type}"
+                                               class="dropdown-item">{label}</f:link.action>
                             </li>
                         </f:for>
                     </ul>
@@ -92,15 +90,16 @@
                                                            class="btn btn-default btn-sm">
                                                 <core:icon identifier="actions-edit" size="small" />
                                             </f:link.action>
-                                            <form method="post" action="{deleteActionUrl}" class="d-inline">
-                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[uid]" value="{row.uid}" />
-                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[site]" value="{selectedSite}" />
-                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[controller]" value="TrackerSetup" />
-                                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detectionssimplecmptrackersetupdelete[action]" value="delete" />
-                                                <button type="submit" class="btn btn-default btn-sm" onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.deleteConfirm\')}')">
+                                            <f:form action="delete"
+                                                    method="post"
+                                                    class="d-inline"
+                                                    data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.deleteConfirm')}">
+                                                <f:form.hidden name="uid" value="{row.uid}" />
+                                                <f:form.hidden name="site" value="{selectedSite}" />
+                                                <button type="submit" class="btn btn-default btn-sm">
                                                     <core:icon identifier="actions-delete" size="small" />
                                                 </button>
-                                            </form>
+                                            </f:form>
                                         </td>
                                     </tr>
                                 </f:for>
