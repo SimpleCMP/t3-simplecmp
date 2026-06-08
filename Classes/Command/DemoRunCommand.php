@@ -100,6 +100,18 @@ final class DemoRunCommand extends Command
             $serviceConn = $pool->getConnectionForTable('tx_t3simplecmp_service');
             $serviceConn->truncate('tx_t3simplecmp_service');
             $output->writeln('  <comment>✓</comment> Truncated tx_t3simplecmp_service');
+            // Seed the three services the demo page's CEs reference via
+            // their data-name attributes. Without these rows in the
+            // registry, the bundle hides each unconsented embed
+            // defensively but has nothing to bind consent to — clicking
+            // "Ja" on the per-iframe contextual notice would visually
+            // unhide the iframe without restoring its real src. Adopting
+            // them via the BE Detektionen flow would normally be the
+            // editor's path; for a re-runnable demo we pre-seed them so
+            // the manuelle Freischaltung works the moment the presenter
+            // hits the FE page.
+            $this->seedDemoServices($pool, $output);
+            $this->normalizeDemoContentElements($pool, $output);
         } else {
             $output->writeln('  <comment>·</comment> Kept tx_t3simplecmp_service (--keep-services)');
         }
@@ -152,6 +164,161 @@ final class DemoRunCommand extends Command
         $output->writeln('');
         $this->printNextSteps($output);
         return Command::SUCCESS;
+    }
+
+    /**
+     * Make sure demo CEs use the opt-in pattern the SimpleCMP bundle
+     * expects: `<iframe data-name="…" data-src="real-url" src="about:blank">`
+     * for embeds, `<link data-name="…" data-href="real-url">` (no href)
+     * for stylesheets. Without this pattern the bundle can hide the
+     * unconsented element but has no preserved URL to restore on
+     * consent — clicking Ja on the contextual notice would visually
+     * unhide a still-empty iframe.
+     *
+     * Idempotent: scans every tt_content row whose bodytext mentions
+     * `data-name="<knownService>"` AND still has the un-rewritten src
+     * pattern, swaps src↔data-src in place. Re-running on already-
+     * normalised content is a no-op.
+     */
+    private function normalizeDemoContentElements(\TYPO3\CMS\Core\Database\ConnectionPool $pool, OutputInterface $output): void
+    {
+        $conn = $pool->getConnectionForTable('tt_content');
+        $rows = $conn->select(
+            ['uid', 'bodytext'],
+            'tt_content',
+            [],
+            [],
+            [],
+            0,
+            0,
+        )->fetchAllAssociative();
+        $patched = 0;
+        foreach ($rows as $row) {
+            $original = (string) ($row['bodytext'] ?? '');
+            if ($original === '') {
+                continue;
+            }
+            $rewritten = $this->rewriteDemoBodytext($original);
+            if ($rewritten === $original) {
+                continue;
+            }
+            $conn->update('tt_content', ['bodytext' => $rewritten], ['uid' => (int) $row['uid']]);
+            $patched++;
+        }
+        if ($patched > 0) {
+            $output->writeln(sprintf(
+                '  <comment>✓</comment> Normalised %d demo content element(s) to the opt-in pattern',
+                $patched,
+            ));
+        } else {
+            $output->writeln('  <comment>·</comment> Demo CEs already use the opt-in pattern');
+        }
+    }
+
+    /**
+     * Rewrite `<iframe data-name="…" src="REAL">` → opt-in pattern,
+     * and `<link data-name="…" rel="stylesheet" href="REAL">` → opt-in
+     * pattern. Leaves anything else alone (idempotent on already-
+     * rewritten CEs and on CEs that don't carry SimpleCMP markers).
+     */
+    private function rewriteDemoBodytext(string $body): string
+    {
+        // Iframes with a real (http/https) src — preserve attribute
+        // order, just move src= into data-src= and set src="about:blank".
+        // Anchor `src=` to a whitespace boundary (not just \b) because
+        // \b matches between `-` and `s` in `data-src=`, which would
+        // greedily corrupt an already-rewritten bodytext into
+        // `data-data-src=` + duplicate `src="about:blank"`.
+        $body = preg_replace_callback(
+            '~<iframe(\s[^>]*?)\sdata-name="([a-z0-9_-]+)"([^>]*?)\ssrc="(https?://[^"]+)"~i',
+            static function (array $m): string {
+                return sprintf(
+                    '<iframe%s data-name="%s"%s data-src="%s" src="about:blank"',
+                    $m[1],
+                    $m[2],
+                    $m[3],
+                    $m[4],
+                );
+            },
+            $body,
+        );
+        // Stylesheet links — same swap on href → data-href, same
+        // whitespace-anchored guard as above.
+        $body = preg_replace_callback(
+            '~<link(\s[^>]*?)\sdata-name="([a-z0-9_-]+)"([^>]*?)\shref="(https?://[^"]+)"~i',
+            static function (array $m): string {
+                return sprintf(
+                    '<link%s data-name="%s"%s data-href="%s"',
+                    $m[1],
+                    $m[2],
+                    $m[3],
+                    $m[4],
+                );
+            },
+            $body,
+        );
+        return $body;
+    }
+
+    /**
+     * Insert the three services the demo page's CEs reference via
+     * data-name attributes (youtube / google-maps / google-fonts).
+     * Each row is the minimum viable shape — service_id, name, vendor,
+     * purposes, origins — enough for the bundle's manager to bind the
+     * iframe / link element to a service the consent UI knows about.
+     */
+    private function seedDemoServices(\TYPO3\CMS\Core\Database\ConnectionPool $pool, OutputInterface $output): void
+    {
+        $conn = $pool->getConnectionForTable('tx_t3simplecmp_service');
+        $now = time();
+        $seed = [
+            [
+                'service_id' => 'youtube',
+                'name' => 'YouTube',
+                'vendor' => 'Google LLC',
+                'purposes' => ['marketing'],
+                'origins' => ['youtube-nocookie.com', 'youtube.com', 'ytimg.com'],
+                'privacy_policy_url' => 'https://policies.google.com/privacy',
+                'description' => 'Video-Player. Bindet Videos von youtube-nocookie.com ein.',
+            ],
+            [
+                'service_id' => 'google-maps',
+                'name' => 'Google Maps',
+                'vendor' => 'Google LLC',
+                'purposes' => ['marketing'],
+                'origins' => ['google.com', 'maps.gstatic.com'],
+                'privacy_policy_url' => 'https://policies.google.com/privacy',
+                'description' => 'Interaktive Karten von Google.',
+            ],
+            [
+                'service_id' => 'google-fonts',
+                'name' => 'Google Fonts',
+                'vendor' => 'Google LLC',
+                'purposes' => ['functional'],
+                'origins' => ['fonts.googleapis.com', 'fonts.gstatic.com'],
+                'privacy_policy_url' => 'https://policies.google.com/privacy',
+                'description' => 'Web-Schriftarten — überträgt IP-Adressen an Google. EuGH C-101/19, LG München 20.01.2022.',
+            ],
+        ];
+        foreach ($seed as $row) {
+            $conn->insert('tx_t3simplecmp_service', [
+                'pid' => 0,
+                'tstamp' => $now,
+                'crdate' => $now,
+                'service_id' => $row['service_id'],
+                'name' => $row['name'],
+                'vendor' => $row['vendor'],
+                'purposes' => json_encode($row['purposes'], JSON_THROW_ON_ERROR),
+                'origins' => json_encode($row['origins'], JSON_THROW_ON_ERROR),
+                'cookies' => '[]',
+                'privacy_policy_url' => $row['privacy_policy_url'],
+                'description' => $row['description'],
+            ]);
+        }
+        $output->writeln(sprintf(
+            '  <comment>✓</comment> Seeded %d demo services (youtube, google-maps, google-fonts)',
+            count($seed),
+        ));
     }
 
     /**
