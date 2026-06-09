@@ -3,11 +3,11 @@
     xmlns="https://typo3-documentation.github.io/schemas/2021-12/guides"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://typo3-documentation.github.io/schemas/2021-12/guides https://typo3-documentation.github.io/schemas/2021-12/typo3-guides.xsd"
-    project-version="0.2"
-    project-release="0.2.0"
 >
     <project
         title="SimpleCMP for TYPO3"
+        version="0.2"
+        release="0.2.0"
         copyright="SimpleCMP"
     />
     <extension

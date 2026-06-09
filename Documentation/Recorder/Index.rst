@@ -24,7 +24,7 @@ When it runs
 ============
 
 The recorder is **opt-in per site**. It runs when the SimpleCMP Site
-Set is enabled *and* the :confval:`simplecmp.record` setting is true.
+Set is enabled *and* the :code:`simplecmp.record` setting is true.
 The setting defaults to off in production builds — running a recorder
 in front of real visitors is a privacy concern (it tags everything
 they trigger as a potential tracker) and a performance cost.
@@ -54,7 +54,7 @@ pipeline.
 Cookie watcher
 --------------
 
-Polls :code:`document.cookie` once per second (:confval:`simplecmp.record.cookieIntervalMs`,
+Polls :code:`document.cookie` once per second (:code:`simplecmp.record.cookieIntervalMs`,
 default `1000`) and emits a `cookie` detection on every newly-seen
 name. The polling cadence is a deliberate compromise — `document.cookie`
 has no mutation event, so polling is the only option, and 1 s is fast
@@ -68,7 +68,7 @@ Caveats:
 *   The watcher **ignores** the consent storage cookie itself. The
     recorder's `ignoreCookies` list auto-includes the resolved
     `storageName`; integrators can extend it via
-    :confval:`simplecmp.record.ignoreCookies` for other infra-owned
+    :code:`simplecmp.record.ignoreCookies` for other infra-owned
     cookies (e.g. a CSRF token cookie a developer doesn't want
     classified).
 
@@ -150,7 +150,7 @@ The 🟡 prefix marks an unknown — these are the rows developers
 should action. The arrow form (`→ servicename`) shows a successful
 match.
 
-Every 30 seconds (:confval:`simplecmp.record.summaryIntervalMs`),
+Every 30 seconds (:code:`simplecmp.record.summaryIntervalMs`),
 the recorder also dumps a `console.table` of the current snapshot —
 deduplicated, grouped by kind, with counts. Useful for an at-a-glance
 view of "what trackers are *active* right now on this site." Set
@@ -159,7 +159,7 @@ the interval to `0` to disable.
 `sessionStorage` persistence (dev only)
 ---------------------------------------
 
-If :confval:`simplecmp.record.persistInDev` is true, the recorder
+If :code:`simplecmp.record.persistInDev` is true, the recorder
 mirrors its snapshot into `sessionStorage` (keyed by `storageName`)
 so detections survive a page reload. Only takes effect on hostnames
 that look like dev / staging — the recorder calls
@@ -206,7 +206,7 @@ Common pitfalls
 *Recorder reports the consent cookie as unknown.* — The recorder's
 `ignoreCookies` should auto-include the consent storage name. If
 you see a row for the storage cookie, either an integrator set
-:confval:`simplecmp.record.ignoreCookies` and forgot to include
+:code:`simplecmp.record.ignoreCookies` and forgot to include
 the storage name, or the resolved storage name isn't matching
 the cookie name (e.g. site overrides the default).
 
