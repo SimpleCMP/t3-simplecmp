@@ -295,6 +295,39 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function initPayloadEscapesScriptClosingTagInStringValues(): void
+    {
+        // A string config value carrying "</script>" must not break out of the
+        // inline <script> that calls SimpleCMP.init(...). floatingTriggerLabel
+        // is a convenient string vector; the same applies to service
+        // names/descriptions, text overrides, and libraryFallback vendor fields.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.floatingTriggerLabel' => '</script><img src=x onerror=alert(1)>',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        self::assertNotNull($captured);
+        // The security property: no raw tag delimiters survive in the emitted
+        // inline JS, so the string can't break out of the <script> element.
+        self::assertStringNotContainsString('</script', $captured);
+        self::assertStringNotContainsString('<', $captured);
+        self::assertStringNotContainsString('>', $captured);
+        // The value is only hex-escaped, not lost — it round-trips intact.
+        $config = $this->extractConfig($captured);
+        self::assertSame('</script><img src=x onerror=alert(1)>', $config['floatingTrigger']['label']);
+    }
+
+    #[Test]
     public function serviceDbUrlIsEmittedAndEnablesRecordMode(): void
     {
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [

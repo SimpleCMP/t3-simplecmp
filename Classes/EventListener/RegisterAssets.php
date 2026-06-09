@@ -129,7 +129,15 @@ final readonly class RegisterAssets
             'simplecmp-init',
             sprintf(
                 'window.SimpleCMP && window.SimpleCMP.init(%s);',
-                json_encode($config, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
+                // JSON_HEX_TAG (+ apos/quot/amp) so a literal "</script>" in any
+                // string value — service name/description, per-site text
+                // overrides, libraryFallback vendor fields — can't break out of
+                // this inline <script> element.
+                json_encode(
+                    $config,
+                    JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
+                        | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP,
+                ),
             ),
             [],
             ['priority' => true, 'csp' => true],
@@ -278,8 +286,17 @@ final readonly class RegisterAssets
             'css' => $css,
             'selectors' => self::THEME_SELECTORS,
         ];
+        // JSON_HEX_TAG (+ apos/quot/amp) so a "</script>" in the generated CSS
+        // can't break out of this inline <script>. (CSS-level `}` breakout via
+        // unvalidated colour tokens is a separate concern in ThemeDesigner's
+        // sanitizeTokens(), not addressed here.)
+        $payloadJson = json_encode(
+            $payload,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
+                | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP,
+        );
         $script = '(function(){'
-            . 'var payload = ' . json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES) . ';'
+            . 'var payload = ' . $payloadJson . ';'
             . 'var sheet = new CSSStyleSheet(); sheet.replaceSync(payload.css);'
             . 'function adopt(root) {'
                 . 'payload.selectors.forEach(function(sel){'
