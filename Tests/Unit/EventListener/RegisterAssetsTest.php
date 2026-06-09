@@ -225,6 +225,76 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function bridgeSourceUsesValidStorageNameVerbatim(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.cmsBridgeUrl' => 'https://example.com/api/simplecmp/webhook',
+        ], siteIdentifier: 'corporate');
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $this->nonceService->method('issue')->willReturn('nonce-value');
+
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        // Already charset-valid → used verbatim, identical to storageName so
+        // existing installs keep their source / cookie / nonce binding.
+        self::assertSame('simplecmp-corporate', $config['cmsBridge']['source']);
+        self::assertSame('simplecmp-corporate', $config['storageName']);
+    }
+
+    #[Test]
+    public function bridgeSourceSanitizedWhenSiteIdentifierHasInvalidChars(): void
+    {
+        // Regression: a dotted/uppercase site identifier (e.g. `Kunde.DE`)
+        // makes the default storageName `simplecmp-Kunde.DE`, which the
+        // receiver's WebhookPayloadValidator rejects (`^[a-z0-9_-]{1,64}$`) —
+        // 400 before the nonce check, dedup marker kept on 4xx → every
+        // detection silently dropped. The source must be normalised, and the
+        // nonce must be bound to that SAME normalised string.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.cmsBridgeUrl' => 'https://example.com/api/simplecmp/webhook',
+        ], siteIdentifier: 'Kunde.DE');
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $issued = null;
+        $this->nonceService->method('issue')
+            ->willReturnCallback(static function (string $source) use (&$issued): string {
+                $issued = $source;
+                return 'nonce-for:' . $source;
+            });
+
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                $captured = $payload;
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        $source = $config['cmsBridge']['source'];
+
+        // Valid wire source: lowercased, `.` collapsed to `-`, plus a stable
+        // hash of the original so distinct identifiers can't collide.
+        self::assertMatchesRegularExpression('/^[a-z0-9_-]{1,64}$/', $source);
+        self::assertMatchesRegularExpression('/^simplecmp-kunde-de-[0-9a-f]{8}$/', $source);
+        // The visitor-facing cookie name is left untouched.
+        self::assertSame('simplecmp-Kunde.DE', $config['storageName']);
+        // Nonce bound to the SAME normalised source so source-binding holds.
+        self::assertSame($source, $issued);
+        self::assertSame('nonce-for:' . $source, $config['cmsBridgeAuth']['token']);
+    }
+
+    #[Test]
     public function serviceDbUrlIsEmittedAndEnablesRecordMode(): void
     {
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [

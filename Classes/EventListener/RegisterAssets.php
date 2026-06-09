@@ -577,17 +577,31 @@ final readonly class RegisterAssets
                     . 'the printed value into your TYPO3 config.',
                 );
             } else {
+                // The bridge `source` must satisfy the receiver's
+                // WebhookPayloadValidator charset (`^[a-z0-9_-]{1,64}$`).
+                // `storageName` defaults to `simplecmp-<siteIdentifier>`, and
+                // a site identifier with an uppercase letter, a dot (e.g.
+                // `example.com`), or excess length would produce a source the
+                // receiver rejects with 400 BEFORE the nonce check — and since
+                // the bridge keeps the dedup marker on 4xx, every detection is
+                // silently dropped forever. Derive a guaranteed-valid source
+                // and bind the nonce + reportGeneration to that SAME string so
+                // source-binding stays intact. `storageName` itself (the
+                // visitor-facing consent cookie name) is left untouched.
+                $source = $this->bridgeSource((string) $config['storageName']);
                 $config['cmsBridgeUrl'] = $cmsBridgeUrl;
                 $config['cmsBridgeAuth'] = [
-                    'token' => $this->nonceService->issue((string) $config['storageName']),
+                    'token' => $this->nonceService->issue($source),
                 ];
                 // Carry the per-source report generation so the FE bridge
                 // re-reports detections the admin purged (bumped server-side)
                 // instead of suppressing them behind a stale cross-session
-                // marker. Keyed by storageName — the same string the bridge
-                // uses as its payload `source`. (See DetectionResetGeneration.)
+                // marker. `source` is set explicitly so the engine uses it
+                // verbatim instead of falling back to `storageName`.
+                // (See DetectionResetGeneration.)
                 $config['cmsBridge'] = [
-                    'reportGeneration' => $this->resetGeneration->current((string) $config['storageName']),
+                    'source' => $source,
+                    'reportGeneration' => $this->resetGeneration->current($source),
                 ];
                 $config['record'] = ['silenceProductionWarning' => true];
             }
@@ -779,6 +793,33 @@ final readonly class RegisterAssets
             return $corrected;
         }
         return $stripped;
+    }
+
+    /**
+     * Derive a CMS-bridge `source` that satisfies the receiver's
+     * `WebhookPayloadValidator` charset (`^[a-z0-9_-]{1,64}$`).
+     *
+     * A valid `storageName` is used verbatim, so the common case (lowercase
+     * identifiers) is unchanged and existing installs keep their source /
+     * cookie / nonce binding. Otherwise the string is normalised
+     * (case-folded, out-of-charset runs collapsed to `-`, length-clamped).
+     * That mapping is lossy, so a short stable hash of the ORIGINAL is
+     * appended to keep distinct storageNames distinct on the wire —
+     * without it `kunde.de` and `kunde-de` would collapse to one source,
+     * merging their detections and cross-binding their nonces.
+     */
+    private function bridgeSource(string $storageName): string
+    {
+        if (preg_match('/^[a-z0-9_-]{1,64}$/', $storageName) === 1) {
+            return $storageName;
+        }
+        $suffix = substr(hash('sha256', $storageName), 0, 8);
+        $base = preg_replace('/[^a-z0-9_-]+/', '-', strtolower($storageName)) ?? '';
+        $base = trim($base, '-');
+        // Leave room for "-" + the 8-char hash within the 64-char cap.
+        $base = trim(substr($base, 0, 64 - strlen($suffix) - 1), '-');
+
+        return $base !== '' ? $base . '-' . $suffix : $suffix;
     }
 
     /**
