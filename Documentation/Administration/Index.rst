@@ -153,9 +153,9 @@ Embeds that universal blocking neutralises server-side (YouTube, Google
 Maps, …) never run, so the recorder can't observe them. During a sweep
 the server-side HTML rewriter records what it blocked as detections too,
 so those surface in the list alongside runtime-detected trackers. This
-only happens when :code:`simplecmp.universalBlocking.enabled` is on (the
-rewriter can only report what it neutralised) and is gated by a signed
-token (see *Security* below).
+only happens when :confval:`simplecmp.universalBlocking.enabled` is on
+(the rewriter can only report what it neutralised) and is gated by a
+signed token (see *Security* below).
 
 Controls
 --------
@@ -186,7 +186,7 @@ Library upstream freshness
 
 *SimpleCMP detections → Bibliothek tab.*
 
-When :code:`simplecmp.libraryUpstreamUrl` points at a hosted
+When :confval:`simplecmp.libraryUpstreamUrl` points at a hosted
 `services-library <https://github.com/SimpleCMP/services-library>`__
 service, the Bibliothek tab shows a *Bibliotheks-Upstream* card with two
 things: whether the **bundled** library shipped with the extension is

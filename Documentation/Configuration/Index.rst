@@ -108,6 +108,63 @@ Site Settings reference
     address within a sliding 1-hour window. Set to :code:`0` to
     disable rate limiting (not recommended in production).
 
+..  confval:: simplecmp.libraryUpstreamUrl
+
+    :type: string
+    :Default: :code:`https://library.simplecmp.eu/v1`
+
+    Base URL (including the :code:`/v1` segment) of the canonical
+    hosted services-library. When set, the classifier queries it as a
+    third tier — after the local registry and the bundled library both
+    miss — so newly-added trackers classify correctly without waiting
+    for a :code:`composer update` to refresh the bundled snapshot.
+
+    Visitor IPs never reach this URL; only your server queries it
+    (server-to-server), and responses are cached locally for 24 h
+    (positive and negative). Set to an empty string to disable the
+    upstream and rely solely on the bundled library. Freshness is
+    surfaced in the Bibliothek tab — see :ref:`administration`.
+
+..  confval:: simplecmp.libraryUpstreamDailyBudget
+
+    :type: integer
+    :Default: 5000
+
+    Maximum number of upstream library calls per UTC day. Cache hits
+    are free and never count; only fresh lookups (cache miss with the
+    URL configured) consume the budget. Once today's count reaches this
+    value, further misses skip the upstream silently for the rest of
+    the day (the bundled library still matches what it can). Set to
+    :code:`0` for unlimited.
+
+..  confval:: simplecmp.universalBlocking.enabled
+
+    :type: boolean
+    :Default: true
+
+    When on, the pipeline rewrites every third-party
+    :code:`<script src>` / :code:`<iframe src>` / :code:`<img src>` /
+    :code:`<link href>` to the engine's gated
+    :code:`data-name` + :code:`data-src` + :code:`src="about:blank"`
+    shape before the response is flushed, so visitors see the
+    click-to-enable placeholder until consent is granted. Third-party
+    hosts are recognised via the bundled library's origin matchers.
+    Turn off only if your site embeds nothing third-party. (See
+    ADR-0013 for the design.) Also gates the server-side recording of
+    blocked embeds during a :ref:`Discover sweep <discover-trackers>`.
+
+..  confval:: simplecmp.universalBlocking.allowlist
+
+    :type: list of strings (one host per line)
+    :Default: empty
+
+    Hosts the rewriter passes through without gating, in addition to
+    the site's own host (which is always allowed). Exact match
+    (:code:`cdn.example.com`) or wildcard form (:code:`*.example.com`,
+    matching the apex and every subdomain). Use for vendor CDNs, your
+    own infrastructure, or known-safe hosts you don't want surfaced as
+    consent decisions.
+
 ..  confval:: simplecmp.storagePid
 
     :type: integer
