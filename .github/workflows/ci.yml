@@ -88,3 +88,21 @@ jobs:
 
       - name: Run functional tests
         run: composer test:functional
+
+  docs:
+    name: Render documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Renders the manual with the official TYPO3 render-guides container
+      # and fails on any ERROR-level log (broken reST, unresolved includes,
+      # an unparseable guides.xml — the class of breakage PHPUnit can't see,
+      # since docs render in a separate pipeline). `--fail-on-error` (not
+      # `--fail-on-log`) so the benign "Sitemap/genindex menu entry not
+      # found" WARNINGs don't false-fail the build.
+      - name: Render documentation
+        run: |
+          docker run --rm --pull always -v "${{ github.workspace }}":/project \
+            ghcr.io/typo3-documentation/render-guides:latest \
+            --config=Documentation --no-progress --fail-on-error

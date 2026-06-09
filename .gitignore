@@ -22,3 +22,6 @@ Thumbs.db
 /Tests/Playwright/test-results/
 /playwright-report/
 /test-results/
+
+# Rendered docs output (render-guides)
+Documentation-GENERATED-temp/
