@@ -34,7 +34,7 @@ final readonly class MatomoProvider implements TrackerProviderInterface
 
     public function buildServiceData(array $config): array
     {
-        $url = $this->requireString($config, 'url');
+        $url = $this->requireHttpUrl($config, 'url');
         $siteId = $this->requireScalar($config, 'siteId');
         $disableCookies = (bool) ($config['disableCookies'] ?? false);
 
@@ -72,13 +72,13 @@ final readonly class MatomoProvider implements TrackerProviderInterface
 
     public function getLoaderUrl(array $config): ?string
     {
-        $url = $this->requireString($config, 'url');
+        $url = $this->requireHttpUrl($config, 'url');
         return rtrim($url, '/') . '/matomo.js';
     }
 
     public function getBootstrapInlineScript(array $config): string
     {
-        $url = $this->requireString($config, 'url');
+        $url = $this->requireHttpUrl($config, 'url');
         $siteId = $this->requireScalar($config, 'siteId');
         $disableCookies = (bool) ($config['disableCookies'] ?? false);
 
@@ -113,6 +113,30 @@ final readonly class MatomoProvider implements TrackerProviderInterface
             ));
         }
         return $config[$key];
+    }
+
+    /**
+     * Like {@see requireString} but additionally requires a well-formed
+     * http(s) URL with a host. The value becomes the `/matomo.js` loader
+     * `<script src>` and the matcher origin, so a `javascript:`/`data:`/
+     * hostless value must be rejected at config time, not concatenated into
+     * a script tag.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function requireHttpUrl(array $config, string $key): string
+    {
+        $value = $this->requireString($config, $key);
+        $scheme = strtolower((string) parse_url($value, PHP_URL_SCHEME));
+        $host = (string) parse_url($value, PHP_URL_HOST);
+        if (($scheme !== 'http' && $scheme !== 'https') || $host === '') {
+            throw new \InvalidArgumentException(sprintf(
+                'Matomo tracker config: key "%s" must be an http(s) URL with a host, got "%s".',
+                $key,
+                $value,
+            ));
+        }
+        return $value;
     }
 
     /**

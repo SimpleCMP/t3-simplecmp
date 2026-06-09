@@ -227,12 +227,14 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         $offset = max(0, (int) ($params['offset'] ?? 0));
         $page = $this->services->paginate($offset, $limit);
 
-        return new JsonResponse([
+        // The registry listing is the one genuinely cacheable response;
+        // withCors() leaves this directive in place (everything else → no-store).
+        return (new JsonResponse([
             'items' => $page['items'],
             'total' => $page['total'],
             'limit' => $limit,
             'offset' => $offset,
-        ]);
+        ]))->withHeader('Cache-Control', 'public, max-age=3600');
     }
 
     private function lookup(ServerRequestInterface $request): ResponseInterface
@@ -317,11 +319,19 @@ final readonly class ServiceDbApi implements MiddlewareInterface
 
     private function withCors(ResponseInterface $response): ResponseInterface
     {
-        return $response
+        $response = $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-            ->withHeader('Cache-Control', 'public, max-age=3600');
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        // Default to no-store. Only responses that explicitly opt in (the
+        // public GET /services listing) carry a cacheable directive — POSTs
+        // (webhook ingest, lookup) and error/404s must never be cached or
+        // replayed by a shared cache (RFC 9111 permits caching POST responses
+        // that carry explicit freshness).
+        if (!$response->hasHeader('Cache-Control')) {
+            $response = $response->withHeader('Cache-Control', 'no-store');
+        }
+        return $response;
     }
 
     private function clamp(int $value, int $min, int $max): int

@@ -107,6 +107,8 @@ final class ServiceDbApiTest extends TestCase
             $this->handler,
         );
         self::assertSame(200, $response->getStatusCode());
+        // Liveness probe must not be cached.
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
         $body = json_decode((string) $response->getBody(), true);
         self::assertSame(true, $body['ok']);
         self::assertSame(1, $body['schemaVersion']);
@@ -121,6 +123,8 @@ final class ServiceDbApiTest extends TestCase
             $this->handler,
         );
         self::assertSame(404, $response->getStatusCode());
+        // Errors must not be cached (a transient 404 would otherwise replay).
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
     }
 
     #[Test]
@@ -147,6 +151,8 @@ final class ServiceDbApiTest extends TestCase
             $this->handler,
         );
         self::assertSame(200, $response->getStatusCode());
+        // The registry listing is the only publicly cacheable response.
+        self::assertSame('public, max-age=3600', $response->getHeaderLine('Cache-Control'));
         $body = json_decode((string) $response->getBody(), true);
         self::assertSame(1, $body['total']);
         self::assertSame(100, $body['limit']);
@@ -176,6 +182,8 @@ final class ServiceDbApiTest extends TestCase
             $this->request('POST', '/api/simplecmp/v1/lookup', body: '{}'),
             $this->handler,
         );
+        // POST results must never be cached/replayed by a shared cache.
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
         $body = json_decode((string) $response->getBody(), true);
         self::assertSame([], $body['items']);
     }

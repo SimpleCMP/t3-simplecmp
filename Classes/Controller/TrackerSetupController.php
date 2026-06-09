@@ -176,6 +176,19 @@ final class TrackerSetupController extends ActionController
      */
     public function saveAction(int $uid, string $site, string $type, array $values): ResponseInterface
     {
+        // The bare `site` param comes straight off the BE form/URL; refuse to
+        // persist a managed-tracker row against a site that isn't a real
+        // SimpleCMP-enabled site (data integrity — these rows are keyed by site).
+        $validSites = array_column($this->collectSites(), 'identifier');
+        if (!in_array($site, $validSites, true)) {
+            $this->addFlashMessage(
+                sprintf($this->translate('module.trackerSetup.unknownSite'), $site),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list');
+        }
+
         $provider = $this->trackerRegistry->get($type);
         if ($provider === null) {
             $this->addFlashMessage(
