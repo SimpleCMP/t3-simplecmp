@@ -686,6 +686,7 @@ final class RegisterAssetsTest extends TestCase
             $this->overrideRepository,
             $this->secretProvider,
             $this->nonceService,
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration::class),
             $this->logger,
         );
     }

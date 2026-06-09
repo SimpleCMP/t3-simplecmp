@@ -17,6 +17,7 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration;
 
 /**
  * Registers the SimpleCMP JS bundle + inline init call on every TYPO3
@@ -72,6 +73,7 @@ final readonly class RegisterAssets
         private TranslationOverrideRepository $overrideRepository,
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
+        private DetectionResetGeneration $resetGeneration,
         private LoggerInterface $logger,
     ) {
     }
@@ -578,6 +580,14 @@ final readonly class RegisterAssets
                 $config['cmsBridgeUrl'] = $cmsBridgeUrl;
                 $config['cmsBridgeAuth'] = [
                     'token' => $this->nonceService->issue((string) $config['storageName']),
+                ];
+                // Carry the per-source report generation so the FE bridge
+                // re-reports detections the admin purged (bumped server-side)
+                // instead of suppressing them behind a stale cross-session
+                // marker. Keyed by storageName — the same string the bridge
+                // uses as its payload `source`. (See DetectionResetGeneration.)
+                $config['cmsBridge'] = [
+                    'reportGeneration' => $this->resetGeneration->current((string) $config['storageName']),
                 ];
                 $config['record'] = ['silenceProductionWarning' => true];
             }

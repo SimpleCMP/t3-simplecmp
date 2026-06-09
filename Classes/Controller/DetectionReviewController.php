@@ -80,6 +80,7 @@ final class DetectionReviewController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo $bundledLibrary,
         private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth $libraryHealth,
         private readonly \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration $resetGeneration,
     ) {
     }
 
@@ -841,6 +842,15 @@ final class DetectionReviewController extends ActionController
         if ($ints === []) {
             return $this->redirectToList($filters);
         }
+        // Capture the sources of the rows we're about to purge (same
+        // dismissed-only WHERE as the delete) so we can bump their report
+        // generation afterwards. A purged detection should re-surface if
+        // the tracker is still on the site, but already-reporting browsers
+        // hold a cross-session dedup marker that would otherwise suppress
+        // it for the whole TTL — bumping the generation invalidates those
+        // markers on the next page load. (See DetectionResetGeneration.)
+        $sourcesToReset = $this->purgeableSources($ints);
+
         // Purge only deletes rows that are actually dismissed — the
         // dismiss-first audit-trail rule must hold even if a forged
         // URL points the bulk action at non-Verworfen UIDs.
@@ -856,7 +866,50 @@ final class DetectionReviewController extends ActionController
                 $qb->createNamedParameter(0, ParameterType::INTEGER),
             ))
             ->executeStatement();
+
+        foreach ($sourcesToReset as $source) {
+            $this->resetGeneration->bump($source);
+        }
         return $this->redirectToList($filters);
+    }
+
+    /**
+     * Distinct, non-empty `source` values among the given UIDs that are
+     * actually dismissed — i.e. the rows the purge will delete. Used to
+     * bump only the affected sources' report generation.
+     *
+     * @param list<int> $uids
+     * @return list<string>
+     */
+    private function purgeableSources(array $uids): array
+    {
+        if ($uids === []) {
+            return [];
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('source')
+            ->distinct()
+            ->from(self::DETECTION_TABLE)
+            ->where($qb->expr()->in(
+                'uid',
+                $qb->createNamedParameter($uids, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
+            ))
+            ->andWhere($qb->expr()->gt(
+                'dismissed_at',
+                $qb->createNamedParameter(0, ParameterType::INTEGER),
+            ))
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        $sources = [];
+        foreach ($rows as $source) {
+            $source = (string) $source;
+            if ($source !== '') {
+                $sources[] = $source;
+            }
+        }
+        return array_values(array_unique($sources));
     }
 
     /**
