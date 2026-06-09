@@ -175,6 +175,12 @@ POSTs every settled-unknown detection to the configured webhook.
 See :ref:`administration` for the BE detections module that
 displays these.
 
+Rather than waiting for organic traffic, an admin can drive the
+recorder across the whole site on demand with the
+:ref:`Discover trackers <discover-trackers>` module — it walks the
+sitemap in a hidden iframe and reports without the usual bandwidth
+controls.
+
 Useful diagnostic helpers
 =========================
 

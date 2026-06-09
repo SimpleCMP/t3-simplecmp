@@ -120,6 +120,140 @@ same TCA form you reach via *Web → List → SimpleCMP services* —
 pre-filled defaults vs. blank, otherwise identical. See
 :ref:`configuration` for the field reference.
 
+..  _discover-trackers:
+
+Discover trackers
+=================
+
+*SimpleCMP detections → Tracker entdecken.*
+
+The recorder only sees trackers that actually fire in a visitor's
+browser. *Discover trackers* lets an admin proactively walk the whole
+site so detections accumulate without waiting for real traffic.
+
+How it works
+------------
+
+The module loads each URL of the site's sitemap into a **hidden iframe
+in your own browser**, one after another with a short dwell between
+pages. Each URL is visited with :code:`?simplecmp_discover=1` appended,
+which tells the SimpleCMP frontend bundle to report every tracker it
+sees *without* the usual bandwidth controls (cross-session dedup,
+sampling, and Do-Not-Track are all bypassed for that page load only),
+so the sweep populates the detections list reliably. Reports flow
+through the normal CMS-bridge webhook.
+
+Because the sweep runs in your browser, it sees the site exactly as a
+visitor would — including trackers injected by JavaScript.
+
+Blocked embeds
+--------------
+
+Embeds that universal blocking neutralises server-side (YouTube, Google
+Maps, …) never run, so the recorder can't observe them. During a sweep
+the server-side HTML rewriter records what it blocked as detections too,
+so those surface in the list alongside runtime-detected trackers. This
+only happens when :code:`simplecmp.universalBlocking.enabled` is on (the
+rewriter can only report what it neutralised) and is gated by a signed
+token (see *Security* below).
+
+Controls
+--------
+
+*   **Start / Stop / Continue.** Progress is saved per site in the
+    browser's :code:`localStorage`, so you can stop a long sweep and
+    resume it later from where it paused.
+*   **Reset.** Clears the saved progress for the selected site and
+    starts fresh.
+*   **Estimated time.** Shown before you start, based on the URL count
+    and the per-page dwell.
+*   **Show iframe.** A toggle to reveal the otherwise-hidden iframe if
+    you want to watch the pages load.
+
+Security
+--------
+
+Only the site's *own* hosts (plus any sitemap hosts its
+:file:`robots.txt` declares) can be swept — an admin can't point the
+server-side sitemap fetch at internal services. The server-side
+recording of blocked embeds is additionally gated by a short-lived,
+source-bound token minted for the sweep, so the detection write can't be
+triggered by anyone simply appending :code:`?simplecmp_discover=1` to a
+public URL.
+
+Library upstream freshness
+==========================
+
+*SimpleCMP detections → Bibliothek tab.*
+
+When :code:`simplecmp.libraryUpstreamUrl` points at a hosted
+`services-library <https://github.com/SimpleCMP/services-library>`__
+service, the Bibliothek tab shows a *Bibliotheks-Upstream* card with two
+things: whether the **bundled** library shipped with the extension is
+still current, and the runtime-lookup activity against the upstream.
+
+Reading the card
+----------------
+
+The upstream status line shows one of:
+
+*   **Auf dem Stand** (green ✓) — the bundled library and the upstream
+    carry byte-identical data; nothing to update.
+*   **Updates verfügbar** (yellow ⚠) — the upstream has newer data;
+    refresh the bundle with :code:`composer update simplecmp/services-library`.
+*   **nicht erreichbar** — a probe ran recently and failed (shown with
+    the time it was last checked).
+*   **Status veraltet** — no recent probe result is cached. This is a
+    neutral state, *not* an error; the panel refreshes itself (see
+    below).
+
+The runtime-lookup box reports the local lookup cache size, today's
+upstream calls against the daily budget, and the last call time.
+
+Why it never makes the tab slow
+-------------------------------
+
+Opening the tab **never** probes the upstream over the network — it
+renders only from cache, so a slow or unreachable upstream can never
+make the Bibliothek tab hang. Two things keep the cached status fresh:
+
+*   *Jetzt prüfen* runs a probe on demand.
+*   When the cached status is *stale*, a small background request
+    refreshes it automatically and the panel reloads into the real
+    status — so you normally never see "veraltet" for more than a
+    moment, and you rarely need *Jetzt prüfen* by hand.
+
+A successful probe is cached for 24 hours (the upstream's data changes
+rarely, and a :code:`composer update` invalidates the cache
+immediately); a failed probe is cached briefly so a down upstream can't
+be hammered.
+
+Re-detection after deletion
+===========================
+
+Removing a detection is a two-step, audit-safe path: **Verwerfen**
+(dismiss — the row stays, flagged, and won't clutter the default view)
+and then, from the *Verworfen* filter, **endgültig löschen** (purge —
+the row is hard-deleted). Dismissal is durable: a verworfen tracker
+stays dismissed across visitors and is not re-surfaced.
+
+A purge is different — it means *"forget this; re-detect it if it's
+still on the site."* That used to not work for returning visitors: the
+frontend remembers what it already reported (a cross-session marker in
+the visitor's browser, kept ~7 days) and would stay silent even after
+you purged the row, so a still-present tracker never came back.
+
+Purging now bumps a per-site **report generation** counter that the
+frontend bundle receives in its config. On the visitor's next page load
+the bundle notices the bump and re-reports anything it had previously
+suppressed — so a purged-but-still-present tracker re-surfaces (as
+*erkannt* or *unbekannt*) without waiting out the ~7-day window.
+Trackers you merely *verwerfen* are unaffected.
+
+(A :ref:`Discover sweep <discover-trackers>` also re-surfaces
+declaratively-blocked embeds regardless of any per-visitor state, since it
+records them server-side.)
+
 The banner design module
 ========================
 
