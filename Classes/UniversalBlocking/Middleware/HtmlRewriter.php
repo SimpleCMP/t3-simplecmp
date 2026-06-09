@@ -10,6 +10,10 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\DiscoverSource;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
 
 /**
@@ -114,6 +118,28 @@ final class HtmlRewriter implements MiddlewareInterface
     /** @var list<string> site's own hosts — never rewritten */
     private array $sameOriginHosts = [];
 
+    /**
+     * Maps a rewritten tag to the detection `kind` the BE list expects.
+     * Must match the FE recorder's vocabulary (DomWatcher `TAG_TO_KIND`:
+     * SCRIPT→script, IFRAME→iframe, IMG→image, LINK→link) — detections are
+     * deduped/categorised by `(source, kind, identifier)`, so a tag seen
+     * both server-side and by the recorder must land under the same kind
+     * (and the same BE category — `link` → "Links", not "Anfragen").
+     */
+    private const KIND_MAP = [
+        'script' => 'script',
+        'iframe' => 'iframe',
+        'img' => 'image',
+        'link' => 'link',
+    ];
+
+    public function __construct(
+        private readonly DetectionRepository $detectionRepository,
+        private readonly StoragePidResolver $storagePidResolver,
+        private readonly BridgeNonceService $bridgeNonceService,
+    ) {
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $site = $request->getAttribute('site');
@@ -122,6 +148,14 @@ final class HtmlRewriter implements MiddlewareInterface
         }
         $settings = $site->getSettings();
         if (!$settings->get('simplecmp.universalBlocking.enabled')) {
+            // Coverage note: this short-circuit also means the discover
+            // server-write below never fires for sites that rely solely on
+            // `[data-name]` opt-in blocking (universal blocking off). That's
+            // acceptable — this middleware can only record embeds *it*
+            // neutralised, and with universal blocking off it neutralises
+            // nothing. Such sites surface trackers via the FE recorder →
+            // bridge path instead; the discover sweep just won't add
+            // server-detected declaratively-blocked embeds for them.
             return $handler->handle($request);
         }
 
@@ -151,8 +185,32 @@ final class HtmlRewriter implements MiddlewareInterface
 
         $start = hrtime(true);
         $stats = ['scanned' => 0, 'rewritten' => 0];
-        $rewritten = $this->rewriteHtml($body, $matcher, $stats);
+        $detections = [];
+        $rewritten = $this->rewriteHtml($body, $matcher, $stats, $detections);
         $elapsedMs = (hrtime(true) - $start) / 1e6;
+
+        // Discover mode: the admin's sitemap sweep wants declaratively-
+        // blocked embeds (YouTube, Maps, …) to surface as detections too.
+        // The FE recorder can't see them — we already neutralised them to
+        // about:blank server-side, so they never run. We know exactly what
+        // we rewrote, so record it here.
+        //
+        // This is the ONLY unauthenticated path that could otherwise write
+        // to the detection table (the bridge webhook is HMAC-nonce + guard
+        // + rate-limit protected). `?simplecmp_discover=1` is settable by
+        // any anonymous visitor, so it alone must NOT authorise a DB write.
+        // The legitimate sweep additionally carries a source-bound,
+        // expiring `simplecmp_discover_token` minted by the BE (which holds
+        // the bridge secret) — only a valid token authorises the write. An
+        // anonymous visitor can't forge it, so they can rewrite/observe but
+        // never persist. Runtime trackers still flow through the bridge.
+        $params = $request->getQueryParams();
+        if ($detections !== []
+            && (($params['simplecmp_discover'] ?? null) === '1')
+            && $this->discoverTokenValid($params['simplecmp_discover_token'] ?? null, $site)
+        ) {
+            $this->recordDiscoverDetections($request, $site, $detections);
+        }
 
         $newBody = new Stream('php://temp', 'r+');
         $newBody->write($rewritten);
@@ -175,9 +233,74 @@ final class HtmlRewriter implements MiddlewareInterface
     }
 
     /**
-     * @param array{scanned: int, rewritten: int} $stats updated in-place
+     * Persist the embeds we just neutralised as detections, so a Discover
+     * sweep surfaces declaratively-blocked services (YouTube, Maps, …) that
+     * the runtime recorder never sees. Mirrors the bridge receiver's ingest
+     * path (`source` = storageName, pid via the resolver); the row's state
+     * (kuratiert / erkannt / unbekannt) is derived at view time from the
+     * registry + library, so no `matchedService` is stored here.
+     *
+     * @param list<array{kind: string, identifier: string, origin: string}> $detections
      */
-    private function rewriteHtml(string $html, HostMatcher $matcher, array &$stats): string
+    /**
+     * Whether `$token` is a valid, unexpired discover token bound to this
+     * site's detection source. The token is a {@see BridgeNonceService}
+     * nonce (stateless HMAC + expiry, source-bound) minted by the BE
+     * DiscoveryController; verifying it here proves the request belongs to
+     * an admin-initiated sweep rather than arbitrary visitor traffic that
+     * merely appended `?simplecmp_discover=1`. Returns false (no write) for
+     * a missing / non-string / forged / expired / wrong-source token, and
+     * when no bridge secret is configured (verify() throws → treated as
+     * unauthorised). Never throws out of the middleware.
+     */
+    private function discoverTokenValid(mixed $token, Site $site): bool
+    {
+        if (!is_string($token) || $token === '') {
+            return false;
+        }
+        try {
+            return $this->bridgeNonceService->verify($token, DiscoverSource::forSite($site))->isValid();
+        } catch (\Throwable) {
+            // Secret unconfigured / unexpected — fail closed.
+            return false;
+        }
+    }
+
+    private function recordDiscoverDetections(ServerRequestInterface $request, Site $site, array $detections): void
+    {
+        $source = DiscoverSource::forSite($site);
+
+        // De-dupe within this page by (kind, identifier) — the same embed
+        // can appear twice; ingest() would just bump occurrences, but we
+        // save the round-trips.
+        $seen = [];
+        $unique = [];
+        foreach ($detections as $detection) {
+            $key = $detection['kind'] . '|' . $detection['identifier'];
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $unique[] = $detection;
+        }
+
+        $payload = [
+            'source' => $source,
+            'sentAt' => gmdate('c'),
+            'page' => ['url' => (string) $request->getUri()],
+            'detections' => $unique,
+        ];
+        $this->detectionRepository->ingest(
+            $payload,
+            $this->storagePidResolver->resolveForRequest($request),
+        );
+    }
+
+    /**
+     * @param array{scanned: int, rewritten: int} $stats updated in-place
+     * @param list<array{kind: string, identifier: string, origin: string}> $detections collected in-place
+     */
+    private function rewriteHtml(string $html, HostMatcher $matcher, array &$stats, array &$detections = []): string
     {
         $dom = new \DOMDocument();
         // Real-world HTML is messy; suppress the libxml warning noise
@@ -241,6 +364,11 @@ final class HtmlRewriter implements MiddlewareInterface
                     $node->setAttribute($attr, 'about:blank');
                 }
                 $stats['rewritten']++;
+                $detections[] = [
+                    'kind' => self::KIND_MAP[$tagName] ?? 'request',
+                    'identifier' => $url,
+                    'origin' => $host,
+                ];
             }
         }
 

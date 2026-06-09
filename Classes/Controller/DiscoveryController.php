@@ -12,7 +12,9 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
+use SimpleCMP\T3SimpleCmp\Service\DiscoverSource;
 use SimpleCMP\T3SimpleCmp\Service\SitemapFetcher;
 
 /**
@@ -46,9 +48,18 @@ final class DiscoveryController extends ActionController
         private readonly SiteFinder $siteFinder,
         private readonly SitemapFetcher $sitemapFetcher,
         private readonly BridgeSecretProvider $bridgeSecretProvider,
+        private readonly BridgeNonceService $bridgeNonceService,
         private readonly BackendUriBuilder $backendUriBuilder,
     ) {
     }
+
+    /**
+     * TTL of the discover token minted for a sweep. Generous enough to
+     * walk a large sitemap (3 s dwell per URL) and survive brief pauses;
+     * a sweep paused beyond this stops recording (embeds are still blocked,
+     * just not logged) — re-open the module to mint a fresh token.
+     */
+    private const int DISCOVER_TOKEN_TTL_SECONDS = 7200; // 2 hours
 
     public function indexAction(string $site = '', string $sitemapUrl = ''): ResponseInterface
     {
@@ -63,6 +74,19 @@ final class DiscoveryController extends ActionController
             $urls = $this->sitemapFetcher->fetch($sitemapUrl, $allowedHosts);
         }
 
+        // Source-bound, expiring token authorising the server-side discover
+        // DB write (HtmlRewriter). Minted here in the BE (admin-authed,
+        // holds the secret) and appended by Discovery.js to each swept URL.
+        // Only mintable when the bridge secret exists — same precondition
+        // the `secretMissing` warning already surfaces; without it the
+        // sweep still blocks embeds but can't persist them.
+        $discoverToken = ($siteObject !== null && $this->bridgeSecretProvider->isConfigured())
+            ? $this->bridgeNonceService->issue(
+                DiscoverSource::forSite($siteObject),
+                self::DISCOVER_TOKEN_TTL_SECONDS,
+            )
+            : '';
+
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
             'site' => $site,
@@ -70,6 +94,7 @@ final class DiscoveryController extends ActionController
             'siteBaseUrl' => $baseUrl,
             'sitemapUrl' => $sitemapUrl,
             'urls' => $urls,
+            'discoverToken' => $discoverToken,
             'secretMissing' => !$this->bridgeSecretProvider->isConfigured(),
             'uri_index' => $this->uri('index'),
             'uri_fetchSitemap' => $this->uri('fetchSitemap'),

@@ -25,6 +25,10 @@ class Discovery {
     if (!root) return;
     this.root = root;
     this.fetchSitemapUrl = root.getAttribute('data-discover-fetch-sitemap-url') || '';
+    // Source-bound, expiring token that authorises the server-side discover
+    // DB write (HtmlRewriter). Empty when no bridge secret is configured —
+    // the sweep then still blocks embeds, just doesn't persist them.
+    this.discoverToken = root.getAttribute('data-discover-token') || '';
     this.i18n = {
       starting: root.getAttribute('data-i18n-starting') || 'Starting discovery for {count} URLs.',
       stopping: root.getAttribute('data-i18n-stopping') || 'Stopping after current URL…',
@@ -360,11 +364,19 @@ class Discovery {
     try {
       const u = new URL(url);
       u.searchParams.set('simplecmp_discover', '1');
+      // The token authorises the server-side DB write; `=1` alone only
+      // flips the FE recorder's bandwidth controls (harmless if forged).
+      if (this.discoverToken) {
+        u.searchParams.set('simplecmp_discover_token', this.discoverToken);
+      }
       return u.toString();
     } catch {
       // Relative or otherwise unparseable — fall back to naive append.
       const sep = url.includes('?') ? '&' : '?';
-      return `${url}${sep}simplecmp_discover=1`;
+      const tokenParam = this.discoverToken
+        ? `&simplecmp_discover_token=${encodeURIComponent(this.discoverToken)}`
+        : '';
+      return `${url}${sep}simplecmp_discover=1${tokenParam}`;
     }
   }
 

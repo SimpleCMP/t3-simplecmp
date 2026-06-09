@@ -6,6 +6,9 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Middleware;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
 
@@ -32,7 +35,11 @@ final class HtmlRewriterLinkRelTest extends TestCase
     {
         $stats = ['scanned' => 0, 'rewritten' => 0];
 
-        $rewriter = new HtmlRewriter();
+        $rewriter = new HtmlRewriter(
+            $this->createMock(DetectionRepository::class),
+            $this->createMock(StoragePidResolver::class),
+            $this->createMock(BridgeNonceService::class),
+        );
         $ref = new \ReflectionClass($rewriter);
         $ref->getProperty('sameOriginHosts')->setValue($rewriter, []);
 
@@ -44,6 +51,34 @@ final class HtmlRewriterLinkRelTest extends TestCase
         $method = $ref->getMethod('rewriteHtml');
 
         return (string) $method->invokeArgs($rewriter, [$html, $matcher, &$stats]);
+    }
+
+    #[Test]
+    public function collectsRewrittenThirdPartyTagsAsDetections(): void
+    {
+        // The Discover sweep relies on rewriteHtml() populating the
+        // by-ref $detections list — that's what surfaces declaratively-
+        // blocked embeds (YouTube, …) that the runtime recorder never sees.
+        $rewriter = new HtmlRewriter(
+            $this->createMock(DetectionRepository::class),
+            $this->createMock(StoragePidResolver::class),
+            $this->createMock(BridgeNonceService::class),
+        );
+        $ref = new \ReflectionClass($rewriter);
+        $ref->getProperty('sameOriginHosts')->setValue($rewriter, ['example.com']);
+        $matcher = new HostMatcher([], true);
+
+        $stats = ['scanned' => 0, 'rewritten' => 0];
+        $detections = [];
+        $html = '<!DOCTYPE html><html><head></head><body>'
+            . '<iframe src="https://www.youtube.com/embed/abc"></iframe>'
+            . '</body></html>';
+        $ref->getMethod('rewriteHtml')->invokeArgs($rewriter, [$html, $matcher, &$stats, &$detections]);
+
+        self::assertCount(1, $detections);
+        self::assertSame('iframe', $detections[0]['kind']);
+        self::assertSame('https://www.youtube.com/embed/abc', $detections[0]['identifier']);
+        self::assertSame('www.youtube.com', $detections[0]['origin']);
     }
 
     private function linkPage(string $linkTag): string

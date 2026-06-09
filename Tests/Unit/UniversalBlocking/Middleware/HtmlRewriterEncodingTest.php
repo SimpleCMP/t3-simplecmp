@@ -6,6 +6,9 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Middleware;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
 
@@ -35,7 +38,11 @@ final class HtmlRewriterEncodingTest extends TestCase
         $matcher ??= $this->matchingHostMatcher();
         $stats = ['scanned' => 0, 'rewritten' => 0];
 
-        $rewriter = new HtmlRewriter();
+        $rewriter = new HtmlRewriter(
+            $this->createMock(DetectionRepository::class),
+            $this->createMock(StoragePidResolver::class),
+            $this->createMock(BridgeNonceService::class),
+        );
         $ref = new \ReflectionClass($rewriter);
 
         // sameOriginHosts isn't a problem for these tests (we use a
