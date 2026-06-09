@@ -32,8 +32,9 @@ The main module is organised into tabs:
     `simplecmp/services-library`, with recommendations for your open
     detections, and the upstream-freshness card (see
     `Library upstream freshness`_).
-*   **Tracker-Einrichtung** — register first-party / managed trackers
-    that should load behind consent.
+*   **Tracker-Einrichtung** — set up well-known managed trackers
+    (Matomo, GA4, GTM) so they load behind consent without manual
+    curation. See `Tracker setup`_.
 
 A *Tracker entdecken* action and the bridge-secret controls sit on the
 Detektionen tab.
@@ -302,6 +303,68 @@ Trackers you merely *verwerfen* are unaffected.
 (A :ref:`Discover sweep <discover-trackers>` also re-surfaces
 declaratively-blocked embeds regardless of any per-visitor state, since it
 records them server-side.)
+
+Tracker setup
+=============
+
+*SimpleCMP → Tracker-Einrichtung tab.*
+
+Most of the module is about *discovering* third-party trackers after the
+fact. This tab is the opposite: it lets you **set up a known tracker you
+run on purpose** — Matomo, Google Analytics 4, or Google Tag Manager —
+so it loads correctly behind consent, without hand-curating a service
+record or editing any template.
+
+You pick a tracker type, fill in a short form (the IDs from that
+tool's own console), and save. The extension does the rest.
+
+Supported trackers
+------------------
+
+Each provider exposes its own small set of fields; required ones are
+marked, the rest are optional:
+
+*   **Matomo** — :code:`url` (your Matomo install) and :code:`siteId`
+    (required); :code:`disableCookies` (cookieless mode) optional.
+*   **Google Analytics 4** — :code:`measurementId`
+    (:code:`G-XXXXXXX`, required); :code:`anonymizeIp` and Google
+    :code:`consentMode` optional.
+*   **Google Tag Manager** — :code:`containerId`
+    (:code:`GTM-XXXXXXX`, required); :code:`consentDefault` optional.
+
+Every type also has an optional :code:`serviceId` — leave it blank for
+the common single-instance case (it defaults to the type name), or set
+it to run two instances of the same provider on one site (e.g. two
+Matomo sites) under distinct consent keys.
+
+Trackers are stored per site in :sql:`tx_t3simplecmp_managed_tracker`
+and edited here with the usual new / edit / delete actions. Trackers
+declared in Site Settings via a :code:`simplecmp.trackers` list are
+also shown (they use the same provider definitions); manage those in
+the settings, not here.
+
+What gets wired up
+------------------
+
+From one saved entry the extension produces the three things a
+consent-gated tracker needs, so you don't assemble them by hand:
+
+#.  **A service record** in the registry — so the tracker appears in
+    the banner with sensible defaults (purposes, vendor, privacy-policy
+    URL, cookie/origin matchers) and its origins are allowed by the
+    blocking/CSP layer.
+#.  **A consent-gated loader.** The provider's remote script
+    (:code:`matomo.js`, :code:`gtag.js`, :code:`gtm.js`) is emitted
+    with :code:`data-name="<serviceId>"`, which SimpleCMP's runtime
+    holds back until the visitor consents to that service.
+#.  **An inline bootstrap** (:code:`_paq` / :code:`dataLayer` /
+    :code:`gtag('config', …)`) that pre-configures the tracker with
+    your IDs. It is emitted with the CSP nonce, so it doesn't trip a
+    :code:`script-src` violation.
+
+So a configured tracker stays fully dormant until consent is granted,
+then initialises with the right settings — no manual service curation
+and no Fluid/TypoScript edits.
 
 The banner design module
 ========================
