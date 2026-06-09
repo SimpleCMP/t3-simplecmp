@@ -11,7 +11,10 @@
             "/^RP_/",
             "sso_user",
             "/^CX_/",
-            "/^P_/",
+            {
+                "name": "/^P_/",
+                "requireOrigin": "*.surveymonkey.com"
+            },
             "sm_ir",
             "_splunk_rum_sid",
             "sm_rec",

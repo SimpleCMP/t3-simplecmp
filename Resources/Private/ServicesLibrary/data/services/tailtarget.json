@@ -28,7 +28,10 @@
                 "requireOrigin": "t.tailtarget.com"
             },
             "ttca",
-            "/^tp/",
+            {
+                "name": "/^tp/",
+                "requireOrigin": "t.tailtarget.com"
+            },
             {
                 "name": "dc",
                 "requireOrigin": "t.tailtarget.com"

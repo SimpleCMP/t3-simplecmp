@@ -36,8 +36,14 @@
             "token",
             "otsid",
             "adtrc",
-            "/^SR/",
-            "/^CT/",
+            {
+                "name": "/^SR/",
+                "requireOrigin": "*.adform.net"
+            },
+            {
+                "name": "/^CT/",
+                "requireOrigin": "*.adform.net"
+            },
             "/^EBFCD/",
             "/^EBFC/",
             "/^CFFC/",
