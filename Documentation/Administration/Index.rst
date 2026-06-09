@@ -14,22 +14,45 @@ for visual grouping.
    :local:
    :depth: 2
 
-The detections module
-=====================
+The SimpleCMP module
+====================
 
-*Site Management → SimpleCMP detections.*
+*Site Management → SimpleCMP.*
 
-Every unknown-tracker report received via the CMS-bridge webhook
-lands here. The module's job is to help an admin decide what each
-detection is and either *adopt* it from the bundled library or
-*curate* it from scratch.
+The main module is organised into tabs:
 
-Three-state model
------------------
+*   **Detektionen** — triage trackers reported via the CMS-bridge
+    webhook (and via :ref:`Discover sweeps <discover-trackers>`).
+    Covered below.
+*   **Dienste** — the curated service registry
+    (:sql:`tx_t3simplecmp_service`): the services whose consent the
+    frontend banner actually manages. Same records you can edit via
+    *Web → List*; see :ref:`configuration`.
+*   **Bibliothek** — browse and adopt entries from the bundled
+    `simplecmp/services-library`, with recommendations for your open
+    detections, and the upstream-freshness card (see
+    `Library upstream freshness`_).
+*   **Tracker-Einrichtung** — register first-party / managed trackers
+    that should load behind consent.
+
+A *Tracker entdecken* action and the bridge-secret controls sit on the
+Detektionen tab.
+
+The detections list
+-------------------
+
+Every unknown-tracker report received via the CMS-bridge webhook lands
+on the **Detektionen** tab. The job is to decide what each detection is
+and either *adopt* it from the bundled library or *curate* it from
+scratch.
+
+Four-state model
+~~~~~~~~~~~~~~~~~
 
 Each row carries a state badge derived at view time — the
-:sql:`reviewed` boolean from earlier versions is gone. The state
-is read from registry and library coverage:
+:sql:`reviewed` boolean from earlier versions is gone. The state is
+read from registry coverage, library coverage, and the row's
+dismissal flag:
 
 *   **kuratiert** (green) — an existing service in the registry
     already covers this detection's cookie or origin. Nothing to
@@ -42,15 +65,23 @@ is read from registry and library coverage:
     recognise this. Requires a curation decision from the admin —
     *Anpassen* (curate with any partial library match pre-filled)
     or *Kuratieren* (start blank).
+*   **verworfen** (gray) — explicitly dismissed by an admin (see
+    *Dismiss & purge* below). Hidden from the default view; durable
+    across visitors.
 
-The state filter above the list has four values: *Ausstehend*
-(default — *erkannt* + *unbekannt*), *Erkannt*, *Unbekannt*,
-*Kuratiert*, and *Alle*. Bookmarked URLs from earlier versions
-that used :code:`?status=unreviewed` are redirected to the default
-*Ausstehend* view.
+The state filter above the list offers *Brauchen Aktion* (default —
+*erkannt* + *unbekannt*), *Nur erkannte*, *Nur unbekannte*, *Nur
+kuratierte*, *Nur verworfene*, and *Alle*. Bookmarked URLs from
+earlier versions that used :code:`?status=unreviewed` are redirected
+to the default view.
+
+There is also a *Unbekannte neu klassifizieren* button that re-runs the
+open *unbekannt* rows against the upstream library (budget-aware) — a
+quick way to pick up classifications added upstream since the rows were
+first reported, without a :code:`composer update`.
 
 Confidence badges
------------------
+~~~~~~~~~~~~~~~~~
 
 Each row also carries a coloured confidence badge with the report
 count:
@@ -63,7 +94,7 @@ count:
     with care.
 
 Volume spike alert
-------------------
+~~~~~~~~~~~~~~~~~~
 
 When today's ingest sharply exceeds the 7-day rolling baseline, a
 yellow banner appears at the top of the list with the day-vs-
@@ -72,10 +103,9 @@ newly-added tracker on the site, but the banner is a prompt to
 review the recent rows carefully before bulk-curating any of them.
 
 Per-row actions
----------------
+~~~~~~~~~~~~~~~
 
-Every row has up to three action buttons — which ones appear
-depends on the row's state:
+Each row shows the action buttons relevant to its state:
 
 *   **Übernehmen** (*erkannt* rows only) — one-click silent-import
     of the matching bundled-library entry, surfaced behind a
@@ -101,19 +131,38 @@ depends on the row's state:
     only with the slug and the detection's cookie / origin
     matcher. Use for true *unbekannt* rows the library does not
     cover.
+*   **Verwerfen** — dismiss the detection: the row moves to the
+    *verworfen* state (durable across visitors) and leaves the
+    default view. The table also supports multi-row selection with an
+    *Ausgewählte verwerfen (n)* bulk action.
+*   **Details** — open the full detection record: page URL,
+    first / last seen, report count, and the raw bridge payload.
 
-Each row also has a per-row delete button with a confirm dialog,
-and the table supports multi-row selection with a *Delete
-selected (n)* bulk action that activates once at least one row is
-ticked. A *Delete all* sibling is available in the same split
-button for whole-table cleanup.
+There is **no** *Mark reviewed* / *Unmark* action and no one-click
+delete — the pre-v0.2.0 :sql:`reviewed` column is gone (state derives
+from coverage + dismissal), and removal is the audit-safe two-step
+described next.
 
-There is **no** *Mark reviewed* or *Unmark* action. The pre-v0.2.0
-:sql:`reviewed` column is dropped; state derives from registry +
-library coverage instead.
+Dismiss & purge
+~~~~~~~~~~~~~~~
+
+Removing a detection is deliberately two steps:
+
+#.  **Verwerfen** moves the row to *verworfen*. It stays in the
+    database — flagged and timestamped, excluded from the default view
+    — an audit trail, not a deletion. From the *Nur verworfene* filter
+    you can **Rückgängig** (undismiss) to bring it back.
+#.  **Endgültig löschen** — the bulk purge, available only in the
+    *Verworfen* view and behind a confirm — hard-deletes the ticked
+    rows.
+
+A purge means *"forget this; re-detect it if it's still on the
+site."* See `Re-detection after deletion`_ for how a
+purged-but-still-present tracker re-surfaces on the visitor's next
+page load.
 
 Service curation
-----------------
+~~~~~~~~~~~~~~~~
 
 The new-record form launched from *Anpassen* / *Kuratieren* is the
 same TCA form you reach via *Web → List → SimpleCMP services* —
@@ -259,43 +308,60 @@ The banner design module
 
 *Site Management → SimpleCMP banner design.*
 
-Per-site theme editor for the FE consent banner. Each Site Set
-that runs SimpleCMP gets its own theme; admins customise colors,
-typography, and corner radius without editing YAML or PHP.
+Per-site editor for the FE consent banner and its wording. Each Site
+Set that runs SimpleCMP gets its own theme; admins customise the
+framework, layout, placement, colours, and per-language texts without
+editing YAML or PHP. Changes take effect on the next frontend page
+render.
 
-What's editable
----------------
+What you can edit
+-----------------
 
-Tokens are grouped into five semantic sections:
+The form is grouped into sections:
 
-*   **Brand** — primary color (Accept button background) + decline
-    color.
-*   **Surface** — body text, card background, border.
-*   **Advanced** — primary-hover, muted text, alternate background
-    (badges, required-pill).
-*   **Typography** — body font-family + size, heading font-family +
-    size. Sizes accept px/rem/em (validated by HTML5 pattern).
-    Font-family inputs offer a :code:`<datalist>` with eight common
-    stacks.
-*   **Shape** — corner radius (px/rem/em).
+*   **CSS framework** — bind the banner to your site's framework
+    (:code:`default`, :code:`bootstrap5`, :code:`tailwind4`,
+    :code:`bulma`, or :code:`pico`) so it inherits the host's design
+    tokens rather than shipping its own.
+*   **Banner style & placement** — a banner template/layout, a 3×3
+    position picker (corner / edge / centre), and the floating-trigger
+    position. Style-preset cards offer one-click looks.
+*   **Colors** — brand (accept / decline), text & background, and
+    advanced tokens (hover, muted text, alternate background). Custom
+    colours are **opt-in**: by default the banner uses a
+    compliance-safe palette that keeps the Accept and Decline buttons
+    visually equal-weight (emphasising Accept is a dark-pattern risk).
+    Enabling custom colours surfaces a warning to that effect.
+*   **Override banner texts** — rewrite any bundle string for one
+    language at a time, via a language picker. Use it to choose a
+    formal vs. informal **Tone** (Sie/Du — the Tone toggle appears only
+    for languages that ship an informal overlay) or to fully reword a
+    button or notice. Empty fields fall back to the bundle default.
+    Stored per site in :sql:`tx_t3simplecmp_translation_override`.
 
-A *Detect fonts from active site* button next to Typography reads
-the live FE's computed :code:`<body>` and first-heading
-:code:`font-family` and :code:`font-size` via a hidden iframe and
-auto-fills the four typography fields. Same-origin only —
-cross-origin reads throw a friendly *"Couldn't read fonts. Type
-them in manually."* fallback.
+Typography and corner-radius controls from earlier versions were
+removed; the banner now inherits type and shape from the chosen
+framework and the host page.
 
 Live preview
 ------------
 
-The right pane is a live preview iframe that boots the real
-SimpleCMP bundle with a synthetic three-service init config. As
-you edit form fields the preview updates with a 120 ms debounce.
-*Accept* / *Decline* clicks in the preview are inert (a capture-
-phase event blocker stops them before they reach the banner's
-event handlers); *Configure* passes through so you can preview
-the modal with all services too.
+The right pane shows a live preview that boots the real SimpleCMP
+bundle and updates as you edit. *Accept* / *Decline* clicks in the
+preview are inert, so you can't accidentally record consent while
+designing; *Configure* still opens the modal so you can preview the
+full service list.
+
+Compliance audit
+----------------
+
+The designer runs a live compliance check and lists findings inline,
+split by severity (**critical** / **warning**), each linking into the
+relevant section of a built-in compliance reference. Two layers run: a
+config-level audit of the saved theme and settings, and an on-demand
+**frontend audit** that boots the real banner and inspects the
+rendered DOM. Use it to catch dark-pattern and disclosure issues
+(unequal buttons, missing policy links, …) before they ship.
 
 Save / reset
 ------------
