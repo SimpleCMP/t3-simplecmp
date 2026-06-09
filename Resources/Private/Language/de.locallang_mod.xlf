@@ -104,6 +104,9 @@
       <trans-unit id="upstream.updatesAvailable"><source>Updates available</source><target>Updates verfügbar</target></trans-unit>
       <trans-unit id="upstream.howToUpdate"><source>Update with:</source><target>Aktualisieren mit:</target></trans-unit>
       <trans-unit id="upstream.unreachable"><source>not reachable</source><target>nicht erreichbar</target></trans-unit>
+      <trans-unit id="upstream.checkedAt"><source>checked</source><target>geprüft</target></trans-unit>
+      <trans-unit id="upstream.stale"><source>Status outdated — not checked recently</source><target>Status veraltet — länger nicht geprüft</target></trans-unit>
+      <trans-unit id="upstream.checking"><source>checking…</source><target>wird geprüft …</target></trans-unit>
       <trans-unit id="upstream.refresh"><source>Check now</source><target>Jetzt prüfen</target></trans-unit>
       <trans-unit id="upstream.refresh.tooltip"><source>Re-fetch the upstream library health snapshot.</source><target>Lädt die Statusinformationen des Bibliotheks-Upstreams neu.</target></trans-unit>
       <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source><target>Bundle &amp; Snapshot</target></trans-unit>

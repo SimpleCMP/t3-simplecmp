@@ -13,9 +13,11 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * Probes `/v1/health` on the configured upstream library service for
  * the freshness panel on the Bibliothek tab.
  *
- * Caches the result for 30 minutes so opening the tab repeatedly
- * doesn't spam upstream. The "Jetzt prüfen" button on the same panel
- * flushes the cache for an on-demand refresh.
+ * Caches a successful result for 24 hours so opening the tab repeatedly
+ * doesn't spam upstream — the drift it reports changes only when the
+ * library is re-published (rarer than daily) and a bundle upgrade
+ * invalidates the row immediately regardless of TTL. The "Jetzt prüfen"
+ * button on the same panel flushes the cache for an on-demand refresh.
  *
  * The bundle's commit SHA is captured alongside the snapshot in the
  * cache; if the bundle gets upgraded via composer between probes,
@@ -34,7 +36,15 @@ final readonly class LibraryUpstreamHealth
 {
     public const string CACHE_IDENTIFIER = 't3_simplecmp_library_upstream_health';
     private const int TIMEOUT_SECONDS = 3;
-    private const int CACHE_TTL_SECONDS = 1800; // 30 minutes
+    // Success cache is long-lived: what it gates (bundle-vs-upstream drift)
+    // changes only when the library is re-published — rarer than daily — and
+    // a bundle upgrade invalidates the row immediately via the dataHash bind
+    // (see snapshot()), so a stale "in sync" claim can't survive a composer
+    // update. With the BE auto-probe (UpstreamProbe.js) re-checking whenever
+    // the cache is cold, a long TTL means at most one background refresh per
+    // day rather than churning probes for near-static data. Mirrors the
+    // runtime LibraryUpstreamClient's 24h lookup cache.
+    private const int CACHE_TTL_SECONDS = 86400; // 24 hours
     private const int FAILURE_TTL_SECONDS = 300; // 5 min — negative-cache failed probes
 
     public function __construct(
@@ -89,9 +99,13 @@ final readonly class LibraryUpstreamHealth
         if ($snapshot === null) {
             // Negative-cache the failure for a short window so repeated
             // renders / button presses don't each hang on the network.
+            // `failedAt` lets the BE show "checked X ago" and, crucially,
+            // distinguish a fresh failure (show "not reachable") from a
+            // cold/stale cache (show a neutral "outdated" + auto-probe) —
+            // see cachedFailureAt().
             $cache->set(
                 $key,
-                ['bundleDataHash' => $bundleDataHash, 'failed' => true],
+                ['bundleDataHash' => $bundleDataHash, 'failed' => true, 'failedAt' => time()],
                 [],
                 self::FAILURE_TTL_SECONDS,
             );
@@ -139,6 +153,40 @@ final readonly class LibraryUpstreamHealth
         unset($cached['bundleDataHash']);
         /** @var array{serviceCount: int|null, sourceSha: string|null, dataHash: string|null, lastSyncAt: int|null, fetchedAt: int} $cached */
         return $cached;
+    }
+
+    /**
+     * Cache-only read: epoch of a recent *failed* probe, or null. Never
+     * makes a network call.
+     *
+     * Returns the `failedAt` timestamp of a negative-cached failure that
+     * was captured against the same bundle hash and is still within
+     * FAILURE_TTL_SECONDS; otherwise null (cold cache, expired, bundle
+     * shifted, or last probe succeeded).
+     *
+     * Lets the BE tell two render states apart that `cachedSnapshot()`
+     * collapses into null:
+     *   - failure cached → "not reachable (checked X ago)" (don't
+     *     auto-probe; the 5 min negative cache exists to avoid hammering
+     *     a down host)
+     *   - nothing cached → neutral "status outdated" + a background
+     *     auto-probe to self-heal the panel without a manual click.
+     */
+    public function cachedFailureAt(?string $upstreamUrl, ?string $bundleDataHash): ?int
+    {
+        if ($upstreamUrl === null || $upstreamUrl === '') {
+            return null;
+        }
+        $cache = $this->cacheManager->getCache(self::CACHE_IDENTIFIER);
+        $cached = $cache->get($this->cacheKey($upstreamUrl));
+        if (!is_array($cached) || ($cached['bundleDataHash'] ?? null) !== $bundleDataHash) {
+            return null;
+        }
+        if (empty($cached['failed'])) {
+            return null;
+        }
+        $failedAt = $cached['failedAt'] ?? null;
+        return is_int($failedAt) ? $failedAt : null;
     }
 
     /**

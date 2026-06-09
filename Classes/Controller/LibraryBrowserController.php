@@ -386,12 +386,14 @@ final class LibraryBrowserController extends ActionController
      *     bundle: array{version: string|null, sha: string|null, shortSha: string|null, serviceCount: int, changelogUrl: string},
      *     upstream: array{
      *         probed: bool,
+     *         state: 'ok'|'down'|'unknown',
      *         serviceCount: int|null,
      *         sourceSha: string|null,
      *         shortSourceSha: string|null,
      *         dataHash: string|null,
      *         lastSyncAt: int|null,
      *         fetchedAt: int|null,
+     *         failedAt: int|null,
      *         inSync: bool,
      *     },
      *     uri_refresh: string,
@@ -450,6 +452,18 @@ final class LibraryBrowserController extends ActionController
             ? $this->upstreamHealth->cachedSnapshot($firstUpstreamUrl, $bundleDataHash)
             : null;
 
+        // Three render states, so the panel never claims "not reachable"
+        // on a merely-stale cache (the common case — the success cache is
+        // only 30 min and the render never probes):
+        //   ok      — a fresh snapshot is cached
+        //   down    — a probe failed within the negative-cache window
+        //   unknown — cold/stale cache; the JS fires a background probe
+        //             (UpstreamProbe.js) to self-heal without a click.
+        $failedAt = ($snapshot === null && $firstUpstreamUrl !== null)
+            ? $this->upstreamHealth->cachedFailureAt($firstUpstreamUrl, $bundleDataHash)
+            : null;
+        $upstreamState = $snapshot !== null ? 'ok' : ($failedAt !== null ? 'down' : 'unknown');
+
         // Drift comparison is on dataHash (content over service JSON
         // files) NOT sourceSha (which moves on every README/CI commit).
         // Upstreams that don't expose dataHash on /v1/health are
@@ -463,12 +477,14 @@ final class LibraryBrowserController extends ActionController
 
         $upstream = [
             'probed' => $snapshot !== null,
+            'state' => $upstreamState,
             'serviceCount' => $snapshot['serviceCount'] ?? null,
             'sourceSha' => $upstreamSourceSha,
             'shortSourceSha' => $upstreamSourceSha !== null ? substr($upstreamSourceSha, 0, 7) : null,
             'dataHash' => $upstreamDataHash,
             'lastSyncAt' => $snapshot['lastSyncAt'] ?? null,
             'fetchedAt' => $snapshot['fetchedAt'] ?? null,
+            'failedAt' => $failedAt,
             'inSync' => $inSync,
         ];
 
@@ -679,6 +695,9 @@ final class LibraryBrowserController extends ActionController
         );
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/LibraryBulkSelect.js'
+        );
+        $this->pageRenderer->loadJavaScriptModule(
+            '@simplecmp/t3-simplecmp/Backend/UpstreamProbe.js'
         );
         return $moduleTemplate;
     }

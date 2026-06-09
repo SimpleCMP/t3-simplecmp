@@ -104,6 +104,9 @@
       <trans-unit id="upstream.updatesAvailable"><source>Updates available</source></trans-unit>
       <trans-unit id="upstream.howToUpdate"><source>Update with:</source></trans-unit>
       <trans-unit id="upstream.unreachable"><source>not reachable</source></trans-unit>
+      <trans-unit id="upstream.checkedAt"><source>checked</source></trans-unit>
+      <trans-unit id="upstream.stale"><source>Status outdated — not checked recently</source></trans-unit>
+      <trans-unit id="upstream.checking"><source>checking…</source></trans-unit>
       <trans-unit id="upstream.refresh"><source>Check now</source></trans-unit>
       <trans-unit id="upstream.refresh.tooltip"><source>Re-fetch the upstream library health snapshot.</source></trans-unit>
       <trans-unit id="upstream.section.snapshot"><source>Bundle &amp; snapshot</source></trans-unit>

@@ -246,6 +246,54 @@ final class LibraryUpstreamHealthTest extends TestCase
     }
 
     #[Test]
+    public function cachedFailureAtReturnsTimestampAfterFailedProbe(): void
+    {
+        // A failed probe negative-caches with a `failedAt` stamp so the BE
+        // can render "not reachable (checked X ago)" — distinct from a
+        // cold cache. cachedFailureAt() reads it back without probing.
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willThrowException(new \RuntimeException('connection refused'));
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        $before = time();
+        $health->snapshot('https://lib.example/v1', 'a');
+
+        $failedAt = $health->cachedFailureAt('https://lib.example/v1', 'a');
+        self::assertIsInt($failedAt);
+        self::assertGreaterThanOrEqual($before, $failedAt);
+    }
+
+    #[Test]
+    public function cachedFailureAtReturnsNullForColdCacheAndAfterSuccess(): void
+    {
+        // Cold cache → null (nothing probed). And a *successful* snapshot
+        // must NOT register as a failure — so cachedFailureAt stays null,
+        // which is what keeps the BE auto-probe from firing on an 'ok'
+        // state. Never touches the network.
+        $this->requestFactory->expects(self::once())
+            ->method('request')
+            ->willReturn($this->httpResponse(200, json_encode([
+                'serviceCount' => 367,
+                'sourceSha' => str_repeat('a', 40),
+                'dataHash' => str_repeat('c', 64),
+                'lastSyncAt' => '2026-05-28T08:17:03Z',
+            ]) ?: ''));
+
+        $health = new LibraryUpstreamHealth($this->requestFactory, $this->cacheManager());
+        self::assertNull(
+            $health->cachedFailureAt('https://lib.example/v1', 'h'),
+            'cold cache → null failure',
+        );
+
+        $health->snapshot('https://lib.example/v1', 'h');
+        self::assertNull(
+            $health->cachedFailureAt('https://lib.example/v1', 'h'),
+            'successful snapshot must not register as a failure',
+        );
+    }
+
+    #[Test]
     public function returnsNullOnMalformedJson(): void
     {
         $this->requestFactory->expects(self::once())

@@ -4,7 +4,8 @@
 <f:render section="upstreamStatus" arguments="{_all}" />
 
 <f:section name="upstreamStatus">
-    <div class="card mb-3 simplecmp-upstream-status {f:if(condition: '{upstreamStatus.budgetExhausted}', then: 'border-warning')}">
+    <div class="card mb-3 simplecmp-upstream-status {f:if(condition: '{upstreamStatus.budgetExhausted}', then: 'border-warning')}"
+         data-simplecmp-upstream data-simplecmp-upstream-state="{upstreamStatus.upstream.state}">
         <div class="card-body py-2">
             <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
                 <div class="d-flex align-items-center gap-2 me-auto">
@@ -14,7 +15,7 @@
                     </strong>
                 </div>
                 <f:if condition="{upstreamStatus.enabled}">
-                    <form method="post" action="{upstreamStatus.uri_refresh}" class="m-0">
+                    <form method="post" action="{upstreamStatus.uri_refresh}" class="m-0" data-simplecmp-upstream-refresh>
                         <button type="submit" class="btn btn-sm btn-outline-secondary"
                                 title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh.tooltip')}">
                             <core:icon identifier="actions-refresh" size="small" />
@@ -54,8 +55,8 @@
                     <span class="text-body-secondary">
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.snapshot.label" />:
                     </span>
-                    <f:if condition="{upstreamStatus.upstream.probed}">
-                        <f:then>
+                    <f:switch expression="{upstreamStatus.upstream.state}">
+                        <f:case value="ok">
                             <strong>{upstreamStatus.upstream.serviceCount}</strong>
                             <span class="text-body-secondary">
                                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />
@@ -88,13 +89,30 @@
                                     </f:else>
                                 </f:if>
                             </span>
-                        </f:then>
-                        <f:else>
+                        </f:case>
+                        <f:case value="down">
                             <span class="badge badge-danger">
                                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.unreachable" />
                             </span>
-                        </f:else>
-                    </f:if>
+                            <f:if condition="{upstreamStatus.upstream.failedAt}">
+                                <span class="text-body-secondary ms-1">
+                                    ·
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checkedAt" />
+                                    <f:format.date format="Y-m-d H:i">@{upstreamStatus.upstream.failedAt}</f:format.date>
+                                </span>
+                            </f:if>
+                        </f:case>
+                        <f:defaultCase>
+                            <span class="text-body-secondary" data-simplecmp-upstream-stale>
+                                <core:icon identifier="actions-clock" size="small" />
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.stale" />
+                            </span>
+                            <span class="text-body-secondary ms-1" data-simplecmp-upstream-checking hidden="hidden">
+                                <core:icon identifier="spinner-circle" size="small" />
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checking" />
+                            </span>
+                        </f:defaultCase>
+                    </f:switch>
                 </div>
             </f:if>
 
