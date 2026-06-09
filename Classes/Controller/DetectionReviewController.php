@@ -753,13 +753,28 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        // Resolve the redirect filters up front so the bump loop below can't
+        // clobber the `$source` filter param (mirrors bulkPurgeSelectedAction).
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+
+        // Capture the source before deleting (same dismissed-only WHERE as the
+        // delete) so we can bump its report generation afterwards — otherwise a
+        // single-row purge leaves already-reporting browsers holding a stale
+        // cross-session dedup marker that suppresses re-detection for the whole
+        // TTL. Same gap the bulk path already closes. (See DetectionResetGeneration.)
+        $sourcesToReset = $this->purgeableSources([$uid]);
+
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->executeStatement(
                 'DELETE FROM ' . self::DETECTION_TABLE
                 . ' WHERE uid = ? AND dismissed_at > 0',
                 [$uid],
             );
-        return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+
+        foreach ($sourcesToReset as $resetSource) {
+            $this->resetGeneration->bump($resetSource);
+        }
+        return $this->redirectToList($filters);
     }
 
     /**
