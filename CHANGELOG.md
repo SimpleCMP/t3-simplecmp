@@ -12,6 +12,21 @@ development.
 
 ### Security
 
+- **The discover-mode detection write now requires a signed token.** The
+  HTML rewriter records declaratively-blocked embeds during a sweep (see
+  Added), writing to the detection table — the only such path besides the
+  HMAC-authed bridge webhook. It was gated only on `?simplecmp_discover=1`,
+  which any anonymous visitor can set, so anyone could drive unauthenticated
+  `INSERT`/`UPDATE`s (no injection — the data is the site's own static HTML —
+  but a write-amplification / table-spam vector). The sweep now also carries
+  a source-bound, expiring `simplecmp_discover_token` (a `BridgeNonceService`
+  nonce minted by the backend `DiscoveryController`, which holds the bridge
+  secret); the rewriter records only when it verifies against the site's
+  detection source. Missing / forged / expired / wrong-source / no-secret →
+  embeds are still blocked, nothing is written. Fails closed. New
+  `DiscoverSource` centralises the source string so mint and verify can't
+  drift.
+
 - **Hardened the public `/api/simplecmp/v1/lookup` endpoint against
   abuse.** It's reachable unauthenticated (the frontend classifier hits
   it on a local miss), but had no rate limit, no batch cap, and fed the
@@ -45,6 +60,25 @@ development.
 
 ### Added
 
+- **Discover sweeps now surface declaratively-blocked embeds.** YouTube,
+  Maps and similar embeds are neutralised to `about:blank` server-side by
+  universal blocking, so they never run and the frontend recorder can't see
+  them. The HTML rewriter knows exactly what it rewrote, so during a sweep
+  (`?simplecmp_discover=1` + a valid token — see Security) it records those
+  as detections too, de-duped per page by `(kind, identifier)`. Only fires
+  when universal blocking is enabled (it can only record what it neutralised).
+
+- **Purged detections re-surface on the frontend.** Hard-deleting a detection
+  (the Verworfen-view purge) used to leave already-reporting browsers holding
+  a cross-session dedup marker that suppressed the tracker for ~7 days, so it
+  never came back even if still present on the site (the "accept-once → no
+  re-detect" bug). A new per-source report-generation counter
+  (`DetectionResetGeneration`, in `sys_registry`) is bumped on purge and
+  injected into the frontend bridge config (`config.cmsBridge.reportGeneration`,
+  keyed by `storageName`); the upstream bridge re-reports any detection whose
+  cross-session marker predates the bump. Resurfaces on the visitor's next
+  page load. Pairs with `simplecmp`'s `cmsBridge.reportGeneration`.
+
 - **Off-host sitemaps via robots.txt discovery (no admin config).** So a
   site that legitimately serves its sitemap from another host (e.g. a
   CDN) still works under the new SSRF allowlist, the Discover module now
@@ -60,6 +94,25 @@ development.
   SSRF allowlist + robots policy.
 
 ### Fixed
+
+- **Bibliotheks-Upstream panel no longer cries "nicht erreichbar" for a
+  merely-stale cache.** The list render is cache-only (never probes, so the
+  tab can't hang on a slow upstream), but a cold/expired cache rendered
+  identically to a real probe failure — and since the success cache was only
+  30 min and nothing refreshed it, that false alarm showed on almost every
+  visit. Now three states: *ok*, *down* (a probe actually failed recently,
+  shown with the timestamp), and a neutral *stale* ("Status veraltet"); on
+  *stale* a small `UpstreamProbe.js` fires the existing refresh in the
+  background and reloads into the real state — no manual "Jetzt prüfen"
+  click. Success-cache TTL raised 30 min → 24 h (drift changes rarely and a
+  bundle upgrade invalidates instantly), so the auto-probe runs at most once
+  a day. New `cachedFailureAt()` distinguishes down from cold.
+
+- **Discover-recorded `<link>` detections use the correct kind.** The
+  rewriter mapped rewritten `<link>` tags to kind `request`, but the frontend
+  recorder (and the backend "Links" category) use `link`; since detections
+  dedupe on `(source, kind, identifier)`, the same link seen both ways could
+  split into two rows. Aligned to `link`.
 
 - **Universal blocking no longer breaks third-party stylesheets or
   poisons SEO `<link>` tags.** The HTML rewriter used to rewrite *every*
