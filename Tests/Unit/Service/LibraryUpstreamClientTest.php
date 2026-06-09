@@ -152,9 +152,12 @@ final class LibraryUpstreamClientTest extends TestCase
     public function returnsEmptyOnNetworkFailure(): void
     {
         $this->cache->method('get')->willReturn(null);
+        // A network failure must NOT cache a 24h negative row for the query
+        // (that would poison a real cookie's answer for a day). Instead it
+        // opens the short circuit breaker.
         $this->cache->expects(self::once())
             ->method('put')
-            ->with('cookie', '_ga', [], self::isType('int'), self::isType('int'));
+            ->with('__health__', 'lookup-backoff', [], self::isType('int'), self::isType('int'));
         $this->stats->expects(self::once())->method('recordCall')->with(false, self::isType('int'));
         $this->requestFactory->method('request')
             ->willThrowException(new \RuntimeException('boom'));
@@ -163,6 +166,25 @@ final class LibraryUpstreamClientTest extends TestCase
 
         $result = $client->lookup('https://lib.example/v1', '_ga', null);
         self::assertSame([], $result);
+    }
+
+    #[Test]
+    public function openCircuitBreakerSkipsUpstream(): void
+    {
+        // Breaker row present (a recent failure) → lookup must skip the
+        // network entirely and return [] fast, so a down upstream can't
+        // hang each visitor's distinct unknown cookie for the full timeout.
+        $this->cache->method('get')->willReturnCallback(
+            static fn (string $type, string $value, int $now): ?array =>
+                $type === '__health__' ? [] : null,
+        );
+        $this->cache->expects(self::never())->method('put');
+        $this->stats->expects(self::never())->method('recordCall');
+        $this->requestFactory->expects(self::never())->method('request');
+
+        $client = $this->buildClient();
+
+        self::assertSame([], $client->lookup('https://lib.example/v1', '_ga', null));
     }
 
     #[Test]

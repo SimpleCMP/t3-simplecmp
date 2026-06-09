@@ -95,6 +95,19 @@ development.
 
 ### Fixed
 
+- **FE library-upstream client hardened against a slow/unreachable
+  upstream.** `LibraryUpstreamClient::lookup()` makes a synchronous
+  server-to-server call on a cache miss; if the upstream was down or slow
+  it could hang each visitor's *distinct* unknown cookie for the full
+  request timeout, and worse, a transient failure was cached as a 24h
+  no-match — poisoning a real cookie's classification for a day. Now a
+  failed call (network / timeout / non-2xx / malformed) opens a short
+  circuit breaker (60 s) instead of writing a 24h negative row: while
+  open, lookups skip the network and return "no match for now", and the
+  breaker self-heals once upstream recovers. The bundled library keeps
+  classifying known cookies throughout. Same anti-hang posture the BE
+  `/v1/health` probe already has.
+
 - **Bibliotheks-Upstream panel no longer cries "nicht erreichbar" for a
   merely-stale cache.** The list render is cache-only (never probes, so the
   tab can't hang on a slow upstream), but a cold/expired cache rendered

@@ -22,16 +22,27 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * (when local tiers miss) reaches this client. The visitor talks
  * only to the plugin's same-origin endpoint.
  *
- * Cache posture: 24h TTL for both positive and negative responses.
- * Negative caching is essential — without it, every visitor's
- * unknown cookie would hit upstream forever. Synchronous refresh
- * on stale read (no background worker). See ADR-0014 + the
+ * Cache posture: 24h TTL for positive matches AND genuine no-match
+ * answers (a clean 200 saying "no service matches this cookie").
+ * Negative caching is essential — without it, every visitor's unknown
+ * cookie would hit upstream forever. Synchronous refresh on stale read
+ * (no background worker). See ADR-0014 + the
  * `services_library_standalone` memory for the rationale.
  *
- * Network resilience: 3-second timeout, silent failure (returns the
- * negative-cache value `[]`), warning logged to TYPO3 log. The
- * upstream is best-effort by design; the bundled library still
- * covers the canonical-known case offline.
+ * Network resilience: 3-second timeout, silent failure (returns `[]`),
+ * warning logged to TYPO3 log. The upstream is best-effort by design;
+ * the bundled library still covers the canonical-known case offline.
+ *
+ * Failure handling (hardened): a FAILED call (network error / timeout /
+ * non-2xx / malformed body) is NOT cached as a 24h no-match — a
+ * transient blip must not poison a real cookie's answer for a day.
+ * Instead it opens a short circuit-breaker
+ * (`FAILURE_BACKOFF_SECONDS`): while open, `lookup()` skips the network
+ * entirely and returns `[]` fast, so a slow/unreachable upstream can't
+ * make every visitor's distinct unknown cookie each eat the full
+ * request timeout. The breaker self-heals after the window; the bundled
+ * library keeps classifying known cookies meanwhile. Same anti-hang
+ * posture the BE `/v1/health` probe got (see `library_upstream_perf_fix`).
  *
  * Bandwidth control: when `$dailyBudget > 0` and today's call count
  * has already reached it, `lookup()` returns null (tier-skip)
@@ -43,7 +54,23 @@ use TYPO3\CMS\Core\Http\RequestFactory;
 final readonly class LibraryUpstreamClient
 {
     private const int TIMEOUT_SECONDS = 3;
-    private const int CACHE_TTL_SECONDS = 86400; // 24h, positive + negative
+    private const int CACHE_TTL_SECONDS = 86400; // 24h, positive + genuine no-match
+
+    /**
+     * Circuit-breaker window after a failed upstream call. While a
+     * failure is within this window, `lookup()` skips the network so a
+     * down/slow upstream can't hang each visitor's distinct unknown
+     * cookie for the full request timeout. Short, so the breaker
+     * self-heals quickly once upstream recovers.
+     */
+    private const int FAILURE_BACKOFF_SECONDS = 60;
+
+    /**
+     * Sentinel cache key for the circuit breaker. `__health__` can't
+     * collide with a real query (those use type `cookie` / `origin`).
+     */
+    private const string BREAKER_TYPE = '__health__';
+    private const string BREAKER_KEY = 'lookup-backoff';
 
     /**
      * Resolved once at construction from the ext-config field
@@ -125,6 +152,16 @@ final readonly class LibraryUpstreamClient
             return null;
         }
 
+        // Circuit breaker: a recent upstream call failed. Skip the network
+        // entirely until the backoff window elapses, so a slow/unreachable
+        // upstream can't make every visitor's distinct unknown cookie each
+        // eat the full request timeout. Treat as no-match for now; the
+        // breaker self-heals after FAILURE_BACKOFF_SECONDS. (A cache hit for
+        // this specific query was already returned above.)
+        if ($this->cache->get(self::BREAKER_TYPE, self::BREAKER_KEY, $now) !== null) {
+            return [];
+        }
+
         if ($dailyBudget !== null && $dailyBudget > 0 && $this->stats->getTodayCalls($now) >= $dailyBudget) {
             $this->logger->info(
                 'SimpleCMP library upstream call skipped (daily budget {budget} reached).',
@@ -138,6 +175,22 @@ final readonly class LibraryUpstreamClient
         }
 
         $matches = $this->fetchFromUpstream($upstreamUrl, $queryType, $queryValue, $now);
+        if ($matches === null) {
+            // No clean answer (network error / non-2xx / malformed). Open
+            // the circuit breaker for a short window instead of caching a
+            // 24h negative row — a transient failure must not be cached as a
+            // definitive no-match for the whole day. The breaker makes
+            // subsequent lookups (any query) skip the slow upstream until it
+            // recovers. Returns `[]` = treat as no-match for now.
+            $this->cache->put(
+                self::BREAKER_TYPE,
+                self::BREAKER_KEY,
+                [],
+                $now,
+                $now + self::FAILURE_BACKOFF_SECONDS,
+            );
+            return [];
+        }
         $this->cache->put(
             $queryType,
             $queryValue,
@@ -149,10 +202,13 @@ final readonly class LibraryUpstreamClient
     }
 
     /**
-     * @return list<array<string, mixed>> matches from upstream, or `[]`
-     *     on any failure (silent fallback; warning logged)
+     * @return list<array<string, mixed>>|null matches from upstream
+     *     (possibly an empty list = a clean no-match answer), or `null`
+     *     when no clean answer could be obtained (network error / non-2xx
+     *     / malformed body). The caller treats `null` as a failure (opens
+     *     the circuit breaker); an empty list as a cacheable no-match.
      */
-    private function fetchFromUpstream(string $upstreamUrl, string $queryType, string $queryValue, int $now): array
+    private function fetchFromUpstream(string $upstreamUrl, string $queryType, string $queryValue, int $now): ?array
     {
         $endpoint = rtrim($upstreamUrl, '/') . '/lookup';
         $body = json_encode([
@@ -162,7 +218,7 @@ final readonly class LibraryUpstreamClient
         ]);
         if ($body === false) {
             $this->stats->recordCall(false, $now);
-            return [];
+            return null;
         }
 
         try {
@@ -181,7 +237,7 @@ final readonly class LibraryUpstreamClient
                 'SimpleCMP library upstream lookup failed (network): {message}',
                 ['endpoint' => $endpoint, 'message' => $e->getMessage()],
             );
-            return [];
+            return null;
         }
 
         $status = $response->getStatusCode();
@@ -191,7 +247,7 @@ final readonly class LibraryUpstreamClient
                 'SimpleCMP library upstream returned non-2xx: {status}',
                 ['endpoint' => $endpoint, 'status' => $status],
             );
-            return [];
+            return null;
         }
 
         $payload = json_decode((string) $response->getBody(), true);
@@ -201,7 +257,7 @@ final readonly class LibraryUpstreamClient
                 'SimpleCMP library upstream returned malformed response (no `items` array).',
                 ['endpoint' => $endpoint],
             );
-            return [];
+            return null;
         }
 
         $this->stats->recordCall(true, $now);
