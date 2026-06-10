@@ -104,4 +104,32 @@ final class HtmlRewriterStylesheetTest extends TestCase
         self::assertStringNotContainsString('data-name', $result);
         self::assertStringContainsString('https://cdn.example.com/bootstrap.css', $result);
     }
+
+    #[Test]
+    public function blockedStylesheetIsRecordedWithStylesheetKind(): void
+    {
+        // The distinct `stylesheet` kind lets the BE surface blocked
+        // stylesheets separately from resource-hint <link>s (Phase C review).
+        $rewriter = new HtmlRewriter(
+            $this->createMock(DetectionRepository::class),
+            $this->createMock(StoragePidResolver::class),
+            $this->createMock(BridgeNonceService::class),
+        );
+        $ref = new \ReflectionClass($rewriter);
+        $ref->getProperty('sameOriginHosts')->setValue($rewriter, []);
+        $ref->getProperty('blockStylesheets')->setValue($rewriter, true);
+        $matcher = new HostMatcher([], true);
+        $stats = ['scanned' => 0, 'rewritten' => 0];
+        $detections = [];
+
+        $ref->getMethod('rewriteHtml')->invokeArgs(
+            $rewriter,
+            [$this->page('<link rel="stylesheet" href="' . self::FONTS . '">'), $matcher, &$stats, &$detections],
+        );
+
+        self::assertCount(1, $detections);
+        self::assertSame('stylesheet', $detections[0]['kind']);
+        self::assertSame(self::FONTS, $detections[0]['identifier']);
+        self::assertSame('fonts.googleapis.com', $detections[0]['origin']);
+    }
 }

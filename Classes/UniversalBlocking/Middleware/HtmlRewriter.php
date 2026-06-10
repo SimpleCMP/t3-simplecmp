@@ -393,9 +393,12 @@ final class HtmlRewriter implements MiddlewareInterface
                 // to use: `library` → visitor sees a "Ja" (one-time accept)
                 // button; `host` → informational-only notice because the
                 // visitor has no basis to consent to an unknown vendor.
+                $isStylesheet = $tagName === 'link'
+                    && $this->blockStylesheets
+                    && $this->linkRelIsStylesheet($node);
                 $node->setAttribute('data-name', $resolution['service']);
                 $node->setAttribute('data-blocked-source', $resolution['source']);
-                if ($tagName === 'link' && $this->blockStylesheets && $this->linkRelIsStylesheet($node)) {
+                if ($isStylesheet) {
                     // REQ-N8 stylesheet gate: the engine reinjects from
                     // data-href on consent. A stylesheet ignores `type=` and
                     // would still load at about:blank — only an ABSENT href
@@ -414,7 +417,10 @@ final class HtmlRewriter implements MiddlewareInterface
                 }
                 $stats['rewritten']++;
                 $detections[] = [
-                    'kind' => self::KIND_MAP[$tagName] ?? 'request',
+                    // Distinct `stylesheet` kind so the BE can surface blocked
+                    // stylesheets separately from resource-hint <link>s
+                    // (REQ-N8 Phase C review + fast-allow).
+                    'kind' => $isStylesheet ? 'stylesheet' : (self::KIND_MAP[$tagName] ?? 'request'),
                     'identifier' => $url,
                     'origin' => $host,
                 ];

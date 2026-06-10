@@ -61,7 +61,7 @@ final class DetectionReviewController extends ActionController
         'all',
     ];
     private const string DEFAULT_STATUS = 'pending';
-    private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
+    private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'stylesheet', 'request'];
     private const array CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
 
     public function __construct(

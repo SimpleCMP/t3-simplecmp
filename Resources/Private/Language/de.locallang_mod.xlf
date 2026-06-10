@@ -203,6 +203,7 @@
       <trans-unit id="filter.kind.iframe"><source>Iframes</source><target>Iframes</target></trans-unit>
       <trans-unit id="filter.kind.image"><source>Images</source><target>Bilder</target></trans-unit>
       <trans-unit id="filter.kind.link"><source>Links</source><target>Links</target></trans-unit>
+      <trans-unit id="filter.kind.stylesheet"><source>Stylesheets</source><target>Stylesheets</target></trans-unit>
       <trans-unit id="filter.kind.request"><source>Requests</source><target>Anfragen</target></trans-unit>
 
       <trans-unit id="filter.confidence.label"><source>Confidence filter</source><target>Vertrauensfilter</target></trans-unit>
