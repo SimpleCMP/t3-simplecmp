@@ -115,7 +115,7 @@ final class HtmlRewriter implements MiddlewareInterface
         'prerender',
     ];
 
-    /** @var list<string> site's own hosts — never rewritten */
+    /** @var list<string> site's own hosts (lowercased) — never rewritten */
     private array $sameOriginHosts = [];
 
     /**
@@ -181,7 +181,7 @@ final class HtmlRewriter implements MiddlewareInterface
             return $response;
         }
 
-        $this->sameOriginHosts = [$request->getUri()->getHost()];
+        $this->sameOriginHosts = $this->siteHosts($site, $request);
 
         $start = hrtime(true);
         $stats = ['scanned' => 0, 'rewritten' => 0];
@@ -297,6 +297,35 @@ final class HtmlRewriter implements MiddlewareInterface
     }
 
     /**
+     * The site's own hosts (lowercased), which must never be rewritten:
+     * the request host plus the site's configured base + per-language base
+     * hosts. Without the configured hosts, a multi-domain / multi-language
+     * site's absolute first-party asset URLs (served from a sibling host the
+     * site owns) would be treated as third-party and neutralised. Only
+     * *widens* the first-party set to hosts the site actually owns — it never
+     * exempts a third-party host. Mirrors DiscoveryController::siteHosts().
+     *
+     * @return list<string>
+     */
+    private function siteHosts(Site $site, ServerRequestInterface $request): array
+    {
+        $hosts = [];
+        $add = static function (string $host) use (&$hosts): void {
+            $host = strtolower($host);
+            if ($host !== '' && !in_array($host, $hosts, true)) {
+                $hosts[] = $host;
+            }
+        };
+        $add($request->getUri()->getHost());
+        $add($site->getBase()->getHost());
+        foreach ($site->getLanguages() as $language) {
+            $add($language->getBase()->getHost());
+        }
+
+        return $hosts;
+    }
+
+    /**
      * @param array{scanned: int, rewritten: int} $stats updated in-place
      * @param list<array{kind: string, identifier: string, origin: string}> $detections collected in-place
      */
@@ -340,7 +369,11 @@ final class HtmlRewriter implements MiddlewareInterface
                     continue;
                 }
                 $stats['scanned']++;
-                if (in_array($host, $this->sameOriginHosts, true)) {
+                // sameOriginHosts is lowercased; parse_url() leaves the host
+                // case as-written, and DNS hosts are case-insensitive — so
+                // compare lowercased or an upper/mixed-case first-party URL
+                // would slip past the exemption and get neutralised.
+                if (in_array(strtolower($host), $this->sameOriginHosts, true)) {
                     continue;
                 }
                 $resolution = $matcher->resolve($host);
