@@ -183,6 +183,12 @@ final class DetectionReviewController extends ActionController
 
         $spike = $this->listPresenter->computeSpikeContext();
 
+        // REQ-N8 C3: nudge admins of blocking-enabled sites that aren't yet
+        // gating third-party CSS, but only when there's actual third-party
+        // <link> evidence (cheap COUNT is skipped entirely when no site qualifies).
+        $stylesheetNudgeSites = $this->stylesheetNudgeSites();
+        $showStylesheetNudge = $stylesheetNudgeSites !== [] && $this->hasThirdPartyStylesheetEvidence();
+
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple([
@@ -202,6 +208,8 @@ final class DetectionReviewController extends ActionController
             'spikeAlert' => $spike['spikeAlert'],
             'todayCount' => $spike['todayCount'],
             'sevenDayAverage' => $spike['sevenDayAverage'],
+            'showStylesheetNudge' => $showStylesheetNudge,
+            'stylesheetNudgeSites' => $stylesheetNudgeSites,
             'secretMissing' => !$this->bridgeSecretProvider->isConfigured(),
             'currentPage' => $page,
             'totalPages' => $totalPages,
@@ -357,6 +365,62 @@ final class DetectionReviewController extends ActionController
             ->executeQuery()
             ->fetchAllAssociative();
         return array_values(array_filter(array_map(static fn (array $r) => (string) $r['source'], $rows)));
+    }
+
+    /**
+     * REQ-N8 C3 first-run nudge: sites where universal blocking is ON but
+     * third-party stylesheet blocking is still OFF — the precise gap where
+     * flipping `blockStylesheets` actually changes behaviour (the rewriter
+     * gates CSS only when both are on). Each entry deep-links to that site's
+     * Site Settings editor, with a returnUrl back to this module. Sites that
+     * already block stylesheets — or don't block at all — are skipped, so the
+     * nudge self-clears once the admin acts.
+     *
+     * @return list<array{identifier: string, uri_enable: string}>
+     */
+    private function stylesheetNudgeSites(): array
+    {
+        $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
+        $sites = [];
+        foreach ($this->siteFinder->getAllSites() as $site) {
+            $settings = $site->getSettings();
+            if (!$settings->get('simplecmp.universalBlocking.enabled')) {
+                continue;
+            }
+            if ($settings->get('simplecmp.universalBlocking.blockStylesheets')) {
+                continue;
+            }
+            $sites[] = [
+                'identifier' => $site->getIdentifier(),
+                'uri_enable' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                    'site_configuration.editSettings',
+                    ['site' => $site->getIdentifier(), 'returnUrl' => $returnUrl],
+                ),
+            ];
+        }
+        return $sites;
+    }
+
+    /**
+     * Evidence gate for the C3 nudge: is there any recorded third-party
+     * `<link>` / stylesheet detection at all? Keeps the nudge off sites that
+     * load no third-party CSS (nothing to block → no point nagging). While
+     * `blockStylesheets` is off the rewriter records these as `link`; once on
+     * they arrive as `stylesheet` — count both.
+     */
+    private function hasThirdPartyStylesheetEvidence(): bool
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $count = (int) $qb->count('uid')
+            ->from(self::DETECTION_TABLE)
+            ->where($qb->expr()->or(
+                $qb->expr()->eq('kind', $qb->createNamedParameter('link')),
+                $qb->expr()->eq('kind', $qb->createNamedParameter('stylesheet')),
+            ))
+            ->executeQuery()
+            ->fetchOne();
+        return $count > 0;
     }
 
     /**

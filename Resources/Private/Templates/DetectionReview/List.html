@@ -82,6 +82,36 @@
         </f:else>
     </f:if>
 
+    <f:if condition="{showStylesheetNudge}">
+        <div class="callout callout-info mb-3">
+            <div class="callout-content">
+                <h4 class="callout-title">
+                    <core:icon identifier="actions-shield" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.title" />
+                </h4>
+                <p class="callout-body">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.body" />
+                </p>
+                <p class="callout-body mb-0">
+                    <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.selfHost" /></strong>
+                </p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <f:for each="{stylesheetNudgeSites}" as="nudgeSite">
+                        <a href="{nudgeSite.uri_enable}" class="btn btn-primary btn-sm">
+                            <core:icon identifier="actions-cog" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.enable" />
+                            <code class="ms-1">{nudgeSite.identifier}</code>
+                        </a>
+                    </f:for>
+                    <a href="{uri_discover}" class="btn btn-outline-primary btn-sm">
+                        <core:icon identifier="actions-search" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </f:if>
+
     <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
         <select data-list-filter="status" class="form-select form-select-sm" style="width:auto"
                 aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.status.label')}">
@@ -395,6 +425,10 @@
                                                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet" />
                                             </span>
                                         </a>
+                                        <span class="text-muted ms-1" style="cursor:help"
+                                              title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.stylesheet.selfHostHint')}">
+                                            <core:icon identifier="actions-info-circle" size="small" />
+                                        </span>
                                     </f:if>
                                 </div>
                             </td>
