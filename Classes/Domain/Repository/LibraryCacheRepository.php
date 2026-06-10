@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
@@ -75,30 +76,35 @@ final readonly class LibraryCacheRepository
         $connection = $this->connectionPool->getConnectionForTable(self::TABLE);
         $payload = (string) json_encode($response);
 
-        // Upsert via DELETE-then-INSERT pattern — the unique key on
-        // (query_type, query_value) means a race could collide, but
-        // worst case is one row losing to another, which is fine for
-        // a cache.
-        $connection->executeStatement(
-            'DELETE FROM ' . self::TABLE
-            . ' WHERE query_type = ? AND query_value = ?',
-            [$queryType, $queryValue],
-        );
-        $connection->executeStatement(
-            'INSERT INTO ' . self::TABLE
-            . ' (query_type, query_value, response_json, fetched_at, expires_at, crdate, tstamp)'
-            . ' VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$queryType, $queryValue, $payload, $fetchedAt, $expiresAt, $fetchedAt, $fetchedAt],
-            [
-                ParameterType::STRING,
-                ParameterType::STRING,
-                ParameterType::STRING,
-                ParameterType::INTEGER,
-                ParameterType::INTEGER,
-                ParameterType::INTEGER,
-                ParameterType::INTEGER,
-            ],
-        );
+        // Race-safe upsert. The old DELETE-then-INSERT could collide on the
+        // UNIQUE (query_type, query_value) key when two visitor lookups cached
+        // the same query concurrently — the second INSERT threw and surfaced as
+        // a 500 on the public /v1/lookup path. Try INSERT; on a unique-key
+        // violation (a concurrent writer won, OR a stale/expired row is still
+        // present — get() leaves expired rows), refresh the row in place. Last
+        // write wins, which is fine for a cache; crdate is preserved.
+        try {
+            $connection->insert(self::TABLE, [
+                'query_type' => $queryType,
+                'query_value' => $queryValue,
+                'response_json' => $payload,
+                'fetched_at' => $fetchedAt,
+                'expires_at' => $expiresAt,
+                'crdate' => $fetchedAt,
+                'tstamp' => $fetchedAt,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            $connection->update(
+                self::TABLE,
+                [
+                    'response_json' => $payload,
+                    'fetched_at' => $fetchedAt,
+                    'expires_at' => $expiresAt,
+                    'tstamp' => $fetchedAt,
+                ],
+                ['query_type' => $queryType, 'query_value' => $queryValue],
+            );
+        }
     }
 
     /**
