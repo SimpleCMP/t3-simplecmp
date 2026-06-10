@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 
 /**
@@ -21,6 +22,13 @@ use TYPO3\CMS\Core\Configuration\ConfigurationManager;
  * out of the box on first install. Env-var overrides still win — when
  * an env-bound `bridgeSecret` is non-empty, `isConfigured()` returns
  * true and auto-gen is a no-op.
+ *
+ * Auto-gen only fires when the secret is GENUINELY absent. If a value is
+ * present but too short, or a valid value exists in LocalConfiguration but
+ * is overridden at runtime (e.g. an `additional.php` env binding that
+ * resolves empty), `ensureExists()` logs a warning and does nothing —
+ * generating would be futile (the runtime override wins) and would rewrite
+ * LocalConfiguration.php on every backend access.
  *
  * The secret is shared between bridge sender (`RegisterAssets` issuing
  * nonces into JS init config) and receiver (`ServiceDbApi::webhook()`
@@ -41,6 +49,7 @@ final readonly class BridgeSecretProvider
 
     public function __construct(
         private ?ConfigurationManager $configurationManager = null,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -86,7 +95,68 @@ final readonly class BridgeSecretProvider
         if ($this->isConfigured()) {
             return false;
         }
+
+        // Not configured at runtime. Auto-gen writes to LocalConfiguration.php,
+        // which is FUTILE — and churns the file on every BE access — when
+        // something overrides `bridgeSecret` at runtime. Diagnose before
+        // generating so we don't rewrite the config on a loop.
+        $runtimeRaw = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][self::EXTENSION_KEY][self::CONFIG_KEY] ?? null;
+
+        // (a) A value IS set but too short. `get()` rejected it, so the bridge
+        //     stays disabled (safe). Generating over it would write a secret the
+        //     too-short value (typically env-bound via additional.php) overrides
+        //     next request → churn + a dead bridge with no signal. Warn instead.
+        if (is_string($runtimeRaw) && $runtimeRaw !== '' && strlen($runtimeRaw) < self::MIN_SECRET_BYTES) {
+            $this->logger?->warning(
+                'SimpleCMP bridgeSecret is set but shorter than {min} characters — it '
+                . 'is ignored (the bridge stays disabled) and NOT auto-generated over, '
+                . 'to avoid rewriting LocalConfiguration.php on every backend access. '
+                . 'Set a value of at least {min} characters (e.g. base64 of 32 random '
+                . 'bytes) via SIMPLECMP_BRIDGE_SECRET.',
+                ['min' => self::MIN_SECRET_BYTES],
+            );
+            return false;
+        }
+
+        // (b) Runtime value absent/empty, but LocalConfiguration already holds a
+        //     valid secret → a runtime override (env binding in additional.php
+        //     that resolves empty) is masking it. Regenerating would just churn
+        //     against the override; surface the real problem instead.
+        if ($this->persistedSecretIsValid()) {
+            $this->logger?->warning(
+                'SimpleCMP bridgeSecret is missing at runtime but a valid value exists '
+                . 'in LocalConfiguration.php — it is being overridden at runtime '
+                . '(typically an env binding in additional.php that resolves empty). '
+                . 'Set the SIMPLECMP_BRIDGE_SECRET env value or remove the override. '
+                . 'Not auto-generating again, to avoid config churn.',
+            );
+            return false;
+        }
+
+        // (c) Genuinely absent everywhere → first-time generate + persist.
         return $this->generateAndPersist();
+    }
+
+    /**
+     * Whether the value persisted in LocalConfiguration.php (NOT the merged
+     * runtime value, which additional.php may override) is a usable secret.
+     * Lets `ensureExists()` tell "never generated" from "generated but
+     * overridden at runtime".
+     */
+    private function persistedSecretIsValid(): bool
+    {
+        if ($this->configurationManager === null) {
+            return false;
+        }
+        try {
+            $value = $this->configurationManager->getLocalConfigurationValueByPath(
+                'EXTENSIONS/' . self::EXTENSION_KEY . '/' . self::CONFIG_KEY,
+            );
+        } catch (\Throwable) {
+            // MissingArrayPathException (or similar) → nothing persisted yet.
+            return false;
+        }
+        return is_string($value) && $value !== '' && strlen($value) >= self::MIN_SECRET_BYTES;
     }
 
     /**
