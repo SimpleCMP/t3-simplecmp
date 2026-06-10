@@ -224,6 +224,47 @@ TTL), DNT opt-in / opt-out, and `navigator.sendBeacon` flushing on
 into a single row whose `occurrences` and `last_seen` bump on repeat
 hits.
 
+## Blocking third-party stylesheets (Google Fonts)
+
+Universal blocking gates third-party `<script>` / `<iframe>` / `<img>`
+out of the box, but it leaves `<link rel="stylesheet">` alone by
+default. Third-party CSS — most commonly **Google Fonts** loaded from
+`fonts.googleapis.com` — sends the visitor's IP to the third party
+before any consent, which DACH courts have treated as a violation
+(LG München I, 3 O 17493/20). This is opt-in because, unlike a blocked
+script, a blocked stylesheet fails *visibly* (unstyled text) with no
+per-visitor recovery for unknown hosts. See
+[the decision record](docs/decisions/2026-06-10-stylesheet-blocking-default-off.md)
+for why it ships off.
+
+> **The durable fix is self-hosting.** Download the font / CSS and serve
+> it from your own domain — then no third-party request happens at all,
+> and there is nothing to block or consent to. Blocking is a stopgap for
+> CSS you can't (yet) self-host.
+
+**Turning it on.** Set `simplecmp.universalBlocking.blockStylesheets: true`
+in the site's settings (Site module → *Einrichtung* → *Settings*; requires
+`universalBlocking.enabled` too). The `HtmlRewriter` then moves a blocked
+stylesheet's `href` into `data-href` so the browser never fetches it
+pre-consent; the engine reinjects it (and re-blocks on withdrawal) exactly
+like a gated script. While the toggle is off, the SimpleCMP module shows a
+**first-run nudge** with a one-click deep-link into each affected site's
+settings.
+
+**Reviewing what got blocked.** Run *Tracker entdecken* (Discover) with the
+toggle on — it sweeps your pages in the admin's browser and records every
+blocked stylesheet as a `stylesheet`-kind detection. For each one you can
+either self-host it, or click **Stylesheet erlauben** to allow that host's
+CSS through. The allow is **stylesheet-scoped**: scripts and iframes from
+the same host stay gated (deliberately narrower than the host-wide
+`universalBlocking.allowlist`, which passes every resource type).
+
+**Best-effort, not "now compliant".** The browser's preload scanner can
+fetch a stylesheet before the rewriter intervenes, `@import url(...)` inside
+a stylesheet escapes entirely, and dynamically-inserted `<link>`s aren't
+hooked. Treat blocking as risk reduction; self-hosting is the only complete
+fix.
+
 ## Status
 
 Iterations shipped:
@@ -283,6 +324,20 @@ Iterations shipped:
     `vendor_description`; admin-editable via TCA). Run
     `vendor/bin/typo3 database:updateschema` on upgrade. Matches the
     German-market accepted three-layer-disclosure pattern.
+14. **Opt-in third-party stylesheet blocking (REQ-N8).** New Site Set
+    field `simplecmp.universalBlocking.blockStylesheets` (default
+    **off**) extends the rewriter to gate third-party
+    `<link rel="stylesheet">` (e.g. Google Fonts) behind consent —
+    `href` moved to `data-href`, reinjected by the engine on consent.
+    The BE surfaces blocked stylesheets as a distinct `stylesheet` kind
+    with a **stylesheet-scoped per-host allow** (new
+    `tx_t3simplecmp_allowed_stylesheet_host` table — run
+    `database:updateschema` on upgrade) that, unlike the host-wide
+    allowlist, still gates scripts/iframes from that host. A first-run
+    nudge points admins of blocking-enabled sites that aren't yet
+    gating CSS at the toggle + Discover, leading with self-hosting as
+    the durable fix. Best-effort (preload scanner / `@import` escape).
+    See [Blocking third-party stylesheets](#blocking-third-party-stylesheets-google-fonts).
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
