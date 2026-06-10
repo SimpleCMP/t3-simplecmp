@@ -71,6 +71,12 @@ settings:
     type: bool
     default: true
 
+  simplecmp.universalBlocking.blockStylesheets:
+    label: 'Also block third-party stylesheets (opt-in, best-effort)'
+    description: 'When on (and universal blocking is enabled), the rewriter also gates third-party <link rel="stylesheet"> (e.g. Google Fonts at fonts.googleapis.com) — moving the href to data-href so the browser never loads it pre-consent; the engine reinjects it on consent. OFF by default and deliberately so: the honest fix for third-party fonts/CSS is SELF-HOSTING. This is best-effort, not "now compliant" — the browser preload-scanner can fetch a stylesheet before the rewriter intervenes, and @import url(...) inside a stylesheet escapes entirely. After turning this on, run Tracker entdecken (Discover) to see which stylesheets are now blocked and allow the ones you need (add their host to the allowlist) or self-host them.'
+    type: bool
+    default: false
+
   simplecmp.libraryUpstreamUrl:
     label: 'Library service upstream URL'
     description: 'Base URL of the canonical SimpleCMP services-library endpoint (including the `/v1` version segment). When set, ClassifierLookup queries this server as a third tier after the registry and bundled library both miss — so newly-added trackers get classified correctly without waiting for a composer-update to refresh the bundled snapshot. Visitor IPs never reach this URL; only this server queries it (server-to-server). Responses are cached locally for 24h (both positive and negative). On by default — set to empty string to disable upstream and use only the bundled library that ships with the extension.'

@@ -118,6 +118,9 @@ final class HtmlRewriter implements MiddlewareInterface
     /** @var list<string> site's own hosts (lowercased) — never rewritten */
     private array $sameOriginHosts = [];
 
+    /** REQ-N8 opt-in: also gate third-party `<link rel="stylesheet">`. */
+    private bool $blockStylesheets = false;
+
     /**
      * Maps a rewritten tag to the detection `kind` the BE list expects.
      * Must match the FE recorder's vocabulary (DomWatcher `TAG_TO_KIND`:
@@ -182,6 +185,7 @@ final class HtmlRewriter implements MiddlewareInterface
         }
 
         $this->sameOriginHosts = $this->siteHosts($site, $request);
+        $this->blockStylesheets = (bool) $settings->get('simplecmp.universalBlocking.blockStylesheets');
 
         $start = hrtime(true);
         $stats = ['scanned' => 0, 'rewritten' => 0];
@@ -354,10 +358,14 @@ final class HtmlRewriter implements MiddlewareInterface
                     // Already integrator-marked; engine handles it.
                     continue;
                 }
-                // <link> is only a tracking vector for resource-hint
-                // rels — see LINK_REWRITABLE_RELS for why stylesheet /
-                // canonical / icon / unknown rels are left untouched.
-                if ($tagName === 'link' && !$this->linkRelIsRewritable($node)) {
+                // <link> is rewritten only for resource-hint rels (see
+                // LINK_REWRITABLE_RELS) — plus rel=stylesheet when the
+                // blockStylesheets opt-in is on (REQ-N8). canonical / icon /
+                // unknown rels are always left untouched.
+                if ($tagName === 'link'
+                    && !$this->linkRelIsRewritable($node)
+                    && !($this->blockStylesheets && $this->linkRelIsStylesheet($node))
+                ) {
                     continue;
                 }
                 $url = $node->getAttribute($attr);
@@ -386,15 +394,23 @@ final class HtmlRewriter implements MiddlewareInterface
                 // button; `host` → informational-only notice because the
                 // visitor has no basis to consent to an unknown vendor.
                 $node->setAttribute('data-name', $resolution['service']);
-                $node->setAttribute('data-src', $url);
                 $node->setAttribute('data-blocked-source', $resolution['source']);
-                if ($tagName === 'iframe' || $tagName === 'img') {
-                    $node->setAttribute($attr, 'about:blank');
-                } elseif ($tagName === 'script') {
-                    $node->setAttribute('type', 'text/plain');
-                    $node->removeAttribute('src');
-                } elseif ($tagName === 'link') {
-                    $node->setAttribute($attr, 'about:blank');
+                if ($tagName === 'link' && $this->blockStylesheets && $this->linkRelIsStylesheet($node)) {
+                    // REQ-N8 stylesheet gate: the engine reinjects from
+                    // data-href on consent. A stylesheet ignores `type=` and
+                    // would still load at about:blank — only an ABSENT href
+                    // blocks it — so move the href into data-href and strip it.
+                    $node->setAttribute('data-href', $url);
+                    $node->removeAttribute($attr); // href
+                } else {
+                    $node->setAttribute('data-src', $url);
+                    if ($tagName === 'script') {
+                        $node->setAttribute('type', 'text/plain');
+                        $node->removeAttribute('src');
+                    } else {
+                        // iframe / img / resource-hint <link>
+                        $node->setAttribute($attr, 'about:blank');
+                    }
                 }
                 $stats['rewritten']++;
                 $detections[] = [
@@ -436,5 +452,18 @@ final class HtmlRewriter implements MiddlewareInterface
             }
         }
         return false;
+    }
+
+    /**
+     * True when a `<link>`'s `rel` token list includes `stylesheet`. Gated
+     * behind the `blockStylesheets` opt-in by the caller (REQ-N8).
+     */
+    private function linkRelIsStylesheet(\DOMElement $node): bool
+    {
+        $rel = strtolower(trim($node->getAttribute('rel')));
+        if ($rel === '') {
+            return false;
+        }
+        return in_array('stylesheet', preg_split('/\s+/', $rel) ?: [], true);
     }
 }
