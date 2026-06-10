@@ -116,7 +116,11 @@ CREATE TABLE tx_t3simplecmp_detection (
 
     PRIMARY KEY (uid),
     KEY pid (pid),
-    KEY dedup_key (source, kind, identifier(191)),
+    -- UNIQUE on the full triple so the ingest upsert can't race two POSTs
+    -- into duplicate rows. Full-length (not a 191 prefix): a prefix would
+    -- collide distinct long identifiers and the catch-fallback UPDATE keys on
+    -- the full identifier. (100+32+500)*4 = 2528 bytes < InnoDB's 3072 limit.
+    UNIQUE KEY dedup_key (source, kind, identifier),
     KEY received_at (received_at),
     KEY dismissed_at (dismissed_at)
 );

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -67,15 +69,7 @@ final readonly class DetectionRepository
         $identifier = (string) $detection['identifier'];
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
-        $existing = $conn->createQueryBuilder()
-            ->select('uid', 'occurrences')
-            ->from(self::TABLE)
-            ->where('source = :source AND kind = :kind AND identifier = :id')
-            ->setParameter('source', $source)
-            ->setParameter('kind', $kind)
-            ->setParameter('id', $identifier)
-            ->executeQuery()
-            ->fetchAssociative();
+        $existing = $this->fetchExisting($conn, $source, $kind, $identifier);
 
         $now = time();
         $shared = [
@@ -108,19 +102,32 @@ final readonly class DetectionRepository
         ];
 
         if ($existing === false) {
-            $conn->insert(self::TABLE, array_merge($shared, [
-                'pid' => $pid,
-                'crdate' => $now,
-                'received_at' => $now,
-                'source' => $source,
-                'kind' => $kind,
-                'identifier' => $identifier,
-                'first_seen' => isset($detection['firstSeen']) && is_int($detection['firstSeen'])
-                    ? $detection['firstSeen']
-                    : null,
-                'occurrences' => 1,
-            ]));
-            return;
+            try {
+                $conn->insert(self::TABLE, array_merge($shared, [
+                    'pid' => $pid,
+                    'crdate' => $now,
+                    'received_at' => $now,
+                    'source' => $source,
+                    'kind' => $kind,
+                    'identifier' => $identifier,
+                    'first_seen' => isset($detection['firstSeen']) && is_int($detection['firstSeen'])
+                        ? $detection['firstSeen']
+                        : null,
+                    'occurrences' => 1,
+                ]));
+                return;
+            } catch (UniqueConstraintViolationException) {
+                // A concurrent POST inserted the same (source,kind,identifier)
+                // between our SELECT and this INSERT. The UNIQUE dedup_key index
+                // rejected the duplicate; re-read the now-present row and fall
+                // through to the UPDATE so we bump occurrences instead of 500-ing.
+                $existing = $this->fetchExisting($conn, $source, $kind, $identifier);
+                if ($existing === false) {
+                    // Row vanished again (extremely unlikely) — give up rather
+                    // than loop; the detection is best-effort telemetry.
+                    return;
+                }
+            }
         }
 
         $conn->update(
@@ -130,6 +137,24 @@ final readonly class DetectionRepository
             ]),
             ['uid' => (int) $existing['uid']],
         );
+    }
+
+    /**
+     * The existing row for a `(source, kind, identifier)` triple, or false.
+     *
+     * @return array<string, mixed>|false
+     */
+    private function fetchExisting(Connection $conn, string $source, string $kind, string $identifier): array|false
+    {
+        return $conn->createQueryBuilder()
+            ->select('uid', 'occurrences')
+            ->from(self::TABLE)
+            ->where('source = :source AND kind = :kind AND identifier = :id')
+            ->setParameter('source', $source)
+            ->setParameter('kind', $kind)
+            ->setParameter('id', $identifier)
+            ->executeQuery()
+            ->fetchAssociative();
     }
 
     /**

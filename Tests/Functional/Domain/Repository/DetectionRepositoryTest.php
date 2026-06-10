@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Tests\Functional\Domain\Repository;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -50,6 +51,31 @@ final class DetectionRepositoryTest extends FunctionalTestCase
         $rows = $this->allRowsForTriple('default', 'cookie', '_fbp');
         self::assertCount(1, $rows);
         self::assertSame(3, (int) $rows[0]['occurrences']);
+    }
+
+    #[Test]
+    public function uniqueIndexRejectsDuplicateTriple(): void
+    {
+        // The repository inserts the first row.
+        $this->repository->ingest($this->payload([
+            'source' => 'site-a',
+            'detection' => $this->detection('_dup'),
+        ]));
+        self::assertCount(1, $this->allRowsForTriple('site-a', 'cookie', '_dup'));
+
+        // A raw duplicate INSERT of the same (source,kind,identifier) is
+        // rejected by the UNIQUE dedup_key index — the schema guard that makes
+        // the ingest upsert race-safe (ingestOne's catch relies on it firing,
+        // so two concurrent POSTs can't produce duplicate rows).
+        $conn = $this->get(ConnectionPool::class)->getConnectionForTable(self::TABLE);
+        $this->expectException(UniqueConstraintViolationException::class);
+        $conn->insert(self::TABLE, [
+            'pid' => 0,
+            'source' => 'site-a',
+            'kind' => 'cookie',
+            'identifier' => '_dup',
+            'occurrences' => 1,
+        ]);
     }
 
     #[Test]
