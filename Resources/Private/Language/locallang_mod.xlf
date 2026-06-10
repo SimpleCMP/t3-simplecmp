@@ -167,6 +167,8 @@
 
       <trans-unit id="list.action.dismiss"><source>Dismiss</source></trans-unit>
       <trans-unit id="list.action.dismiss.title"><source>Park this detection — it will stop showing in the actionable list and will not reappear even if visitors keep triggering it. Reversible from the Dismissed view.</source></trans-unit>
+      <trans-unit id="list.action.allowStylesheet"><source>Allow stylesheet</source></trans-unit>
+      <trans-unit id="list.action.allowStylesheet.title"><source>Allow this host's stylesheets to load normally (stops blocking its CSS). Scoped to stylesheets — scripts and iframes from the same host stay blocked. Prefer self-hosting for fonts (e.g. Google Fonts) where you can.</source></trans-unit>
       <trans-unit id="list.action.undismiss"><source>Restore</source></trans-unit>
       <trans-unit id="list.action.undismiss.title"><source>Move this detection back into the actionable list.</source></trans-unit>
       <trans-unit id="list.action.purge"><source>Delete permanently</source></trans-unit>

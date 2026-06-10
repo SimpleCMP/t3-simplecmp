@@ -81,6 +81,7 @@ final class DetectionReviewController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth $libraryHealth,
         private readonly \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration $resetGeneration,
+        private readonly \SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
     ) {
     }
 
@@ -154,6 +155,11 @@ final class DetectionReviewController extends ActionController
             $r['uri_dismiss'] = $this->uri('dismiss', $rowArgs);
             $r['uri_undismiss'] = $this->uri('undismiss', $rowArgs);
             $r['uri_purge'] = $this->uri('purge', $rowArgs);
+            // REQ-N8 C2: only blocked-stylesheet rows get the "allow host's CSS"
+            // action (host-stylesheet-scoped allowlisting).
+            $r['uri_allowStylesheet'] = ($r['kind'] ?? '') === 'stylesheet'
+                ? $this->uri('allowStylesheetHost', $rowArgs)
+                : null;
             // For curated rows, point straight at the matched service's edit form.
             if ($r['state'] === DetectionListPresenter::STATE_CURATED && is_array($r['match'] ?? null)) {
                 $r['uri_editService'] = $this->editServiceUri((string) $r['match']['id']);
@@ -679,6 +685,32 @@ final class DetectionReviewController extends ActionController
             return $this->redirectToList($filters);
         }
         $this->serviceRepository->delete((string) $derived['match']['id']);
+        return $this->redirectToList($filters);
+    }
+
+    /**
+     * REQ-N8 C2: allow a blocked third-party stylesheet's host so its CSS
+     * loads normally (stylesheet-scoped — scripts/iframes from the same host
+     * stay gated). Keyed by the detection's `source` (= DiscoverSource), which
+     * is what HtmlRewriter consults. Only acts on a `stylesheet`-kind row with
+     * an origin — defense in depth against a forged URL pointed elsewhere.
+     */
+    public function allowStylesheetHostAction(
+        int $uid,
+        string $status = self::DEFAULT_STATUS,
+        string $source = '',
+        string $kind = '',
+        string $confidence = '',
+    ): ResponseInterface {
+        $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+        $row = $this->fetchOne($uid);
+        if ($row !== null
+            && ($row['kind'] ?? '') === 'stylesheet'
+            && is_string($row['source'] ?? null) && $row['source'] !== ''
+            && is_string($row['origin'] ?? null) && $row['origin'] !== ''
+        ) {
+            $this->allowedStylesheetHostRepository->allow((string) $row['source'], (string) $row['origin']);
+        }
         return $this->redirectToList($filters);
     }
 

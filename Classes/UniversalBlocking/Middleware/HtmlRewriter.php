@@ -10,6 +10,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\DiscoverSource;
@@ -122,6 +123,12 @@ final class HtmlRewriter implements MiddlewareInterface
     private bool $blockStylesheets = false;
 
     /**
+     * @var list<string> hosts (lowercased) whose stylesheets the admin allowed
+     *   (REQ-N8 C2) — stylesheet-scoped; scripts/iframes from them still gate.
+     */
+    private array $stylesheetAllowHosts = [];
+
+    /**
      * Maps a rewritten tag to the detection `kind` the BE list expects.
      * Must match the FE recorder's vocabulary (DomWatcher `TAG_TO_KIND`:
      * SCRIPT→script, IFRAME→iframe, IMG→image, LINK→link) — detections are
@@ -140,6 +147,7 @@ final class HtmlRewriter implements MiddlewareInterface
         private readonly DetectionRepository $detectionRepository,
         private readonly StoragePidResolver $storagePidResolver,
         private readonly BridgeNonceService $bridgeNonceService,
+        private readonly AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
     ) {
     }
 
@@ -186,6 +194,9 @@ final class HtmlRewriter implements MiddlewareInterface
 
         $this->sameOriginHosts = $this->siteHosts($site, $request);
         $this->blockStylesheets = (bool) $settings->get('simplecmp.universalBlocking.blockStylesheets');
+        $this->stylesheetAllowHosts = $this->blockStylesheets
+            ? $this->allowedStylesheetHostRepository->hostsForSource(DiscoverSource::forSite($site))
+            : [];
 
         $start = hrtime(true);
         $stats = ['scanned' => 0, 'rewritten' => 0];
@@ -384,6 +395,15 @@ final class HtmlRewriter implements MiddlewareInterface
                 if (in_array(strtolower($host), $this->sameOriginHosts, true)) {
                     continue;
                 }
+                $isStylesheet = $tagName === 'link'
+                    && $this->blockStylesheets
+                    && $this->linkRelIsStylesheet($node);
+                // REQ-N8 C2: an admin-allowed stylesheet host passes its CSS
+                // through. Scoped to stylesheets — a script / iframe from the
+                // same host still gets gated by the matcher below.
+                if ($isStylesheet && in_array(strtolower($host), $this->stylesheetAllowHosts, true)) {
+                    continue;
+                }
                 $resolution = $matcher->resolve($host);
                 if ($resolution === null) {
                     continue;
@@ -393,9 +413,6 @@ final class HtmlRewriter implements MiddlewareInterface
                 // to use: `library` → visitor sees a "Ja" (one-time accept)
                 // button; `host` → informational-only notice because the
                 // visitor has no basis to consent to an unknown vendor.
-                $isStylesheet = $tagName === 'link'
-                    && $this->blockStylesheets
-                    && $this->linkRelIsStylesheet($node);
                 $node->setAttribute('data-name', $resolution['service']);
                 $node->setAttribute('data-blocked-source', $resolution['source']);
                 if ($isStylesheet) {

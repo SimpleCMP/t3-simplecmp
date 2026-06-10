@@ -49,6 +49,7 @@ return [
                 'generateBridgeSecret',
                 'reclassifyUnknowns',
                 'unadoptMatchedService',
+                'allowStylesheetHost',
             ],
             LibraryBrowserController::class => [
                 'list',

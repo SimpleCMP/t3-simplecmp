@@ -7,6 +7,7 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Middleware;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter;
@@ -37,6 +38,7 @@ final class HtmlRewriterStylesheetTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
         $ref = new \ReflectionClass($rewriter);
         $ref->getProperty('sameOriginHosts')->setValue($rewriter, $sameOrigin);
@@ -114,6 +116,7 @@ final class HtmlRewriterStylesheetTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
         $ref = new \ReflectionClass($rewriter);
         $ref->getProperty('sameOriginHosts')->setValue($rewriter, []);
@@ -131,5 +134,37 @@ final class HtmlRewriterStylesheetTest extends TestCase
         self::assertSame('stylesheet', $detections[0]['kind']);
         self::assertSame(self::FONTS, $detections[0]['identifier']);
         self::assertSame('fonts.googleapis.com', $detections[0]['origin']);
+    }
+
+    #[Test]
+    public function allowlistedStylesheetHostIsScopedToStylesheetsOnly(): void
+    {
+        // Phase C2: the per-host fast-allow (stylesheetAllowHosts) exempts only
+        // the host's *stylesheets*. A script from the very same host must still
+        // be neutralised — the allow is deliberately not host-wide.
+        $rewriter = new HtmlRewriter(
+            $this->createMock(DetectionRepository::class),
+            $this->createMock(StoragePidResolver::class),
+            $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
+        );
+        $ref = new \ReflectionClass($rewriter);
+        $ref->getProperty('sameOriginHosts')->setValue($rewriter, []);
+        $ref->getProperty('blockStylesheets')->setValue($rewriter, true);
+        $ref->getProperty('stylesheetAllowHosts')->setValue($rewriter, ['fonts.googleapis.com']);
+        $matcher = new HostMatcher([], true);
+        $stats = ['scanned' => 0, 'rewritten' => 0];
+
+        $html = '<!DOCTYPE html><html><head>'
+            . '<link rel="stylesheet" href="' . self::FONTS . '">'
+            . '<script src="https://fonts.googleapis.com/track.js"></script>'
+            . '</head><body><p>x</p></body></html>';
+        $result = (string) $ref->getMethod('rewriteHtml')->invokeArgs($rewriter, [$html, $matcher, &$stats]);
+
+        // Stylesheet from the allowed host: untouched, still live.
+        self::assertStringContainsString('href="' . self::FONTS . '"', $result);
+        // Script from the same host: still neutralised (exactly one rewrite).
+        self::assertStringContainsString('data-src="https://fonts.googleapis.com/track.js"', $result);
+        self::assertSame(1, substr_count($result, 'data-name'));
     }
 }

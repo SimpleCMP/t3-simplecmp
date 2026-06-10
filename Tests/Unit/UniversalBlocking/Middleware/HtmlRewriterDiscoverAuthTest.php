@@ -7,6 +7,7 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Middleware;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
@@ -128,6 +129,7 @@ final class HtmlRewriterDiscoverAuthTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $nonce,
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
     }
 

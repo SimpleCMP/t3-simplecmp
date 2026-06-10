@@ -386,6 +386,16 @@
                                             </span>
                                         </a>
                                     </f:if>
+                                    <f:if condition="{detection.uri_allowStylesheet}">
+                                        <a href="{detection.uri_allowStylesheet}"
+                                           class="btn btn-default text-success"
+                                           title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet.title')}">
+                                            <core:icon identifier="actions-check" size="small" />
+                                            <span class="visually-hidden">
+                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet" />
+                                            </span>
+                                        </a>
+                                    </f:if>
                                 </div>
                             </td>
                         </tr>

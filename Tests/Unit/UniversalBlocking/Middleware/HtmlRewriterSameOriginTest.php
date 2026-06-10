@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter;
@@ -34,6 +35,7 @@ final class HtmlRewriterSameOriginTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
     }
 

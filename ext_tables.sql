@@ -124,3 +124,25 @@ CREATE TABLE tx_t3simplecmp_detection (
     KEY received_at (received_at),
     KEY dismissed_at (dismissed_at)
 );
+
+-- Admin-allowed third-party stylesheet hosts (REQ-N8 Phase C2). When
+-- `blockStylesheets` is on, a host listed here has its `rel="stylesheet"`
+-- passed through (loaded normally) — but only its stylesheets: scripts /
+-- iframes from the same host are still gated by universal blocking.
+-- Keyed by `source` (= DiscoverSource::forSite() = the site's storageName),
+-- the same value stored on discover-recorded detections, so the BE "allow"
+-- action (from a blocked-stylesheet row) and the HtmlRewriter agree on the
+-- key. Distinct from the host-wide `universalBlocking.allowlist` setting
+-- (which passes ALL resource types).
+CREATE TABLE tx_t3simplecmp_allowed_stylesheet_host (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    source varchar(100) DEFAULT '' NOT NULL,
+    host varchar(255) DEFAULT '' NOT NULL,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY source_host (source, host)
+);

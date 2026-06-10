@@ -7,6 +7,7 @@ namespace SimpleCMP\T3SimpleCmp\Tests\Unit\UniversalBlocking\Middleware;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter;
@@ -39,6 +40,7 @@ final class HtmlRewriterLinkRelTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
         $ref = new \ReflectionClass($rewriter);
         $ref->getProperty('sameOriginHosts')->setValue($rewriter, []);
@@ -63,6 +65,7 @@ final class HtmlRewriterLinkRelTest extends TestCase
             $this->createMock(DetectionRepository::class),
             $this->createMock(StoragePidResolver::class),
             $this->createMock(BridgeNonceService::class),
+            $this->createMock(AllowedStylesheetHostRepository::class),
         );
         $ref = new \ReflectionClass($rewriter);
         $ref->getProperty('sameOriginHosts')->setValue($rewriter, ['example.com']);
