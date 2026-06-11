@@ -35,6 +35,18 @@ settings:
     type: bool
     default: true
 
+  simplecmp.regimeDefault:
+    label: 'Default consent regime'
+    description: 'How the banner behaves when no region override applies. "opt-in" (GDPR/EU) shows a blocking consent banner and defaults non-required services off. "opt-out" (US/CCPA) shows a non-blocking notice with a "Do Not Sell or Share" control and defaults services on until the visitor opts out. "none" shows no auto-banner. Allowed: opt-in | opt-out | none.'
+    type: string
+    default: 'opt-in'
+
+  simplecmp.regionHeader:
+    label: 'Region HTTP header (optional)'
+    description: 'Name of the request header carrying the visitor''s country/region code (e.g. "CF-IPCountry" from Cloudflare, or an edge/GeoIP header). When set, EU codes resolve to opt-in and US to opt-out automatically, overriding the default regime per visitor. Leave empty to apply the default regime to everyone. SimpleCMP never geo-locates client-side.'
+    type: string
+    default: ''
+
   simplecmp.serviceDbUrl:
     label: 'Service DB endpoint URL (optional)'
     description: 'Base URL of a Service DB that implements the SimpleCMP protocol. The JS client appends the protocol version itself, so do not include `/v1` — example: `https://example.com/api/simplecmp` (client will hit `https://example.com/api/simplecmp/v1/lookup`). A trailing `/v1` is auto-stripped at render time and logged as a warning; trailing slashes are normalized. Leave empty to use only the local services list.'

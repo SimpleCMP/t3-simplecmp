@@ -98,7 +98,7 @@ final readonly class RegisterAssets
             return;
         }
 
-        $config = $this->buildInitConfig($settings, $site);
+        $config = $this->buildInitConfig($settings, $site, $request);
         if ($config === null) {
             return;
         }
@@ -489,7 +489,7 @@ final readonly class RegisterAssets
         return $base;
     }
 
-    private function buildInitConfig(object $settings, Site $site): ?array
+    private function buildInitConfig(object $settings, Site $site, ServerRequestInterface $request): ?array
     {
         // `??` (null-coalesce), NOT `?:` (truthy-fallback). The Elvis form
         // swallows an explicit `false` / `0` / `''` and replaces it with the
@@ -517,6 +517,19 @@ final readonly class RegisterAssets
                 'position' => $this->resolveTriggerPosition($site),
             ],
         ];
+        // REQ-N4 region engine: baseline regime + optional per-visitor region
+        // (resolved server-side from a configured geo header — the engine never
+        // geo-locates client-side). Unknown/unmapped region falls back to the
+        // baseline; `opt-in` is the engine default, so suppress to keep the
+        // payload minimal.
+        $regime = (string) $get('simplecmp.regimeDefault', 'opt-in');
+        if (in_array($regime, ['opt-out', 'none'], true)) {
+            $config['regimeDefault'] = $regime;
+        }
+        $region = $this->resolveRegion($settings, $request);
+        if ($region !== '') {
+            $config['region'] = $region;
+        }
         // Resolution chain (lowest → highest precedence):
         //   1. bundle defaults (formal register)
         //   2. tone overlays — passed via `config.tones`; the bundle's
@@ -825,6 +838,21 @@ final readonly class RegisterAssets
      * without it `kunde.de` and `kunde-de` would collapse to one source,
      * merging their detections and cross-binding their nonces.
      */
+    /**
+     * Resolve the visitor's region from the configured geo header (REQ-N4).
+     * Returns '' when no header is configured or the request carries no value,
+     * in which case the baseline regime applies. The value (e.g. 'US', 'DE') is
+     * passed verbatim to the engine, which maps it to a regime.
+     */
+    private function resolveRegion(object $settings, ServerRequestInterface $request): string
+    {
+        $header = trim((string) ($settings->get('simplecmp.regionHeader') ?? ''));
+        if ($header === '') {
+            return '';
+        }
+        return trim($request->getHeaderLine($header));
+    }
+
     private function bridgeSource(string $storageName): string
     {
         if (preg_match('/^[a-z0-9_-]{1,64}$/', $storageName) === 1) {
