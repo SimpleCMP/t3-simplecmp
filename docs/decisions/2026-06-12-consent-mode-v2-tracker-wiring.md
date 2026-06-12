@@ -1,10 +1,12 @@
 # Consent Mode v2 — wire the tracker providers to the engine hook
 
 **Date:** 2026-06-12
-**Status:** Open (TODO — engine half is ready upstream; t3 integration pending).
+**Status:** Open — **assigned to Sven.** The engine half is ready upstream
+(REQ-N10 / `simplecmp@5016b91`); the t3 tracker-subsystem integration + the
+posture decision below are his to own.
 **Component:** `Classes/Tracker/*Provider.php`, `TrackerMaterializer`, the
 Tracker-Setup BE wizard.
-**Audience:** Whoever next touches the tracker subsystem (Sven / maintainers).
+**Owner:** Sven (tracker subsystem author).
 
 ## TL;DR
 
