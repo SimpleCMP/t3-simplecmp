@@ -1,9 +1,14 @@
 # Consent Mode v2 — wire the tracker providers to the engine hook
 
 **Date:** 2026-06-12
-**Status:** Open — **assigned to Sven.** The engine half is ready upstream
-(REQ-N10 / `simplecmp@5016b91`); the t3 tracker-subsystem integration + the
-posture decision below are his to own.
+**Status:** Resolved — the posture is now `consentPosture: block | signal-gate`
+per tracker (default `block`, DACH-safest). `TrackerRuntimeState` carries the
+"any signal-gate tracker on this request" signal from `TrackerMaterializer` to
+`RegisterAssets`, which forwards `consentMode: true` into `cmp.init()`. The
+hand-rolled `gtag('consent', 'default', …)` in `Ga4Provider` /
+`GtmProvider` is gone — the engine hook owns both `default` and `update`. The
+ADR-0016 anti-pattern (block AND signal-gate) is now structurally
+unrepresentable.
 **Component:** `Classes/Tracker/*Provider.php`, `TrackerMaterializer`, the
 Tracker-Setup BE wizard.
 **Owner:** Sven (tracker subsystem author).

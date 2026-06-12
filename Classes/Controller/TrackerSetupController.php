@@ -340,13 +340,15 @@ final class TrackerSetupController extends ActionController
      * Per-provider field descriptors driving the edit form. Each
      * field carries the name (= keys the controller reads from
      * $values), a label, a kind hint (`text`, `number`, `bool`,
-     * `url`), and an optional required flag.
+     * `url`, `enum`), and an optional required flag. `enum` fields
+     * additionally carry an `options` list.
      *
      * Labels and help texts come from `locallang_mod.xlf` under the
      * `module.trackerSetup.field.<type>.<name>.{label,help}` keys, so
-     * the BE language picker swaps them automatically.
+     * the BE language picker swaps them automatically. `enum` option
+     * labels live under the same prefix plus `.<value>` segment.
      *
-     * @return list<array{name: string, label: string, kind: string, required: bool, help: ?string}>
+     * @return list<array{name: string, label: string, kind: string, required: bool, help: ?string, options?: list<array{value: string, label: string, help: ?string}>}>
      */
     private function describeFieldsFor(string $type): array
     {
@@ -360,12 +362,22 @@ final class TrackerSetupController extends ActionController
             'ga4' => [
                 ['name' => 'measurementId', 'kind' => 'text', 'required' => true],
                 ['name' => 'anonymizeIp', 'kind' => 'bool', 'required' => false],
-                ['name' => 'consentMode', 'kind' => 'bool', 'required' => false],
+                [
+                    'name' => 'consentPosture',
+                    'kind' => 'enum',
+                    'required' => false,
+                    'options' => ['block', 'signal-gate'],
+                ],
                 ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
             'gtm' => [
                 ['name' => 'containerId', 'kind' => 'text', 'required' => true],
-                ['name' => 'consentDefault', 'kind' => 'bool', 'required' => false],
+                [
+                    'name' => 'consentPosture',
+                    'kind' => 'enum',
+                    'required' => false,
+                    'options' => ['block', 'signal-gate'],
+                ],
                 ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
             default => [],
@@ -376,10 +388,30 @@ final class TrackerSetupController extends ActionController
             $labelKey = 'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.label';
             $helpKey = 'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.help';
             $help = $this->translate($helpKey);
-            $out[] = $field + [
+            $entry = [
+                'name' => $field['name'],
+                'kind' => $field['kind'],
+                'required' => $field['required'],
                 'label' => $this->translate($labelKey),
                 'help' => $help !== '' ? $help : null,
             ];
+            if ($field['kind'] === 'enum') {
+                $entry['options'] = [];
+                foreach ($field['options'] ?? [] as $value) {
+                    $optionLabel = $this->translate(
+                        'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.option.' . $value . '.label',
+                    );
+                    $optionHelp = $this->translate(
+                        'module.trackerSetup.field.' . $type . '.' . $field['name'] . '.option.' . $value . '.help',
+                    );
+                    $entry['options'][] = [
+                        'value' => $value,
+                        'label' => $optionLabel !== '' ? $optionLabel : $value,
+                        'help' => $optionHelp !== '' ? $optionHelp : null,
+                    ];
+                }
+            }
+            $out[] = $entry;
         }
         return $out;
     }
@@ -399,6 +431,17 @@ final class TrackerSetupController extends ActionController
             $raw = $values[$name] ?? null;
             if ($field['kind'] === 'bool') {
                 $out[$name] = $raw === '1' || $raw === 'on' || $raw === true;
+                continue;
+            }
+            if ($field['kind'] === 'enum') {
+                // Reject anything outside the declared option set so a
+                // tampered POST can't smuggle a third posture into the
+                // stored config. Default (omit the key) → provider falls
+                // back to its safe default (`block` for consentPosture).
+                $allowed = array_column($field['options'] ?? [], 'value');
+                if (is_string($raw) && in_array($raw, $allowed, true)) {
+                    $out[$name] = $raw;
+                }
                 continue;
             }
             if (is_string($raw)) {

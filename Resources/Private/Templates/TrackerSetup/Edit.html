@@ -21,8 +21,8 @@
 
     <f:for each="{fields}" as="field">
         <div class="mb-3">
-            <f:if condition="{field.kind} == 'bool'">
-                <f:then>
+            <f:switch expression="{field.kind}">
+                <f:case value="bool">
                     <div class="form-check form-switch">
                         <f:form.checkbox name="values[{field.name}]"
                                          id="tracker-field-{field.name}"
@@ -31,8 +31,33 @@
                                          checked="{f:if(condition: '{values.{field.name}}', then: 1, else: 0)}" />
                         <label class="form-check-label" for="tracker-field-{field.name}">{field.label}</label>
                     </div>
-                </f:then>
-                <f:else>
+                </f:case>
+                <f:case value="enum">
+                    <fieldset>
+                        <legend class="form-label">
+                            {field.label}
+                            <f:if condition="{field.required}">
+                                <span class="text-danger">*</span>
+                            </f:if>
+                        </legend>
+                        <f:for each="{field.options}" as="option" iteration="optionIteration">
+                            <div class="form-check">
+                                <f:form.radio name="values[{field.name}]"
+                                              id="tracker-field-{field.name}-{option.value}"
+                                              class="form-check-input"
+                                              value="{option.value}"
+                                              checked="{f:if(condition: '{values.{field.name}} == \'{option.value}\'', then: 1, else: '{f:if(condition: \'!{values.{field.name}} && {optionIteration.isFirst}\', then: 1, else: 0)}')}" />
+                                <label class="form-check-label" for="tracker-field-{field.name}-{option.value}">
+                                    <strong>{option.label}</strong>
+                                </label>
+                                <f:if condition="{option.help}">
+                                    <div class="form-text text-body-secondary small ms-0">{option.help}</div>
+                                </f:if>
+                            </div>
+                        </f:for>
+                    </fieldset>
+                </f:case>
+                <f:defaultCase>
                     <label for="tracker-field-{field.name}" class="form-label">
                         {field.label}
                         <f:if condition="{field.required}">
@@ -44,8 +69,8 @@
                                       class="form-control"
                                       value="{values.{field.name}}"
                                       additionalAttributes="{f:if(condition: '{field.required}', then: '{required: \'required\'}')}" />
-                </f:else>
-            </f:if>
+                </f:defaultCase>
+            </f:switch>
             <f:if condition="{field.help}">
                 <div class="form-text text-body-secondary small">{field.help}</div>
             </f:if>

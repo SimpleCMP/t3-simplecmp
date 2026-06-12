@@ -18,6 +18,7 @@ use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration;
+use SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState;
 
 /**
  * Registers the SimpleCMP JS bundle + inline init call on every TYPO3
@@ -74,6 +75,7 @@ final readonly class RegisterAssets
         private BridgeSecretProvider $secretProvider,
         private BridgeNonceService $nonceService,
         private DetectionResetGeneration $resetGeneration,
+        private TrackerRuntimeState $trackerRuntimeState,
         private LoggerInterface $logger,
     ) {
     }
@@ -677,6 +679,28 @@ final readonly class RegisterAssets
             // Only emitted under universalBlocking because that's the
             // only path that produces state-2 notices.
             $config['libraryFallback'] = $this->buildLibraryFallback();
+        }
+
+        // Consent Mode v2 — engine hook (REQ-N10 / ADR-0016). Activated
+        // when at least one materialized tracker opted into the
+        // `signal-gate` posture (TrackerMaterializer signalled via
+        // TrackerRuntimeState). The engine emits the v2 `default
+        // (denied)` AND the matching `update (granted)` on accept,
+        // mapping each service's `purposes` onto the gtag-consent
+        // buckets (`analytics → analytics_storage`, `marketing →
+        // ad_storage + ad_user_data + ad_personalization`). It also
+        // replays the `update` for returning visitors so post-consent
+        // page loads keep the granted state.
+        //
+        // The Ga4 + Gtm providers no longer hand-roll a competing
+        // `gtag('consent', 'default', …denied…)` in their bootstrap
+        // inline — when this flag is true, the engine hook is the
+        // single source of truth; when false (every block-posture
+        // tracker), no consent-mode call happens at all, which is
+        // correct because the loader is gated and never fires
+        // pre-consent.
+        if ($this->trackerRuntimeState->isConsentModeRequested()) {
+            $config['consentMode'] = true;
         }
 
         if ($privacy === '' && $config['services'] === []) {

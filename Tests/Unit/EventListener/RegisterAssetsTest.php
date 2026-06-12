@@ -295,6 +295,60 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function consentModeOmittedFromInitConfigByDefault(): void
+    {
+        // Default (no tracker has opted into signal-gate) → no
+        // `consentMode` key, so the engine treats it as off and emits no
+        // gtag('consent', …) calls. Keeps the init payload minimal for
+        // the 99% of sites with no Google trackers.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertArrayNotHasKey('consentMode', $config);
+    }
+
+    #[Test]
+    public function consentModeForwardedWhenAnyTrackerSignalGates(): void
+    {
+        // TrackerMaterializer calls TrackerRuntimeState::requestConsentMode()
+        // on every signal-gate tracker. RegisterAssets reads that state
+        // and forwards `consentMode: true` into cmp.init() so the engine
+        // hook (REQ-N10 / ADR-0016) emits the v2 `default (denied)` AND
+        // the `update (granted)` on accept — the missing half of GA4's
+        // consent contract.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $runtimeState = new \SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState();
+        $runtimeState->requestConsentMode();
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener($runtimeState)(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertTrue($config['consentMode'] ?? null);
+    }
+
+    #[Test]
     public function initPayloadEscapesScriptClosingTagInStringValues(): void
     {
         // A string config value carrying "</script>" must not break out of the
@@ -780,7 +834,7 @@ final class RegisterAssetsTest extends TestCase
 
     // --- helpers -----------------------------------------------------------
 
-    private function listener(): RegisterAssets
+    private function listener(?\SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState $runtimeState = null): RegisterAssets
     {
         return new RegisterAssets(
             $this->assetCollector,
@@ -790,6 +844,7 @@ final class RegisterAssetsTest extends TestCase
             $this->secretProvider,
             $this->nonceService,
             $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration::class),
+            $runtimeState ?? new \SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState(),
             $this->logger,
         );
     }

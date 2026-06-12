@@ -11,10 +11,15 @@ namespace SimpleCMP\T3SimpleCmp\Tracker;
  *   - containerId  `GTM-XXXXXXX` from the GTM console
  *
  * Optional:
- *   - consentDefault  bool (default true) — emit Consent Mode v2
- *                     `default` state with everything denied so any
- *                     tag in the container respects the CMP gate.
- *                     The CMP grants the matching state on accept.
+ *   - consentPosture  enum (default `block`) — see {@see Ga4Provider}
+ *                     for the trade-off. GTM has the additional wrinkle
+ *                     that its tags are configured client-side in
+ *                     Google's console: in `signal-gate` posture, each
+ *                     tag inside the container still has to opt into
+ *                     Consent Mode v2 (`Erforderliche Einwilligungen` /
+ *                     "Built-in Consent Settings") for the gate to
+ *                     bite. Tags missing that config WILL fire
+ *                     pre-consent.
  *   - serviceId       string — override default `service_id`.
  *
  * NOTE on purposes: GTM itself doesn't track — it's a tag-host. But
@@ -75,43 +80,57 @@ final readonly class GtmProvider implements TrackerProviderInterface
 
     public function getBootstrapInlineScript(array $config): string
     {
-        $containerId = $this->requireContainerId($config);
-        $consentDefault = (bool) ($config['consentDefault'] ?? true);
+        // Validate the container ID so a misconfigured row trips here
+        // (same error surface as before) rather than silently emitting
+        // a half-broken bootstrap.
+        $this->requireContainerId($config);
 
-        $containerJson = json_encode($containerId, JSON_THROW_ON_ERROR);
-
+        // No more hand-rolled `gtag('consent', 'default', {…denied…})`
+        // here — same reasoning as Ga4Provider (resolved in #6 /
+        // ADR-0016). In `block` posture the loader never fires
+        // pre-consent so a default-deny is moot; in `signal-gate`
+        // posture the engine's `consentMode` hook owns the full
+        // default+update lifecycle. The container ID is already part of
+        // the loader URL ({@see getLoaderUrl()}), so the inline payload
+        // only has to install the dataLayer and push the `gtm.js` start
+        // event the container reacts to once the loader runs.
         $lines = [
             'window.dataLayer = window.dataLayer || [];',
-        ];
-
-        if ($consentDefault) {
-            // Pre-deny every Consent-Mode-v2 storage type. GTM tags
-            // that respect Consent Mode will then sit idle until the
-            // CMP grants the storage they need.
-            // @todo wire CMP consent events to emit
-            //       gtag('consent', 'update', {...}) with granted state.
-            //       Engine now ships this as the opt-in `consentMode` hook
-            //       (REQ-N10 / ADR-0016 upstream). Integration + the
-            //       block-vs-signal-gate posture:
-            //       docs/decisions/2026-06-12-consent-mode-v2-tracker-wiring.md
-            $lines[] = 'function gtag(){dataLayer.push(arguments);}';
-            $lines[] = "gtag('consent', 'default', {"
-                . "'ad_storage': 'denied',"
-                . "'ad_user_data': 'denied',"
-                . "'ad_personalization': 'denied',"
-                . "'analytics_storage': 'denied',"
-                . "'wait_for_update': 500"
-                . "});";
-        }
-
-        // The GTM startup line. `dataLayer.push` triggers the
-        // container init once the loader script has executed.
-        $lines[] = "window.dataLayer.push({"
+            "window.dataLayer.push({"
             . "'gtm.start': Date.now(),"
             . "'event': 'gtm.js'"
-            . "});";
+            . "});",
+        ];
 
         return implode("\n", $lines);
+    }
+
+    public function wantsLoadGate(array $config): bool
+    {
+        return $this->resolvePosture($config) === 'block';
+    }
+
+    public function wantsConsentMode(array $config): bool
+    {
+        return $this->resolvePosture($config) === 'signal-gate';
+    }
+
+    /**
+     * Resolve the configured posture, defaulting to `block` (the safe
+     * DACH default) for any missing / unknown / legacy value. The legacy
+     * `consentDefault` boolean is intentionally NOT honored as a posture
+     * switch — see {@see Ga4Provider::resolvePosture()} for the full
+     * ADR-0016 reasoning.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function resolvePosture(array $config): string
+    {
+        $raw = $config['consentPosture'] ?? null;
+        if (is_string($raw) && in_array($raw, ['block', 'signal-gate'], true)) {
+            return $raw;
+        }
+        return 'block';
     }
 
     /**

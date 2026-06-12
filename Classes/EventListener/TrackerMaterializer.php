@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
+use SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
@@ -62,6 +63,7 @@ final readonly class TrackerMaterializer
         private ServiceRepository $serviceRepository,
         private ManagedTrackerRepository $managedTrackerRepository,
         private TrackerRegistry $trackerRegistry,
+        private TrackerRuntimeState $runtimeState,
         private LoggerInterface $logger,
     ) {
     }
@@ -251,16 +253,37 @@ final readonly class TrackerMaterializer
 
         $loaderUrl = $provider->getLoaderUrl($config);
         if ($loaderUrl !== null) {
+            // `data-name="<service_id>"` is the load-gate attribute the
+            // bundle's runtime patch looks for: present → defer until
+            // consent, absent → load immediately. The provider picks
+            // the posture per-config (see `consentPosture` on Ga4 /
+            // GTM): `block` keeps the gate; `signal-gate` drops it so
+            // the tag can run pre-consent and the engine's Consent
+            // Mode v2 hook owns the gating instead.
+            $attributes = ['async' => 'async'];
+            if ($provider->wantsLoadGate($config)) {
+                $attributes['data-name'] = $serviceId;
+            }
             $this->assetCollector->addJavaScript(
                 'simplecmp-tracker-loader-' . $serviceId,
                 $loaderUrl,
-                ['data-name' => $serviceId, 'async' => 'async'],
+                $attributes,
                 // No `priority` — must land in the body so the bundle
                 // (head priority) has already installed its src-setter
                 // monkey patches. `csp => true` so the rendered <script>
                 // tag receives the nonce.
                 ['csp' => true],
             );
+        }
+
+        // Signal the init-config builder (RegisterAssets, which runs
+        // after this listener on the same event) to forward
+        // `consentMode: true` into `cmp.init()` so the engine hook
+        // emits the v2 `default (denied)` AND the `update (granted)`
+        // on accept. One signal is enough — engine reads each
+        // service's `purposes` to compose the gtag-consent payload.
+        if ($provider->wantsConsentMode($config)) {
+            $this->runtimeState->requestConsentMode();
         }
 
         $bootstrap = $provider->getBootstrapInlineScript($config);

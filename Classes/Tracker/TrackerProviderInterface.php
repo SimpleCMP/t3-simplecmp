@@ -84,4 +84,42 @@ interface TrackerProviderInterface
      * @param array<string, mixed> $config
      */
     public function getBootstrapInlineScript(array $config): string;
+
+    /**
+     * Should the remote loader be load-gated by the bundle's runtime
+     * patch? When `true`, {@see \SimpleCMP\T3SimpleCmp\EventListener\TrackerMaterializer}
+     * stamps the script with `data-name="<service_id>"` so the bundle
+     * defers the src assignment until the matching service is granted
+     * consent. Default for all providers — DACH-safest, no third-party
+     * traffic pre-consent.
+     *
+     * Return `false` only to opt the tracker into the engine's
+     * Consent Mode v2 hook (a.k.a. signal-gate): the tag loads
+     * pre-consent and sends cookieless pings until the visitor
+     * accepts. The trade-off is documented in
+     * `docs/decisions/2026-06-12-consent-mode-v2-tracker-wiring.md`
+     * (cookieless pre-consent ping → DACH/EU regulator contestation;
+     * better measurement; the only posture in which Google's "Consent
+     * Mode v2 enabled" status check actually flips green in Ads /
+     * Search Console). Pair with {@see wantsConsentMode()} = `true`.
+     *
+     * @param array<string, mixed> $config
+     */
+    public function wantsLoadGate(array $config): bool;
+
+    /**
+     * Should the engine's Consent Mode v2 hook own the `gtag('consent',
+     * 'default'/'update', …)` lifecycle for this tracker? Return `true`
+     * only when {@see wantsLoadGate()} is `false` for the same config —
+     * otherwise the load gate and the consent-mode signal contradict
+     * each other (ADR-0016): the loader never fires pre-consent and the
+     * dangling `default: denied` then silently suppresses tracking even
+     * after the visitor accepts.
+     *
+     * Providers that don't speak Consent Mode v2 (e.g. Matomo) should
+     * return `false` unconditionally.
+     *
+     * @param array<string, mixed> $config
+     */
+    public function wantsConsentMode(array $config): bool;
 }

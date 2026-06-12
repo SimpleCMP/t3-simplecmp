@@ -11,17 +11,26 @@ namespace SimpleCMP\T3SimpleCmp\Tracker;
  *   - measurementId  `G-XXXXXXXXXX` from the GA4 admin
  *
  * Optional:
- *   - anonymizeIp    bool (default true) — emits `gtag('set', { ip_anonymization: true })`
- *                    before `config`. Default ON because in DACH the
- *                    IP-anonymization is part of the BfDI / DSK
- *                    "minimum reasonable" interpretation.
- *   - consentMode    bool (default true) — emits
- *                    `gtag('consent', 'default', { ad_storage: 'denied',
- *                    analytics_storage: 'denied' })` so GA4 respects
- *                    Google's Consent Mode v2 contract. The CMP grants
- *                    `analytics_storage: 'granted'` AFTER the user
- *                    accepts (not yet wired — see TODO at the bottom).
- *   - serviceId      string — override the default `service_id`.
+ *   - anonymizeIp     bool (default true) — emits `gtag('set', { ip_anonymization: true })`
+ *                     before `config`. Default ON because in DACH the
+ *                     IP-anonymization is part of the BfDI / DSK
+ *                     "minimum reasonable" interpretation.
+ *   - consentPosture  enum (default `block`) — Consent Mode v2 wiring.
+ *                     `block`: the bundle's runtime patch defers
+ *                     `gtag/js` until the visitor accepts. No third-
+ *                     party traffic pre-consent. DACH-safest default.
+ *                     `signal-gate`: the loader runs pre-consent and
+ *                     sends Consent-Mode-v2 cookieless pings; the
+ *                     engine's `consentMode` hook (signalled to
+ *                     {@see RegisterAssets} via {@see TrackerRuntimeState})
+ *                     owns both `default (denied)` and the matching
+ *                     `update (granted)` on accept — the missing half
+ *                     of GA4's consent contract, formerly a `@todo`.
+ *                     Trade-off: the cookieless ping is still a Google
+ *                     network call several DACH/EU regulators contest
+ *                     (see `docs/decisions/2026-06-12-consent-mode-v2-
+ *                     tracker-wiring.md`).
+ *   - serviceId       string — override the default `service_id`.
  */
 final readonly class Ga4Provider implements TrackerProviderInterface
 {
@@ -90,36 +99,25 @@ final readonly class Ga4Provider implements TrackerProviderInterface
     {
         $measurementId = $this->requireMeasurementId($config);
         $anonymizeIp = (bool) ($config['anonymizeIp'] ?? true);
-        $consentMode = (bool) ($config['consentMode'] ?? true);
 
         $measurementJson = json_encode($measurementId, JSON_THROW_ON_ERROR);
 
+        // No more hand-rolled `gtag('consent', 'default', {…denied…})` here.
+        //   - posture=block:        the loader never fires pre-consent, so
+        //                           a `default: denied` is moot AND it
+        //                           would silently suppress GA4 *after*
+        //                           consent because we never emit the
+        //                           matching `update (granted)`
+        //                           (resolved in #6 / ADR-0016).
+        //   - posture=signal-gate:  the engine's `consentMode` hook owns
+        //                           both `default` AND `update` — letting
+        //                           the provider emit a competing
+        //                           `default` here would race the engine.
         $lines = [
             'window.dataLayer = window.dataLayer || [];',
             'function gtag(){dataLayer.push(arguments);}',
+            "gtag('js', new Date());",
         ];
-
-        if ($consentMode) {
-            // Consent Mode v2 — deny everything by default. The CMP
-            // grants `analytics_storage` after the user accepts.
-            // @todo wire `cmp.on('consent', ...)` to emit
-            //       gtag('consent', 'update', {analytics_storage: 'granted'}).
-            //       Engine now ships this as the opt-in `consentMode` hook
-            //       (REQ-N10 / ADR-0016 upstream). Integration + the
-            //       block-vs-signal-gate posture:
-            //       docs/decisions/2026-06-12-consent-mode-v2-tracker-wiring.md
-            //       (with this default + no update + the loader load-gated,
-            //       GA4 likely stays denied AFTER consent today — verify.)
-            $lines[] = "gtag('consent', 'default', {"
-                . "'ad_storage': 'denied',"
-                . "'ad_user_data': 'denied',"
-                . "'ad_personalization': 'denied',"
-                . "'analytics_storage': 'denied',"
-                . "'wait_for_update': 500"
-                . "});";
-        }
-
-        $lines[] = "gtag('js', new Date());";
 
         $configOptions = [];
         if ($anonymizeIp) {
@@ -133,6 +131,37 @@ final readonly class Ga4Provider implements TrackerProviderInterface
         }
 
         return implode("\n", $lines);
+    }
+
+    public function wantsLoadGate(array $config): bool
+    {
+        return $this->resolvePosture($config) === 'block';
+    }
+
+    public function wantsConsentMode(array $config): bool
+    {
+        return $this->resolvePosture($config) === 'signal-gate';
+    }
+
+    /**
+     * Resolve the configured posture, defaulting to `block` (the safe
+     * DACH default) for any missing / unknown / legacy value. The legacy
+     * `consentMode` boolean is intentionally NOT honored as a posture
+     * switch: in the old code that flag toggled the now-removed
+     * hand-rolled `gtag('consent', 'default', …denied…)` block, which
+     * combined with the load gate produced the ADR-0016 anti-pattern.
+     * Operators who want signal-gate must opt in explicitly via
+     * `consentPosture: signal-gate`.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function resolvePosture(array $config): string
+    {
+        $raw = $config['consentPosture'] ?? null;
+        if (is_string($raw) && in_array($raw, ['block', 'signal-gate'], true)) {
+            return $raw;
+        }
+        return 'block';
     }
 
     /**

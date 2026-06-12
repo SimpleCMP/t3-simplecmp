@@ -10,6 +10,50 @@ development.
 
 ## Unreleased
 
+### Changed
+
+- **Consent Mode v2 is now wired end-to-end for GA4 and GTM, and the
+  `block` vs. `signal-gate` posture is a first-class per-tracker setting.**
+  Previously each Google tracker was *both* load-blocked (`data-name=…`
+  gating) *and* given a hand-rolled `gtag('consent', 'default', {…denied…})`
+  — the ADR-0016 anti-pattern. With no matching `update (granted)` ever
+  emitted on accept, GA4 silently stayed denied even after the visitor
+  accepted (i.e. consent worked legally but measurement dropped to zero —
+  the original `@todo` in `Ga4Provider` / `GtmProvider`). Now the providers
+  expose **`consentPosture: block | signal-gate`** (default `block`,
+  DACH-safest):
+  - **`block`** keeps the load gate, drops the dangling consent default —
+    no third-party traffic pre-consent and no suppress-after-consent bug.
+  - **`signal-gate`** drops the load gate and lets the upstream engine's
+    `consentMode` hook (REQ-N10 / ADR-0016, `simplecmp@5016b91`) own both
+    the v2 `default (denied)` and the matching `update (granted)` on
+    accept — plus the replay for returning visitors. The engine maps each
+    service's `purposes` onto the gtag-consent buckets
+    (`analytics → analytics_storage`, `marketing →
+    ad_storage + ad_user_data + ad_personalization`) so `cmp.init({
+    consentMode: true })` is the only thing the integration needs to
+    forward. New `TrackerRuntimeState` (singleton) carries the
+    "any-tracker-on-this-request wants consent mode" signal from
+    `TrackerMaterializer` to `RegisterAssets`.
+
+  Both flags must flip together — the providers enforce that
+  `wantsLoadGate()` is the strict inverse of `wantsConsentMode()` per
+  config, so the block-AND-signal-gate combination is structurally
+  unrepresentable.
+
+  The legacy `consentMode: bool` (GA4) / `consentDefault: bool` (GTM)
+  config keys are **removed**. Their old behaviour (toggle the now-deleted
+  hand-rolled default-deny) had no safe meaning post-fix. Pre-existing
+  YAML / DB rows that carried `consentMode: true` continue to materialise
+  as `block` posture — which is what they were *behaviourally* anyway
+  (the load gate dominated; the `consent default` was inert pre-consent
+  and silently broken post-consent). Sites that want the signal-gate
+  posture must opt in explicitly via `consentPosture: signal-gate` in
+  YAML or the Tracker-Setup BE wizard (the boolean checkbox is now a
+  two-radio posture choice with the trade-off documented inline).
+
+  Closes #6.
+
 ### Security
 
 - **Theme Designer `color-*` tokens are now grammar-validated before

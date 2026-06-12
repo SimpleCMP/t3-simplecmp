@@ -102,6 +102,25 @@ final readonly class MatomoProvider implements TrackerProviderInterface
     }
 
     /**
+     * Always load-gated. Matomo doesn't implement Google's Consent Mode v2
+     * contract, so there's no "signal-gate" mode here to opt out into — the
+     * gate is the only consent enforcement available.
+     */
+    public function wantsLoadGate(array $config): bool
+    {
+        return true;
+    }
+
+    /**
+     * Always `false`. Matomo doesn't speak Consent Mode v2 — the engine's
+     * hook would emit `gtag('consent', …)` calls Matomo doesn't react to.
+     */
+    public function wantsConsentMode(array $config): bool
+    {
+        return false;
+    }
+
+    /**
      * @param array<string, mixed> $config
      */
     private function requireString(array $config, string $key): string
