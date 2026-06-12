@@ -89,4 +89,67 @@ final class ThemeDesignerControllerTest extends TestCase
     {
         self::assertSame([], ThemeDesignerController::sanitizeTokens([]));
     }
+
+    /**
+     * Regression: a stored `color-*` value with a CSS `}` breakout used
+     * to be concatenated raw into the shadow-DOM `<style>` by
+     * RegisterAssets::injectTheme(), turning a tampered POST into stored
+     * CSS injection (consent-UI defacement). sanitizeTokens() now drops
+     * any value that doesn't match the strict CSS-color grammar.
+     */
+    #[Test]
+    public function sanitizeDropsColorTokenWithCssBreakout(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-accept-bg' => 'red !important; } :host { display: none } /*',
+            'color-decline-bg' => '#ff0000; }',
+            'color-configure-bg' => '#abc',           // legit — must survive
+        ]);
+        self::assertSame(['color-configure-bg' => '#abc'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeDropsCorePaletteColorWithCssBreakout(): void
+    {
+        // Even when `colorPaletteLocked='0'` is set, the FE renders these
+        // tokens directly into the `:host { … }` rule; a breakout payload
+        // here is just as dangerous as in the per-button overrides.
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-primary' => '#fff } body { display: none } /*',
+            'color-text' => '#000000',
+        ]);
+        self::assertSame(['color-text' => '#000000'], $clean);
+    }
+
+    #[Test]
+    public function isCssColorAcceptsCommonFormats(): void
+    {
+        self::assertTrue(ThemeDesignerController::isCssColor('#abc'));
+        self::assertTrue(ThemeDesignerController::isCssColor('#aabbcc'));
+        self::assertTrue(ThemeDesignerController::isCssColor('#aabbccdd'));
+        self::assertTrue(ThemeDesignerController::isCssColor('rgb(0, 128, 255)'));
+        self::assertTrue(ThemeDesignerController::isCssColor('rgba(0, 128, 255, 0.5)'));
+        self::assertTrue(ThemeDesignerController::isCssColor('hsl(120deg, 100%, 50%)'));
+        self::assertTrue(ThemeDesignerController::isCssColor('hsla(120, 100%, 50%, 0.8)'));
+        self::assertTrue(ThemeDesignerController::isCssColor('transparent'));
+        self::assertTrue(ThemeDesignerController::isCssColor('currentColor'));
+    }
+
+    #[Test]
+    public function isCssColorRejectsInjectionPayloads(): void
+    {
+        // The actual exploit payloads from the audit — every one must
+        // fail validation. Any "true" here is a stored XSS-class bug.
+        self::assertFalse(ThemeDesignerController::isCssColor('red !important; } :host { display: none } /*'));
+        self::assertFalse(ThemeDesignerController::isCssColor('#fff } body { display: none } /*'));
+        self::assertFalse(ThemeDesignerController::isCssColor('#fff;'));
+        self::assertFalse(ThemeDesignerController::isCssColor('expression(alert(1))'));
+        self::assertFalse(ThemeDesignerController::isCssColor('url(javascript:alert(1))'));
+        self::assertFalse(ThemeDesignerController::isCssColor('rgb(0,0,0) }'));
+        self::assertFalse(ThemeDesignerController::isCssColor('hsl(0,0%,0%); content: "x"'));
+        self::assertFalse(ThemeDesignerController::isCssColor(''));
+        self::assertFalse(ThemeDesignerController::isCssColor('not-a-color'));
+        self::assertFalse(ThemeDesignerController::isCssColor('#12345'));        // odd length
+        self::assertFalse(ThemeDesignerController::isCssColor('#gggggg'));       // non-hex chars
+    }
 }

@@ -1081,11 +1081,15 @@ final class ThemeDesignerController extends ActionController
 
     /**
      * Strip unknown keys, trim values, drop blanks so the saved row
-     * contains only fields the admin actually edited. Validation is
-     * deliberately permissive — TYPO3 BE color pickers always emit
-     * `#rrggbb`, and font-family strings are free-form by nature; we
-     * trust the form's HTML5 input types to constrain what reaches
-     * the controller.
+     * contains only fields the admin actually edited. Enum-guards the
+     * structural tokens (`position`, `theme`, `layout`, …) and
+     * grammar-validates `color-*` values via {@see isCssColor()} —
+     * without that check, a tampered POST can plant a value like
+     * `red !important; } :host { display: none } /*` which would
+     * break out of its CSS rule downstream in
+     * {@see \SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets::injectTheme()}
+     * and inject arbitrary declarations into the SimpleCMP shadow
+     * roots (consent-UI defacement / clickjacking-grade restyle).
      *
      * @param array<string, mixed> $tokens
      * @return array<string, string>
@@ -1128,14 +1132,72 @@ final class ThemeDesignerController extends ActionController
             if ($key === 'triggerPosition' && !isset(self::TRIGGER_POSITIONS[$value])) {
                 continue;
             }
-            // `color-trigger-bg` accepts any non-empty hex; empty is
-            // the implicit "use --simplecmp-color-primary" fallback.
-            // Already skipped by the outer `$value === '' || === $default`
-            // check above.
+            // Strict CSS-color grammar guard for every `color-*` token.
+            // RegisterAssets::injectTheme() concatenates these raw into
+            // shadow-DOM CSS; any value that can carry CSS metacharacters
+            // (`}`, `;`, `*/`, `<`, …) is a stored-injection primitive.
+            // The BE form's <input type="color"> emits hex; rgb()/hsl()
+            // + a small keyword safelist round out legitimate inputs.
+            // Everything else is dropped — `colorPaletteLocked='1'` and
+            // the per-token defaults then keep the FE in a safe state.
+            if (str_starts_with($key, 'color-') && !self::isCssColor($value)) {
+                continue;
+            }
             $clean[$key] = $value;
         }
         return $clean;
     }
+
+    /**
+     * Strict CSS-color grammar: hex (#rgb / #rgba / #rrggbb / #rrggbbaa),
+     * `rgb()` / `rgba()` / `hsl()` / `hsla()` with a charset that excludes
+     * CSS metacharacters, or a keyword from a small audited safelist.
+     * Returns `false` for anything else so the caller can drop the value.
+     *
+     * The function-form regexes restrict the body to `[0-9a-z.,\/%\s]+` —
+     * `}`, `{`, `;`, `*`, `<`, `>`, `\`, quotes and parentheses cannot
+     * survive, which is the load-bearing invariant against CSS injection
+     * at the {@see \SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets}
+     * sinks. The `a-z` range covers unit suffixes (`deg`, `rad`, `grad`,
+     * `turn`) inside hsl() without re-introducing dangerous characters.
+     */
+    public static function isCssColor(string $value): bool
+    {
+        $value = strtolower(trim($value));
+        if ($value === '') {
+            return false;
+        }
+        // Hex: #rgb, #rgba, #rrggbb, #rrggbbaa.
+        if (preg_match('/^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/', $value) === 1) {
+            return true;
+        }
+        // rgb()/rgba()/hsl()/hsla() — character class deliberately tight.
+        if (preg_match('/^(?:rgba?|hsla?)\([0-9a-z.,\/%\s]+\)$/', $value) === 1) {
+            return true;
+        }
+        // Keyword safelist — `transparent` / `currentcolor` are the only
+        // semantic keywords designers reach for; the named colors are
+        // included so a non-picker text input still validates the obvious
+        // cases. Audit before extending.
+        return in_array($value, self::CSS_COLOR_KEYWORDS, true);
+    }
+
+    /**
+     * Audited CSS color keywords accepted by {@see isCssColor()}. Kept
+     * small on purpose — the BE color picker emits hex, so this list
+     * only has to cover the manual-text-input fallback. Extend with
+     * care: every entry is a value that bypasses the hex / function-
+     * form regex.
+     *
+     * @var list<string>
+     */
+    private const array CSS_COLOR_KEYWORDS = [
+        'transparent', 'currentcolor',
+        'black', 'white', 'red', 'green', 'blue', 'yellow', 'cyan',
+        'magenta', 'gray', 'grey', 'orange', 'purple', 'pink', 'brown',
+        'silver', 'gold', 'navy', 'teal', 'olive', 'maroon', 'lime',
+        'aqua', 'fuchsia',
+    ];
 
     /**
      * Sites that actually run SimpleCMP — i.e. have the

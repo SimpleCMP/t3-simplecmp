@@ -12,6 +12,29 @@ development.
 
 ### Security
 
+- **Theme Designer `color-*` tokens are now grammar-validated before
+  storage.** `ThemeDesignerController::sanitizeTokens()` enum-guarded the
+  structural tokens (`position`, `theme`, `layout`, …) but accepted every
+  `color-*` value as any non-empty string. `RegisterAssets::injectTheme()`
+  then concatenated that value **raw, unescaped** into shadow-DOM CSS at
+  three sinks (the shared `:host { … }` rule, the per-trigger
+  `:host(simplecmp-trigger) button { background: … }` rule, and the
+  per-banner-button `:host(simplecmp-banner) .cn-<button> { background: … }`
+  rules). A stored value like `red !important; } :host { display: none } /*`
+  broke out of its rule and let a backend user inject arbitrary CSS into
+  the SimpleCMP shadow roots — e.g. `display:none` on `:host` hides the
+  consent banner entirely (consent-UI defacement / clickjacking-grade
+  restyle; CSS-level only — script execution is already closed by
+  `JSON_HEX_TAG` on the inline payload). `colorPaletteLocked='1'` only
+  guarded the 8 `SAFE_PALETTE` core keys; the four button-background
+  overrides (`color-trigger-bg`, `color-accept-bg`, `color-decline-bg`,
+  `color-configure-bg`) bypass the lock and were exploitable regardless.
+  The new `isCssColor()` validator accepts hex (3/4/6/8 chars), `rgb()` /
+  `rgba()` / `hsl()` / `hsla()` with a charset that excludes CSS
+  metacharacters, and a small audited keyword safelist. Anything else is
+  **dropped** (not escaped) so the per-token default / `SAFE_PALETTE` wins
+  on the FE. Reported by Ilja Melnicenko; SimpleCMP/t3-simplecmp#5.
+
 - **The discover-mode detection write now requires a signed token.** The
   HTML rewriter records declaratively-blocked embeds during a sweep (see
   Added), writing to the detection table — the only such path besides the
