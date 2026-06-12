@@ -135,6 +135,14 @@ window.SimpleCMP?.on?.('consent', (consent) => {
 Adjust the `consent.marketing` / `consent.analytics` accessors to
 match your actual purpose / service taxonomy.
 
+**Update (2026-06-12):** the upstream engine now ships the missing half as
+an opt-in `consentMode` hook (REQ-N10 / ADR-0016, `simplecmp@5016b91`) that
+emits both `default` and `update` (and replays for returning visitors). The
+t3 providers still need wiring to it — and that work must also resolve the
+**block-vs-signal-gate posture** (the current loader gating + a dangling
+`consent default: denied` is likely suppressing GA4 *after* consent). See
+[`2026-06-12-consent-mode-v2-tracker-wiring.md`](2026-06-12-consent-mode-v2-tracker-wiring.md).
+
 ## Concrete migration paths
 
 **You have 4 direct trackers, want to consolidate**

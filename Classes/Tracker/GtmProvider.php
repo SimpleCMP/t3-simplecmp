@@ -90,6 +90,10 @@ final readonly class GtmProvider implements TrackerProviderInterface
             // CMP grants the storage they need.
             // @todo wire CMP consent events to emit
             //       gtag('consent', 'update', {...}) with granted state.
+            //       Engine now ships this as the opt-in `consentMode` hook
+            //       (REQ-N10 / ADR-0016 upstream). Integration + the
+            //       block-vs-signal-gate posture:
+            //       docs/decisions/2026-06-12-consent-mode-v2-tracker-wiring.md
             $lines[] = 'function gtag(){dataLayer.push(arguments);}';
             $lines[] = "gtag('consent', 'default', {"
                 . "'ad_storage': 'denied',"

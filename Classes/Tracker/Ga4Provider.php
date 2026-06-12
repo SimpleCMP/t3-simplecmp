@@ -104,6 +104,12 @@ final readonly class Ga4Provider implements TrackerProviderInterface
             // grants `analytics_storage` after the user accepts.
             // @todo wire `cmp.on('consent', ...)` to emit
             //       gtag('consent', 'update', {analytics_storage: 'granted'}).
+            //       Engine now ships this as the opt-in `consentMode` hook
+            //       (REQ-N10 / ADR-0016 upstream). Integration + the
+            //       block-vs-signal-gate posture:
+            //       docs/decisions/2026-06-12-consent-mode-v2-tracker-wiring.md
+            //       (with this default + no update + the loader load-gated,
+            //       GA4 likely stays denied AFTER consent today — verify.)
             $lines[] = "gtag('consent', 'default', {"
                 . "'ad_storage': 'denied',"
                 . "'ad_user_data': 'denied',"
