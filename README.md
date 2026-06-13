@@ -48,8 +48,13 @@ filter and excluded from this default actionable view.*
   - *Dienste* — full registry index, source-tagged (Eigene / Aus
     Bibliothek / Verwaist). The Dienste tab is where every registry row
     lives regardless of how it got there.
-  - *Bibliothek* — browse the bundled `simplecmp/services-library` and
-    Übernehmen entries into the registry on demand.
+  - *Bibliothek* — browse the bundled `simplecmp/services-library`,
+    Übernehmen entries on demand or **in bulk**, unadopt, and act on
+    recommendations. A freshness panel reports whether the bundled
+    snapshot matches the hosted upstream (`library.simplecmp.eu`), with
+    ok / stale / down health states and a per-request circuit breaker.
+    Every row has a ⓘ info modal (locale-resolved description, matchers,
+    L2 vendor fields).
 
   Per-row detection state, derived at view time from **registry
   coverage + bundled library coverage + dismissal flag**:
@@ -98,13 +103,27 @@ filter and excluded from this default actionable view.*
   tags each detection with the Site Set that reported it; the filter
   dropdown lets admins slice by site.
 
-- **Banner design** at *Websites → SimpleCMP banner design* — per-site
-  theme editor for the FE consent banner. Customise brand colors,
-  surface colors, typography (body + heading font + size, with a
-  "Detect fonts from active site" button), and corner radius without
-  editing YAML or PHP. Live preview iframe on the right of the form
-  updates as you type. Tokens persist in `tx_t3simplecmp_theme` per
-  site; deleting a row resets that site to defaults.
+- **Theme Designer** at *Websites → SimpleCMP Theme Designer* — per-site
+  editor for the FE consent banner. Pick a CSS-framework preset
+  (default / Bootstrap 5 / Tailwind / Bulma / Pico), set brand + surface
+  colors, choose the banner position on a 3×3 grid, toggle the address
+  tone (Sie / Du), and override individual UI strings (persisted in
+  `tx_t3simplecmp_translation_override`) — without editing YAML or PHP. A
+  live preview iframe updates as you type, and a built-in **compliance
+  audit** runs the engine's DSGVO / WCAG checks against the previewed
+  banner. Theme tokens persist in `tx_t3simplecmp_theme` per site;
+  deleting a row resets that site to defaults.
+
+- **Managed trackers + Google Consent Mode v2** — a *Tracker setup* area
+  registers GA4 / GTM / Matomo tags (stored in
+  `tx_t3simplecmp_managed_tracker`, providers `Ga4Provider` / `GtmProvider`
+  / `MatomoProvider`) and wires them to consent, emitting Consent Mode v2
+  signals plus a CSP policy contribution. The consent-*update* wiring is
+  in progress (tracked upstream).
+
+- **Region-aware behaviour (REQ-N4)** — Site Set settings
+  `simplecmp.region` / `simplecmp.regionHeader` select an opt-in (GDPR),
+  opt-out (US / CCPA), or no-banner regime per visitor region.
 
 - **Click-to-enable on blocked embeds** — when a content editor pastes
   a third-party embed with the standard `data-name="<service>"
@@ -153,16 +172,15 @@ Filter to a single Site Set:
 
 ![Reporting-site filter](Documentation/Images/be-filter-reporting-site.png)
 
-### Banner design
+### Theme Designer
 
-Per-site theme editor at *Websites → SimpleCMP banner design*. Token
-form on the left grouped into Brand / Surface / Advanced / Typography /
-Shape sections, with a live preview on the right that updates as you
-type. The Typography group has a *Detect fonts from active site*
-button that reads computed body + heading typography from the FE via a
-hidden iframe:
+Per-site banner editor at *Websites → SimpleCMP Theme Designer*: a
+CSS-framework preset, brand / surface colors, 3×3 position, tone
+(Sie / Du), and per-string text overrides on the left, with a live
+preview and a built-in compliance audit on the right. *(Screenshot may
+predate the current controls.)*
 
-![Banner design module](Documentation/Images/be-banner-design.png)
+![Theme Designer module](Documentation/Images/be-banner-design.png)
 
 ### Frontend
 
@@ -338,6 +356,25 @@ Iterations shipped:
     gating CSS at the toggle + Discover, leading with self-hosting as
     the durable fix. Best-effort (preload scanner / `@import` escape).
     See [Blocking third-party stylesheets](#blocking-third-party-stylesheets-google-fonts).
+15. **Theme Designer rework** — the banner-design module gained a
+    CSS-framework picker, 3×3 position, Sie/Du tone toggle, per-string
+    text overrides (`tx_t3simplecmp_translation_override`), and a
+    compliance-audit runner; typography / shape / detect-fonts dropped.
+16. **Managed trackers + Consent Mode v2** — *Tracker setup* for
+    GA4 / GTM / Matomo (`tx_t3simplecmp_managed_tracker`) with Google
+    Consent Mode v2 emission and a CSP policy mutator (consent-update
+    wiring in progress).
+17. **Region-aware regimes (REQ-N4)** — per-region opt-in / opt-out /
+    none via `simplecmp.region` / `simplecmp.regionHeader`.
+18. **Library browser depth** — bulk adopt / unadopt, recommendations,
+    *Detektionen rückgängig*, a per-service ⓘ info modal, and an upstream
+    freshness / health panel (`tx_t3simplecmp_library_cache`) with a
+    frontend circuit breaker.
+
+The extension now uses seven `tx_t3simplecmp_*` tables: service registry,
+detection log, theme, managed tracker, library cache, translation
+override, and allowed-stylesheet host. Run
+`vendor/bin/typo3 database:updateschema` after upgrading.
 
 See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
