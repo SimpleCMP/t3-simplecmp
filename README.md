@@ -283,6 +283,89 @@ a stylesheet escapes entirely, and dynamically-inserted `<link>`s aren't
 hooked. Treat blocking as risk reduction; self-hosting is the only complete
 fix.
 
+## Betrieb mit StaticFileCache (REQ-N9)
+
+`t3-simplecmp` ist mit `EXT:staticfilecache` (`lochmueller/staticfilecache`) und
+ähnlichen Full-Page-HTML-Caches (Varnish, Cloudflare Cache Rules) kompatibel.
+Zwei Vorkehrungen greifen automatisch:
+
+### Universal Blocking läuft vor dem Cache
+
+`Classes/UniversalBlocking/Middleware/HtmlRewriter.php` gated Drittanbieter-Tags
+im HTML-Body. Die Middleware-Registrierung in `Configuration/RequestMiddlewares.php`
+trägt `before: lochmueller/staticfilecache/persist` — der Cache speichert daher
+das **bereits geblockte** HTML. Ohne den Constraint würde SFC das ungeblockte
+HTML auf Disk schreiben und es bei jedem Cache-Hit ausliefern → Pre-Consent-
+Tracking → Compliance-Bruch.
+
+**Verifikation** (mit aktivem SFC):
+
+```bash
+# Cache eine Seite mit einem YouTube-Embed-CE, dann den Cache-File prüfen:
+grep -l 'youtube\.com/embed' typo3temp/var/cache/.../<host>/<path>/index.html
+# Erwartung: kein Treffer im `src=`-Attribut, nur in `data-simplecmp-src`.
+
+grep -c 'src="about:blank"' typo3temp/var/cache/.../<host>/<path>/index.html
+# Erwartung: ≥ 1 (jeder gegatete iframe → about:blank).
+```
+
+Falls SFC eine andere Middleware-ID als `lochmueller/staticfilecache/persist`
+nutzt (z. B. Fork oder Drittparty-Extension), die ID in der `before:`-Liste
+ergänzen. TYPO3 ignoriert unbekannte `before:`-Targets stillschweigend, der
+Constraint ist also non-destructive.
+
+### Bridge-Nonce — Auto-Refresh-on-401
+
+Der HMAC-Nonce in `cmsBridgeAuth.token` hat eine TTL von **1 Stunde** und wird
+gemeinsam mit dem HTML gecached. Bei einem Cache-Hit nach Ablauf würde jeder
+Bridge-POST → 401 → Detection-Berichte hören still auf.
+
+Lösung: `RegisterAssets` setzt zusätzlich `cmsBridgeAuth.refreshUrl` auf
+`/api/simplecmp/v1/bridge-nonce?source=<derived>`. Beim ersten 401 holt sich
+das Bundle dort einen frischen Nonce, swappt ihn in-memory und retried den
+POST genau einmal. Concurrent-Batch-Guard + `retried`-Flag verhindern
+Stampedes und Loops.
+
+Der Endpoint wird von der vorhandenen `ServiceDbApi`-Middleware bedient — sie
+läuft `before: typo3/cms-frontend/site` und liefert `Cache-Control: no-store`
+per Default, ist also **nie** vom Full-Page-Cache erfasst.
+
+**Verifikation**:
+
+```bash
+# Manuell den Endpoint testen (charset-validiertes source):
+curl -i 'https://example.com/api/simplecmp/v1/bridge-nonce?source=simplecmp-default'
+# Erwartung: 200, JSON `{token: "...", expiresInMs: 3600000}`,
+#            Header `Cache-Control: no-store`.
+
+# Invalide source:
+curl -i 'https://example.com/api/simplecmp/v1/bridge-nonce?source=BAD%20%21'
+# Erwartung: 400, JSON `{error: "invalid_source"}`.
+
+# Bridge-Secret nicht konfiguriert:
+curl -i 'https://example.com/api/simplecmp/v1/bridge-nonce?source=simplecmp-default'
+# Erwartung: 503, JSON `{error: "bridge_secret_unconfigured"}`.
+```
+
+**End-to-End** mit gecached'er Seite: Cache eine Seite mit `simplecmp.cmsBridgeUrl`,
+warte > 1 Stunde (oder simuliere via Server-Zeit / kurzer TTL), öffne die
+gecached'e Seite und füge per JS ein neues Embed ein. Browser-DevTools-Network
+zeigt:
+
+1. `POST /api/simplecmp/webhook` → **401**
+2. `GET /api/simplecmp/v1/bridge-nonce?source=...` → **200**
+3. `POST /api/simplecmp/webhook` (retry mit neuem Token) → **200**
+4. BE-Modul `simplecmp_detections` → Detection ist drin.
+
+### Was nicht funktioniert
+
+- TYPO3-Backend (`/typo3/...`) liegt außerhalb von SFC — keine Auswirkung.
+- `/api/simplecmp/*`-Routen werden via Middleware-Order **vor** `typo3/cms-frontend/site`
+  ausgeliefert und niemals gecached.
+- Der finale `navigator.sendBeacon`-Flush bei `pagehide` kann den Refresh nicht
+  abwarten — Detections der letzten Sekunde mit abgelaufenem Token gehen verloren.
+  Akzeptierte Restschwäche (die ganze in-session Mehrheit ist abgedeckt).
+
 ## Status
 
 Iterations shipped:

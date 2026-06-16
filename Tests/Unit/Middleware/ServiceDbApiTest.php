@@ -412,6 +412,101 @@ final class ServiceDbApiTest extends TestCase
         );
     }
 
+    // --- /v1/bridge-nonce (REQ-N9) -----------------------------------------
+
+    #[Test]
+    public function bridgeNonceReturnsFreshToken(): void
+    {
+        $nonce = $this->createMock(BridgeNonceService::class);
+        $nonce->expects(self::once())
+            ->method('issue')
+            ->with('simplecmp-default')
+            ->willReturn('fresh-nonce-abc');
+        // The handler must never be invoked — middleware terminates.
+        $this->handler->expects(self::never())->method('handle');
+
+        $response = $this->middleware(['nonceService' => $nonce])->process(
+            $this->request('GET', '/api/simplecmp/v1/bridge-nonce', ['source' => 'simplecmp-default']),
+            $this->handler,
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+        // Endpoint must not be cached — Cache-Control header inherited from withCors().
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
+        self::assertStringContainsString('application/json', $response->getHeaderLine('Content-Type'));
+        $body = (string) $response->getBody();
+        self::assertJson($body);
+        $decoded = json_decode($body, true);
+        self::assertSame('fresh-nonce-abc', $decoded['token']);
+        // 1h TTL × 1000 ms — bundle uses this hint to schedule its own refresh cadence.
+        self::assertSame(3_600_000, $decoded['expiresInMs']);
+    }
+
+    public static function provideInvalidBridgeNonceSources(): array
+    {
+        return [
+            'missing'             => [[]],
+            'empty'               => [['source' => '']],
+            'too long (>64)'      => [['source' => str_repeat('a', 65)]],
+            'uppercase'           => [['source' => 'Simplecmp-Default']],
+            'dot in source'       => [['source' => 'example.com']],
+            'space in source'     => [['source' => 'simplecmp default']],
+            'unicode'             => [['source' => 'simplecmp-ümlaut']],
+            'path-traversal-like' => [['source' => '../etc/passwd']],
+        ];
+    }
+
+    /** @param array<string, string> $queryParams */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideInvalidBridgeNonceSources')]
+    #[Test]
+    public function bridgeNonceRejectsInvalidSourceWith400(array $queryParams): void
+    {
+        $nonce = $this->createMock(BridgeNonceService::class);
+        $nonce->expects(self::never())->method('issue');
+
+        $response = $this->middleware(['nonceService' => $nonce])->process(
+            $this->request('GET', '/api/simplecmp/v1/bridge-nonce', $queryParams),
+            $this->handler,
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
+        $decoded = json_decode((string) $response->getBody(), true);
+        self::assertSame('invalid_source', $decoded['error']);
+    }
+
+    #[Test]
+    public function bridgeNonceReturns503WhenSecretIsNotConfigured(): void
+    {
+        $secret = $this->createMock(BridgeSecretProvider::class);
+        $secret->method('isConfigured')->willReturn(false);
+        $nonce = $this->createMock(BridgeNonceService::class);
+        $nonce->expects(self::never())->method('issue');
+
+        $response = $this->middleware(['secretProvider' => $secret, 'nonceService' => $nonce])->process(
+            $this->request('GET', '/api/simplecmp/v1/bridge-nonce', ['source' => 'simplecmp-default']),
+            $this->handler,
+        );
+
+        self::assertSame(503, $response->getStatusCode());
+        $decoded = json_decode((string) $response->getBody(), true);
+        self::assertSame('bridge_secret_unconfigured', $decoded['error']);
+    }
+
+    #[Test]
+    public function bridgeNoncePostMethodReturns404(): void
+    {
+        $nonce = $this->createMock(BridgeNonceService::class);
+        $nonce->expects(self::never())->method('issue');
+
+        $response = $this->middleware(['nonceService' => $nonce])->process(
+            $this->request('POST', '/api/simplecmp/v1/bridge-nonce', ['source' => 'simplecmp-default']),
+            $this->handler,
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
     // --- helpers ------------------------------------------------------------
 
     /** @param array<string, object> $overrides */

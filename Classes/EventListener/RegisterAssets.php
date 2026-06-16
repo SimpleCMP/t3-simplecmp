@@ -622,8 +622,17 @@ final readonly class RegisterAssets
                 // visitor-facing consent cookie name) is left untouched.
                 $source = $this->bridgeSource((string) $config['storageName']);
                 $config['cmsBridgeUrl'] = $cmsBridgeUrl;
+                // REQ-N9 — when the init payload gets baked into static
+                // HTML by EXT:staticfilecache (or Varnish/CDN page cache),
+                // the bundled token expires while the cached HTML is still
+                // served. Pair the token with a `refreshUrl` pointing at
+                // our uncached `/api/simplecmp/v1/bridge-nonce` endpoint:
+                // the bundle GETs it on the first 401, swaps in the fresh
+                // token, and retries the POST. Same-origin (server-relative
+                // URL) so no CSP/CORS preflight is needed.
                 $config['cmsBridgeAuth'] = [
                     'token' => $this->nonceService->issue($source),
+                    'refreshUrl' => '/api/simplecmp/v1/bridge-nonce?source=' . rawurlencode($source),
                 ];
                 // Carry the per-source report generation so the FE bridge
                 // re-reports detections the admin purged (bumped server-side)

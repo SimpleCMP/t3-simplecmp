@@ -24,10 +24,22 @@ return [
         // enabled` (off by default). Runs after every other frontend
         // middleware so the response body is fully rendered HTML by
         // the time we see it.
+        //
+        // REQ-N9 — `before: lochmueller/staticfilecache/persist`
+        // ensures the rewriter has already gated third-party tags BEFORE
+        // EXT:staticfilecache persists the HTML to disk. Without this,
+        // SFC would cache the UN-blocked HTML and serve it from disk on
+        // every cache hit, producing pre-consent tracking and a
+        // compliance violation. TYPO3 silently ignores `before:` targets
+        // that are not registered, so this constraint is harmless when
+        // SFC is not installed.
         'simplecmp/t3-simplecmp/universal-blocking-rewriter' => [
             'target' => HtmlRewriter::class,
             'after' => [
                 'typo3/cms-frontend/content-length-headers',
+            ],
+            'before' => [
+                'lochmueller/staticfilecache/persist',
             ],
         ],
     ],

@@ -119,9 +119,10 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         if (str_starts_with($path, self::V1_PREFIX)) {
             $sub = substr($path, strlen(self::V1_PREFIX));
             return match (true) {
-                $sub === '/health' && $method === 'GET'   => $this->withCors($this->health()),
-                $sub === '/services' && $method === 'GET' => $this->withCors($this->listServices($request)),
-                $sub === '/lookup' && $method === 'POST'  => $this->withCors($this->lookup($request)),
+                $sub === '/health' && $method === 'GET'         => $this->withCors($this->health()),
+                $sub === '/services' && $method === 'GET'       => $this->withCors($this->listServices($request)),
+                $sub === '/lookup' && $method === 'POST'        => $this->withCors($this->lookup($request)),
+                $sub === '/bridge-nonce' && $method === 'GET'   => $this->withCors($this->bridgeNonce($request)),
                 default => $this->withCors($this->jsonError(404, 'No route for ' . $method . ' ' . $path)),
             };
         }
@@ -303,6 +304,50 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         }
 
         return new JsonResponse(['items' => $results]);
+    }
+
+    /**
+     * REQ-N9 — return a freshly minted bridge nonce for a given `source`.
+     *
+     * Full-page caches (`EXT:staticfilecache`, Varnish, Cloudflare) freeze
+     * the inline `cmsBridgeAuth.token` baked into the SimpleCMP init script
+     * for the lifetime of the cached HTML. Once the original 1h-TTL HMAC
+     * nonce expires, every bridge POST from that cached page is rejected
+     * with 401 and detections silently stop arriving.
+     *
+     * The bundle's `CmsBridgeAuth.refreshUrl` calls this endpoint on its
+     * first 401 to get a fresh token and retries the POST. This route is
+     * registered alongside the existing `ServiceDbApi` middleware so it
+     * inherits the same `Cache-Control: no-store` default (via
+     * `withCors()`) and runs BEFORE `typo3/cms-frontend/site` — never
+     * touched by the page cache.
+     *
+     * `source` is the bridge-side identifier (see
+     * `RegisterAssets::bridgeSource()`). The nonce is HMAC-bound to it
+     * via {@see BridgeNonceService::issue()}, so the receiver's
+     * source-mismatch verification still catches replays across sites.
+     *
+     * Charset (`^[a-z0-9_-]{1,64}$`) mirrors `WebhookPayloadValidator`'s
+     * source constraint — out-of-charset values would only produce nonces
+     * the receiver later rejects anyway, so fail fast here.
+     */
+    private function bridgeNonce(ServerRequestInterface $request): ResponseInterface
+    {
+        $source = (string) ($request->getQueryParams()['source'] ?? '');
+        if ($source === '' || preg_match('/^[a-z0-9_-]{1,64}$/', $source) !== 1) {
+            return $this->jsonError(400, 'invalid_source');
+        }
+        if (!$this->secretProvider->isConfigured()) {
+            // Same response shape the rest of the bridge stack uses when
+            // the secret hasn't been provisioned — `RegisterAssets` also
+            // refuses to enable the bridge under this condition, so a
+            // 503 here is the consistent surface.
+            return $this->jsonError(503, 'bridge_secret_unconfigured');
+        }
+        return new JsonResponse([
+            'token' => $this->nonceService->issue($source),
+            'expiresInMs' => BridgeNonceService::DEFAULT_TTL_SECONDS * 1000,
+        ]);
     }
 
     private function jsonError(int $status, string $message): ResponseInterface
