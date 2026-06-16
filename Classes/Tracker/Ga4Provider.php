@@ -32,8 +32,14 @@ namespace SimpleCMP\T3SimpleCmp\Tracker;
  *                     tracker-wiring.md`).
  *   - serviceId       string — override the default `service_id`.
  */
-final readonly class Ga4Provider implements TrackerProviderInterface
+final readonly class Ga4Provider implements TrackerProviderInterface, ConsentVendorAware
 {
+    public function getConsentVendor(array $config): string
+    {
+        return 'google';
+    }
+
+
     public function getType(): string
     {
         return 'ga4';

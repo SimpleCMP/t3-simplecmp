@@ -278,12 +278,20 @@ final readonly class TrackerMaterializer
 
         // Signal the init-config builder (RegisterAssets, which runs
         // after this listener on the same event) to forward
-        // `consentMode: true` into `cmp.init()` so the engine hook
-        // emits the v2 `default (denied)` AND the `update (granted)`
-        // on accept. One signal is enough — engine reads each
-        // service's `purposes` to compose the gtag-consent payload.
+        // `consentMode` into `cmp.init()` so the engine hook emits the
+        // v2 `default (denied)` AND the `update (granted)` on accept.
+        // ADR-0017: providers that also implement {@see ConsentVendorAware}
+        // contribute their vendor key (`google`/`meta`/`microsoftUet`)
+        // so RegisterAssets can emit the multi-vendor
+        // `consentMode: { vendors: [...] }` shape. Providers that
+        // pre-date the interface fall back to the legacy
+        // `consentMode: true` (= Google-only) form.
         if ($provider->wantsConsentMode($config)) {
-            $this->runtimeState->requestConsentMode();
+            if ($provider instanceof \SimpleCMP\T3SimpleCmp\Tracker\ConsentVendorAware) {
+                $this->runtimeState->addConsentVendor($provider->getConsentVendor($config));
+            } else {
+                $this->runtimeState->requestConsentMode();
+            }
         }
 
         $bootstrap = $provider->getBootstrapInlineScript($config);

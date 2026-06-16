@@ -380,6 +380,27 @@ final class TrackerSetupController extends ActionController
                 ],
                 ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
             ],
+            'meta' => [
+                // Meta Pixel is signal-only — no loader URL, no
+                // bootstrap snippet. The customer's own pixel template
+                // continues to load fbevents.js; this row registers the
+                // Service-DB metadata (banner listing, CSP origins,
+                // _fbp/_fbc cookie classification) and tells the engine
+                // to dispatch `fbq('consent', 'grant'|'revoke')` via the
+                // ADR-0017 vendor adapter.
+                ['name' => 'pixelId', 'kind' => 'text', 'required' => true],
+                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
+            ],
+            'microsoftUet' => [
+                ['name' => 'tagId', 'kind' => 'text', 'required' => true],
+                [
+                    'name' => 'consentPosture',
+                    'kind' => 'enum',
+                    'required' => false,
+                    'options' => ['block', 'signal-gate'],
+                ],
+                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
+            ],
             default => [],
         };
 

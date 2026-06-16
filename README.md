@@ -114,12 +114,18 @@ filter and excluded from this default actionable view.*
   banner. Theme tokens persist in `tx_t3simplecmp_theme` per site;
   deleting a row resets that site to defaults.
 
-- **Managed trackers + Google Consent Mode v2** — a *Tracker setup* area
-  registers GA4 / GTM / Matomo tags (stored in
-  `tx_t3simplecmp_managed_tracker`, providers `Ga4Provider` / `GtmProvider`
-  / `MatomoProvider`) and wires them to consent, emitting Consent Mode v2
-  signals plus a CSP policy contribution. The consent-*update* wiring is
-  in progress (tracked upstream).
+- **Managed trackers + multi-vendor Consent Mode (ADR-0017)** — a
+  *Tracker setup* area registers GA4 / GTM / Matomo / Meta Pixel /
+  Microsoft UET tags (stored in `tx_t3simplecmp_managed_tracker`,
+  providers `Ga4Provider` / `GtmProvider` / `MatomoProvider` /
+  `MetaProvider` / `MicrosoftUetProvider`) and wires them to consent,
+  emitting the engine's vendor-aware Consent Mode signals (`gtag('consent',
+  …)` for Google, `fbq('consent', …)` for Meta,
+  `uetq.push('consent', …)` for Microsoft UET) plus a CSP policy
+  contribution. Meta Pixel is signal-only — the customer's own pixel
+  template keeps loading `fbevents.js`; this extension only dispatches
+  the consent transitions. The consent-*update* wiring on returning-
+  visitor replay is in progress (tracked upstream).
 
 - **Region-aware behaviour (REQ-N4)** — Site Set settings
   `simplecmp.region` / `simplecmp.regionHeader` select an opt-in (GDPR),
@@ -453,6 +459,18 @@ Iterations shipped:
     *Detektionen rückgängig*, a per-service ⓘ info modal, and an upstream
     freshness / health panel (`tx_t3simplecmp_library_cache`) with a
     frontend circuit breaker.
+19. **Multi-vendor Consent Mode (ADR-0017)** — Meta Pixel and Microsoft
+    UET tracker providers. `RegisterAssets` now emits the
+    `consentMode: { vendors: [...] }` shape when any non-Google vendor
+    is registered; the bundle's vendor-adapter registry dispatches
+    `fbq('consent', …)` / `uetq.push('consent', …)` alongside the
+    existing `gtag('consent', …)`.
+20. **StaticFileCache compatibility (REQ-N9)** — `before:
+    lochmueller/staticfilecache/persist` on the universal-blocking
+    rewriter so SFC stores the gated HTML, plus a new uncached
+    `GET /api/simplecmp/v1/bridge-nonce` endpoint paired with the
+    bundle's `cmsBridgeAuth.refreshUrl` so the embedded nonce can
+    refresh after the cached HTML outlives its TTL.
 
 The extension now uses seven `tx_t3simplecmp_*` tables: service registry,
 detection log, theme, managed tracker, library cache, translation

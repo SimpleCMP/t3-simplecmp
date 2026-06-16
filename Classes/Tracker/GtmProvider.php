@@ -33,8 +33,14 @@ namespace SimpleCMP\T3SimpleCmp\Tracker;
  *           containerId: GTM-XXXX
  *           purposes: ['analytics']    # honored via the YAML override
  */
-final readonly class GtmProvider implements TrackerProviderInterface
+final readonly class GtmProvider implements TrackerProviderInterface, ConsentVendorAware
 {
+    public function getConsentVendor(array $config): string
+    {
+        return 'google';
+    }
+
+
     public function getType(): string
     {
         return 'gtm';

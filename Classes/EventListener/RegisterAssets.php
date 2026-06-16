@@ -709,7 +709,21 @@ final readonly class RegisterAssets
         // correct because the loader is gated and never fires
         // pre-consent.
         if ($this->trackerRuntimeState->isConsentModeRequested()) {
-            $config['consentMode'] = true;
+            $vendors = $this->trackerRuntimeState->getConsentVendors();
+            if ($vendors === [] || $vendors === ['google']) {
+                // Legacy / Google-only — emit the boolean shape so older
+                // bundle versions (pre-ADR-0017) keep working. The
+                // current bundle treats `consentMode: true` and
+                // `consentMode: { vendors: ['google'] }` identically.
+                $config['consentMode'] = true;
+            } else {
+                // Multi-vendor (Meta, Microsoft UET, …) — emit the
+                // explicit vendor list. The engine's adapter registry
+                // dispatches `fbq('consent', …)` for `meta`,
+                // `uetq.push('consent', …)` for `microsoftUet`, and
+                // `gtag('consent', …)` for `google` in the same payload.
+                $config['consentMode'] = ['vendors' => $vendors];
+            }
         }
 
         if ($privacy === '' && $config['services'] === []) {
