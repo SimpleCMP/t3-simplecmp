@@ -55,7 +55,7 @@ final readonly class ConfigSnapshotRepository
     public function countBySite(string $site): int
     {
         $qb = $this->connectionPool->getConnectionForTable(self::TABLE)->createQueryBuilder();
-        $count = $qb->select('COUNT(*)')
+        $count = $qb->count('*')
             ->from(self::TABLE)
             ->where($qb->expr()->eq('site', $qb->createNamedParameter($site)))
             ->executeQuery()
@@ -111,7 +111,7 @@ final readonly class ConfigSnapshotRepository
     public function existsForHash(string $site, string $versionHash): bool
     {
         $qb = $this->connectionPool->getConnectionForTable(self::TABLE)->createQueryBuilder();
-        $count = $qb->select('COUNT(*)')
+        $count = $qb->count('*')
             ->from(self::TABLE)
             ->where(
                 $qb->expr()->eq('site', $qb->createNamedParameter($site)),

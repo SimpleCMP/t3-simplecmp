@@ -42,6 +42,16 @@ final class SnapshotConfigOnSave implements SingletonInterface
     private const string TABLE_OVERRIDE = 'tx_t3simplecmp_translation_override';
 
     /**
+     * Composer/Site-Set identifier of this extension. Sites without
+     * this set in their resolved dependencies don't run SimpleCMP on
+     * the FE — snapshotting them on a service-save would write dead
+     * rows the BE never surfaces (the audit-tab filters to sites
+     * with the set). Same filter as
+     * {@see \SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController::collectSites()}.
+     */
+    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+
+    /**
      * Sites that already got a snapshot during the current request,
      * keyed by `<site>:<table>`. Prevents duplicate work if a single
      * DataHandler save touches multiple rows of the same table.
@@ -148,6 +158,10 @@ final class SnapshotConfigOnSave implements SingletonInterface
     }
 
     /**
+     * Identifiers of sites that have the SimpleCMP set enabled.
+     * Sites without the set wouldn't render a banner anyway, so a
+     * snapshot for them is dead data — skip them.
+     *
      * @return list<string>
      */
     private function allSiteIdentifiers(): array
@@ -155,6 +169,9 @@ final class SnapshotConfigOnSave implements SingletonInterface
         $finder = GeneralUtility::makeInstance(SiteFinder::class);
         $out = [];
         foreach ($finder->getAllSites() as $site) {
+            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+                continue;
+            }
             $out[] = $site->getIdentifier();
         }
         return $out;

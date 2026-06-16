@@ -39,3 +39,11 @@ services:
   # ADR-0013 — universal-blocking HTML rewriter (Phase 0 prototype).
   SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware\HtmlRewriter:
     public: true
+
+  # DataHandler hooks are pulled via GeneralUtility::makeInstance() and
+  # need autowiring of the snapshot listener — mark both as public so
+  # they resolve through the DI container with their dependencies.
+  SimpleCMP\T3SimpleCmp\Hooks\DataHandler\SnapshotConfigOnSave:
+    public: true
+  SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener:
+    public: true
