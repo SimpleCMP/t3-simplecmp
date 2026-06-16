@@ -780,19 +780,25 @@ final readonly class RegisterAssets
         // site has no snapshots yet (fresh install), bootstrap one
         // lazily — at most one INSERT per fresh-install render.
         $consentLogUrl = (string) $get('simplecmp.consentLogUrl', '');
-        if ($consentLogUrl !== '' && $this->secretProvider->isConfigured() && isset($source)) {
+        if ($consentLogUrl !== '' && $this->secretProvider->isConfigured()) {
+            // Derive the source independently of cmsBridgeUrl — the
+            // consent-log endpoint must work standalone (consent-log
+            // configured but bridge not). When the bridge IS also set
+            // its block already computed $source identically, so we
+            // recompute defensively here from the same storageName.
+            $consentLogSource = $this->bridgeSource((string) $config['storageName']);
             $latestHash = $this->snapshotRepository->findLatestHashBySite($site->getIdentifier())
                 ?? $this->snapshotListener->snapshotIfChanged($site->getIdentifier(), 'fe-bootstrap');
             if ($latestHash !== null) {
                 $config['consentLog'] = [
                     'url' => $consentLogUrl,
-                    'source' => $source,
+                    'source' => $consentLogSource,
                     'auth' => [
-                        'token' => $this->nonceService->issue($source),
+                        'token' => $this->nonceService->issue($consentLogSource),
                         // Same REQ-N9 endpoint — nonces are source-bound,
                         // not endpoint-bound; a refresh via /bridge-nonce
                         // produces a token that works for /consent-log too.
-                        'refreshUrl' => '/api/simplecmp/v1/bridge-nonce?source=' . rawurlencode($source),
+                        'refreshUrl' => '/api/simplecmp/v1/bridge-nonce?source=' . rawurlencode($consentLogSource),
                     ],
                     'configVersion' => $latestHash,
                 ];
