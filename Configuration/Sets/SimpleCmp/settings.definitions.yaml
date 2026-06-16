@@ -113,6 +113,12 @@ settings:
     type: bool
     default: false
 
+  simplecmp.preloadBundle:
+    label: 'Preload the SimpleCMP bundle (ADR-0019, recommended)'
+    description: 'Emit a `<link rel="preload" as="script">` (or `modulepreload` when the ESM critical-core build is in use) for the SimpleCMP bundle file so the browser fetches it in parallel with HTML parsing instead of waiting for the regular `<script>` tag. Recovers some of the LCP cost the bundle parse adds — the actual `<script>` then uses the cached fetch. Free for the slim bundle and free for the full one; on by default. Turn off only when you have a global preload-quota concern (rare).'
+    type: bool
+    default: true
+
 # `simplecmp.trackers` is intentionally NOT defined here — TYPO3
 # site-setting types are scalar only (string, int, bool, stringlist,
 # url, …), there is no nested-array type that the BE form module

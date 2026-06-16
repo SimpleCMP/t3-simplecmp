@@ -289,6 +289,28 @@ a stylesheet escapes entirely, and dynamically-inserted `<link>`s aren't
 hooked. Treat blocking as risk reduction; self-hosting is the only complete
 fix.
 
+## Bundle preload (ADR-0019)
+
+`RegisterAssets` emits a `<link rel="preload" as="script">` in the page
+head for whichever SimpleCMP bundle is registered (full or slim). The
+browser starts fetching the script in parallel with HTML parsing, so
+the regular `<script>` tag downstream resolves to a cached fetch
+instead of starting a new one. Free LCP win for any bundle.
+
+On by default. Turn off via the Site Setting `simplecmp.preloadBundle`
+in the unusual case where the site has a global preload-quota
+constraint.
+
+> Future iteration: the upstream `dist/simplecmp-core.js` ESM
+> split-chunk artifact (with `simplecmp-chunk.js` / `simplecmp-deferred.js`
+> companions) is shipped by the bundle's `tsup` config but is not yet
+> consumed by t3-simplecmp. Wiring it would require swapping the IIFE
+> `<script>` for an inline `<script type="module">` that imports `init`,
+> plus `modulepreload` hints for both the entry and the shared chunk.
+> Tracked upstream as ADR-0019; tracked here as a follow-up to the
+> "Slim bundle (ADR-0018)" workflow once the matching sync infrastructure
+> lands.
+
 ## Slim bundle (ADR-0018)
 
 Opt into the English-only **slim bundle** + per-language pack injection

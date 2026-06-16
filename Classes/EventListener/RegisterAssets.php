@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
@@ -69,6 +70,7 @@ final readonly class RegisterAssets
 
     public function __construct(
         private AssetCollector $assetCollector,
+        private PageRenderer $pageRenderer,
         private ServiceRepository $serviceRepository,
         private ThemeRepository $themeRepository,
         private TranslationOverrideRepository $overrideRepository,
@@ -128,6 +130,23 @@ final readonly class RegisterAssets
         if ($injectedTranslations !== []) {
             $translations = $config['translations'] ?? [];
             $config['translations'] = $this->mergeTranslationsDeep($injectedTranslations, $translations);
+        }
+        // ADR-0019 — preload hint so the browser fetches the bundle in
+        // parallel with HTML parsing instead of waiting for the
+        // `<script>` tag to be reached. Recovers a chunk of the LCP
+        // cost the engine's synchronous parse otherwise adds. Default
+        // on; switchable via `simplecmp.preloadBundle`. PageRenderer
+        // is the cleanest path — TYPO3's AssetCollector has no
+        // first-class preload API in v14.
+        if ((bool) $settings->get('simplecmp.preloadBundle', true)) {
+            $resolvedHref = \TYPO3\CMS\Core\Utility\PathUtility::getPublicResourceWebPath($bundlePath);
+            if ($resolvedHref !== '') {
+                $this->pageRenderer->addHeaderData(
+                    '<link rel="preload" as="script" href="'
+                    . htmlspecialchars($resolvedHref, ENT_QUOTES | ENT_HTML5)
+                    . '" />',
+                );
+            }
         }
         $this->assetCollector->addJavaScript(
             'simplecmp-bundle',

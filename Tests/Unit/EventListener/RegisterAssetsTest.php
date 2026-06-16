@@ -838,6 +838,7 @@ final class RegisterAssetsTest extends TestCase
     {
         return new RegisterAssets(
             $this->assetCollector,
+            $this->createMock(\TYPO3\CMS\Core\Page\PageRenderer::class),
             $this->services,
             $this->themes,
             $this->overrideRepository,
