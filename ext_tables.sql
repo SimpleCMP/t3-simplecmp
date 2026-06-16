@@ -146,3 +146,32 @@ CREATE TABLE tx_t3simplecmp_allowed_stylesheet_host (
     PRIMARY KEY (uid),
     UNIQUE KEY source_host (source, host)
 );
+
+-- Append-only audit snapshots of the resolved banner configuration
+-- (services + theme + translation overrides + relevant Site Settings).
+-- One row is written each time the editor saves a change to any of the
+-- three source tables, or via the CLI command for YAML-only edits.
+-- Identical content produces the same `version_hash` (sha256 of the
+-- canonicalised JSON) so the UNIQUE constraint deduplicates no-op
+-- saves into a single historical entry.
+--
+-- Append-only is enforced via TCA (`readOnly` + `hideTable`) plus
+-- DataHandler hooks that refuse update/delete via the BE editor API.
+-- Direct SQL DELETE remains possible by design — production retention
+-- is an explicit Phase-3 CLI workflow, not a hidden database trigger.
+CREATE TABLE tx_t3simplecmp_config_snapshot (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(64) DEFAULT '' NOT NULL,
+    version_hash char(64) DEFAULT '' NOT NULL,
+    canonical_json mediumtext,
+    trigger_event varchar(64) DEFAULT '' NOT NULL,
+    creator_be_user int(11) unsigned DEFAULT '0' NOT NULL,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY site_version (site, version_hash),
+    KEY by_site_date (site, crdate),
+    KEY version (version_hash)
+);

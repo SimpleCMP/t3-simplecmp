@@ -11,6 +11,36 @@
       <trans-unit id="nav.registry"><source>Services</source><target>Dienste</target></trans-unit>
       <trans-unit id="nav.library"><source>Library</source><target>Bibliothek</target></trans-unit>
       <trans-unit id="nav.services"><source>Library</source><target>Bibliothek</target></trans-unit>
+      <trans-unit id="nav.audit"><source>Audit &amp; record</source><target>Revision &amp; Nachweis</target></trans-unit>
+
+      <trans-unit id="module.audit.title"><source>Audit &amp; record</source><target>Revision &amp; Nachweis</target></trans-unit>
+      <trans-unit id="module.audit.heading"><source>Banner configuration audit trail</source><target>Revisionssicherer Banner-Konfigurations-Verlauf</target></trans-unit>
+      <trans-unit id="module.audit.site"><source>Site:</source><target>Site:</target></trans-unit>
+      <trans-unit id="module.audit.intro"><source>Each row captures the resolved banner configuration (services, theme, translation overrides, Site Settings) at the moment of an editor save. Identical-content re-saves dedupe by sha256 — only material changes create new rows. Use these snapshots to prove the exact banner state shown to visitors at any point in time.</source><target>Jede Zeile hält die aufgelöste Banner-Konfiguration (Dienste, Theme, Übersetzungs-Overrides, Site-Settings) im Moment eines Editor-Speichervorgangs fest. Identische Re-Saves werden per sha256 dedupliziert — nur inhaltliche Änderungen erzeugen neue Zeilen. Mit diesen Snapshots kannst du jederzeit nachweisen, welchen Banner ein Besucher zu welchem Zeitpunkt gesehen hat.</target></trans-unit>
+      <trans-unit id="module.audit.cliHint"><source>YAML-only edits to `config/sites/&lt;id&gt;/settings.yaml` do not auto-snapshot. After such an edit, run:</source><target>Reine YAML-Edits an `config/sites/&lt;id&gt;/settings.yaml` lösen keinen Auto-Snapshot aus. Nach so einem Edit ausführen:</target></trans-unit>
+      <trans-unit id="module.audit.empty"><source>No snapshots yet for this site. Edit a service / theme / translation override, or run the CLI command above.</source><target>Für diese Site sind noch keine Snapshots vorhanden. Bearbeite einen Dienst / das Theme / eine Übersetzungs-Override oder führe den CLI-Befehl oben aus.</target></trans-unit>
+      <trans-unit id="module.audit.noSites"><source>No sites are configured with the SimpleCMP set yet.</source><target>Keine Site hat das SimpleCMP-Set aktiviert.</target></trans-unit>
+      <trans-unit id="module.audit.notFound"><source>Snapshot not found.</source><target>Snapshot nicht gefunden.</target></trans-unit>
+
+      <trans-unit id="module.audit.col.crdate"><source>Created</source><target>Erstellt</target></trans-unit>
+      <trans-unit id="module.audit.col.versionHash"><source>Version hash</source><target>Versions-Hash</target></trans-unit>
+      <trans-unit id="module.audit.col.trigger"><source>Trigger</source><target>Auslöser</target></trans-unit>
+      <trans-unit id="module.audit.col.creator"><source>By</source><target>Von</target></trans-unit>
+      <trans-unit id="module.audit.col.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+      <trans-unit id="module.audit.action.show"><source>Inspect</source><target>Ansehen</target></trans-unit>
+
+      <trans-unit id="module.audit.trigger.service-save"><source>Service registry save</source><target>Dienste-Speichern</target></trans-unit>
+      <trans-unit id="module.audit.trigger.theme-save"><source>Banner theme save</source><target>Banner-Theme-Speichern</target></trans-unit>
+      <trans-unit id="module.audit.trigger.translation-override-save"><source>Translation override save</source><target>Übersetzungs-Override-Speichern</target></trans-unit>
+      <trans-unit id="module.audit.trigger.cli-manual"><source>CLI / manual</source><target>CLI / manuell</target></trans-unit>
+
+      <trans-unit id="module.audit.show.heading"><source>Snapshot detail</source><target>Snapshot-Details</target></trans-unit>
+      <trans-unit id="module.audit.show.back"><source>Back to list</source><target>Zurück zur Liste</target></trans-unit>
+      <trans-unit id="module.audit.show.section.snapshot"><source>Canonical content</source><target>Kanonischer Inhalt</target></trans-unit>
+      <trans-unit id="module.audit.show.section.diff"><source>Diff against previous snapshot</source><target>Diff zum vorherigen Snapshot</target></trans-unit>
+      <trans-unit id="module.audit.show.diff.previous"><source>Compared against version %s</source><target>Vergleich mit Version %s</target></trans-unit>
+      <trans-unit id="module.audit.show.diff.empty"><source>No textual difference between the snapshots (rare; possible if pretty-printing collapsed cosmetic changes).</source><target>Kein textueller Unterschied zwischen den Snapshots (selten; möglich, wenn Pretty-Print kosmetische Änderungen einebnet).</target></trans-unit>
+      <trans-unit id="module.audit.show.diff.firstSnapshot"><source>This is the first snapshot for this site — nothing to diff against.</source><target>Dies ist der erste Snapshot für diese Site — kein Vorgänger zum Vergleichen.</target></trans-unit>
 
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source><target>SimpleCMP — registrierte Dienste</target></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source><target>eigene</target></trans-unit>

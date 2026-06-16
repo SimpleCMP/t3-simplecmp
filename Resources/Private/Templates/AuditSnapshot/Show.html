@@ -1,0 +1,89 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'audit',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab,
+    uri_auditTab: uri_auditTab
+}" />
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.heading" />
+        — <code>{snapshot.version_hash}</code>
+    </h1>
+    <a href="{uri_back}" class="btn btn-sm btn-default">
+        <core:icon identifier="actions-chevron-left" size="small" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.back" />
+    </a>
+</div>
+
+<dl class="row mb-4">
+    <dt class="col-sm-3">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" />
+    </dt>
+    <dd class="col-sm-9"><f:format.date format="Y-m-d H:i:s">@{snapshot.crdate}</f:format.date></dd>
+    <dt class="col-sm-3">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" />
+    </dt>
+    <dd class="col-sm-9">
+        <span class="badge bg-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{snapshot.trigger_event}" default="{snapshot.trigger_event}" />
+        </span>
+    </dd>
+    <dt class="col-sm-3">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" />
+    </dt>
+    <dd class="col-sm-9">
+        <f:if condition="{snapshot.creator_be_user} > 0">
+            <f:then>BE-User #{snapshot.creator_be_user}</f:then>
+            <f:else><span class="text-body-secondary">CLI / system</span></f:else>
+        </f:if>
+    </dd>
+    <dt class="col-sm-3">Site</dt>
+    <dd class="col-sm-9"><code>{snapshot.site}</code></dd>
+</dl>
+
+<h2>
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.snapshot" />
+</h2>
+<pre class="bg-body-secondary p-3 rounded" style="max-height:50vh; overflow:auto;"><code>{snapshotPretty}</code></pre>
+
+<h2 class="mt-4">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.diff" />
+</h2>
+<f:if condition="{previous}">
+    <f:then>
+        <p class="text-body-secondary small">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.previous"
+                         arguments="{0: previous.version_hash}" />
+            (<f:format.date format="Y-m-d H:i:s">@{previous.crdate}</f:format.date>)
+        </p>
+        <f:if condition="{diff}">
+            <f:then>
+                <pre class="bg-body-secondary p-3 rounded" style="max-height:60vh; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; line-height: 1.4;"><f:for each="{diff}" as="entry"><f:switch expression="{entry.type}"><f:case value="add"><span style="background-color: rgba(40, 167, 69, 0.15); color: #1a5128; display: block;">+ <f:format.htmlspecialchars>{entry.line}</f:format.htmlspecialchars></span></f:case><f:case value="remove"><span style="background-color: rgba(220, 53, 69, 0.15); color: #842029; display: block;">- <f:format.htmlspecialchars>{entry.line}</f:format.htmlspecialchars></span></f:case><f:case value="context"><span style="display: block; opacity: 0.65;">  <f:format.htmlspecialchars>{entry.line}</f:format.htmlspecialchars></span></f:case></f:switch></f:for></pre>
+            </f:then>
+            <f:else>
+                <div class="alert alert-secondary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.empty" />
+                </div>
+            </f:else>
+        </f:if>
+    </f:then>
+    <f:else>
+        <div class="alert alert-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.firstSnapshot" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

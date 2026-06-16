@@ -41,6 +41,9 @@
       <trans-unit id="tx_t3simplecmp_service.orphanCallout.title"><source>This service is no longer in the bundled library</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.orphanCallout.body"><source>You adopted this service from the bundled simplecmp/services-library on %s. A later library release removed or renamed it, so this row is no longer library-backed. The service still works in your banner — you can keep editing it as a custom entry, search the Library tab for a possible replacement, or delete it from the Services tab if it's truly obsolete.</source></trans-unit>
 
+      <!-- Audit snapshot table (append-only, Phase 1) -->
+      <trans-unit id="tx_t3simplecmp_config_snapshot"><source>SimpleCMP audit snapshot</source></trans-unit>
+
       <!-- Detection table -->
       <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>

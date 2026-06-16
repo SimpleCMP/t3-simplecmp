@@ -37,6 +37,27 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['proc
     [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson::class]
     = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson::class;
 
+// Append-only audit snapshots of the banner config (Phase 1). Fires
+// once per DataHandler invocation, after all individual rows have
+// been processed — collects affected sites and stores a snapshot per
+// site. Identical-content saves dedupe via a sha256 hash, so editor
+// re-saves without changes don't create churn.
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\SnapshotConfigOnSave::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\SnapshotConfigOnSave::class;
+
+// Editor-level append-only enforcement for the snapshot table. TCA
+// `readOnly`/`hideTable` is the first defence; this hook refuses any
+// `update` datamap call or `delete`/`move`/`copy`/`undelete` cmdmap
+// entries that somehow target the table. Direct SQL is still
+// possible — production retention is a Phase-3 CLI workflow.
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class;
+
 // Inline "this service is no longer in the bundled library" callout
 // at the top of the SimpleCMP-Dienst edit form. The custom TCA
 // `type: user` field renders nothing for Eigene and Aus-Bibliothek

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController;
 use SimpleCMP\T3SimpleCmp\Controller\DetectionReviewController;
 use SimpleCMP\T3SimpleCmp\Controller\DiscoveryController;
 use SimpleCMP\T3SimpleCmp\Controller\LibraryBrowserController;
@@ -73,6 +74,10 @@ return [
                 'edit',
                 'save',
                 'delete',
+            ],
+            AuditSnapshotController::class => [
+                'list',
+                'show',
             ],
         ],
     ],

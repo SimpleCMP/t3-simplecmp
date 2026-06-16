@@ -11,6 +11,36 @@
       <trans-unit id="nav.registry"><source>Services</source></trans-unit>
       <trans-unit id="nav.library"><source>Library</source></trans-unit>
       <trans-unit id="nav.services"><source>Library</source></trans-unit>
+      <trans-unit id="nav.audit"><source>Audit &amp; record</source></trans-unit>
+
+      <trans-unit id="module.audit.title"><source>Audit &amp; record</source></trans-unit>
+      <trans-unit id="module.audit.heading"><source>Banner configuration audit trail</source></trans-unit>
+      <trans-unit id="module.audit.site"><source>Site:</source></trans-unit>
+      <trans-unit id="module.audit.intro"><source>Each row captures the resolved banner configuration (services, theme, translation overrides, Site Settings) at the moment of an editor save. Identical-content re-saves dedupe by sha256 — only material changes create new rows. Use these snapshots to prove the exact banner state shown to visitors at any point in time.</source></trans-unit>
+      <trans-unit id="module.audit.cliHint"><source>YAML-only edits to `config/sites/&lt;id&gt;/settings.yaml` do not auto-snapshot. After such an edit, run:</source></trans-unit>
+      <trans-unit id="module.audit.empty"><source>No snapshots yet for this site. Edit a service / theme / translation override, or run the CLI command above.</source></trans-unit>
+      <trans-unit id="module.audit.noSites"><source>No sites are configured with the SimpleCMP set yet.</source></trans-unit>
+      <trans-unit id="module.audit.notFound"><source>Snapshot not found.</source></trans-unit>
+
+      <trans-unit id="module.audit.col.crdate"><source>Created</source></trans-unit>
+      <trans-unit id="module.audit.col.versionHash"><source>Version hash</source></trans-unit>
+      <trans-unit id="module.audit.col.trigger"><source>Trigger</source></trans-unit>
+      <trans-unit id="module.audit.col.creator"><source>By</source></trans-unit>
+      <trans-unit id="module.audit.col.actions"><source>Actions</source></trans-unit>
+      <trans-unit id="module.audit.action.show"><source>Inspect</source></trans-unit>
+
+      <trans-unit id="module.audit.trigger.service-save"><source>Service registry save</source></trans-unit>
+      <trans-unit id="module.audit.trigger.theme-save"><source>Banner theme save</source></trans-unit>
+      <trans-unit id="module.audit.trigger.translation-override-save"><source>Translation override save</source></trans-unit>
+      <trans-unit id="module.audit.trigger.cli-manual"><source>CLI / manual</source></trans-unit>
+
+      <trans-unit id="module.audit.show.heading"><source>Snapshot detail</source></trans-unit>
+      <trans-unit id="module.audit.show.back"><source>Back to list</source></trans-unit>
+      <trans-unit id="module.audit.show.section.snapshot"><source>Canonical content</source></trans-unit>
+      <trans-unit id="module.audit.show.section.diff"><source>Diff against previous snapshot</source></trans-unit>
+      <trans-unit id="module.audit.show.diff.previous"><source>Compared against version %s</source></trans-unit>
+      <trans-unit id="module.audit.show.diff.empty"><source>No textual difference between the snapshots (rare; possible if pretty-printing collapsed cosmetic changes).</source></trans-unit>
+      <trans-unit id="module.audit.show.diff.firstSnapshot"><source>This is the first snapshot for this site — nothing to diff against.</source></trans-unit>
 
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source></trans-unit>

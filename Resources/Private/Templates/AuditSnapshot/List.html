@@ -1,0 +1,130 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'audit',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab,
+    uri_auditTab: uri_auditTab
+}" />
+
+<f:if condition="{hasSites}">
+    <f:then>
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="mb-0">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.heading" />
+            </h1>
+
+            <!-- Per-site picker. Pre-built URLs, no form submit. -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="t3simplecmp-audit-site" class="form-label mb-0 text-body-secondary small">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.site" />
+                </label>
+                <select id="t3simplecmp-audit-site"
+                        class="form-select form-select-sm"
+                        style="width:auto"
+                        onchange="if (this.value) window.location.assign(this.value);">
+                    <f:for each="{siteOptions}" as="opt">
+                        <option value="{opt.url}" {f:if(condition: '{opt.identifier} == {selectedSite}', then: 'selected')}>{opt.label}</option>
+                    </f:for>
+                </select>
+            </div>
+        </div>
+
+        <p class="text-body-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.intro" />
+        </p>
+
+        <div class="alert alert-info small">
+            <core:icon identifier="actions-info-circle" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.cliHint" />
+            <code>vendor/bin/typo3 simplecmp:snapshot-config --site={selectedSite}</code>
+        </div>
+
+        <f:if condition="{totalCount} > 0">
+            <f:then>
+                <div class="d-flex align-items-center mb-2 gap-3">
+                    <div class="text-body-secondary small ms-auto">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.range"
+                                     arguments="{0: rangeStart, 1: rangeEnd, 2: totalCount}" />
+                    </div>
+                </div>
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.versionHash" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" /></th>
+                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" /></th>
+                            <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.actions" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{rows}" as="row">
+                            <tr>
+                                <td><f:format.date format="Y-m-d H:i:s">@{row.crdate}</f:format.date></td>
+                                <td><code title="{row.version_hash}">{row.version_hash_short}…</code></td>
+                                <td><span class="badge bg-secondary">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{row.trigger_event}" default="{row.trigger_event}" />
+                                </span></td>
+                                <td>
+                                    <f:if condition="{row.creator_be_user} > 0">
+                                        <f:then>BE-User #{row.creator_be_user}</f:then>
+                                        <f:else><span class="text-body-secondary">CLI / system</span></f:else>
+                                    </f:if>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{row.uri_show}" class="btn btn-sm btn-default">
+                                        <core:icon identifier="actions-eye" size="small" />
+                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.action.show" />
+                                    </a>
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+
+                <f:if condition="{totalPages} > 1">
+                    <nav>
+                        <ul class="pagination pagination-sm justify-content-center">
+                            <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
+                                <a class="page-link" href="{uri_pageFirst}">«</a></li>
+                            <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
+                                <a class="page-link" href="{uri_pagePrev}">‹</a></li>
+                            <li class="page-item disabled"><span class="page-link">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
+                            </span></li>
+                            <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
+                                <a class="page-link" href="{uri_pageNext}">›</a></li>
+                            <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
+                                <a class="page-link" href="{uri_pageLast}">»</a></li>
+                        </ul>
+                    </nav>
+                </f:if>
+            </f:then>
+            <f:else>
+                <div class="alert alert-secondary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.empty" />
+                </div>
+            </f:else>
+        </f:if>
+
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

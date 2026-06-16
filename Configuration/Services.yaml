@@ -23,6 +23,12 @@ services:
         command: 'simplecmp:generate-bridge-secret'
         description: 'Generate a fresh HMAC secret for the SimpleCMP bridge webhook nonces.'
 
+  SimpleCMP\T3SimpleCmp\Command\SnapshotConfigCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:snapshot-config'
+        description: 'Capture an audit snapshot of the current SimpleCMP banner configuration (idempotent — dedupes by canonical-content hash). Use after YAML-only edits or as a pre-deployment freeze checkpoint.'
+
   # PSR-15 middlewares: TYPO3 instantiates these via `makeInstance`, which
   # only reads from public services in the DI container. Without `public:
   # true` the autowired constructor args (repositories) silently fail and

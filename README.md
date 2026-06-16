@@ -446,6 +446,65 @@ zeigt:
   abwarten — Detections der letzten Sekunde mit abgelaufenem Token gehen verloren.
   Akzeptierte Restschwäche (die ganze in-session Mehrheit ist abgedeckt).
 
+## Audit & Nachweis (Phase 1)
+
+`t3-simplecmp` schreibt bei jeder Editor-Änderung an Dienste, Theme-Tokens
+oder Übersetzungs-Overrides einen **vollständigen Snapshot** der aufgelösten
+Banner-Konfiguration nach `tx_t3simplecmp_config_snapshot` — append-only,
+sha256-dedupliziert. Damit lässt sich später nachweisen, wie der Banner zu
+einem bestimmten Zeitpunkt aussah (DSGVO Art. 7 Abs. 1).
+
+### Was im Snapshot drin ist
+
+- Komplette Dienste-Registry (Protokoll-Shape via `ServiceRepository::findAll()`)
+- Banner-Theme-Tokens für die Site
+- Translation-Overrides + Tone-Wahl je Sprache
+- Kuratierte `simplecmp.*` Site-Settings:
+  `enabled`, `storageName`, `privacyPolicyUrl`, `imprintUrl`,
+  `floatingTriggerLabel`, `respectGPC`, `regimeDefault`,
+  `universalBlocking.enabled`, `universalBlocking.blockStylesheets`,
+  `universalBlocking.allowlist`, `libraryUpstreamUrl`, `trackers`
+
+Bewusst NICHT im Snapshot: per-request-Schalter (`regionHeader`) und
+ops-Tuning (`bridgeRateLimit`, `useSlimBundle`, …) — diese ändern den
+sichtbaren Banner nicht.
+
+### BE-Modul: Tab „Revision & Nachweis"
+
+Im Modul *Cookie-Manager* (BE-ID `simplecmp_detections`) gibt es einen
+neuen Tab. Liste pro Site, paginiert; Detail-View mit komplettem
+canonical-JSON + Line-Diff zum direkt vorherigen Snapshot derselben Site.
+
+### YAML-Edits sind nicht auto-gesnapshotted
+
+Wer `config/sites/<id>/settings.yaml` direkt editiert (Git-Pull, Ops-Deploy),
+muss anschließend manuell auslösen:
+
+```bash
+ddev exec vendor/bin/typo3 simplecmp:snapshot-config --site=default
+# oder --all-sites
+```
+
+Idempotent — gleiche kanonische Inhalte → gleicher Hash → kein neuer Row.
+
+### Append-only Enforcement
+
+- TCA: `readOnly: true` + `hideTable: true` — kein Form, kein List-Modul-Eintrag
+- DataHandler-Hooks: UPDATE/DELETE/MOVE über die BE-API werden mit
+  FlashMessage abgelehnt
+- **Direkt-SQL ist nicht geblockt** — Production-Retention ist eine
+  bewusste Phase-3-CLI-Aktion (kommt mit dedicatem Audit-Log über sich
+  selbst), kein versteckter DB-Trigger.
+
+### Was Phase 2/3 ergänzt
+
+- **Phase 2**: Visitor-Decision-Logging — Tabelle `tx_t3simplecmp_consent_log`
+  mit Hash-pseudonymisiertem Visitor + Foreign-Key auf die hier
+  geschriebenen Snapshots, neuer FE-Endpoint, Bundle-Hook in
+  `consentManager.onChange()`.
+- **Phase 3**: DSGVO-Auskunfts-Export pro Visitor-Hash + Retention-CLI mit
+  Self-Audit-Log.
+
 ## Status
 
 Iterations shipped:
@@ -545,6 +604,12 @@ Iterations shipped:
     `GET /api/simplecmp/v1/bridge-nonce` endpoint paired with the
     bundle's `cmsBridgeAuth.refreshUrl` so the embedded nonce can
     refresh after the cached HTML outlives its TTL.
+21. **Audit-Snapshot Phase 1** — append-only `tx_t3simplecmp_config_snapshot`
+    table, DataHandler-hook serialises the full resolved banner
+    configuration on every editor save, sha256-deduplicated; CLI
+    command `simplecmp:snapshot-config` for YAML-only edits; new
+    "Revision & Nachweis" tab in the detections module with
+    canonical-JSON view + line-diff against the previous snapshot.
 
 The extension now uses seven `tx_t3simplecmp_*` tables: service registry,
 detection log, theme, managed tracker, library cache, translation
