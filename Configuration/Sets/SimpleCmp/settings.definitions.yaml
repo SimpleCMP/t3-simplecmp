@@ -59,6 +59,18 @@ settings:
     type: string
     default: ''
 
+  simplecmp.consentLogUrl:
+    label: 'Consent-log webhook URL (optional, Phase 2 audit trail)'
+    description: 'POST target for visitor consent decisions (Phase 2). Each accept / decline / save is recorded against the current banner snapshot version, pseudonymized server-side via HMAC-SHA256 of the visitor UUID. Same authentication as cmsBridgeUrl (source-bound HMAC nonce with refresh-on-401). Leave empty to disable consent logging.'
+    type: string
+    default: ''
+
+  simplecmp.consentLogRateLimit:
+    label: 'Consent-log webhook rate limit (requests per IP per hour)'
+    description: 'Maximum number of /api/simplecmp/v1/consent-log POSTs accepted from a single IP within a sliding 1-hour bucket. Default 100 covers normal visitor patterns (5-10 decisions per session × few sessions per IP per hour). Raise for shared-NAT/CGNAT environments; set to 0 to disable rate limiting.'
+    type: int
+    default: 100
+
   simplecmp.storagePid:
     label: 'Storage page ID for service + detection records'
     description: 'TYPO3 page UID under which new `tx_t3simplecmp_service` and `tx_t3simplecmp_detection` rows are created (typically a dedicated SysFolder). Defaults to 0 (site root). Records created before changing this setting are NOT moved.'

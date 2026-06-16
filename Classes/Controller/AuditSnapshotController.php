@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ConsentLogRepository;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -42,6 +43,7 @@ final class AuditSnapshotController extends ActionController
         private readonly SiteFinder $siteFinder,
         private readonly BackendUriBuilder $backendUriBuilder,
         private readonly ConfigSnapshotRepository $repository,
+        private readonly ConsentLogRepository $consentLogRepository,
     ) {
     }
 
@@ -116,12 +118,25 @@ final class AuditSnapshotController extends ActionController
             ? null
             : $this->prettyPrint((string) ($previous['canonical_json'] ?? ''));
 
+        // Phase 2 — visitor decisions logged against this snapshot version.
+        // We cap at 100 most-recent on the show view; future Phase-3 surface
+        // adds a paginated drill-down per visitor hash.
+        $consentLogRowsRaw = $this->consentLogRepository->findByVersionHash(
+            (string) $row['version_hash'],
+            100,
+            0,
+        );
+        $consentLogRows = array_map($this->decorateConsentLogRow(...), $consentLogRowsRaw);
+        $consentLogCount = $this->consentLogRepository->countByVersionHash((string) $row['version_hash']);
+
         $this->moduleTemplate->assignMultiple([
             'snapshot' => $row,
             'snapshotPretty' => $prettyCurrent,
             'previous' => $previous,
             'previousPretty' => $prettyPrevious,
             'diff' => $diff,
+            'consentLogRows' => $consentLogRows,
+            'consentLogCount' => $consentLogCount,
             'uri_back' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.AuditSnapshot_list',
                 ['site' => $row['site']],
@@ -129,6 +144,43 @@ final class AuditSnapshotController extends ActionController
         ]);
         $this->assignTabUris($this->moduleTemplate);
         return $this->moduleTemplate->renderResponse('AuditSnapshot/Show');
+    }
+
+    /**
+     * Decorate a raw consent-log row for template rendering: short
+     * visitor hash, parsed decisions map, type → severity-class
+     * mapping. Plain decoration — no DB I/O.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function decorateConsentLogRow(array $row): array
+    {
+        $row['visitor_id_short'] = substr((string) ($row['visitor_id_sha256'] ?? ''), 0, 12);
+        $row['decision_hash_short'] = substr((string) ($row['decision_hash'] ?? ''), 0, 12);
+
+        // Parse the canonical JSON back into an associative array for
+        // the template's per-service badge rendering. Falls back to an
+        // empty list if a stored row is somehow malformed.
+        $decisions = [];
+        try {
+            $parsed = json_decode((string) ($row['decisions_json'] ?? '{}'), true, 8, JSON_THROW_ON_ERROR);
+            if (is_array($parsed)) {
+                $decisions = $parsed;
+            }
+        } catch (\JsonException) {
+            // ignore — render with empty decisions
+        }
+        $row['decisions_parsed'] = $decisions;
+
+        // Map decision type to a Bootstrap variant for the badge.
+        $row['type_class'] = match ((string) ($row['decision_type'] ?? '')) {
+            'accept' => 'success',
+            'decline' => 'danger',
+            'partial' => 'warning',
+            default => 'secondary',
+        };
+        return $row;
     }
 
     // --- helpers ------------------------------------------------------------

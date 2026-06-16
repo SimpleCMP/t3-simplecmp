@@ -105,6 +105,30 @@ final readonly class ConfigSnapshotRepository
     }
 
     /**
+     * Most-recent snapshot's `version_hash` for a site, or null when
+     * the site has no snapshots yet. Used by `RegisterAssets` to
+     * stamp the FE init payload with the current snapshot reference
+     * — Phase-2 consent-log POSTs cite this hash so each decision is
+     * bound to the banner state it was made against.
+     *
+     * Cheap: uses the `by_site_date` index. Reads only the hash
+     * column, not the full canonical JSON.
+     */
+    public function findLatestHashBySite(string $site): ?string
+    {
+        $qb = $this->connectionPool->getConnectionForTable(self::TABLE)->createQueryBuilder();
+        $hash = $qb->select('version_hash')
+            ->from(self::TABLE)
+            ->where($qb->expr()->eq('site', $qb->createNamedParameter($site)))
+            ->orderBy('crdate', 'DESC')
+            ->addOrderBy('uid', 'DESC')
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+        return $hash === false ? null : (string) $hash;
+    }
+
+    /**
      * Whether a snapshot with this hash already exists for this site.
      * Used by the listener to short-circuit a no-op INSERT.
      */

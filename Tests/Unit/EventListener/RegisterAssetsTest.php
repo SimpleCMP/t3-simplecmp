@@ -847,6 +847,8 @@ final class RegisterAssetsTest extends TestCase
             $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration::class),
             $runtimeState ?? new \SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState(),
             $this->logger,
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository::class),
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener::class),
         );
     }
 

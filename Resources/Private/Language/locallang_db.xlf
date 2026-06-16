@@ -44,6 +44,9 @@
       <!-- Audit snapshot table (append-only, Phase 1) -->
       <trans-unit id="tx_t3simplecmp_config_snapshot"><source>SimpleCMP audit snapshot</source></trans-unit>
 
+      <!-- Visitor consent log (append-only, Phase 2) -->
+      <trans-unit id="tx_t3simplecmp_consent_log"><source>SimpleCMP consent decision</source></trans-unit>
+
       <!-- Detection table -->
       <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>

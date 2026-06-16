@@ -79,6 +79,8 @@ final readonly class RegisterAssets
         private DetectionResetGeneration $resetGeneration,
         private TrackerRuntimeState $trackerRuntimeState,
         private LoggerInterface $logger,
+        private \SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository $snapshotRepository,
+        private \SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener $snapshotListener,
     ) {
     }
 
@@ -766,6 +768,34 @@ final readonly class RegisterAssets
                     'reportGeneration' => $this->resetGeneration->current($source),
                 ];
                 $config['record'] = ['silenceProductionWarning' => true];
+            }
+        }
+
+        // Phase 2 — visitor consent decision logging. Same auth
+        // mechanism as the bridge (source-bound HMAC nonce with
+        // refresh-on-401). The configVersion is the current Phase-1
+        // snapshot hash — each posted decision is bound to the banner
+        // state shown at that moment, so the BE audit-tab can prove
+        // exactly what was visible when consent was given. If the
+        // site has no snapshots yet (fresh install), bootstrap one
+        // lazily — at most one INSERT per fresh-install render.
+        $consentLogUrl = (string) $get('simplecmp.consentLogUrl', '');
+        if ($consentLogUrl !== '' && $this->secretProvider->isConfigured() && isset($source)) {
+            $latestHash = $this->snapshotRepository->findLatestHashBySite($site->getIdentifier())
+                ?? $this->snapshotListener->snapshotIfChanged($site->getIdentifier(), 'fe-bootstrap');
+            if ($latestHash !== null) {
+                $config['consentLog'] = [
+                    'url' => $consentLogUrl,
+                    'source' => $source,
+                    'auth' => [
+                        'token' => $this->nonceService->issue($source),
+                        // Same REQ-N9 endpoint — nonces are source-bound,
+                        // not endpoint-bound; a refresh via /bridge-nonce
+                        // produces a token that works for /consent-log too.
+                        'refreshUrl' => '/api/simplecmp/v1/bridge-nonce?source=' . rawurlencode($source),
+                    ],
+                    'configVersion' => $latestHash,
+                ];
             }
         }
 

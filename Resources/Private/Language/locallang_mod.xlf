@@ -42,6 +42,19 @@
       <trans-unit id="module.audit.show.diff.empty"><source>No textual difference between the snapshots (rare; possible if pretty-printing collapsed cosmetic changes).</source></trans-unit>
       <trans-unit id="module.audit.show.diff.firstSnapshot"><source>This is the first snapshot for this site — nothing to diff against.</source></trans-unit>
 
+      <trans-unit id="module.audit.show.section.decisions"><source>Visitor decisions</source></trans-unit>
+      <trans-unit id="module.audit.show.section.decisions.intro"><source>Every accept / decline / save click logged by visitors while this snapshot was the active banner configuration. The visitor identifier is pseudonymized (HMAC-SHA256 of the visitor's UUID with the bridge secret) so the raw UUID never lands in the database. Identical decisions from the same visitor deduplicate via a UNIQUE constraint.</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.col.visitor"><source>Visitor (hash)</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.col.type"><source>Type</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.col.decisions"><source>Per-service decisions</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.col.context"><source>Context</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.type.accept"><source>Accept all</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.type.decline"><source>Decline all</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.type.script"><source>Programmatic</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.type.partial"><source>Save selected</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.empty"><source>No visitor decisions have been logged against this snapshot version yet.</source></trans-unit>
+      <trans-unit id="module.audit.show.decisions.truncated"><source>Showing the %d most recent of %d decisions. Older entries are accessible via direct DB query (CSV export coming in Phase 3).</source></trans-unit>
+
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source></trans-unit>
       <trans-unit id="registry.header.library"><source>from library</source></trans-unit>

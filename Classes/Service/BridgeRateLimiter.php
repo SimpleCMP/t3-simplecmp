@@ -45,6 +45,8 @@ final readonly class BridgeRateLimiter
     private const int DEFAULT_LIMIT = 500;
     private const string LOOKUP_SETTING_KEY = 'simplecmp.serviceDbRateLimit';
     private const int LOOKUP_DEFAULT_LIMIT = 5000;
+    private const string CONSENT_LOG_SETTING_KEY = 'simplecmp.consentLogRateLimit';
+    private const int CONSENT_LOG_DEFAULT_LIMIT = 100;
     private const int BUCKET_SECONDS = 3600;
 
     public function __construct(
@@ -85,6 +87,25 @@ final readonly class BridgeRateLimiter
             $request,
             $this->limitForRequest($request, self::LOOKUP_SETTING_KEY, self::LOOKUP_DEFAULT_LIMIT),
             'l_',
+        );
+    }
+
+    /**
+     * Consent-log endpoint limit (Phase 2 audit trail). Separate
+     * bucket prefix `c_` so it never shares with the webhook or
+     * service-db budgets. Default 100/h/IP covers normal visitor
+     * patterns (5-10 decisions per session × few sessions per IP per
+     * hour) with comfortable headroom for shared-NAT environments;
+     * `simplecmp.consentLogRateLimit` overrides per site, 0 disables.
+     *
+     * @return array{allowed: bool, limit: int, count: int, retryAfter: int}
+     */
+    public function checkConsentLog(ServerRequestInterface $request): array
+    {
+        return $this->evaluate(
+            $request,
+            $this->limitForRequest($request, self::CONSENT_LOG_SETTING_KEY, self::CONSENT_LOG_DEFAULT_LIMIT),
+            'c_',
         );
     }
 

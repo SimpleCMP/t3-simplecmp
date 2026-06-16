@@ -16,8 +16,10 @@ use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\ClassifierLookup;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification;
 use SimpleCMP\T3SimpleCmp\Service\BridgeRateLimiter;
+use SimpleCMP\T3SimpleCmp\Service\CanonicalJsonEncoder;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
+use SimpleCMP\T3SimpleCmp\Service\ConsentLogPayloadValidator;
 use SimpleCMP\T3SimpleCmp\Service\WebhookPayloadValidator;
 use SimpleCMP\T3SimpleCmp\Service\WebhookRequestGuard;
 
@@ -59,6 +61,9 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private BridgeNonceService $nonceService,
         private ClassifierLookup $classifierLookup,
         private \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
+        private ConsentLogPayloadValidator $consentLogValidator,
+        private \SimpleCMP\T3SimpleCmp\Domain\Repository\ConsentLogRepository $consentLogRepository,
+        private CanonicalJsonEncoder $canonicalEncoder,
     ) {
     }
 
@@ -123,6 +128,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
                 $sub === '/services' && $method === 'GET'       => $this->withCors($this->listServices($request)),
                 $sub === '/lookup' && $method === 'POST'        => $this->withCors($this->lookup($request)),
                 $sub === '/bridge-nonce' && $method === 'GET'   => $this->withCors($this->bridgeNonce($request)),
+                $sub === '/consent-log' && $method === 'POST'   => $this->withCors($this->consentLog($request)),
                 default => $this->withCors($this->jsonError(404, 'No route for ' . $method . ' ' . $path)),
             };
         }
@@ -348,6 +354,118 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             'token' => $this->nonceService->issue($source),
             'expiresInMs' => BridgeNonceService::DEFAULT_TTL_SECONDS * 1000,
         ]);
+    }
+
+    /**
+     * Phase 2 — POST /api/simplecmp/v1/consent-log
+     *
+     * Mirror of the webhook 5-step defense pattern with payload-shape
+     * + repository swapped out for the consent-log artifacts:
+     *
+     *   1. requestGuard (Sec-Fetch-Site + Origin)
+     *   2. per-IP rate limit (separate `c_` bucket, 100/h default)
+     *   3. strict ConsentLogPayloadValidator (4 KB max, JSON_THROW,
+     *      regex + enum on every field)
+     *   4. source-bound HMAC nonce verification (same BridgeNonceService
+     *      that webhook + bridge-nonce use)
+     *   5. pseudonymize + canonicalize + INSERT (UNIQUE-protected)
+     *
+     * The visitor UUID is pseudonymized server-side via
+     * {@see hashVisitorUuid()} so the raw UUID never lands in the DB —
+     * only its HMAC. The same visitor's same decision against the
+     * same snapshot version dedupes via the (site, visitor_id_sha256,
+     * version_hash, decision_hash) UNIQUE constraint.
+     */
+    private function consentLog(ServerRequestInterface $request): ResponseInterface
+    {
+        $guardError = $this->requestGuard->check($request);
+        if ($guardError !== null) {
+            return $this->jsonError(403, $guardError);
+        }
+
+        $rate = $this->rateLimiter->checkConsentLog($request);
+        if (!$rate['allowed']) {
+            return $this->jsonError(429, 'Rate limit exceeded')
+                ->withHeader('Retry-After', (string) $rate['retryAfter']);
+        }
+
+        $result = $this->consentLogValidator->validate((string) $request->getBody());
+        if (!$result->valid) {
+            return $this->jsonError($result->status, $result->message);
+        }
+        $payload = $result->payload;
+
+        // Reuse the same verifyBridgeNonce() — nonce is source-bound,
+        // not endpoint-bound. A `source=default` nonce works against
+        // /webhook, /bridge-nonce, /consent-log uniformly.
+        $nonceError = $this->verifyBridgeNonce($request, $payload);
+        if ($nonceError !== null) {
+            return $nonceError;
+        }
+
+        $decisionsJson = $this->canonicalEncoder->encode($payload['decisions']);
+        $decisionHash = hash('sha256', $decisionsJson);
+
+        $this->consentLogRepository->insert(
+            site: $this->resolveSiteFromSource((string) $payload['source']),
+            versionHash: (string) $payload['versionHash'],
+            visitorIdSha256: $this->hashVisitorUuid((string) $payload['visitorUuid'], (string) $payload['source']),
+            decisionHash: $decisionHash,
+            decisionsJson: $decisionsJson,
+            decisionType: (string) $payload['decisionType'],
+            uaFamily: isset($payload['uaFamily']) && is_string($payload['uaFamily']) ? $payload['uaFamily'] : null,
+            pageUrlHost: isset($payload['pageHost']) && is_string($payload['pageHost']) ? $payload['pageHost'] : null,
+        );
+        return new JsonResponse(['ok' => true]);
+    }
+
+    /**
+     * Pseudonymize the visitor's UUID before persisting. Uses HMAC-
+     * SHA256 with the bridge secret as the key + the source as
+     * additional context, so:
+     *
+     *   - The same UUID yields the same hash within a single secret-
+     *     rotation lifetime → dedup-via-UNIQUE works correctly.
+     *   - Different sources (sites) yield different hashes for the
+     *     same UUID → no cross-site visitor correlation.
+     *   - The raw UUID can never be reconstructed from the hash
+     *     without the bridge secret.
+     *
+     * DSGVO Art. 15 (Auskunftsrecht): the visitor must bring their
+     * raw UUID (saved in their browser's localStorage as
+     * `${storageName}-visitor-uuid`); the server recomputes the
+     * hash with the current secret + source to find the rows.
+     */
+    private function hashVisitorUuid(string $uuid, string $source): string
+    {
+        $secret = $this->secretProvider->get();
+        // bridgeSecret presence is already enforced by the nonce-verify
+        // step (returns 503 if missing), so $secret is non-null here.
+        return hash_hmac('sha256', $uuid, ($secret ?? '') . ':' . $source);
+    }
+
+    /**
+     * Resolve which TYPO3 site identifier a `source` belongs to.
+     *
+     * The source is derived from the site's `storageName` via
+     * {@see \SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets::bridgeSource()};
+     * for the common case (lowercase identifier matching the source
+     * charset) the source IS the storageName which IS
+     * `simplecmp-<siteIdentifier>`. Strip the `simplecmp-` prefix and
+     * see if a site with that identifier exists; fall back to the
+     * source itself when the prefix isn't there. Returns the source
+     * string as a last resort so we always have *something* to store
+     * in the `site` column even for stranger storageName overrides.
+     */
+    private function resolveSiteFromSource(string $source): string
+    {
+        $stripped = str_starts_with($source, 'simplecmp-') ? substr($source, strlen('simplecmp-')) : $source;
+        try {
+            $this->siteFinder->getSiteByIdentifier($stripped);
+            return $stripped;
+        } catch (\TYPO3\CMS\Core\Exception\SiteNotFoundException) {
+            return $source;
+        }
     }
 
     private function jsonError(int $status, string $message): ResponseInterface

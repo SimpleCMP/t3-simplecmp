@@ -58,6 +58,14 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['proc
     [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class]
     = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConfigSnapshotAppendOnly::class;
 
+// Phase 2 — same append-only enforcement for visitor consent decisions.
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConsentLogAppendOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConsentLogAppendOnly::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConsentLogAppendOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceConsentLogAppendOnly::class;
+
 // Inline "this service is no longer in the bundled library" callout
 // at the top of the SimpleCMP-Dienst edit form. The custom TCA
 // `type: user` field renders nothing for Eigene and Aus-Bibliothek

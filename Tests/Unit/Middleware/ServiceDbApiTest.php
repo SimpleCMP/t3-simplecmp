@@ -523,6 +523,9 @@ final class ServiceDbApiTest extends TestCase
             $overrides['nonceService'] ?? $this->nonceService,
             $overrides['classifierLookup'] ?? $this->classifierLookup,
             $overrides['siteFinder'] ?? $this->siteFinder,
+            $overrides['consentLogValidator'] ?? $this->createMock(\SimpleCMP\T3SimpleCmp\Service\ConsentLogPayloadValidator::class),
+            $overrides['consentLogRepository'] ?? $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ConsentLogRepository::class),
+            $overrides['canonicalEncoder'] ?? new \SimpleCMP\T3SimpleCmp\Service\CanonicalJsonEncoder(),
         );
     }
 

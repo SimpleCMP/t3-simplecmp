@@ -175,3 +175,43 @@ CREATE TABLE tx_t3simplecmp_config_snapshot (
     KEY by_site_date (site, crdate),
     KEY version (version_hash)
 );
+
+-- Append-only visitor consent decisions (Phase 2 of the audit trail).
+-- Each row records a single accept/decline/save-selected click bound to:
+--   * the snapshot `version_hash` that was active at decision time
+--     (soft FK → tx_t3simplecmp_config_snapshot.version_hash);
+--   * the pseudonymized visitor identifier (sha256(uuid || bridge_secret)),
+--     so the same visitor's repeated identical decisions deduplicate;
+--   * the canonical-hash of the decisions map (sha256 of the sorted JSON),
+--     so the editor can prove the EXACT decision payload that was given.
+--
+-- UNIQUE on (site, visitor_id_sha256, version_hash, decision_hash) drops
+-- no-op re-confirmations into a single row. Genuinely changed decisions
+-- (visitor flipped accept → decline) produce a new row because the
+-- decision_hash differs.
+--
+-- Editor-level append-only is enforced by TCA `readOnly`/`hideTable`
+-- plus the EnforceConsentLogAppendOnly DataHandler hook. Direct SQL
+-- DELETE remains possible by design — Phase-3 ships an explicit CLI
+-- retention workflow with its own audit log.
+CREATE TABLE tx_t3simplecmp_consent_log (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(64) NOT NULL DEFAULT '',
+    version_hash char(64) NOT NULL DEFAULT '',
+    visitor_id_sha256 char(64) NOT NULL DEFAULT '',
+    decision_hash char(64) NOT NULL DEFAULT '',
+    decisions_json text,
+    decision_type varchar(32) NOT NULL DEFAULT '',
+    ua_family varchar(32) DEFAULT NULL,
+    page_url_host varchar(255) DEFAULT NULL,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY visitor_version_decision (site, visitor_id_sha256, version_hash, decision_hash),
+    KEY by_version (version_hash),
+    KEY by_visitor (visitor_id_sha256, site),
+    KEY by_date (crdate),
+    KEY by_site_date (site, crdate)
+);

@@ -85,5 +85,73 @@
     </f:else>
 </f:if>
 
+<h2 class="mt-4">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions" />
+    ({consentLogCount})
+</h2>
+<p class="text-body-secondary small">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions.intro" />
+</p>
+
+<f:if condition="{consentLogRows}">
+    <f:then>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.visitor" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.type" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.decisions" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.context" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{consentLogRows}" as="row">
+                    <tr>
+                        <td><f:format.date format="Y-m-d H:i:s">@{row.crdate}</f:format.date></td>
+                        <td><code title="{row.visitor_id_sha256}">{row.visitor_id_short}…</code></td>
+                        <td>
+                            <span class="badge bg-{row.type_class}">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.type.{row.decision_type}" default="{row.decision_type}" />
+                            </span>
+                        </td>
+                        <td>
+                            <f:for each="{row.decisions_parsed}" as="value" key="serviceId">
+                                <f:if condition="{value}">
+                                    <f:then>
+                                        <span class="badge bg-success me-1" title="accepted">{serviceId} ✓</span>
+                                    </f:then>
+                                    <f:else>
+                                        <span class="badge bg-danger me-1" title="declined">{serviceId} ✗</span>
+                                    </f:else>
+                                </f:if>
+                            </f:for>
+                        </td>
+                        <td class="small text-body-secondary">
+                            <f:if condition="{row.ua_family}">
+                                <span class="badge bg-light text-dark me-1">{row.ua_family}</span>
+                            </f:if>
+                            <f:if condition="{row.page_url_host}">
+                                <code>{row.page_url_host}</code>
+                            </f:if>
+                        </td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+        <f:if condition="{consentLogCount} > 100">
+            <p class="text-body-secondary small">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.truncated"
+                             arguments="{0: 100, 1: consentLogCount}" />
+            </p>
+        </f:if>
+    </f:then>
+    <f:else>
+        <div class="alert alert-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.empty" />
+        </div>
+    </f:else>
+</f:if>
+
 </f:section>
 </html>
