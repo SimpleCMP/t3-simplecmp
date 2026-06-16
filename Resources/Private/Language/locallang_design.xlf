@@ -90,6 +90,10 @@
       <trans-unit id="designer.audit.pass.heuristic-description-length"><source>Banner descriptions are in the informative-but-readable range across configured languages.</source></trans-unit>
       <trans-unit id="designer.audit.fail.heuristic-description-length"><source>%d banner description(s) are outside the recommended 80–600 character range. Too short (below 80) typically lacks the purpose enumeration the "informed" consent prong requires; too long (above 600) risks EDPB 03/2022 § Overloading. Findings: %s</source></trans-unit>
 
+      <trans-unit id="designer.audit.title.dom-accessible-names"><source>Banner region and actions have accessible names (REQ-N11)</source></trans-unit>
+      <trans-unit id="designer.audit.pass.dom-accessible-names"><source>No editor-blanked override removes a banner button label or the banner region title. Run `?simplecmp_audit=1` on the live frontend to additionally verify the rendered shadow-DOM aria attributes.</source></trans-unit>
+      <trans-unit id="designer.audit.fail.dom-accessible-names"><source>%d banner-label override(s) are explicitly blank — the rendered button or region will have no accessible name, so assistive tech can't identify or operate it (WCAG 4.1.2 / 2.4.6, consent that can't be perceived isn't valid). Either restore the bundle default by deleting the override, or set a non-empty value: %s</source></trans-unit>
+
       <trans-unit id="designer.compliance.title"><source>Compliance reference</source></trans-unit>
       <trans-unit id="designer.compliance.backToDesigner"><source>Back to banner design</source></trans-unit>
       <trans-unit id="designer.compliance.intro"><source>This reference explains the legal requirements the SimpleCMP audit checks against. Each section corresponds to a section in the compliance audit banner above the design form.</source></trans-unit>

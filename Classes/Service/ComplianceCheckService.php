@@ -201,6 +201,7 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkPairedTokenOverrides($site);
         $results[] = $this->checkBannerContrast($site);
         $results[] = $this->checkButtonEqualProminence($site);
+        $results[] = $this->checkAccessibleNameOverrides($site);
 
         return $results;
     }
@@ -693,6 +694,99 @@ final readonly class ComplianceCheckService
      * @param array<string, list<array{phrase: string, reason: string}>> $patterns
      * @return list<string>
      */
+    /**
+     * Translation override keys that drive a visible accessible-name on
+     * the rendered banner. Empty values for these turn a button or the
+     * banner region into something that screen readers can't identify
+     * — WCAG 4.1.2 / 2.4.6.
+     *
+     * Mirrors the surface checked by upstream `src/audit/dom.ts`
+     * `checkAccessibleNames` (id `dom-accessible-names`, REQ-N11), with
+     * one constraint: the DOM check runs against the rendered shadow
+     * DOM and can see EVERY action element. The PHP mirror runs at
+     * BE-design time without a rendered banner, so it can only verify
+     * the editor-curated override layer — if an editor blanked a label
+     * here, the runtime banner WILL render unnamed. The bundle's
+     * defaults still provide names when no override is set; that path
+     * passes here trivially.
+     *
+     * @var list<string>
+     */
+    private const array ACCESSIBLE_NAME_OVERRIDE_KEYS = [
+        // Main banner action buttons — their text is the accessible name.
+        'acceptAll',
+        'decline',
+        'acceptSelected',
+        // Region label on the banner card itself.
+        'consentNotice.title',
+        // Modal footer + close action.
+        'ok',
+        'save',
+        'close',
+        // Provider-info modal trigger ("Weitere Informationen ›").
+        'contextualConsent.learnMore',
+    ];
+
+    /**
+     * REQ-N11 mirror — `dom-accessible-names`.
+     *
+     * Flags blank override values for any banner-action label or the
+     * banner-region title. Editors who explicitly clear a label produce
+     * a button or region with no accessible name once the banner renders
+     * — assistive tech can't identify or operate it, so consent that
+     * can't be perceived isn't valid consent.
+     *
+     * The static / PHP side only catches the editor-blanked-the-override
+     * case. The DOM-level companion runs live via `?simplecmp_audit=1`
+     * and additionally catches missing aria-label / aria-labelledby
+     * attributes the templates would have rendered — that side cannot
+     * be mirrored statically (no rendered shadow DOM at BE time). Same
+     * `id`, same severity, so a BE-passing config plus a passing live
+     * audit together give the full REQ-N11 coverage.
+     *
+     * @return Result
+     */
+    private function checkAccessibleNameOverrides(Site $site): array
+    {
+        $rows = $this->overrideRepository->findBySite($site->getIdentifier());
+        if ($rows === null || $rows === []) {
+            return $this->pass('dom-accessible-names', '2.2');
+        }
+
+        $blanks = [];
+        foreach ($rows as $lang => $entry) {
+            $overrides = $entry['overrides'] ?? [];
+            if (!is_array($overrides)) {
+                continue;
+            }
+            foreach (self::ACCESSIBLE_NAME_OVERRIDE_KEYS as $key) {
+                if (!array_key_exists($key, $overrides)) {
+                    // No override → bundle default applies → non-empty name.
+                    continue;
+                }
+                $value = $overrides[$key];
+                if (is_string($value) && trim($value) !== '') {
+                    continue;
+                }
+                $blanks[] = sprintf('[%s] %s', (string) $lang, $key);
+            }
+        }
+
+        if ($blanks === []) {
+            return $this->pass('dom-accessible-names', '2.2');
+        }
+
+        return $this->fail(
+            'dom-accessible-names',
+            '2.2',
+            'critical',
+            [
+                'count' => count($blanks),
+                'sample' => "\n  - " . implode("\n  - ", $blanks),
+            ],
+        );
+    }
+
     private function scanOverrideKey(
         string $siteIdentifier,
         string $dottedKey,
