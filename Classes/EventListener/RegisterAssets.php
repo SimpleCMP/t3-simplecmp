@@ -117,9 +117,21 @@ final readonly class RegisterAssets
         // (see AssetRenderer::render — without this flag, the rendered
         // <script> tag has no nonce and the Report-Only / strict CSP
         // logs a script-src-elem violation against the inline init).
+        // ADR-0018: per-site opt-in to the slim English-only bundle
+        // (`simplecmp.core.global.js`) plus the active site language's
+        // translation pack injected via `config.translations`. Saves
+        // ~15-20 KB gzip by dropping the 25 unused locales the full
+        // bundle carries. Falls back to the full bundle when the slim
+        // file isn't synced yet, so flipping the setting on a fresh
+        // install doesn't break — operators get a warning instead.
+        [$bundlePath, $injectedTranslations] = $this->resolveBundleAndTranslations($settings, $request);
+        if ($injectedTranslations !== []) {
+            $translations = $config['translations'] ?? [];
+            $config['translations'] = $this->mergeTranslationsDeep($injectedTranslations, $translations);
+        }
         $this->assetCollector->addJavaScript(
             'simplecmp-bundle',
-            'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js',
+            $bundlePath,
             [],
             ['priority' => true, 'csp' => true],
         );
@@ -149,6 +161,96 @@ final readonly class RegisterAssets
         // MutationObserver attaches to `document.body`, which only
         // exists once parsing has progressed past <head>.
         $this->injectTheme($site);
+    }
+
+    /**
+     * ADR-0018 — pick which JS bundle to register and, if applicable,
+     * the active language's translation pack to inject via
+     * `config.translations`.
+     *
+     * Resolution:
+     *   - `simplecmp.useSlimBundle = false` (default) → return the full
+     *     bundle and no extra translations. Same behaviour as before
+     *     ADR-0018.
+     *   - `simplecmp.useSlimBundle = true` → check for the slim bundle
+     *     file. Missing → warn, fall back to full bundle, no extras.
+     *     Present → use the slim bundle.
+     *     Then check for `translations/<isoCode>.json`. Missing → warn,
+     *     return slim bundle with no extras (engine falls back to
+     *     English). Present → parse + return so the caller can merge.
+     *
+     * @return array{0: string, 1: array<string, mixed>}
+     */
+    private function resolveBundleAndTranslations(object $settings, ServerRequestInterface $request): array
+    {
+        $fullBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js';
+        if (!(bool) $settings->get('simplecmp.useSlimBundle', false)) {
+            return [$fullBundle, []];
+        }
+        $slimBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js';
+        $slimAbs = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($slimBundle);
+        if ($slimAbs === '' || !is_file($slimAbs)) {
+            $this->logger->warning(
+                'simplecmp.useSlimBundle is enabled but {path} is missing — falling back to the full bundle. '
+                . 'Sync the slim build (see README "Slim bundle (ADR-0018)") to unlock the ~15-20 KB gzip savings.',
+                ['path' => $slimBundle],
+            );
+            return [$fullBundle, []];
+        }
+        $isoCode = $this->resolveLanguageIsoCode($request);
+        if ($isoCode === '' || $isoCode === 'en') {
+            // English is the engine's built-in fallback in the slim
+            // build — nothing to inject; skip the file probe entirely.
+            return [$slimBundle, []];
+        }
+        $packPath = 'EXT:t3_simplecmp/Resources/Public/JavaScript/translations/' . $isoCode . '.json';
+        $packAbs = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($packPath);
+        if ($packAbs === '' || !is_file($packAbs)) {
+            $this->logger->warning(
+                'simplecmp.useSlimBundle: translation pack for "{lang}" not found at {path} — '
+                . 'the slim bundle will render the banner in English. Sync the matching pack from the '
+                . 'upstream `src/engine/translations/{lang}.json`.',
+                ['lang' => $isoCode, 'path' => $packPath],
+            );
+            return [$slimBundle, []];
+        }
+        $raw = @file_get_contents($packAbs);
+        if ($raw === false) {
+            $this->logger->warning('Failed to read translation pack {path}', ['path' => $packAbs]);
+            return [$slimBundle, []];
+        }
+        try {
+            $decoded = json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            $this->logger->warning(
+                'Translation pack {path} contains invalid JSON: {error}',
+                ['path' => $packAbs, 'error' => $e->getMessage()],
+            );
+            return [$slimBundle, []];
+        }
+        if (!is_array($decoded)) {
+            $this->logger->warning(
+                'Translation pack {path} is not a JSON object — expected `{ … }`, got something else.',
+                ['path' => $packAbs],
+            );
+            return [$slimBundle, []];
+        }
+        return [$slimBundle, [$isoCode => $decoded]];
+    }
+
+    /**
+     * Active site language ISO 639-1 code (`de`, `en`, `fr`, …) for the
+     * current request. Returns empty string when the site resolver
+     * hasn't run (e.g. ApplicationType::isBackend short-circuited
+     * earlier) or the language record has no ISO code.
+     */
+    private function resolveLanguageIsoCode(ServerRequestInterface $request): string
+    {
+        $language = $request->getAttribute('language');
+        if (!$language instanceof \TYPO3\CMS\Core\Site\Entity\SiteLanguage) {
+            return '';
+        }
+        return strtolower($language->getTwoLetterIsoCode());
     }
 
     /**

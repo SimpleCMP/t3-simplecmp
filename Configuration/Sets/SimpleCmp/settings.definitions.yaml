@@ -107,6 +107,12 @@ settings:
     type: stringlist
     default: []
 
+  simplecmp.useSlimBundle:
+    label: 'Use slim English-only bundle + inject site language pack (ADR-0018)'
+    description: 'When on, t3-simplecmp loads `simplecmp.core.global.js` (English-only, ~15–20 KB gzip lighter than the full bundle) and injects only the active site language''s translation pack via `config.translations`. Requires `simplecmp.core.global.js` and `translations/<lang>.json` files to be present in `EXT:t3_simplecmp/Resources/Public/JavaScript/` — see README "Slim bundle (ADR-0018)" for the sync workflow. When the slim bundle file is missing the extension falls back to the full bundle automatically and logs a warning; when a per-language pack is missing the engine''s English fallback applies. OFF by default for back-compat.'
+    type: bool
+    default: false
+
 # `simplecmp.trackers` is intentionally NOT defined here — TYPO3
 # site-setting types are scalar only (string, int, bool, stringlist,
 # url, …), there is no nested-array type that the BE form module

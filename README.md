@@ -289,6 +289,58 @@ a stylesheet escapes entirely, and dynamically-inserted `<link>`s aren't
 hooked. Treat blocking as risk reduction; self-hosting is the only complete
 fix.
 
+## Slim bundle (ADR-0018)
+
+Opt into the English-only **slim bundle** + per-language pack injection
+to save ~15–20 KB gzip on every page load. The full bundle ships all
+26 locales and is the default for back-compat.
+
+### Activating
+
+Two ingredients are required:
+
+1. `EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js`
+   — the slim English-only IIFE artifact built by the upstream bundle
+   (`tsup` entry `simplecmp.core`).
+2. `EXT:t3_simplecmp/Resources/Public/JavaScript/translations/<lang>.json`
+   for each active site language — copied verbatim from the upstream
+   `src/engine/translations/`.
+
+With both files present, flip the Site Setting:
+
+```yaml
+# config/sites/<id>/settings.yaml
+simplecmp:
+  useSlimBundle: true
+```
+
+`RegisterAssets` will then:
+
+- register `simplecmp.core.global.js` instead of `simplecmp.global.js`
+- read the active site language's ISO code via
+  `$request->getAttribute('language')->getTwoLetterIsoCode()`
+- read the matching `translations/<isoCode>.json`, parse it, and merge
+  it into `config.translations[<isoCode>]` (per-site Designer
+  overrides keep winning — the editor's wording survives the swap)
+
+### Fallback behaviour
+
+| Condition | Result |
+| --- | --- |
+| `useSlimBundle = false` (default) | Full bundle loaded, no change |
+| `useSlimBundle = true`, slim file missing | Warns, falls back to the full bundle (no broken page) |
+| `useSlimBundle = true`, slim file present, pack missing for active lang | Warns, loads slim bundle, FE renders in English |
+| `useSlimBundle = true`, slim file + pack present | Slim bundle + injected pack, full localized FE |
+
+### Verification
+
+After enabling, hard-reload the page and check:
+
+- DevTools Network: `simplecmp.core.global.js` (not `simplecmp.global.js`).
+- Source response: `<script>SimpleCMP.init({...,"translations":{"de":{...}}})</script>` — the active language pack should be inlined in the init payload.
+- The banner renders in the visitor's language exactly as before.
+- File size diff: roughly 60-80 KB raw / 15-20 KB gzip lighter than the full bundle.
+
 ## Betrieb mit StaticFileCache (REQ-N9)
 
 `t3-simplecmp` ist mit `EXT:staticfilecache` (`lochmueller/staticfilecache`) und
