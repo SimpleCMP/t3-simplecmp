@@ -12,6 +12,7 @@
       <trans-unit id="nav.library"><source>Library</source></trans-unit>
       <trans-unit id="nav.services"><source>Library</source></trans-unit>
       <trans-unit id="nav.audit"><source>Audit &amp; record</source></trans-unit>
+      <trans-unit id="nav.auskunft"><source>Auskunft</source></trans-unit>
 
       <trans-unit id="module.audit.title"><source>Audit &amp; record</source></trans-unit>
       <trans-unit id="module.audit.heading"><source>Banner configuration audit trail</source></trans-unit>
@@ -54,6 +55,53 @@
       <trans-unit id="module.audit.show.decisions.type.partial"><source>Save selected</source></trans-unit>
       <trans-unit id="module.audit.show.decisions.empty"><source>No visitor decisions have been logged against this snapshot version yet.</source></trans-unit>
       <trans-unit id="module.audit.show.decisions.truncated"><source>Showing the %d most recent of %d decisions. Older entries are accessible via direct DB query (CSV export coming in Phase 3).</source></trans-unit>
+
+      <!-- Auskunfts-Tab (Phase 3) -->
+      <trans-unit id="module.auskunft.title"><source>Visitor Auskunft (GDPR Art. 15)</source></trans-unit>
+      <trans-unit id="module.auskunft.heading"><source>Visitor Auskunft &amp; retention log</source></trans-unit>
+      <trans-unit id="module.auskunft.intro"><source>Admin-mediated lookup of a visitor's consent history. The visitor supplies their raw UUID (from their browser); the server pseudonymizes it with the bridge secret and returns every decision row plus the snapshots those decisions were made against. The raw UUID is never persisted server-side.</source></trans-unit>
+      <trans-unit id="module.auskunft.uuidWhereTitle"><source>Where does the visitor find their UUID?</source></trans-unit>
+      <trans-unit id="module.auskunft.uuidWhereBody"><source>Ask the visitor to open their browser's DevTools console on the page they used, and run:</source></trans-unit>
+      <trans-unit id="module.auskunft.noSites"><source>No sites are configured with the SimpleCMP set yet.</source></trans-unit>
+
+      <trans-unit id="module.auskunft.form.title"><source>Lookup form</source></trans-unit>
+      <trans-unit id="module.auskunft.form.site"><source>Site</source></trans-unit>
+      <trans-unit id="module.auskunft.form.uuid"><source>Visitor UUID (RFC 4122 v4)</source></trans-unit>
+      <trans-unit id="module.auskunft.form.submit"><source>Lookup</source></trans-unit>
+
+      <trans-unit id="module.auskunft.error.invalidSite"><source>Unknown site identifier.</source></trans-unit>
+      <trans-unit id="module.auskunft.error.invalidUuid"><source>The supplied visitor UUID is not a valid RFC 4122 v4 identifier.</source></trans-unit>
+
+      <trans-unit id="module.auskunft.result.heading"><source>Auskunft result</source></trans-unit>
+      <trans-unit id="module.auskunft.result.back"><source>New lookup</source></trans-unit>
+      <trans-unit id="module.auskunft.result.site"><source>Site</source></trans-unit>
+      <trans-unit id="module.auskunft.result.visitorUuid"><source>Visitor UUID (will not be stored)</source></trans-unit>
+      <trans-unit id="module.auskunft.result.visitorHash"><source>Server-side pseudonym</source></trans-unit>
+      <trans-unit id="module.auskunft.result.downloadJson"><source>Download as JSON</source></trans-unit>
+      <trans-unit id="module.auskunft.result.downloadCsv"><source>Download as CSV</source></trans-unit>
+      <trans-unit id="module.auskunft.result.noMatches"><source>No decisions are recorded for this visitor on this site. Possible causes: secret was rotated since this visitor confirmed; the visitor used a different browser; or no consent was ever submitted.</source></trans-unit>
+      <trans-unit id="module.auskunft.result.decisions"><source>Decisions</source></trans-unit>
+      <trans-unit id="module.auskunft.result.snapshots"><source>Snapshots referenced by these decisions</source></trans-unit>
+      <trans-unit id="module.auskunft.result.snapshotsIntro"><source>Each snapshot is the exact banner configuration that was active when the visitor confirmed. Expand to inspect the canonical content.</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.when"><source>When</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.type"><source>Type</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.versionHash"><source>Snapshot</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.decisions"><source>Per-service decisions</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.uaFamily"><source>UA family</source></trans-unit>
+      <trans-unit id="module.auskunft.result.col.pageHost"><source>Page host</source></trans-unit>
+
+      <trans-unit id="module.auskunft.retentionLog.title"><source>Retention-log (last 20)</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.intro"><source>Every invocation of `simplecmp:audit-retention` writes one row here per (table, site) it acted on. If this list is empty but the audit tables look thin, that's worth investigating — silent deletes don't show here.</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.empty"><source>No retention actions have been logged yet.</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.when"><source>When</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.target"><source>Target table</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.site"><source>Site</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.rows"><source>Rows</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.keepDays"><source>Keep-days</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.oldestKept"><source>Oldest kept</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.invokedBy"><source>Invoked by</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.mode"><source>Mode</source></trans-unit>
+      <trans-unit id="module.auskunft.retentionLog.col.reason"><source>Reason</source></trans-unit>
 
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source></trans-unit>

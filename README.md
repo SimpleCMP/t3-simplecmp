@@ -502,8 +502,97 @@ Idempotent — gleiche kanonische Inhalte → gleicher Hash → kein neuer Row.
   mit Hash-pseudonymisiertem Visitor + Foreign-Key auf die hier
   geschriebenen Snapshots, neuer FE-Endpoint, Bundle-Hook in
   `consentManager.onChange()`.
-- **Phase 3**: DSGVO-Auskunfts-Export pro Visitor-Hash + Retention-CLI mit
-  Self-Audit-Log.
+- **Phase 3** (geliefert): DSGVO-Auskunfts-Workflow + Retention-CLI + Export.
+
+## Auskunft, Retention & Export (Phase 3)
+
+### DSGVO Art. 15 — Auskunfts-Tab
+
+Neuer Tab **„Auskunft"** im Cookie-Manager-Modul. Admin-vermittelt:
+der Besucher liefert seine raw UUID (aus seinem Browser-localStorage
+unter `simplecmp-<site>-visitor-uuid`), der Admin gibt sie im
+Auskunfts-Formular ein, der Server pseudonymisiert sie mit dem
+Bridge-Secret und zeigt:
+
+- alle Entscheidungs-Zeilen dieses Besuchers auf der gewählten Site,
+- alle Snapshots, gegen die diese Entscheidungen getroffen wurden
+  (kanonisches JSON aufklappbar),
+- Download-Buttons für JSON und CSV.
+
+Die raw UUID landet **nirgendwo serverseitig** — weder in URL noch in
+FlashMessage noch in DB-Log. Form ist POST.
+
+### Retention-CLI
+
+```bash
+ddev exec vendor/bin/typo3 simplecmp:audit-retention \
+    --target=consent-log|config-snapshot|all \
+    --keep-days=1095 \
+    --site=default \
+    --reason="DSGVO Art. 5 (1) (e) — 3 Jahre Aufbewahrungspflicht" \
+    --i-know-what-i-do
+```
+
+Pflicht-Flags und Schutz-Defaults:
+
+- `--target` (Enum — beinhaltet bewusst NICHT das Self-Audit-Log)
+- `--keep-days` (unter 90 verlangt `--allow-aggressive-retention`)
+- `--reason` (mindestens 30 Zeichen, landet wörtlich im Self-Audit-Log)
+- `--i-know-what-i-do` (Tripwire, sonst Abort)
+- `--dry-run` (Count + Self-Audit-Log mit `dry_run=1`, kein DELETE)
+
+**Self-Audit-Log:** Jeder Aufruf — inklusive Dry-Run, inklusive
+Validation-Pass — schreibt eine Zeile in `tx_t3simplecmp_audit_retention_log`
+mit `rows_deleted`, `keep_days`, `oldest_kept_crdate`, `invoked_by`,
+`invocation_reason`, `dry_run`. INSERT-BEFORE-DELETE-Ordering: ein
+Crash mitten in der DELETE-Phase hinterlässt einen „wir haben es
+versucht"-Eintrag, der sichtbar bleibt.
+
+### Export-CLI
+
+```bash
+# Snapshot + alle Decisions, die ihn referenzieren
+ddev exec vendor/bin/typo3 simplecmp:export-audit \
+    --site=default --snapshot=2537f80136… --format=json
+
+# Visitor-zentrische Auskunft (CLI-Pfad — Server-Variante des BE-Buttons)
+ddev exec vendor/bin/typo3 simplecmp:export-audit \
+    --site=default --visitor=e8400000-1234-4abc-9def-1234567890ab --format=json
+
+# Date-Range Export (z. B. monatliche Rohdaten für Anwalt / Wirtschaftsprüfer)
+ddev exec vendor/bin/typo3 simplecmp:export-audit \
+    --site=default --since=2026-01-01 --format=csv --output=/tmp/q1-2026.csv
+```
+
+JSON-Bundle-Shape (`schemaVersion: 1`):
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-06-16T20:00:00+00:00",
+  "exportedBy": "cli" | "be:<userId>",
+  "filter": { "kind": "visitor", "site": "default", "visitorHash": "…" },
+  "snapshots": [{ "uid": …, "versionHash": "…", "canonical": {…}, … }],
+  "decisions": [{ "uid": …, "versionHash": "…", "decisions": {…}, … }]
+}
+```
+
+CSV-Format: zwei Sektionen (`# SECTION: snapshots` / `# SECTION: decisions`)
+mit UTF-8-BOM, RFC-4180-quoting, `crdate_iso`-Spalte zusätzlich zur
+Epoch-Spalte. Excel-import-ready.
+
+### Was Phase 3 explizit NICHT macht
+
+- Kein **Visitor-Self-Service-Portal** — die UUID darf nicht via URL
+  / Server-Logs fließen. Admin-vermittelt ist DSGVO-rechtlich sauber.
+- Kein **Retention-Scheduler-Task** — Retention bleibt manuell-invoked.
+  Auto-Run wäre eine versteckte rechtliche Entscheidung; CLI mit
+  Reason-Pflicht zwingt zur dokumentierten Entscheidung.
+- Keine **Verschlüsselung at rest** — Phase-1+2 OOS bleibt. Pseudonymisierung
+  deckt den DSGVO-Schutzbedarf für Audit-Datensätze ab.
+- Keine **inkrementellen Exporte** (delta seit X) — Export-Bundles sind
+  full-bundle pro Filter. Wenn Sites mit > 100k Decisions auftauchen,
+  ist Inkrement das nächste Feature.
 
 ## Status
 

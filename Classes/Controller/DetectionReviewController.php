@@ -242,6 +242,9 @@ final class DetectionReviewController extends ActionController
             'uri_auditTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.AuditSnapshot_list',
             ),
+            'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.AuditAuskunft_index',
+            ),
             'uri_discover' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Discovery_index',
             ),

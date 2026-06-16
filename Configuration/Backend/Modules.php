@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use SimpleCMP\T3SimpleCmp\Controller\AuditAuskunftController;
 use SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController;
 use SimpleCMP\T3SimpleCmp\Controller\DetectionReviewController;
 use SimpleCMP\T3SimpleCmp\Controller\DiscoveryController;
@@ -78,6 +79,11 @@ return [
             AuditSnapshotController::class => [
                 'list',
                 'show',
+            ],
+            AuditAuskunftController::class => [
+                'index',
+                'lookup',
+                'download',
             ],
         ],
     ],

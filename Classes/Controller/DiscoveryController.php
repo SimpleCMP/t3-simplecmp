@@ -116,6 +116,9 @@ final class DiscoveryController extends ActionController
             'uri_auditTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.AuditSnapshot_list',
             ),
+            'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.AuditAuskunft_index',
+            ),
         ]);
         return $moduleTemplate->renderResponse('Discovery/Index');
     }

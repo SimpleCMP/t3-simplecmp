@@ -226,6 +226,9 @@ final class LibraryBrowserController extends ActionController
             'uri_auditTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.AuditSnapshot_list',
             ),
+            'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.AuditAuskunft_index',
+            ),
             'topRecommended' => $topRecommendedInline,
             'recommendationHeadline' => $headline,
             'recommendationOverflow' => max(0, count($recommendations) - count($topRecommendedInline)),

@@ -20,6 +20,7 @@ use SimpleCMP\T3SimpleCmp\Service\CanonicalJsonEncoder;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\Service\ConsentLogPayloadValidator;
+use SimpleCMP\T3SimpleCmp\Service\VisitorUuidHasher;
 use SimpleCMP\T3SimpleCmp\Service\WebhookPayloadValidator;
 use SimpleCMP\T3SimpleCmp\Service\WebhookRequestGuard;
 
@@ -64,6 +65,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         private ConsentLogPayloadValidator $consentLogValidator,
         private \SimpleCMP\T3SimpleCmp\Domain\Repository\ConsentLogRepository $consentLogRepository,
         private CanonicalJsonEncoder $canonicalEncoder,
+        private VisitorUuidHasher $visitorUuidHasher,
     ) {
     }
 
@@ -370,8 +372,8 @@ final readonly class ServiceDbApi implements MiddlewareInterface
      *      that webhook + bridge-nonce use)
      *   5. pseudonymize + canonicalize + INSERT (UNIQUE-protected)
      *
-     * The visitor UUID is pseudonymized server-side via
-     * {@see hashVisitorUuid()} so the raw UUID never lands in the DB —
+     * The visitor UUID is pseudonymized server-side via the shared
+     * {@see VisitorUuidHasher} so the raw UUID never lands in the DB —
      * only its HMAC. The same visitor's same decision against the
      * same snapshot version dedupes via the (site, visitor_id_sha256,
      * version_hash, decision_hash) UNIQUE constraint.
@@ -409,7 +411,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
         $this->consentLogRepository->insert(
             site: $this->resolveSiteFromSource((string) $payload['source']),
             versionHash: (string) $payload['versionHash'],
-            visitorIdSha256: $this->hashVisitorUuid((string) $payload['visitorUuid'], (string) $payload['source']),
+            visitorIdSha256: $this->visitorUuidHasher->hash((string) $payload['visitorUuid'], (string) $payload['source']),
             decisionHash: $decisionHash,
             decisionsJson: $decisionsJson,
             decisionType: (string) $payload['decisionType'],
@@ -417,31 +419,6 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             pageUrlHost: isset($payload['pageHost']) && is_string($payload['pageHost']) ? $payload['pageHost'] : null,
         );
         return new JsonResponse(['ok' => true]);
-    }
-
-    /**
-     * Pseudonymize the visitor's UUID before persisting. Uses HMAC-
-     * SHA256 with the bridge secret as the key + the source as
-     * additional context, so:
-     *
-     *   - The same UUID yields the same hash within a single secret-
-     *     rotation lifetime → dedup-via-UNIQUE works correctly.
-     *   - Different sources (sites) yield different hashes for the
-     *     same UUID → no cross-site visitor correlation.
-     *   - The raw UUID can never be reconstructed from the hash
-     *     without the bridge secret.
-     *
-     * DSGVO Art. 15 (Auskunftsrecht): the visitor must bring their
-     * raw UUID (saved in their browser's localStorage as
-     * `${storageName}-visitor-uuid`); the server recomputes the
-     * hash with the current secret + source to find the rows.
-     */
-    private function hashVisitorUuid(string $uuid, string $source): string
-    {
-        $secret = $this->secretProvider->get();
-        // bridgeSecret presence is already enforced by the nonce-verify
-        // step (returns 503 if missing), so $secret is non-null here.
-        return hash_hmac('sha256', $uuid, ($secret ?? '') . ':' . $source);
     }
 
     /**

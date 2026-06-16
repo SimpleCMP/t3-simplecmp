@@ -65,5 +65,14 @@
             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.audit" />
         </a>
     </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'auskunft\'', then: 'active')}"
+           href="{uri_auskunftTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'auskunft\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-user" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.auskunft" />
+        </a>
+    </li>
 </ul>
 </html>

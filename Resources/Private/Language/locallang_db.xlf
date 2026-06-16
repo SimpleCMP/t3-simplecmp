@@ -47,6 +47,9 @@
       <!-- Visitor consent log (append-only, Phase 2) -->
       <trans-unit id="tx_t3simplecmp_consent_log"><source>SimpleCMP consent decision</source></trans-unit>
 
+      <!-- Retention self-audit log (append-only, Phase 3) -->
+      <trans-unit id="tx_t3simplecmp_audit_retention_log"><source>SimpleCMP audit retention log entry</source></trans-unit>
+
       <!-- Detection table -->
       <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>

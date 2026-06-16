@@ -29,6 +29,18 @@ services:
         command: 'simplecmp:snapshot-config'
         description: 'Capture an audit snapshot of the current SimpleCMP banner configuration (idempotent — dedupes by canonical-content hash). Use after YAML-only edits or as a pre-deployment freeze checkpoint.'
 
+  SimpleCMP\T3SimpleCmp\Command\AuditRetentionCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:audit-retention'
+        description: 'Apply DSGVO retention to the SimpleCMP audit tables. Writes a self-audit log of every invocation (including dry-runs). Requires --target, --keep-days, --reason, --i-know-what-i-do.'
+
+  SimpleCMP\T3SimpleCmp\Command\ExportAuditCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:export-audit'
+        description: 'Export an audit bundle (snapshots + decisions) for one filter: --snapshot=<hash>, --visitor=<uuid>, --visitor-hash=<sha256>, or --since=<YYYY-MM-DD>. JSON or CSV.'
+
   # PSR-15 middlewares: TYPO3 instantiates these via `makeInstance`, which
   # only reads from public services in the DI container. Without `public:
   # true` the autowired constructor args (repositories) silently fail and

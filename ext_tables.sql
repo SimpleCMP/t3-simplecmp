@@ -194,6 +194,40 @@ CREATE TABLE tx_t3simplecmp_config_snapshot (
 -- plus the EnforceConsentLogAppendOnly DataHandler hook. Direct SQL
 -- DELETE remains possible by design — Phase-3 ships an explicit CLI
 -- retention workflow with its own audit log.
+-- Append-only self-audit log of retention actions (Phase 3). Every
+-- invocation of `simplecmp:audit-retention` — successful or dry-run —
+-- writes one row per (target_table, target_site) it acted on. The row
+-- records what was deleted, when, by whom, and the operator's reason
+-- text (mandatory CLI flag). This is the DSGVO Art. 5 (1) (e)
+-- "Speicherbegrenzung" audit surface: if a consent_log or snapshot row
+-- vanishes, this log explains why.
+--
+-- Genuinely append-only: this table itself MUST NOT be touched by the
+-- retention command (the command refuses `--target` values that would
+-- include it), and editor-level mutations are blocked the same way as
+-- Phase 1+2. Direct SQL DELETE still works — same trade-off as the
+-- other audit tables: silent triggers would surprise migrations and
+-- restores; explicit operator discipline + this log's visibility in
+-- the BE Auskunfts-tab is the intended deterrent.
+CREATE TABLE tx_t3simplecmp_audit_retention_log (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    target_table varchar(64) DEFAULT '' NOT NULL,
+    target_site varchar(64) DEFAULT '' NOT NULL,
+    rows_deleted int(11) unsigned DEFAULT '0' NOT NULL,
+    keep_days int(11) unsigned DEFAULT '0' NOT NULL,
+    oldest_kept_crdate int(11) unsigned DEFAULT '0' NOT NULL,
+    invoked_by varchar(64) DEFAULT '' NOT NULL,
+    invocation_reason text,
+    dry_run tinyint(1) unsigned DEFAULT '0' NOT NULL,
+
+    PRIMARY KEY (uid),
+    KEY by_table_date (target_table, crdate),
+    KEY by_date (crdate)
+);
+
 CREATE TABLE tx_t3simplecmp_consent_log (
     uid int(11) unsigned NOT NULL auto_increment,
     pid int(11) unsigned DEFAULT '0' NOT NULL,

@@ -105,6 +105,32 @@ final readonly class ConfigSnapshotRepository
     }
 
     /**
+     * Fetch a single snapshot by its `version_hash`. Phase-3
+     * Auskunfts / Export workflow uses this: visitors consent against
+     * a hash, so when we collect their decisions we also collect the
+     * snapshot whose content the visitor consented to. Optionally
+     * scoped to a site when a site is in hand (cheaper lookup using
+     * `site_version` UNIQUE); without site it scans the `version`
+     * key. Returns the full row including canonical_json.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findByHash(string $versionHash, ?string $site = null): ?array
+    {
+        $qb = $this->connectionPool->getConnectionForTable(self::TABLE)->createQueryBuilder();
+        $qb->select('*')
+            ->from(self::TABLE)
+            ->where($qb->expr()->eq('version_hash', $qb->createNamedParameter($versionHash)));
+        if ($site !== null) {
+            $qb->andWhere($qb->expr()->eq('site', $qb->createNamedParameter($site)));
+        }
+        $row = $qb->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+        return $row === false ? null : $row;
+    }
+
+    /**
      * Most-recent snapshot's `version_hash` for a site, or null when
      * the site has no snapshots yet. Used by `RegisterAssets` to
      * stamp the FE init payload with the current snapshot reference

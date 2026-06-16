@@ -1,0 +1,146 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'auskunft',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab,
+    uri_auditTab: uri_auditTab,
+    uri_auskunftTab: uri_auskunftTab
+}" />
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.heading" />
+    </h1>
+    <a href="{uri_back}" class="btn btn-default btn-sm">
+        <core:icon identifier="actions-arrow-left" size="small" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.back" />
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0 small">
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.site" /></dt>
+            <dd class="col-sm-9"><code>{site}</code></dd>
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorUuid" /></dt>
+            <dd class="col-sm-9"><code>{visitorUuid}</code></dd>
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorHash" /></dt>
+            <dd class="col-sm-9"><code>{visitorHashShort}…</code> <span class="text-body-secondary">(sha256, site-scoped)</span></dd>
+        </dl>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+    <f:form action="download" method="post" class="m-0">
+        <f:form.hidden name="site" value="{site}" />
+        <f:form.hidden name="visitorUuid" value="{visitorUuid}" />
+        <f:form.hidden name="format" value="json" />
+        <button type="submit" class="btn btn-primary">
+            <core:icon identifier="actions-download" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadJson" />
+        </button>
+    </f:form>
+    <f:form action="download" method="post" class="m-0">
+        <f:form.hidden name="site" value="{site}" />
+        <f:form.hidden name="visitorUuid" value="{visitorUuid}" />
+        <f:form.hidden name="format" value="csv" />
+        <button type="submit" class="btn btn-default">
+            <core:icon identifier="actions-download" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadCsv" />
+        </button>
+    </f:form>
+</div>
+
+<f:if condition="{totalDecisions} == 0">
+    <div class="alert alert-warning">
+        <core:icon identifier="actions-info-circle" size="small" />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.noMatches" />
+    </div>
+</f:if>
+
+<f:if condition="{totalDecisions} > 0">
+    <h2 class="h4">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.decisions" />
+        <span class="badge text-bg-secondary">{totalDecisions}</span>
+    </h2>
+    <div class="table-responsive mb-4">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.when" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.type" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.versionHash" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.decisions" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.uaFamily" /></th>
+                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.pageHost" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{decisions}" as="d">
+                    <tr>
+                        <td class="text-nowrap small"><f:format.date format="Y-m-d H:i:s">@{d.crdate}</f:format.date></td>
+                        <td><span class="badge text-bg-{d.type_class}">{d.decision_type}</span></td>
+                        <td><code class="small">{d.version_hash_short}…</code></td>
+                        <td>
+                            <f:if condition="{d.decisions_parsed}">
+                                <f:then>
+                                    <f:for each="{d.decisions_parsed}" as="value" key="service">
+                                        <span class="badge text-bg-{f:if(condition: value, then: 'success', else: 'danger')} me-1">
+                                            <f:if condition="{value}">
+                                                <f:then>✓</f:then>
+                                                <f:else>✗</f:else>
+                                            </f:if>
+                                            {service}
+                                        </span>
+                                    </f:for>
+                                </f:then>
+                                <f:else>
+                                    <span class="text-body-secondary small">—</span>
+                                </f:else>
+                            </f:if>
+                        </td>
+                        <td class="small">{d.ua_family}</td>
+                        <td class="small">{d.page_url_host}</td>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+    </div>
+</f:if>
+
+<f:if condition="{totalSnapshots} > 0">
+    <h2 class="h4">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshots" />
+        <span class="badge text-bg-secondary">{totalSnapshots}</span>
+    </h2>
+    <p class="text-body-secondary small">
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshotsIntro" />
+    </p>
+    <f:for each="{snapshots}" as="s">
+        <details class="card mb-3">
+            <summary class="card-header d-flex align-items-center justify-content-between">
+                <span>
+                    <core:icon identifier="actions-database" size="small" />
+                    <code>{s.version_hash_short}…</code>
+                    <span class="text-body-secondary small ms-2">
+                        (<f:format.date format="Y-m-d H:i">@{s.row.crdate}</f:format.date>)
+                    </span>
+                </span>
+                <span class="badge text-bg-light">{s.row.trigger_event}</span>
+            </summary>
+            <pre class="card-body mb-0 small" style="max-height: 24rem; overflow: auto;">{s.pretty}</pre>
+        </details>
+    </f:for>
+</f:if>
+
+</f:section>
+</html>

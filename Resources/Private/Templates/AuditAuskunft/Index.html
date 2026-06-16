@@ -1,0 +1,131 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'auskunft',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab,
+    uri_auditTab: uri_auditTab,
+    uri_auskunftTab: uri_auskunftTab
+}" />
+
+<h1 class="mb-3">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.heading" />
+</h1>
+
+<p class="text-body-secondary">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.intro" />
+</p>
+
+<div class="alert alert-info small d-flex align-items-start gap-2">
+    <core:icon identifier="actions-info-circle" size="small" />
+    <div>
+        <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.uuidWhereTitle" /></strong>
+        <br />
+        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.uuidWhereBody" />
+        <br />
+        <code>localStorage.getItem('simplecmp-default-visitor-uuid')</code>
+    </div>
+</div>
+
+<f:if condition="{hasSites}">
+    <f:then>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h5"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.form.title" /></h2>
+                <f:form action="lookup" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="t3simplecmp-auskunft-site" class="form-label">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.form.site" />
+                        </label>
+                        <f:form.select name="site" id="t3simplecmp-auskunft-site" class="form-select"
+                                       options="{}" optionLabelField="label" optionValueField="identifier">
+                            <f:for each="{sites}" as="s">
+                                <option value="{s.identifier}">{s.label}</option>
+                            </f:for>
+                        </f:form.select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="t3simplecmp-auskunft-uuid" class="form-label">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.form.uuid" />
+                        </label>
+                        <f:form.textfield name="visitorUuid" id="t3simplecmp-auskunft-uuid" class="form-control"
+                                          placeholder="00000000-0000-4000-8000-000000000000"
+                                          additionalAttributes="{required: 'required', pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}'}" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <core:icon identifier="actions-search" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.form.submit" />
+                        </button>
+                    </div>
+                </f:form>
+            </div>
+        </div>
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+<h2 class="h5 mt-4">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.title" />
+    <span class="badge text-bg-secondary">{retentionTotal}</span>
+</h2>
+<p class="text-body-secondary small">
+    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.intro" />
+</p>
+
+<f:if condition="{retentionRows}">
+    <f:then>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.when" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.target" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.site" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.rows" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.keepDays" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.oldestKept" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.invokedBy" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.mode" /></th>
+                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.col.reason" /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{retentionRows}" as="r">
+                        <tr>
+                            <td class="text-nowrap"><f:format.date format="Y-m-d H:i">@{r.crdate}</f:format.date></td>
+                            <td><code class="small">{r.target_table}</code></td>
+                            <td>{r.target_site -> f:format.htmlentities()}</td>
+                            <td class="text-end">{r.rows_deleted}</td>
+                            <td class="text-end">{r.keep_days}</td>
+                            <td class="text-nowrap small">{r.oldest_kept_iso}</td>
+                            <td>{r.invoked_by -> f:format.htmlentities()}</td>
+                            <td><span class="badge text-bg-{r.dry_run_class}">{r.dry_run_label}</span></td>
+                            <td class="small text-body-secondary">{r.invocation_reason -> f:format.htmlentities()}</td>
+                        </tr>
+                    </f:for>
+                </tbody>
+            </table>
+        </div>
+    </f:then>
+    <f:else>
+        <p class="text-body-secondary small">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.retentionLog.empty" />
+        </p>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>
