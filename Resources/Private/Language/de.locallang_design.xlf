@@ -201,6 +201,24 @@
       <trans-unit id="designer.action.save"><source>Save theme</source><target>Design speichern</target></trans-unit>
       <trans-unit id="designer.action.reset"><source>Reset to defaults</source><target>Auf Standard zurücksetzen</target></trans-unit>
       <trans-unit id="designer.action.reset.confirm"><source>Discard this site's custom theme and revert to the SimpleCMP defaults?</source><target>Eigenes Design dieser Site verwerfen und auf SimpleCMP-Standards zurücksetzen?</target></trans-unit>
+
+      <!-- Per-issue detail strings injected into the compliance audit "sample" field -->
+      <trans-unit id="audit.descriptionLength.tooShort"><source>[%s] %d characters — under %d, likely missing the purpose / controller information required for "informed" consent.</source><target>[%s] %d Zeichen — unter %d, vermutlich fehlt die Zweck-/Verantwortlicher-Information für „informierte" Einwilligung.</target></trans-unit>
+      <trans-unit id="audit.descriptionLength.tooLong"><source>[%s] %d characters — over %d; overloading risk (EDPB 03/2022). Shorten to the essentials or move details into the modal.</source><target>[%s] %d Zeichen — über %d; Overloading-Risiko (EDPB 03/2022). Auf das Wesentliche kürzen oder Details ins Modal verschieben.</target></trans-unit>
+
+      <trans-unit id="audit.pairedToken.imbalance"><source>%s — "%s" overridden, "%s" left at default</source><target>%s — „%s" überschrieben, „%s" auf Default</target></trans-unit>
+      <trans-unit id="audit.pairedToken.primary"><source>Primary color + hover</source><target>Primärfarbe + Hover</target></trans-unit>
+      <trans-unit id="audit.pairedToken.background"><source>Card + button background</source><target>Karten- + Button-Hintergrund</target></trans-unit>
+      <trans-unit id="audit.pairedToken.text"><source>Text + muted text</source><target>Text + dezenter Text</target></trans-unit>
+
+      <trans-unit id="audit.contrast.failure"><source>%s: %s on %s = %s:1 (target ≥ 4.5:1)</source><target>%s: %s auf %s = %s:1 (Ziel ≥ 4.5:1)</target></trans-unit>
+      <trans-unit id="audit.contrast.bodyOnBanner"><source>Body text on banner background</source><target>Fließtext auf Banner-Hintergrund</target></trans-unit>
+      <trans-unit id="audit.contrast.mutedOnBanner"><source>Muted text on banner background</source><target>Dezenter Text auf Banner-Hintergrund</target></trans-unit>
+      <trans-unit id="audit.contrast.acceptButton"><source>Accept / Save button (modal)</source><target>Akzeptieren-/Speichern-Button (Modal)</target></trans-unit>
+
+      <trans-unit id="audit.button.accept"><source>Accept</source><target>Akzeptieren</target></trans-unit>
+      <trans-unit id="audit.button.decline"><source>Decline</source><target>Ablehnen</target></trans-unit>
+      <trans-unit id="audit.button.configure"><source>Configure</source><target>Konfigurieren</target></trans-unit>
     </body>
   </file>
 </xliff>

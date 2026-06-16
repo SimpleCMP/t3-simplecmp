@@ -71,10 +71,16 @@ final readonly class ComplianceCheckService
      *
      * @var list<array{tokens: array{0: string, 1: string}, label: string}>
      */
+    /**
+     * Paired theme tokens — the heuristic flags a site where exactly
+     * one of the pair was overridden (the other defaults). `labelKey`
+     * resolves at audit time against locallang so the editor sees the
+     * label in their BE language.
+     */
     private const array PAIRED_TOKENS = [
-        ['tokens' => ['color-primary', 'color-primary-hover'], 'label' => 'Primärfarbe + Hover'],
-        ['tokens' => ['color-bg', 'color-bg-alt'], 'label' => 'Karten- + Button-Hintergrund'],
-        ['tokens' => ['color-text', 'color-text-muted'], 'label' => 'Text + dezenter Text'],
+        ['tokens' => ['color-primary', 'color-primary-hover'], 'labelKey' => 'audit.pairedToken.primary'],
+        ['tokens' => ['color-bg', 'color-bg-alt'], 'labelKey' => 'audit.pairedToken.background'],
+        ['tokens' => ['color-text', 'color-text-muted'], 'labelKey' => 'audit.pairedToken.text'],
     ];
 
     /**
@@ -437,14 +443,14 @@ final readonly class ComplianceCheckService
             $len = mb_strlen($text);
             if ($len < self::DESCRIPTION_MIN_CHARS) {
                 $issues[] = sprintf(
-                    '[%s] %d Zeichen — unter %d, vermutlich fehlt die Zweck-/Verantwortlicher-Information für „informierte" Einwilligung.',
+                    $this->translate('audit.descriptionLength.tooShort'),
                     $lang,
                     $len,
                     self::DESCRIPTION_MIN_CHARS,
                 );
             } elseif ($len > self::DESCRIPTION_MAX_CHARS) {
                 $issues[] = sprintf(
-                    '[%s] %d Zeichen — über %d; Overloading-Risiko (EDPB 03/2022). Auf das Wesentliche kürzen oder Details ins Modal verschieben.',
+                    $this->translate('audit.descriptionLength.tooLong'),
                     $lang,
                     $len,
                     self::DESCRIPTION_MAX_CHARS,
@@ -494,8 +500,8 @@ final readonly class ComplianceCheckService
             $bSet = isset($colorOverrides[$b]);
             if ($aSet xor $bSet) {
                 $imbalances[] = sprintf(
-                    '%s — „%s" überschrieben, „%s" auf Default',
-                    $pair['label'],
+                    $this->translate('audit.pairedToken.imbalance'),
+                    $this->translate($pair['labelKey']),
                     $aSet ? $a : $b,
                     $aSet ? $b : $a,
                 );
@@ -555,11 +561,11 @@ final readonly class ComplianceCheckService
         );
 
         $checks = [
-            ['name' => 'Fließtext auf Banner-Hintergrund', 'fg' => $tokens['color-text'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
-            ['name' => 'Dezenter Text auf Banner-Hintergrund', 'fg' => $tokens['color-text-muted'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
+            ['nameKey' => 'audit.contrast.bodyOnBanner', 'fg' => $tokens['color-text'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
+            ['nameKey' => 'audit.contrast.mutedOnBanner', 'fg' => $tokens['color-text-muted'] ?? null, 'bg' => $tokens['color-bg'] ?? null],
             // The bundle's modal Save/Accept buttons render with
             // `color: white` against `background: var(--simplecmp-color-primary)`.
-            ['name' => 'Akzeptieren-/Speichern-Button (Modal)', 'fg' => '#ffffff', 'bg' => $tokens['color-primary'] ?? null],
+            ['nameKey' => 'audit.contrast.acceptButton', 'fg' => '#ffffff', 'bg' => $tokens['color-primary'] ?? null],
         ];
 
         $failures = [];
@@ -572,8 +578,8 @@ final readonly class ComplianceCheckService
                 continue;
             }
             $failures[] = sprintf(
-                '%s: %s auf %s = %s:1 (Ziel ≥ 4.5:1)',
-                $c['name'],
+                $this->translate('audit.contrast.failure'),
+                $this->translate($c['nameKey']),
                 $c['fg'],
                 $c['bg'],
                 number_format($ratio, 1, ',', ''),
@@ -616,14 +622,14 @@ final readonly class ComplianceCheckService
         }
         $overrides = [];
         $labels = [
-            'color-accept-bg' => 'Akzeptieren',
-            'color-decline-bg' => 'Ablehnen',
-            'color-configure-bg' => 'Konfigurieren',
+            'color-accept-bg' => 'audit.button.accept',
+            'color-decline-bg' => 'audit.button.decline',
+            'color-configure-bg' => 'audit.button.configure',
         ];
-        foreach ($labels as $key => $label) {
+        foreach ($labels as $key => $labelKey) {
             $value = $stored[$key] ?? '';
             if (is_string($value) && $value !== '') {
-                $overrides[] = $label . ': ' . $value;
+                $overrides[] = $this->translate($labelKey) . ': ' . $value;
             }
         }
         if ($overrides === []) {
@@ -884,5 +890,24 @@ final readonly class ComplianceCheckService
             'context' => $context,
             'passed' => false,
         ];
+    }
+
+    /**
+     * Resolve a locallang key from `locallang_design.xlf`. Falls back
+     * to the key itself when the language service is unavailable
+     * (defensive for non-BE invocation paths) — the fallback string
+     * is loud enough to surface the missing-translation case in the
+     * BE audit panel without crashing the request.
+     */
+    private function translate(string $key): string
+    {
+        $service = $GLOBALS['LANG'] ?? null;
+        if (!$service instanceof \TYPO3\CMS\Core\Localization\LanguageService) {
+            return $key;
+        }
+        $translated = $service->sL(
+            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:' . $key,
+        );
+        return $translated !== '' ? $translated : $key;
     }
 }

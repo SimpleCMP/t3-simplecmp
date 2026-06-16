@@ -201,6 +201,24 @@
       <trans-unit id="designer.action.save"><source>Save theme</source></trans-unit>
       <trans-unit id="designer.action.reset"><source>Reset to defaults</source></trans-unit>
       <trans-unit id="designer.action.reset.confirm"><source>Discard this site's custom theme and revert to the SimpleCMP defaults?</source></trans-unit>
+
+      <!-- Per-issue detail strings injected into the compliance audit "sample" field -->
+      <trans-unit id="audit.descriptionLength.tooShort"><source>[%s] %d characters — under %d, likely missing the purpose / controller information required for "informed" consent.</source></trans-unit>
+      <trans-unit id="audit.descriptionLength.tooLong"><source>[%s] %d characters — over %d; overloading risk (EDPB 03/2022). Shorten to the essentials or move details into the modal.</source></trans-unit>
+
+      <trans-unit id="audit.pairedToken.imbalance"><source>%s — "%s" overridden, "%s" left at default</source></trans-unit>
+      <trans-unit id="audit.pairedToken.primary"><source>Primary color + hover</source></trans-unit>
+      <trans-unit id="audit.pairedToken.background"><source>Card + button background</source></trans-unit>
+      <trans-unit id="audit.pairedToken.text"><source>Text + muted text</source></trans-unit>
+
+      <trans-unit id="audit.contrast.failure"><source>%s: %s on %s = %s:1 (target ≥ 4.5:1)</source></trans-unit>
+      <trans-unit id="audit.contrast.bodyOnBanner"><source>Body text on banner background</source></trans-unit>
+      <trans-unit id="audit.contrast.mutedOnBanner"><source>Muted text on banner background</source></trans-unit>
+      <trans-unit id="audit.contrast.acceptButton"><source>Accept / Save button (modal)</source></trans-unit>
+
+      <trans-unit id="audit.button.accept"><source>Accept</source></trans-unit>
+      <trans-unit id="audit.button.decline"><source>Decline</source></trans-unit>
+      <trans-unit id="audit.button.configure"><source>Configure</source></trans-unit>
     </body>
   </file>
 </xliff>
