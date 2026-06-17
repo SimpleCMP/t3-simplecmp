@@ -82,6 +82,7 @@ final class LibraryBrowserController extends ActionController
         private readonly DetectionRepository $detectionRepository,
         private readonly LibraryRecommendationService $recommendationService,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
     ) {
     }
 
@@ -192,7 +193,12 @@ final class LibraryBrowserController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $moduleTemplate->assignMultiple([
+        $bannerVars = $this->bannerContext->forScope(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $this->request,
+        );
+        $moduleTemplate->assignMultiple($bannerVars + [
+            'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             'upstreamStatus' => $this->buildUpstreamStatus(count($allEntries)),
             'entries' => $rows,
             'status' => $status,

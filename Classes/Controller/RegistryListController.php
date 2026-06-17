@@ -42,6 +42,7 @@ final class RegistryListController extends ActionController
         private readonly ServiceRepository $serviceRepository,
         private readonly RegistryListPresenter $registryListPresenter,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
     ) {
     }
 
@@ -140,7 +141,12 @@ final class RegistryListController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $moduleTemplate->assignMultiple([
+        $bannerVars = $this->bannerContext->forScope(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $this->request,
+        );
+        $moduleTemplate->assignMultiple($bannerVars + [
+            'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             'services' => $rows,
             'source' => $source,
             'purpose' => $purpose,

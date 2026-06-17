@@ -165,6 +165,19 @@
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
     </p>
 
+    <f:if condition="{draftScope}">
+        <f:render partial="DraftBanner" arguments="{
+            lockState: lockState,
+            hasDraft: hasDraft,
+            currentBeUserId: currentBeUserId,
+            scope: draftScope,
+            uri_publish: uri_publish,
+            uri_discard: uri_discard,
+            uri_takeover: uri_takeover,
+            currentUrl: currentUrl
+        }" />
+    </f:if>
+
     <!--
         Compliance audit (legal-requirement check) — runs against the
         live site config via `ComplianceCheckService` which mirrors

@@ -15,6 +15,9 @@
     uri_auditTab: uri_auditTab,
     uri_auskunftTab: uri_auskunftTab
 }" />
+<f:if condition="{draftScope}">
+    <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, currentUrl: currentUrl}" />
+</f:if>
 
 <f:if condition="{hasSites}">
     <f:then>

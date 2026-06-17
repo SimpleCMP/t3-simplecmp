@@ -436,6 +436,7 @@ final class ThemeDesignerController extends ActionController
         private readonly \TYPO3\CMS\Backend\Routing\UriBuilder $backendUriBuilder,
         private readonly ComplianceCheckService $complianceCheck,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
     ) {
     }
 
@@ -622,7 +623,11 @@ final class ThemeDesignerController extends ActionController
             ? ''
             : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
-        $moduleTemplate->assignMultiple([
+        // Phase 4 — pre-build the DraftBanner partial's arguments.
+        $bannerVars = $this->bannerContext->forScope($site, $this->request);
+
+        $moduleTemplate->assignMultiple($bannerVars + [
+            'draftScope' => $site,
             'hasAvailableSites' => true,
             'site' => $site,
             'availableSites' => $availableSites,

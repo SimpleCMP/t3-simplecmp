@@ -48,6 +48,7 @@ final class TrackerSetupController extends ActionController
         private readonly ManagedTrackerRepository $managedTrackerRepository,
         private readonly TrackerRegistry $trackerRegistry,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
     ) {
     }
 
@@ -111,7 +112,9 @@ final class TrackerSetupController extends ActionController
             ];
         }
 
-        $this->moduleTemplate->assignMultiple([
+        $bannerVars = $this->bannerContext->forScope($selected, $this->request);
+        $this->moduleTemplate->assignMultiple($bannerVars + [
+            'draftScope' => $selected,
             'hasSites' => true,
             'sites' => $sites,
             'siteOptions' => $siteOptions,

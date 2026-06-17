@@ -30,15 +30,15 @@
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.body"
                                  arguments="{0: scope, 1: lockState.ownerBeUserId}" />
                 </p>
-                <form method="post" action="{uri_takeover}" class="m-0">
-                    <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
-                    <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                <f:form action="takeover" controller="Publish" method="post" class="m-0">
+                    <f:form.hidden name="scope" value="{scope}" />
+                    <f:form.hidden name="returnUrl" value="{currentUrl}" />
                     <button type="submit" class="btn btn-warning btn-sm"
                             onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.confirm\')}');">
                         <core:icon identifier="actions-arrow-right" size="small" />
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.button" />
                     </button>
-                </form>
+                </f:form>
             </div>
         </div>
     </f:then>
@@ -54,23 +54,23 @@
                                          arguments="{0: scope}" />
                         </p>
                         <div class="d-flex gap-2">
-                            <form method="post" action="{uri_publish}" class="m-0">
-                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
-                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                            <f:form action="publish" controller="Publish" method="post" class="m-0">
+                                <f:form.hidden name="scope" value="{scope}" />
+                                <f:form.hidden name="returnUrl" value="{currentUrl}" />
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <core:icon identifier="actions-upload" size="small" />
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
                                 </button>
-                            </form>
-                            <form method="post" action="{uri_discard}" class="m-0">
-                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
-                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                            </f:form>
+                            <f:form action="discard" controller="Publish" method="post" class="m-0">
+                                <f:form.hidden name="scope" value="{scope}" />
+                                <f:form.hidden name="returnUrl" value="{currentUrl}" />
                                 <button type="submit" class="btn btn-default btn-sm"
                                         onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
                                     <core:icon identifier="actions-close" size="small" />
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
                                 </button>
-                            </form>
+                            </f:form>
                         </div>
                     </div>
                 </div>
