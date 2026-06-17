@@ -149,7 +149,7 @@
                             <tr>
                                 <th>Type</th>
                                 <th>Service-ID</th>
-                                <th>YAML-Config</th>
+                                <th>Site-Konfiguration</th>
                                 <th class="text-end">Aktion</th>
                             </tr>
                         </thead>
@@ -222,7 +222,7 @@
                             <td>
                                 <code class="small {f:if(condition: entry.isFallback, then: 'text-body-tertiary', else: 'text-body-secondary')}">{entry.effectiveValue -> f:format.json()}</code>
                                 <f:if condition="{entry.isFallback}">
-                                    <span class="badge text-bg-light ms-1 small" title="No editor opinion — fallback to YAML">YAML-Fallback</span>
+                                    <span class="badge text-bg-light ms-1 small" title="No editor opinion — fallback to site configuration">Site-Konfig-Fallback</span>
                                 </f:if>
                             </td>
                             <td>

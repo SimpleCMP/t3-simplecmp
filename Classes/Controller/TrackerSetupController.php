@@ -13,7 +13,6 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
@@ -49,6 +48,7 @@ final class TrackerSetupController extends ActionController
         private readonly TrackerRegistry $trackerRegistry,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
     ) {
     }
 
@@ -86,8 +86,18 @@ final class TrackerSetupController extends ActionController
 
         $selected = $this->resolveSelectedSite($site, $sites);
 
-        $yamlTrackers = $this->collectYamlTrackers($selected);
         $dbTrackers = $this->managedTrackerRepository->findBySite($selected);
+
+        // Phase-5: YAML trackers are proposals shown in the Settings
+        // tab. Here we just count how many are not yet adopted so we
+        // can render a small "N awaiting adoption — open Settings tab"
+        // hint above the BE-managed list.
+        $unadoptedProposalsCount = 0;
+        foreach ($this->effectiveSettings->trackerProposals($selected) as $proposal) {
+            if (!$proposal->alreadyAdopted) {
+                $unadoptedProposalsCount++;
+            }
+        }
 
         $providerOptions = [];
         foreach ($this->trackerRegistry->getKnownTypes() as $type) {
@@ -119,7 +129,7 @@ final class TrackerSetupController extends ActionController
             'sites' => $sites,
             'siteOptions' => $siteOptions,
             'selectedSite' => $selected,
-            'yamlTrackers' => $yamlTrackers,
+            'unadoptedProposalsCount' => $unadoptedProposalsCount,
             'dbTrackers' => $this->enrichForRendering($dbTrackers),
             'providerOptions' => $providerOptions,
             // Sibling-tab URIs for the shared ModuleNav partial.
@@ -330,54 +340,6 @@ final class TrackerSetupController extends ActionController
             return $requested;
         }
         return $identifiers[0] ?? '';
-    }
-
-    /**
-     * Pull YAML-configured trackers for the given site into the same
-     * shape as DB rows, so the template can render both lists with
-     * identical partials.
-     *
-     * @return list<array{type: string, serviceId: string, config: array<string, mixed>}>
-     */
-    private function collectYamlTrackers(string $siteIdentifier): array
-    {
-        try {
-            $site = $this->siteFinder->getSiteByIdentifier($siteIdentifier);
-        } catch (\Throwable) {
-            return [];
-        }
-        $settings = $site->getSettings();
-        $flat = [];
-        foreach ($settings->getIdentifiers() as $identifier) {
-            if (str_starts_with($identifier, 'simplecmp.trackers.')) {
-                $flat[$identifier] = $settings->get($identifier);
-            }
-        }
-        if ($flat === []) {
-            return [];
-        }
-        $tree = ArrayUtility::unflatten($flat);
-        $list = $tree['simplecmp']['trackers'] ?? [];
-        if (!is_array($list)) {
-            return [];
-        }
-
-        $out = [];
-        foreach (array_values($list) as $entry) {
-            if (!is_array($entry) || !isset($entry['type']) || !is_string($entry['type'])) {
-                continue;
-            }
-            $type = $entry['type'];
-            $serviceId = (string) ($entry['serviceId'] ?? '');
-            if ($serviceId === '') {
-                $provider = $this->trackerRegistry->get($type);
-                $serviceId = $provider?->getDefaultServiceId() ?? $type;
-            }
-            $config = $entry;
-            unset($config['type'], $config['serviceId']);
-            $out[] = ['type' => $type, 'serviceId' => $serviceId, 'config' => $config];
-        }
-        return $out;
     }
 
     /**

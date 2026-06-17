@@ -18,7 +18,7 @@
       <trans-unit id="module.audit.heading"><source>Banner configuration audit trail</source></trans-unit>
       <trans-unit id="module.audit.site"><source>Site:</source></trans-unit>
       <trans-unit id="module.audit.intro"><source>Each row captures the resolved banner configuration (services, theme, translation overrides, Site Settings) at the moment of an editor save. Identical-content re-saves dedupe by sha256 — only material changes create new rows. Use these snapshots to prove the exact banner state shown to visitors at any point in time.</source></trans-unit>
-      <trans-unit id="module.audit.cliHint"><source>YAML-only edits to `config/sites/&lt;id&gt;/settings.yaml` do not auto-snapshot. After such an edit, run:</source></trans-unit>
+      <trans-unit id="module.audit.cliHint"><source>Edits to the site configuration (`config/sites/&lt;id&gt;/settings.yaml`) don't auto-snapshot. After such an edit, run:</source></trans-unit>
       <trans-unit id="module.audit.empty"><source>No snapshots yet for this site. Edit a service / theme / translation override, or run the CLI command above.</source></trans-unit>
       <trans-unit id="module.audit.noSites"><source>No sites are configured with the SimpleCMP set yet.</source></trans-unit>
       <trans-unit id="module.audit.notFound"><source>Snapshot not found.</source></trans-unit>
@@ -115,33 +115,33 @@
       <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source></trans-unit>
       <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source></trans-unit>
 
-      <!-- Phase 5 — Settings tab (YAML as proposal) -->
+      <!-- Phase 5 — Settings tab (site configuration as proposal) -->
       <trans-unit id="nav.settings"><source>Settings</source></trans-unit>
       <trans-unit id="module.settings.title"><source>Banner settings</source></trans-unit>
       <trans-unit id="module.settings.heading"><source>Banner settings</source></trans-unit>
       <trans-unit id="module.settings.site"><source>Site:</source></trans-unit>
-      <trans-unit id="module.settings.intro"><source>Banner-content settings live in YAML (your deploy) and are adopted by the editor here. Each YAML deploy is a proposal — review it and click "Adopt" to make it the live state. Ops settings (rate limits, URL configs) remain YAML-direct and don't appear here.</source></trans-unit>
+      <trans-unit id="module.settings.intro"><source>Banner-content settings live in the site configuration (your deploy) and are adopted by the editor here. Each deploy is a proposal — review it and click "Adopt" to make it the live state. Ops settings (rate limits, URL configs) bypass this flow and take effect directly.</source></trans-unit>
       <trans-unit id="module.settings.noSites"><source>No sites are configured with the SimpleCMP set yet.</source></trans-unit>
 
       <trans-unit id="module.settings.bootstrap.heading"><source>Settings not yet bootstrapped for this site</source></trans-unit>
-      <trans-unit id="module.settings.bootstrap.body"><source>The YAML values are currently treated as live. Click below to bootstrap — every YAML key becomes an editor-confirmed active value, and from now on YAML changes show up as drift you must review before they take effect.</source></trans-unit>
-      <trans-unit id="module.settings.bootstrap.button"><source>Bootstrap from YAML</source></trans-unit>
-      <trans-unit id="module.settings.bootstrap.success"><source>Settings for site "%s" bootstrapped from YAML. YAML drift detection is now active.</source></trans-unit>
+      <trans-unit id="module.settings.bootstrap.body"><source>The site configuration values are currently treated as live. Click below to bootstrap — every key becomes an editor-confirmed active value, and from now on changes in the site configuration show up as drift you must review before they take effect.</source></trans-unit>
+      <trans-unit id="module.settings.bootstrap.button"><source>Bootstrap from site configuration</source></trans-unit>
+      <trans-unit id="module.settings.bootstrap.success"><source>Settings for site "%s" bootstrapped from the site configuration. Drift detection is now active.</source></trans-unit>
 
-      <trans-unit id="module.settings.drift.heading"><source>%d setting(s) drifted between YAML and live</source></trans-unit>
+      <trans-unit id="module.settings.drift.heading"><source>%d setting(s) drifted between site configuration and live</source></trans-unit>
       <trans-unit id="module.settings.drift.col.active"><source>Live (active)</source></trans-unit>
-      <trans-unit id="module.settings.drift.col.yaml"><source>YAML (proposal)</source></trans-unit>
+      <trans-unit id="module.settings.drift.col.yaml"><source>Site config (proposal)</source></trans-unit>
       <trans-unit id="module.settings.drift.col.actions"><source>Actions</source></trans-unit>
       <trans-unit id="module.settings.drift.adopt"><source>Adopt</source></trans-unit>
       <trans-unit id="module.settings.drift.adoptAll"><source>Adopt all</source></trans-unit>
 
-      <trans-unit id="module.settings.adopt.success"><source>Setting "%s" adopted from YAML.</source></trans-unit>
-      <trans-unit id="module.settings.adopt.allSuccess"><source>All drifting settings adopted from YAML.</source></trans-unit>
+      <trans-unit id="module.settings.adopt.success"><source>Setting "%s" adopted from site configuration.</source></trans-unit>
+      <trans-unit id="module.settings.adopt.allSuccess"><source>All drifting settings adopted from site configuration.</source></trans-unit>
       <trans-unit id="module.settings.custom.success"><source>Custom value for "%s" stored.</source></trans-unit>
-      <trans-unit id="module.settings.reset.success"><source>Setting "%s" reset — falls back to YAML.</source></trans-unit>
-      <trans-unit id="module.settings.reset.button"><source>Reset to YAML</source></trans-unit>
+      <trans-unit id="module.settings.reset.success"><source>Setting "%s" reset — falls back to site configuration.</source></trans-unit>
+      <trans-unit id="module.settings.reset.button"><source>Reset to site configuration</source></trans-unit>
 
-      <trans-unit id="module.settings.tracker.heading"><source>%d YAML-defined tracker(s) awaiting adoption</source></trans-unit>
+      <trans-unit id="module.settings.tracker.heading"><source>%d tracker(s) from site configuration awaiting adoption</source></trans-unit>
       <trans-unit id="module.settings.tracker.alreadyAdopted"><source>Already a managed_tracker row exists for this type+serviceId.</source></trans-unit>
       <trans-unit id="module.settings.tracker.adopt"><source>Create as managed_tracker</source></trans-unit>
       <trans-unit id="module.settings.tracker.adopted"><source>Tracker "%s" (serviceId %s) added as draft. Open the Tracker-Setup tab to publish it.</source></trans-unit>
@@ -464,8 +464,8 @@
       <trans-unit id="module.trackerSetup.site"><source>Site:</source></trans-unit>
       <trans-unit id="module.trackerSetup.dbHeading"><source>BE-managed trackers</source></trans-unit>
       <trans-unit id="module.trackerSetup.dbEmpty"><source>No BE-managed trackers yet. Click "Add" to set one up.</source></trans-unit>
-      <trans-unit id="module.trackerSetup.yamlHeading"><source>YAML-provisioned trackers (read-only)</source></trans-unit>
-      <trans-unit id="module.trackerSetup.yamlHint"><source>Defined under simplecmp.trackers in config/sites/&lt;id&gt;/settings.yaml. Edit the file directly to change these. YAML entries win on service_id collision with BE-managed entries.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.proposalsHint"><source>%d tracker(s) defined in the site configuration are awaiting editor adoption — manage them in the Settings tab.</source></trans-unit>
+      <trans-unit id="module.trackerSetup.proposalsLink"><source>Open Settings tab</source></trans-unit>
       <trans-unit id="module.trackerSetup.add"><source>Add</source></trans-unit>
       <trans-unit id="module.trackerSetup.save"><source>Save</source></trans-unit>
       <trans-unit id="module.trackerSetup.cancel"><source>Cancel</source></trans-unit>

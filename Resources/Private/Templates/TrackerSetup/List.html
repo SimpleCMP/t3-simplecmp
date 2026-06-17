@@ -143,40 +143,16 @@
             </div>
         </div>
 
-        <f:if condition="{yamlTrackers}">
-            <div class="panel panel-default mb-3">
-                <div class="panel-heading">
-                    <strong>
-                        <core:icon identifier="actions-document" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.yamlHeading" />
-                    </strong>
-                </div>
-                <div class="panel-body">
-                    <p class="text-body-secondary small mb-3">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.yamlHint" />
-                    </p>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.type" /></th>
-                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.serviceId" /></th>
-                                <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.config" /></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <f:for each="{yamlTrackers}" as="row">
-                                <tr>
-                                    <td><code>{row.type}</code></td>
-                                    <td><code>{row.serviceId}</code></td>
-                                    <td class="text-body-secondary small">
-                                        <f:for each="{row.config}" as="value" key="key" iteration="i">
-                                            <code>{key}</code>=<code>{value}</code><f:if condition="!{i.isLast}">, </f:if>
-                                        </f:for>
-                                    </td>
-                                </tr>
-                            </f:for>
-                        </tbody>
-                    </table>
+        <f:if condition="{unadoptedProposalsCount} > 0">
+            <div class="alert alert-info d-flex align-items-start gap-2 mt-3" role="alert">
+                <core:icon identifier="actions-info-circle" size="medium" />
+                <div class="flex-grow-1">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsHint"
+                                 arguments="{0: unadoptedProposalsCount}" />
+                    <a href="{uri_settingsTab}" class="alert-link ms-2">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsLink" />
+                        →
+                    </a>
                 </div>
             </div>
         </f:if>
