@@ -36,6 +36,9 @@ final class EnforceLiveBannerConfigReadOnly implements SingletonInterface
         'tx_t3simplecmp_managed_tracker',
         'tx_t3simplecmp_allowed_stylesheet_host',
         'tx_t3simplecmp_publish_lock',
+        // Phase 5 — active settings is editor-API-blocked too; only
+        // the SettingsController is allowed to write here.
+        'tx_t3simplecmp_active_settings',
     ];
 
     /**

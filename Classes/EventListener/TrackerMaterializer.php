@@ -14,9 +14,7 @@ use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
-use TYPO3\CMS\Core\Settings\SettingsInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Materializes the `simplecmp.trackers` site setting into runtime
@@ -87,46 +85,15 @@ final readonly class TrackerMaterializer
             return;
         }
 
-        // Two sources of truth, merged in order:
-        //   1. YAML `simplecmp.trackers` — integrator-owned, git-versioned
-        //   2. `tx_t3simplecmp_managed_tracker` — BE-wizard-owned
-        //
-        // YAML wins on `serviceId` collision because file-based config
-        // is the ops-emergency override path. Editors who hit a clash
-        // get a warning in the log and a hint in the BE wizard.
-        $yamlEntries = $this->collectTrackerEntries($settings);
+        // Phase-5: YAML `simplecmp.trackers` is NO LONGER auto-
+        // materialized. YAML-defined trackers now show up as proposals
+        // in the BE Settings tab and the editor must click "Anlegen"
+        // to create a managed_tracker draft that flows through the
+        // Phase-4 publish workflow. The only source of truth here is
+        // tx_t3simplecmp_managed_tracker.
         $dbEntries = $this->collectManagedTrackerEntries($site->getIdentifier());
 
-        $seenServiceIds = [];
-        $pipeline = [];
-
-        foreach ($yamlEntries as $entry) {
-            if (!is_array($entry)) {
-                continue;
-            }
-            $candidateId = $this->resolveServiceId($entry);
-            if ($candidateId !== null) {
-                $seenServiceIds[$candidateId] = 'yaml';
-            }
-            $pipeline[] = $entry;
-        }
-
         foreach ($dbEntries as $entry) {
-            $candidateId = $this->resolveServiceId($entry);
-            if ($candidateId !== null && isset($seenServiceIds[$candidateId])) {
-                $this->logger->warning(
-                    'BE-managed tracker "{id}" collides with YAML — YAML wins, BE row skipped.',
-                    ['id' => $candidateId],
-                );
-                continue;
-            }
-            if ($candidateId !== null) {
-                $seenServiceIds[$candidateId] = 'db';
-            }
-            $pipeline[] = $entry;
-        }
-
-        foreach ($pipeline as $entry) {
             $this->materializeOne($entry);
         }
     }
@@ -149,61 +116,6 @@ final readonly class TrackerMaterializer
             $out[] = $entry;
         }
         return $out;
-    }
-
-    /**
-     * Best-effort service_id resolution from a raw config entry —
-     * mirrors `materializeOne()`'s lookup but without throwing on
-     * unknown / invalid config (which `materializeOne()` then handles
-     * with a logger warning).
-     *
-     * @param array<string, mixed> $config
-     */
-    private function resolveServiceId(array $config): ?string
-    {
-        if (isset($config['serviceId']) && is_string($config['serviceId']) && $config['serviceId'] !== '') {
-            return $config['serviceId'];
-        }
-        $type = $config['type'] ?? null;
-        if (!is_string($type) || $type === '') {
-            return null;
-        }
-        $provider = $this->trackerRegistry->get($type);
-        return $provider?->getDefaultServiceId();
-    }
-
-    /**
-     * Reconstruct the `simplecmp.trackers` list from TYPO3's flat
-     * settings store. Site settings without a definition entry are
-     * exposed dot-flattened (`simplecmp.trackers.0.type`,
-     * `simplecmp.trackers.0.url`, …) instead of as a nested array —
-     * `Settings::get('simplecmp.trackers')` would throw
-     * `SettingNotFoundException` because the bare key has no value.
-     *
-     * Collect every flat key under the `simplecmp.trackers.` prefix,
-     * run them through {@see ArrayUtility::unflatten()}, then return
-     * the inner `[trackers]` list.
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function collectTrackerEntries(SettingsInterface $settings): array
-    {
-        $prefix = 'simplecmp.trackers.';
-        $flat = [];
-        foreach ($settings->getIdentifiers() as $identifier) {
-            if (str_starts_with($identifier, $prefix)) {
-                $flat[$identifier] = $settings->get($identifier);
-            }
-        }
-        if ($flat === []) {
-            return [];
-        }
-        $tree = ArrayUtility::unflatten($flat);
-        $list = $tree['simplecmp']['trackers'] ?? null;
-        if (!is_array($list)) {
-            return [];
-        }
-        return array_values($list);
     }
 
     /**

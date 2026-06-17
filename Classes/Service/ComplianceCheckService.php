@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimpleCMP\T3SimpleCmp\Service;
 
 use TYPO3\CMS\Core\Site\Entity\Site;
+use SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
@@ -43,6 +44,7 @@ final readonly class ComplianceCheckService
         private ServiceRepository $serviceRepository,
         private TranslationOverrideRepository $overrideRepository,
         private ThemeRepository $themeRepository,
+        private EffectiveSettingsResolver $effectiveSettings,
     ) {
     }
 
@@ -191,15 +193,14 @@ final readonly class ComplianceCheckService
      */
     public function audit(Site $site): array
     {
-        $settings = $site->getSettings();
         $results = [];
 
-        $results[] = $this->checkPrivacyPolicyUrl($settings);
-        $results[] = $this->checkFirstLayerReject($settings);
+        $results[] = $this->checkPrivacyPolicyUrl($site);
+        $results[] = $this->checkFirstLayerReject($site);
         $results[] = $this->checkOptInDefaults();
-        $results[] = $this->checkPreConsentBlocking($settings);
-        $results[] = $this->checkPersistentRevocationTrigger($settings);
-        $results[] = $this->checkImprintUrlDach($settings);
+        $results[] = $this->checkPreConsentBlocking($site);
+        $results[] = $this->checkPersistentRevocationTrigger($site);
+        $results[] = $this->checkImprintUrlDach($site);
         $results[] = $this->checkServicesHavePurposes();
         $results[] = $this->checkDeclineLabelClarity($site);
         $results[] = $this->checkNoMarketingNudgeInDescription($site);
@@ -246,9 +247,9 @@ final readonly class ComplianceCheckService
     /**
      * @return Result
      */
-    private function checkPrivacyPolicyUrl(object $settings): array
+    private function checkPrivacyPolicyUrl(Site $site): array
     {
-        $url = (string) $settings->get('simplecmp.privacyPolicyUrl', '');
+        $url = (string) $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.privacyPolicyUrl', '');
         if ($url !== '' && $url !== '#') {
             return $this->pass('privacy-policy-url', '1.5');
         }
@@ -258,14 +259,14 @@ final readonly class ComplianceCheckService
     /**
      * @return Result
      */
-    private function checkFirstLayerReject(object $settings): array
+    private function checkFirstLayerReject(Site $site): array
     {
         // TYPO3 currently doesn't expose `hideDeclineAll` through any
         // site setting — the FE asset listener always sends the
         // bundle's safe default (`hideDeclineAll: false` implicit).
         // Surface the check anyway so the BE makes it visible that
         // the property is being honoured.
-        if ((bool) $settings->get('simplecmp.hideDeclineAll', false) === true) {
+        if ((bool) $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.hideDeclineAll', false) === true) {
             return $this->fail('first-layer-reject', '1.3', 'critical');
         }
         return $this->pass('first-layer-reject', '1.3');
@@ -303,9 +304,9 @@ final readonly class ComplianceCheckService
     /**
      * @return Result
      */
-    private function checkPreConsentBlocking(object $settings): array
+    private function checkPreConsentBlocking(Site $site): array
     {
-        if ((bool) $settings->get('simplecmp.universalBlocking.enabled', true) === true) {
+        if ((bool) $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.universalBlocking.enabled', true) === true) {
             return $this->pass('pre-consent-blocking', '1.7');
         }
         return $this->fail('pre-consent-blocking', '1.7', 'critical');
@@ -314,14 +315,14 @@ final readonly class ComplianceCheckService
     /**
      * @return Result
      */
-    private function checkPersistentRevocationTrigger(object $settings): array
+    private function checkPersistentRevocationTrigger(Site $site): array
     {
         // The FE asset listener always passes a `floatingTrigger` to
         // `cmp.init()`, using `simplecmp.floatingTriggerLabel` as the
         // visible text. If the admin has cleared the label, we treat
         // the trigger as effectively disabled — there's no visible
         // affordance to reopen consent.
-        $label = (string) $settings->get('simplecmp.floatingTriggerLabel', '');
+        $label = (string) $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.floatingTriggerLabel', '');
         if (trim($label) !== '') {
             return $this->pass('persistent-revocation-trigger', '1.6');
         }
@@ -331,9 +332,9 @@ final readonly class ComplianceCheckService
     /**
      * @return Result
      */
-    private function checkImprintUrlDach(object $settings): array
+    private function checkImprintUrlDach(Site $site): array
     {
-        $url = (string) $settings->get('simplecmp.imprintUrl', '');
+        $url = (string) $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.imprintUrl', '');
         if ($url !== '' && $url !== '#') {
             return $this->pass('imprint-url-dach', '1.5');
         }

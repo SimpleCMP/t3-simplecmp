@@ -151,7 +151,11 @@ final class ComplianceCheckServiceAccessibleNamesTest extends TestCase
         $themeRepo = $this->createMock(ThemeRepository::class);
         $themeRepo->method('findBySite')->willReturn(null);
 
-        $service = new ComplianceCheckService($serviceRepo, $overrideRepo, $themeRepo);
+        $effectiveSettings = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver::class);
+        $effectiveSettings->method('get')->willReturnCallback(
+            static fn (string $siteId, string $key, mixed $default = null) => $default
+        );
+        $service = new ComplianceCheckService($serviceRepo, $overrideRepo, $themeRepo, $effectiveSettings);
         $site = $this->createMock(Site::class);
         $site->method('getIdentifier')->willReturn('default');
         // The check we exercise only consults the override repo. The

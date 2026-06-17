@@ -324,6 +324,33 @@ CREATE TABLE tx_t3simplecmp_config_snapshot (
 -- plus the EnforceConsentLogAppendOnly DataHandler hook. Direct SQL
 -- DELETE remains possible by design — Phase-3 ships an explicit CLI
 -- retention workflow with its own audit log.
+-- Phase 5: editor-confirmed active settings.
+--
+-- One row per site, holding a JSON blob of the banner-content
+-- `simplecmp.*` settings the editor has explicitly adopted from the
+-- YAML proposal (or set as a custom value differing from YAML).
+-- Absent key in `active_json` → resolver falls back to YAML for that
+-- key. Empty row OR table = "editor hasn't bootstrapped yet" → all
+-- keys fall back to YAML (current behavior, no FE regression).
+--
+-- Only banner-content settings live here (12 keys; see
+-- EffectiveSettingsResolver::EDITOR_CONTENT_KEYS). Ops/infra settings
+-- (bridgeRateLimit, libraryUpstreamUrl, …) stay YAML-direct, never
+-- touched by this table.
+CREATE TABLE tx_t3simplecmp_active_settings (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(64) DEFAULT '' NOT NULL,
+    active_json mediumtext,
+    last_modified_be_user int(11) unsigned DEFAULT '0' NOT NULL,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY site (site)
+);
+
 -- Append-only self-audit log of retention actions (Phase 3). Every
 -- invocation of `simplecmp:audit-retention` — successful or dry-run —
 -- writes one row per (target_table, target_site) it acted on. The row

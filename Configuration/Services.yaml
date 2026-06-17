@@ -71,3 +71,10 @@ services:
   # we ship; alias the interface for autowiring. Tests inject their own
   # concrete ClockInterface bypassing the container.
   SimpleCMP\T3SimpleCmp\Service\ClockInterface: '@SimpleCMP\T3SimpleCmp\Service\SystemClock'
+
+  # Phase 5 — effective-settings resolver: merges active_settings (DB)
+  # over YAML defaults for the editor-content key list. Public so
+  # consumers can `$this->get()` it directly (EventListener,
+  # Middleware, Controller).
+  SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver:
+    public: true

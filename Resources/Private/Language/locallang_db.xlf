@@ -56,6 +56,9 @@
       <!-- Phase-4 draft mirror of the service registry -->
       <trans-unit id="tx_t3simplecmp_service_draft"><source>SimpleCMP service (draft)</source></trans-unit>
 
+      <!-- Phase-5 editor-confirmed active settings -->
+      <trans-unit id="tx_t3simplecmp_active_settings"><source>SimpleCMP active settings</source></trans-unit>
+
       <!-- Detection table -->
       <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>

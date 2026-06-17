@@ -849,7 +849,38 @@ final class RegisterAssetsTest extends TestCase
             $this->logger,
             $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository::class),
             $this->createMock(\SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener::class),
+            $this->effectiveSettingsResolver(),
         );
+    }
+
+    /**
+     * Phase-5 resolver test helper: delegates straight to the
+     * SiteSettings mock so existing tests' `siteWithSettings()`
+     * fixtures keep working without per-test mock setup.
+     */
+    private function effectiveSettingsResolver(): \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver
+    {
+        $resolver = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver::class);
+        $resolver->method('get')->willReturnCallback(function (string $siteId, string $key, mixed $default = null) {
+            // Mirrors the real resolver: SiteSettings YAML wins,
+            // then default kicks in for unset keys. RegisterAssetsTest
+            // mock returns null for unset keys → default honoured.
+            $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+            if ($request instanceof \Psr\Http\Message\ServerRequestInterface) {
+                $site = $request->getAttribute('site');
+                if ($site instanceof \TYPO3\CMS\Core\Site\Entity\Site
+                    && $site->getIdentifier() === $siteId
+                ) {
+                    $value = $site->getSettings()->get($key);
+                    if ($value !== null) {
+                        return $value;
+                    }
+                }
+            }
+            return $default;
+        });
+        $resolver->method('activeSnapshot')->willReturn([]);
+        return $resolver;
     }
 
     /**

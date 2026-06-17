@@ -700,6 +700,85 @@ Iterations shipped:
     "Revision & Nachweis" tab in the detections module with
     canonical-JSON view + line-diff against the previous snapshot.
 
+## YAML als Vorschlag, Editor übernimmt (Phase 5)
+
+Phase 5 schließt das Loch, das Phase 4 offen ließ: YAML-Site-
+Settings konnten still per Dev-Deploy banner-relevante Werte
+ändern (z.B. `privacyPolicyUrl`, `simplecmp.trackers`), ohne im
+Editor-Publish-Audit aufzutauchen. Lösung: YAML wird zum
+**Dev-Vorschlag**; Editor übernimmt explizit im BE und der
+Übernehmen-Akt landet im Snapshot.
+
+### Architektur
+
+```
+YAML (Git, deployed)  →  Vorschlag des Devs
+       ↓ "Übernehmen" durch Editor im BE
+DB-Layer (active_settings) →  was Besucher tatsächlich sehen
+       ↓ wird Teil des Audit-Snapshots
+```
+
+Zentrale Komponenten:
+
+- **`tx_t3simplecmp_active_settings`** — eine Row pro Site,
+  JSON-Blob der editor-übernommenen Banner-Content-Settings.
+- **`EffectiveSettingsResolver`** — single source of truth für
+  jeden Settings-Read. Editor-Content-Keys: DB-active > YAML.
+  Ops-Keys: YAML direkt. Eingebauter per-Request-Cache.
+- **Neuer BE-Tab „Einstellungen"** mit Diff-View, Tracker-
+  Vorschlägen, Bootstrap-Banner für Erst-Übernahme.
+
+### Editor-vs-Ops-Scope
+
+Hardcoded in `EffectiveSettingsResolver::EDITOR_CONTENT_KEYS` —
+12 Keys, alle Banner-Inhalt mit DSGVO-Relevanz. Beispiele:
+
+```
+✓ Editor-content (durchläuft Vorschlag/Übernehmen):
+  simplecmp.enabled, .storageName, .privacyPolicyUrl, .imprintUrl,
+  .floatingTriggerLabel, .respectGPC, .regimeDefault,
+  .hideDeclineAll, .universalBlocking.enabled, .blockStylesheets,
+  .allowlist, .trackers (Sonderfall — als Tracker-Vorschläge)
+
+✗ Ops (YAML-direkt, kein Confirm):
+  simplecmp.regionHeader, .serviceDbUrl, .cmsBridgeUrl,
+  .consentLogUrl, .consentLogRateLimit, .storagePid,
+  .bridgeRateLimit, .serviceDbRateLimit, .libraryUpstreamUrl,
+  .libraryUpstreamDailyBudget, .useSlimBundle, .preloadBundle
+```
+
+Bridge-Secret oder Rate-Limits via Editor-Confirm zu schicken
+wäre absurd — das sind Server-Identity/Tuning, kein Banner-Inhalt.
+
+### YAML-Tracker als Vorschläge
+
+`simplecmp.trackers` wird in Phase 5 NICHT mehr auto-materialisiert.
+`TrackerMaterializer`-EventListener liest nur noch
+`tx_t3simplecmp_managed_tracker` (BE-Wizard-eigene). YAML-Tracker
+erscheinen im Settings-Tab als „Vorschlag: matomo (siteId 99) —
+[Anlegen]". Klick erzeugt eine `managed_tracker_draft`-Row für
+diese Site und läuft danach durch den Phase-4-Publish-Workflow.
+
+**Breaking-Change**: bestehende YAML-`simplecmp.trackers`-Configs
+sind nach Update auf Phase 5 plötzlich „inaktiv" — sie laufen
+erst nach explizitem Editor-Klick im Settings-Tab live. Migration:
+für jede Site einmal in den Settings-Tab gehen, Tracker
+übernehmen, im Tracker-Setup-Tab veröffentlichen.
+
+### Snapshot-Schema-Bump v3 → v4
+
+`canonical_json` enthält jetzt einen `activeSettings`-Block neben
+den 5 DB-editierbaren Tabellen. Pre-Phase-5-Snapshots bleiben mit
+`schemaVersion: 3` als historische Einträge.
+
+### Migration / Bootstrap
+
+Neuer Install: `active_settings` ist leer. Resolver fällt für alle
+Editor-Keys auf YAML zurück. FE-Verhalten identisch zu vor Phase 5.
+Beim ersten Besuch des Settings-Tabs sieht der Editor ein Bootstrap-
+Banner und klickt einmal „Aus YAML übernehmen" — danach ist die
+Drift-Detection aktiv.
+
 ## Draft/Publish Workspace (Phase 4)
 
 Phase 4 reworks the editor flow: rather than each save going live

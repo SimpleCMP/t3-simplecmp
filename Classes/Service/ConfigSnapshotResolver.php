@@ -55,6 +55,7 @@ final readonly class ConfigSnapshotResolver
         private AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
         private SiteFinder $siteFinder,
         private LoggerInterface $logger,
+        private EffectiveSettingsResolver $effectiveSettings,
     ) {
     }
 
@@ -85,10 +86,13 @@ final readonly class ConfigSnapshotResolver
             'allowedStylesheetHosts' => $this->allowedStylesheetHostRepository->hostsForSource(
                 'simplecmp-' . $siteIdentifier,
             ),
-            // Phase-4 tightening: YAML-Site-Settings (incl.
-            // simplecmp.trackers) removed from the snapshot — they're
-            // Git-versioned, not editor-versioned. schemaVersion 3.
-            'schemaVersion' => 3,
+            // Phase-5: editor-confirmed active banner-content settings.
+            // Snapshot is the canonical record of what was effective at
+            // publish-time; the Phase-5 resolver derives this from the
+            // active_settings table merged with YAML defaults for
+            // editor-content keys only. Ops keys remain off-snapshot.
+            'activeSettings' => $this->effectiveSettings->activeSnapshot($siteIdentifier),
+            'schemaVersion' => 4,
         ];
     }
 }

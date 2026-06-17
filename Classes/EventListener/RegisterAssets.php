@@ -81,6 +81,7 @@ final readonly class RegisterAssets
         private LoggerInterface $logger,
         private \SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository $snapshotRepository,
         private \SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener $snapshotListener,
+        private \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
     ) {
     }
 
@@ -100,7 +101,7 @@ final readonly class RegisterAssets
         }
 
         $settings = $site->getSettings();
-        if ($settings->get('simplecmp.enabled') === false) {
+        if ($this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.enabled') === false) {
             return;
         }
 
@@ -128,7 +129,7 @@ final readonly class RegisterAssets
         // bundle carries. Falls back to the full bundle when the slim
         // file isn't synced yet, so flipping the setting on a fresh
         // install doesn't break — operators get a warning instead.
-        [$bundlePath, $injectedTranslations] = $this->resolveBundleAndTranslations($settings, $request);
+        [$bundlePath, $injectedTranslations] = $this->resolveBundleAndTranslations($site, $request);
         if ($injectedTranslations !== []) {
             $translations = $config['translations'] ?? [];
             $config['translations'] = $this->mergeTranslationsDeep($injectedTranslations, $translations);
@@ -140,6 +141,9 @@ final readonly class RegisterAssets
         // on; switchable via `simplecmp.preloadBundle`. PageRenderer
         // is the cleanest path — TYPO3's AssetCollector has no
         // first-class preload API in v14.
+        // Ops-key; keep direct read here so test fixtures that pre-date
+        // Phase 5 (and intentionally leave the value unset to disable
+        // preload during unit tests) still get the null fallback.
         if ((bool) $settings->get('simplecmp.preloadBundle', true)) {
             $resolvedHref = \TYPO3\CMS\Core\Utility\PathUtility::getPublicResourceWebPath($bundlePath);
             if ($resolvedHref !== '') {
@@ -202,10 +206,12 @@ final readonly class RegisterAssets
      *
      * @return array{0: string, 1: array<string, mixed>}
      */
-    private function resolveBundleAndTranslations(object $settings, ServerRequestInterface $request): array
+    private function resolveBundleAndTranslations(Site $site, ServerRequestInterface $request): array
     {
         $fullBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js';
-        if (!(bool) $settings->get('simplecmp.useSlimBundle', false)) {
+        // Ops-key: direct read to keep parity with the SiteSettings
+        // mock used by RegisterAssetsTest.
+        if (!(bool) $site->getSettings()->get('simplecmp.useSlimBundle', false)) {
             return [$fullBundle, []];
         }
         $slimBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js';
@@ -616,13 +622,18 @@ final readonly class RegisterAssets
 
     private function buildInitConfig(object $settings, Site $site, ServerRequestInterface $request): ?array
     {
+        // Phase 5: settings reads go through EffectiveSettingsResolver
+        // so editor-confirmed active values win over YAML proposals.
+        // Ops keys pass straight through to YAML (resolver detects).
+        //
         // `??` (null-coalesce), NOT `?:` (truthy-fallback). The Elvis form
         // swallows an explicit `false` / `0` / `''` and replaces it with the
         // default — which silently inverted booleans like `respectGPC` and
         // `universalBlocking.enabled` when their declared defaults disagreed
         // with what the admin actually set.
-        $get = static fn (string $key, mixed $default = null): mixed
-            => $settings->get($key) ?? $default;
+        $siteIdentifier = $site->getIdentifier();
+        $get = fn (string $key, mixed $default = null): mixed
+            => $this->effectiveSettings->get($siteIdentifier, $key, $default);
 
         [$services, $serviceTranslations] = $this->buildRuntimeServices();
         $config = [
@@ -651,7 +662,7 @@ final readonly class RegisterAssets
         if (in_array($regime, ['opt-out', 'none'], true)) {
             $config['regimeDefault'] = $regime;
         }
-        $region = $this->resolveRegion($settings, $request);
+        $region = $this->resolveRegion($site->getIdentifier(), $request);
         if ($region !== '') {
             $config['region'] = $region;
         }
@@ -819,7 +830,7 @@ final readonly class RegisterAssets
             // (`simplecmp.universalBlocking.allowlist`) flows through
             // as `sameOriginHosts`; window.location.host is added
             // implicitly by the runtime patches.
-            $allowlistRaw = $settings->get('simplecmp.universalBlocking.allowlist');
+            $allowlistRaw = $this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.universalBlocking.allowlist');
             $sameOriginExtras = [];
             if (is_array($allowlistRaw)) {
                 foreach ($allowlistRaw as $entry) {
@@ -1048,9 +1059,9 @@ final readonly class RegisterAssets
      * in which case the baseline regime applies. The value (e.g. 'US', 'DE') is
      * passed verbatim to the engine, which maps it to a regime.
      */
-    private function resolveRegion(object $settings, ServerRequestInterface $request): string
+    private function resolveRegion(string $siteIdentifier, ServerRequestInterface $request): string
     {
-        $header = trim((string) ($settings->get('simplecmp.regionHeader') ?? ''));
+        $header = trim((string) ($this->effectiveSettings->get($siteIdentifier, 'simplecmp.regionHeader') ?? ''));
         if ($header === '') {
             return '';
         }

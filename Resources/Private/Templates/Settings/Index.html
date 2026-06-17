@@ -1,0 +1,273 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:render partial="ModuleNav" arguments="{
+    active: 'settings',
+    uri_detectionsTab: uri_detectionsTab,
+    uri_registryTab: uri_registryTab,
+    uri_libraryTab: uri_libraryTab,
+    uri_trackerSetupTab: uri_trackerSetupTab,
+    uri_auditTab: uri_auditTab,
+    uri_auskunftTab: uri_auskunftTab,
+    uri_settingsTab: uri_settingsTab
+}" />
+
+<f:if condition="{hasSites}">
+    <f:then>
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="mb-0">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.heading" />
+            </h1>
+            <div class="d-flex align-items-center gap-2">
+                <label for="t3simplecmp-settings-site" class="form-label mb-0 text-body-secondary small">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.site" />
+                </label>
+                <select id="t3simplecmp-settings-site"
+                        class="form-select form-select-sm"
+                        style="width:auto"
+                        onchange="if (this.value) window.location.assign(this.value);">
+                    <f:for each="{siteOptions}" as="opt">
+                        <option value="{opt.url}" {f:if(condition: '{opt.identifier} == {selectedSite}', then: 'selected')}>{opt.label}</option>
+                    </f:for>
+                </select>
+            </div>
+        </div>
+
+        <p class="text-body-secondary">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.intro" />
+        </p>
+
+        <!-- Bootstrap-Banner: noch keine active_settings für Site -->
+        <f:if condition="{isBootstrapped}">
+            <f:else>
+                <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+                    <core:icon identifier="actions-info-circle" size="medium" />
+                    <div class="flex-grow-1">
+                        <strong>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.heading" />
+                        </strong>
+                        <p class="mb-2 small">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.body" />
+                        </p>
+                        <f:form action="bootstrap" controller="Settings" method="post" class="m-0">
+                            <f:form.hidden name="site" value="{selectedSite}" />
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <core:icon identifier="actions-check" size="small" />
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.button" />
+                            </button>
+                        </f:form>
+                    </div>
+                </div>
+            </f:else>
+        </f:if>
+
+        <!-- Drift-Detection -->
+        <f:if condition="{driftCount} > 0">
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info-subtle d-flex align-items-center justify-content-between">
+                    <h2 class="h5 mb-0">
+                        <core:icon identifier="actions-info-circle" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.heading"
+                                     arguments="{0: driftCount}" />
+                    </h2>
+                    <f:form action="adoptAll" controller="Settings" method="post" class="m-0">
+                        <f:form.hidden name="site" value="{selectedSite}" />
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adoptAll" />
+                        </button>
+                    </f:form>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
+                                </th>
+                                <th>
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
+                                </th>
+                                <th class="text-end">
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{actionableDrift}" as="entry">
+                                <tr>
+                                    <td><code class="small">{entry.key}</code></td>
+                                    <td>
+                                        <f:if condition="{entry.activeValue}">
+                                            <f:then>
+                                                <code class="small text-body-secondary">{entry.activeValue -> f:format.json()}</code>
+                                            </f:then>
+                                            <f:else>
+                                                <span class="text-body-tertiary small">—</span>
+                                            </f:else>
+                                        </f:if>
+                                    </td>
+                                    <td>
+                                        <code class="small text-primary">{entry.yamlValue -> f:format.json()}</code>
+                                    </td>
+                                    <td class="text-end text-nowrap">
+                                        <f:form action="adoptKey" controller="Settings" method="post" class="d-inline m-0">
+                                            <f:form.hidden name="site" value="{selectedSite}" />
+                                            <f:form.hidden name="key" value="{entry.key}" />
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adopt" />
+                                            </button>
+                                        </f:form>
+                                    </td>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </f:if>
+
+        <!-- Tracker-Vorschläge -->
+        <f:if condition="{unadoptedTrackerCount} > 0">
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info-subtle">
+                    <h2 class="h5 mb-0">
+                        <core:icon identifier="actions-cog" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.heading"
+                                     arguments="{0: unadoptedTrackerCount}" />
+                    </h2>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Service-ID</th>
+                                <th>YAML-Config</th>
+                                <th class="text-end">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{trackerProposals}" as="prop">
+                                <f:if condition="{prop.alreadyAdopted}">
+                                    <f:then>
+                                        <tr class="text-body-tertiary">
+                                            <td>{prop.type}</td>
+                                            <td><code class="small">{prop.serviceId}</code></td>
+                                            <td colspan="2" class="small">
+                                                ✓ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.alreadyAdopted" />
+                                            </td>
+                                        </tr>
+                                    </f:then>
+                                    <f:else>
+                                        <tr>
+                                            <td><strong>{prop.type}</strong></td>
+                                            <td><code class="small">{prop.serviceId}</code></td>
+                                            <td>
+                                                <code class="small text-body-secondary">
+                                                    <f:for each="{prop.config}" as="v" key="k">{k}={v} </f:for>
+                                                </code>
+                                            </td>
+                                            <td class="text-end text-nowrap">
+                                                <f:form action="adoptTracker" controller="Settings" method="post" class="d-inline m-0">
+                                                    <f:form.hidden name="site" value="{selectedSite}" />
+                                                    <f:form.hidden name="type" value="{prop.type}" />
+                                                    <f:form.hidden name="serviceId" value="{prop.serviceId}" />
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.adopt" />
+                                                    </button>
+                                                </f:form>
+                                            </td>
+                                        </tr>
+                                    </f:else>
+                                </f:if>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </f:if>
+
+        <!-- Volle Settings-Tabelle: alle 12 Editor-Content-Keys -->
+        <details class="mt-4">
+            <summary class="h5">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.allKeys" />
+            </summary>
+            <div class="table-responsive mt-2">
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
+                            </th>
+                            <th>
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
+                            </th>
+                            <th>Status</th>
+                            <th class="text-end">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{drift}" as="entry">
+                            <tr>
+                                <td><code class="small">{entry.key}</code></td>
+                                <td>
+                                    <code class="small text-body-secondary">{entry.activeValue -> f:format.json()}</code>
+                                </td>
+                                <td>
+                                    <code class="small">{entry.yamlValue -> f:format.json()}</code>
+                                </td>
+                                <td>
+                                    <f:switch expression="{entry.state}">
+                                        <f:case value="in-sync">
+                                            <span class="badge text-bg-success">in sync</span>
+                                        </f:case>
+                                        <f:case value="drift-yaml-newer">
+                                            <span class="badge text-bg-warning">drift</span>
+                                        </f:case>
+                                        <f:case value="bootstrap-pending">
+                                            <span class="badge text-bg-info">pending</span>
+                                        </f:case>
+                                        <f:defaultCase>
+                                            <span class="badge text-bg-secondary">{entry.state}</span>
+                                        </f:defaultCase>
+                                    </f:switch>
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <f:if condition="{entry.activeValue}">
+                                        <f:form action="resetKey" controller="Settings" method="post" class="d-inline m-0">
+                                            <f:form.hidden name="site" value="{selectedSite}" />
+                                            <f:form.hidden name="key" value="{entry.key}" />
+                                            <button type="submit" class="btn btn-default btn-sm"
+                                                    title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
+                                                <core:icon identifier="actions-undo" size="small" />
+                                            </button>
+                                        </f:form>
+                                    </f:if>
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

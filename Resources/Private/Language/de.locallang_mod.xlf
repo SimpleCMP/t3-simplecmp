@@ -115,6 +115,39 @@
       <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source><target>Lock übernehmen</target></trans-unit>
       <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source><target>Wirklich den Entwurf des anderen Editors verwerfen und den Lock übernehmen?</target></trans-unit>
 
+      <!-- Phase 5 — Settings-Tab (YAML als Vorschlag) -->
+      <trans-unit id="nav.settings"><source>Settings</source><target>Einstellungen</target></trans-unit>
+      <trans-unit id="module.settings.title"><source>Banner settings</source><target>Banner-Einstellungen</target></trans-unit>
+      <trans-unit id="module.settings.heading"><source>Banner settings</source><target>Banner-Einstellungen</target></trans-unit>
+      <trans-unit id="module.settings.site"><source>Site:</source><target>Site:</target></trans-unit>
+      <trans-unit id="module.settings.intro"><source>Banner-content settings live in YAML (your deploy) and are adopted by the editor here. Each YAML deploy is a proposal — review it and click "Adopt" to make it the live state. Ops settings (rate limits, URL configs) remain YAML-direct and don't appear here.</source><target>Banner-Inhalts-Settings leben in YAML (deinem Deploy) und werden hier vom Editor übernommen. Jeder YAML-Deploy ist ein Vorschlag — anschauen und auf „Übernehmen" klicken, um den Live-State zu setzen. Ops-Settings (Rate-Limits, URL-Configs) bleiben YAML-direkt und erscheinen hier nicht.</target></trans-unit>
+      <trans-unit id="module.settings.noSites"><source>No sites are configured with the SimpleCMP set yet.</source><target>Keine Site hat das SimpleCMP-Set aktiviert.</target></trans-unit>
+
+      <trans-unit id="module.settings.bootstrap.heading"><source>Settings not yet bootstrapped for this site</source><target>Einstellungen für diese Site noch nicht bootstrap-übernommen</target></trans-unit>
+      <trans-unit id="module.settings.bootstrap.body"><source>The YAML values are currently treated as live. Click below to bootstrap — every YAML key becomes an editor-confirmed active value, and from now on YAML changes show up as drift you must review before they take effect.</source><target>Die YAML-Werte gelten derzeit direkt als Live. Klicke unten zum Bootstrap — jeder YAML-Key wird zum vom Editor bestätigten Active-Wert, und ab dann zeigen sich YAML-Änderungen als Drift, die du erst übernehmen musst, bevor sie wirken.</target></trans-unit>
+      <trans-unit id="module.settings.bootstrap.button"><source>Bootstrap from YAML</source><target>Aus YAML bootstrap-übernehmen</target></trans-unit>
+      <trans-unit id="module.settings.bootstrap.success"><source>Settings for site "%s" bootstrapped from YAML. YAML drift detection is now active.</source><target>Einstellungen für Site „%s" aus YAML bootstrap-übernommen. YAML-Drift-Erkennung ist jetzt aktiv.</target></trans-unit>
+
+      <trans-unit id="module.settings.drift.heading"><source>%d setting(s) drifted between YAML and live</source><target>%d Einstellung(en) driften zwischen YAML und Live-Konfig</target></trans-unit>
+      <trans-unit id="module.settings.drift.col.active"><source>Live (active)</source><target>Live (aktiv)</target></trans-unit>
+      <trans-unit id="module.settings.drift.col.yaml"><source>YAML (proposal)</source><target>YAML (Vorschlag)</target></trans-unit>
+      <trans-unit id="module.settings.drift.col.actions"><source>Actions</source><target>Aktionen</target></trans-unit>
+      <trans-unit id="module.settings.drift.adopt"><source>Adopt</source><target>Übernehmen</target></trans-unit>
+      <trans-unit id="module.settings.drift.adoptAll"><source>Adopt all</source><target>Alle übernehmen</target></trans-unit>
+
+      <trans-unit id="module.settings.adopt.success"><source>Setting "%s" adopted from YAML.</source><target>Einstellung „%s" aus YAML übernommen.</target></trans-unit>
+      <trans-unit id="module.settings.adopt.allSuccess"><source>All drifting settings adopted from YAML.</source><target>Alle driftenden Einstellungen aus YAML übernommen.</target></trans-unit>
+      <trans-unit id="module.settings.custom.success"><source>Custom value for "%s" stored.</source><target>Eigener Wert für „%s" gespeichert.</target></trans-unit>
+      <trans-unit id="module.settings.reset.success"><source>Setting "%s" reset — falls back to YAML.</source><target>Einstellung „%s" zurückgesetzt — fällt auf YAML zurück.</target></trans-unit>
+      <trans-unit id="module.settings.reset.button"><source>Reset to YAML</source><target>Auf YAML zurücksetzen</target></trans-unit>
+
+      <trans-unit id="module.settings.tracker.heading"><source>%d YAML-defined tracker(s) awaiting adoption</source><target>%d YAML-Tracker warten auf Übernahme</target></trans-unit>
+      <trans-unit id="module.settings.tracker.alreadyAdopted"><source>Already a managed_tracker row exists for this type+serviceId.</source><target>Bereits eine managed_tracker-Row für diesen Typ+ServiceId vorhanden.</target></trans-unit>
+      <trans-unit id="module.settings.tracker.adopt"><source>Create as managed_tracker</source><target>Als managed_tracker anlegen</target></trans-unit>
+      <trans-unit id="module.settings.tracker.adopted"><source>Tracker "%s" (serviceId %s) added as draft. Open the Tracker-Setup tab to publish it.</source><target>Tracker „%s" (serviceId %s) als Draft angelegt. Im Tracker-Einrichtung-Tab veröffentlichen.</target></trans-unit>
+
+      <trans-unit id="module.settings.allKeys"><source>Show all editor-controlled settings</source><target>Alle Editor-Settings anzeigen</target></trans-unit>
+
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source><target>SimpleCMP — registrierte Dienste</target></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source><target>eigene</target></trans-unit>
       <trans-unit id="registry.header.library"><source>from library</source><target>aus Bibliothek</target></trans-unit>

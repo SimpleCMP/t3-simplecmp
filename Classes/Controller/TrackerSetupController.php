@@ -141,6 +141,9 @@ final class TrackerSetupController extends ActionController
             'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.AuditAuskunft_index',
             ),
+            'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Settings_index',
+            ),
         ]);
 
         return $this->moduleTemplate->renderResponse('TrackerSetup/List');

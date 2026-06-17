@@ -38,6 +38,7 @@ final class ConfigSnapshotResolverTest extends TestCase
             $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository::class),
             $finder,
             new NullLogger(),
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver::class),
         );
 
         self::assertNull($resolver->resolveCurrentSnapshot('ghost-site'));
@@ -49,10 +50,10 @@ final class ConfigSnapshotResolverTest extends TestCase
         $snapshot = $this->makeResolver()->resolveCurrentSnapshot('default');
         self::assertIsArray($snapshot);
         self::assertSame(
-            ['services', 'theme', 'translations', 'managedTrackers', 'allowedStylesheetHosts', 'schemaVersion'],
+            ['services', 'theme', 'translations', 'managedTrackers', 'allowedStylesheetHosts', 'activeSettings', 'schemaVersion'],
             array_keys($snapshot),
         );
-        self::assertSame(3, $snapshot['schemaVersion']);
+        self::assertSame(4, $snapshot['schemaVersion']);
     }
 
     #[Test]
@@ -70,10 +71,11 @@ final class ConfigSnapshotResolverTest extends TestCase
     }
 
     #[Test]
-    public function snapshotsDoNotIncludeYamlSiteSettings(): void
+    public function snapshotsDoNotIncludeRawYamlSiteSettings(): void
     {
-        // Even if site settings are set, the snapshot must not carry
-        // them — they're Git-versioned, not editor-versioned.
+        // YAML site-settings are NOT in the snapshot as a raw block.
+        // Phase 5 carries `activeSettings` only — the editor-confirmed
+        // banner-content keys.
         $snapshot = $this->makeResolver()->resolveCurrentSnapshot('default');
         self::assertArrayNotHasKey('settings', $snapshot);
     }
@@ -103,6 +105,8 @@ final class ConfigSnapshotResolverTest extends TestCase
         $managedTrackerRepo->method('findBySite')->willReturn([]);
         $allowedHostsRepo = $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository::class);
         $allowedHostsRepo->method('hostsForSource')->willReturn([]);
+        $effectiveSettings = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver::class);
+        $effectiveSettings->method('activeSnapshot')->willReturn([]);
 
         return new ConfigSnapshotResolver(
             $serviceRepo,
@@ -112,6 +116,7 @@ final class ConfigSnapshotResolverTest extends TestCase
             $allowedHostsRepo,
             $finder,
             new NullLogger(),
+            $effectiveSettings,
         );
     }
 }
