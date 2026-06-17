@@ -50,6 +50,12 @@
       <!-- Retention self-audit log (append-only, Phase 3) -->
       <trans-unit id="tx_t3simplecmp_audit_retention_log"><source>SimpleCMP audit retention log entry</source></trans-unit>
 
+      <!-- Draft/Publish workspace lock (Phase 4) -->
+      <trans-unit id="tx_t3simplecmp_publish_lock"><source>SimpleCMP draft workspace lock</source></trans-unit>
+
+      <!-- Phase-4 draft mirror of the service registry -->
+      <trans-unit id="tx_t3simplecmp_service_draft"><source>SimpleCMP service (draft)</source></trans-unit>
+
       <!-- Detection table -->
       <trans-unit id="tx_t3simplecmp_detection"><source>SimpleCMP detection</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_detection.source"><source>Source</source></trans-unit>

@@ -147,6 +147,136 @@ CREATE TABLE tx_t3simplecmp_allowed_stylesheet_host (
     UNIQUE KEY source_host (source, host)
 );
 
+-- Phase-4 Draft mirror tables. Each draft table mirrors the column
+-- shape of its live counterpart, plus three workspace columns:
+--   draft_site       — '' for the globally-shared service registry,
+--                      otherwise the site identifier owning the draft
+--   draft_owner_be_user — the BE user currently editing this draft
+--   draft_modified_at   — last write within the draft (touch-style)
+--
+-- BE controllers write here exclusively while a draft is active; FE
+-- middleware reads only from the live tables.
+-- DraftPublishService promotes draft → live atomically and triggers
+-- a snapshot with `trigger_event='publish'`.
+
+CREATE TABLE tx_t3simplecmp_service_draft (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    service_id varchar(100) DEFAULT '' NOT NULL,
+    name varchar(255) DEFAULT '' NOT NULL,
+    vendor varchar(255) DEFAULT NULL,
+    vendor_country varchar(8) DEFAULT NULL,
+    vendor_address text,
+    vendor_opt_out_url varchar(500) DEFAULT NULL,
+    vendor_partner text,
+    vendor_description text,
+    purposes text,
+    privacy_policy_url varchar(500) DEFAULT NULL,
+    description text,
+    retention text,
+    i18n text,
+    cookies text,
+    origins text,
+    extensions text,
+    placeholder_title varchar(255) DEFAULT NULL,
+    placeholder_description text,
+    library_adopted_at int(11) unsigned DEFAULT '0' NOT NULL,
+
+    draft_site varchar(64) NOT NULL DEFAULT '',
+    draft_owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    draft_modified_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    -- (draft_site, service_id) — for services, draft_site is always
+    -- '' (the global service-registry scope) so this is effectively
+    -- UNIQUE on service_id within the global draft set.
+    UNIQUE KEY draft_service_id (draft_site, service_id),
+    KEY draft_site (draft_site),
+    KEY draft_owner_be_user (draft_owner_be_user),
+    KEY library_adopted_at (library_adopted_at)
+);
+
+CREATE TABLE tx_t3simplecmp_theme_draft (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    tokens text,
+
+    draft_site varchar(64) NOT NULL DEFAULT '',
+    draft_owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    draft_modified_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    -- (draft_site, site) — draft_site equals site for per-site drafts
+    -- (theme is per-site). Mirrored unique constraint.
+    UNIQUE KEY draft_site_site (draft_site, site)
+);
+
+CREATE TABLE tx_t3simplecmp_translation_override_draft (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    overrides text,
+
+    draft_site varchar(64) NOT NULL DEFAULT '',
+    draft_owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    draft_modified_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY draft_site_site (draft_site, site)
+);
+
+CREATE TABLE tx_t3simplecmp_managed_tracker_draft (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+    deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
+
+    site varchar(100) DEFAULT '' NOT NULL,
+    tracker_type varchar(50) DEFAULT '' NOT NULL,
+    service_id varchar(100) DEFAULT '' NOT NULL,
+    config text,
+
+    draft_site varchar(64) NOT NULL DEFAULT '',
+    draft_owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    draft_modified_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    KEY draft_site (draft_site),
+    KEY draft_owner_be_user (draft_owner_be_user),
+    KEY site (site),
+    KEY tracker_type (tracker_type),
+    KEY deleted (deleted)
+);
+
+CREATE TABLE tx_t3simplecmp_allowed_stylesheet_host_draft (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    source varchar(100) DEFAULT '' NOT NULL,
+    host varchar(255) DEFAULT '' NOT NULL,
+
+    draft_site varchar(64) NOT NULL DEFAULT '',
+    draft_owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    draft_modified_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY draft_source_host (draft_site, source, host),
+    KEY draft_owner_be_user (draft_owner_be_user)
+);
+
 -- Append-only audit snapshots of the resolved banner configuration
 -- (services + theme + translation overrides + relevant Site Settings).
 -- One row is written each time the editor saves a change to any of the
@@ -248,4 +378,31 @@ CREATE TABLE tx_t3simplecmp_consent_log (
     KEY by_visitor (visitor_id_sha256, site),
     KEY by_date (crdate),
     KEY by_site_date (site, crdate)
+);
+
+-- Draft/Publish workspace lock (Phase 4). One row per "scope" — either
+-- a site identifier (per-site theme/translation/tracker/host drafts)
+-- or the literal `__global__` (the globally-shared service-registry
+-- draft). UNIQUE on `scope` guarantees that only one editor can have
+-- pending drafts for any given scope; conflicts are resolved either by
+-- waiting or by an explicit take-over (verwirft den anderen Entwurf).
+--
+-- Editor-level append-only enforced via TCA `readOnly: true` +
+-- `hideTable: true` plus the EnforceLiveBannerConfigReadOnly hook
+-- (same defence-in-depth pattern as the audit tables). The lock is
+-- only ever mutated by DraftWorkspaceService / DraftPublishService.
+CREATE TABLE tx_t3simplecmp_publish_lock (
+    uid int(11) unsigned NOT NULL auto_increment,
+    pid int(11) unsigned DEFAULT '0' NOT NULL,
+    crdate int(11) unsigned DEFAULT '0' NOT NULL,
+
+    scope varchar(64) NOT NULL DEFAULT '',
+    owner_be_user int(11) unsigned NOT NULL DEFAULT 0,
+    acquired_at int(11) unsigned NOT NULL DEFAULT 0,
+    last_activity_at int(11) unsigned NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (uid),
+    UNIQUE KEY scope (scope),
+    KEY owner_be_user (owner_be_user),
+    KEY last_activity_at (last_activity_at)
 );

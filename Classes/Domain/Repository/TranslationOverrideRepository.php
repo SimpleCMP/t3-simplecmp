@@ -34,6 +34,10 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 final readonly class TranslationOverrideRepository
 {
     private const string TABLE = 'tx_t3simplecmp_translation_override';
+    protected const string LIVE_TABLE = 'tx_t3simplecmp_translation_override';
+    protected const string DRAFT_TABLE = 'tx_t3simplecmp_translation_override_draft';
+
+    use DraftRepositoryTrait;
 
     public function __construct(
         private ConnectionPool $connectionPool,
@@ -152,5 +156,113 @@ final readonly class TranslationOverrideRepository
     {
         $this->connectionPool->getConnectionForTable(self::TABLE)
             ->delete(self::TABLE, ['site' => $site]);
+    }
+
+    // --- Phase 4 draft surface ---------------------------------------------
+
+    /**
+     * Mirror of {@see findBySite()} against the draft table.
+     *
+     * @return array<string, array{tone: ?string, overrides: array<string, string>}>|null
+     */
+    public function findBySiteDraft(string $scope): ?array
+    {
+        $rows = $this->selectDraftRows($scope);
+        $row = array_values(array_filter(
+            $rows,
+            static fn (array $r) => ($r['site'] ?? null) === $scope,
+        ))[0] ?? null;
+        if ($row === null || !is_string($row['overrides']) || $row['overrides'] === '') {
+            return null;
+        }
+        try {
+            $decoded = json_decode($row['overrides'], true, 8, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+        if (!is_array($decoded)) {
+            return null;
+        }
+        // Reuse the same normalization as live (new-shape only on draft writes).
+        $out = [];
+        foreach ($decoded as $lang => $entries) {
+            if (!is_string($lang) || $lang === '' || !is_array($entries)) {
+                continue;
+            }
+            $hasNewShape = array_key_exists('overrides', $entries) || array_key_exists('tone', $entries);
+            $tone = null;
+            $rawOverrides = $entries;
+            if ($hasNewShape) {
+                $maybeTone = $entries['tone'] ?? null;
+                if (is_string($maybeTone) && $maybeTone !== '') {
+                    $tone = $maybeTone;
+                }
+                $rawOverrides = is_array($entries['overrides'] ?? null) ? $entries['overrides'] : [];
+            }
+            $clean = [];
+            foreach ($rawOverrides as $key => $value) {
+                if (is_string($key) && is_string($value) && $value !== '') {
+                    $clean[$key] = $value;
+                }
+            }
+            if ($tone !== null || $clean !== []) {
+                $out[$lang] = ['tone' => $tone, 'overrides' => $clean];
+            }
+        }
+        return $out === [] ? null : $out;
+    }
+
+    /**
+     * @param array<string, array{tone?: ?string, overrides?: array<string, string>}> $data
+     */
+    public function upsertDraft(string $scope, array $data, int $beUserId): void
+    {
+        if ($data === []) {
+            $this->deleteDraft($scope);
+            return;
+        }
+        $jsonPayload = [];
+        foreach ($data as $lang => $entry) {
+            $tone = $entry['tone'] ?? null;
+            $overrides = $entry['overrides'] ?? [];
+            if (($tone === null || $tone === '') && $overrides === []) {
+                continue;
+            }
+            $jsonPayload[$lang] = [
+                'tone' => is_string($tone) && $tone !== '' ? $tone : null,
+                'overrides' => is_array($overrides) ? $overrides : [],
+            ];
+        }
+        if ($jsonPayload === []) {
+            $this->deleteDraft($scope);
+            return;
+        }
+
+        $existingUid = $this->draftUid($scope);
+        $payload = [
+            'overrides' => json_encode($jsonPayload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        ];
+        if ($existingUid === null) {
+            $payload['site'] = $scope;
+            $this->insertDraftRow($scope, $payload, $beUserId);
+            return;
+        }
+        $this->updateDraftRow($scope, ['uid' => $existingUid], $payload, $beUserId);
+    }
+
+    public function deleteDraft(string $scope): int
+    {
+        return $this->deleteDraftRows($scope, ['site' => $scope]);
+    }
+
+    private function draftUid(string $scope): ?int
+    {
+        $rows = $this->selectDraftRows($scope);
+        foreach ($rows as $row) {
+            if (($row['site'] ?? null) === $scope) {
+                return (int) $row['uid'];
+            }
+        }
+        return null;
     }
 }

@@ -21,6 +21,10 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 final readonly class ServiceRepository
 {
     private const string TABLE = 'tx_t3simplecmp_service';
+    protected const string LIVE_TABLE = 'tx_t3simplecmp_service';
+    protected const string DRAFT_TABLE = 'tx_t3simplecmp_service_draft';
+
+    use DraftRepositoryTrait;
 
     public function __construct(
         private ConnectionPool $connectionPool,
@@ -305,6 +309,107 @@ final readonly class ServiceRepository
             ))
             ->executeQuery()
             ->fetchOne();
+    }
+
+    // --- Phase 4 draft surface ---------------------------------------------
+
+    /**
+     * Mirror of {@see findAll()} reading from the draft table for the
+     * given scope (= LockState::SCOPE_GLOBAL for services).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function findAllDraft(string $scope): array
+    {
+        $rows = $this->selectDraftRows($scope);
+        usort(
+            $rows,
+            static fn (array $a, array $b) => strcasecmp((string) $a['service_id'], (string) $b['service_id']),
+        );
+        return array_map($this->rowToProtocol(...), $rows);
+    }
+
+    public function findOneDraft(string $scope, string $serviceId): ?array
+    {
+        foreach ($this->selectDraftRows($scope) as $row) {
+            if ((string) $row['service_id'] === $serviceId) {
+                return $this->rowToProtocol($row);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Same payload shape as {@see upsert()} — but writes to the draft
+     * table. Idempotent: re-upserting an existing service_id in the
+     * draft updates that row.
+     */
+    public function upsertDraft(string $scope, array $serviceData, int $beUserId, bool $fromLibrary = false): void
+    {
+        $row = [
+            'pid' => 0,
+            'service_id' => $serviceData['id'],
+            'name' => $serviceData['name'],
+            'vendor' => $serviceData['vendor'] ?? null,
+            'vendor_country' => $serviceData['vendorCountry'] ?? null,
+            'vendor_address' => $this->stringOrNull($serviceData['vendorAddress'] ?? null),
+            'vendor_opt_out_url' => $this->stringOrNull($serviceData['vendorOptOutUrl'] ?? null),
+            'vendor_partner' => $this->stringOrNull($serviceData['vendorPartner'] ?? null),
+            'vendor_description' => $this->stringOrNull($serviceData['vendorDescription'] ?? null),
+            'purposes' => json_encode($serviceData['purposes'] ?? [], JSON_THROW_ON_ERROR),
+            'privacy_policy_url' => $serviceData['privacyPolicyUrl'] ?? null,
+            'description' => $serviceData['description'] ?? null,
+            'retention' => isset($serviceData['retention'])
+                ? json_encode($serviceData['retention'], JSON_THROW_ON_ERROR)
+                : null,
+            'i18n' => isset($serviceData['i18n'])
+                ? json_encode($serviceData['i18n'], JSON_THROW_ON_ERROR)
+                : null,
+            'cookies' => isset($serviceData['matches']['cookies'])
+                ? json_encode($serviceData['matches']['cookies'], JSON_THROW_ON_ERROR)
+                : null,
+            'origins' => isset($serviceData['matches']['origins'])
+                ? json_encode($serviceData['matches']['origins'], JSON_THROW_ON_ERROR)
+                : null,
+            'extensions' => isset($serviceData['extensions'])
+                ? json_encode($serviceData['extensions'], JSON_THROW_ON_ERROR)
+                : null,
+            'placeholder_title' => $this->stringOrNull($serviceData['placeholderTitle'] ?? null),
+            'placeholder_description' => $this->stringOrNull(
+                $serviceData['placeholderDescription'] ?? null,
+            ),
+        ];
+
+        $existing = $this->findDraftRowByServiceId($scope, (string) $serviceData['id']);
+        if ($existing === null) {
+            if ($fromLibrary) {
+                $row['library_adopted_at'] = time();
+            }
+            $this->insertDraftRow($scope, $row, $beUserId);
+            return;
+        }
+        if ($fromLibrary && (int) ($existing['library_adopted_at'] ?? 0) === 0) {
+            $row['library_adopted_at'] = time();
+        }
+        $this->updateDraftRow($scope, ['uid' => (int) $existing['uid']], $row, $beUserId);
+    }
+
+    public function deleteDraft(string $scope, string $serviceId): int
+    {
+        return $this->deleteDraftRows($scope, ['service_id' => $serviceId]);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findDraftRowByServiceId(string $scope, string $serviceId): ?array
+    {
+        foreach ($this->selectDraftRows($scope) as $row) {
+            if ((string) $row['service_id'] === $serviceId) {
+                return $row;
+            }
+        }
+        return null;
     }
 
     /**

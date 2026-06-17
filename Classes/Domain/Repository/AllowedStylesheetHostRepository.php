@@ -27,6 +27,10 @@ use TYPO3\CMS\Core\SingletonInterface;
 final class AllowedStylesheetHostRepository implements SingletonInterface
 {
     private const TABLE = 'tx_t3simplecmp_allowed_stylesheet_host';
+    protected const string LIVE_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host';
+    protected const string DRAFT_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host_draft';
+
+    use DraftRepositoryTrait;
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
@@ -82,5 +86,56 @@ final class AllowedStylesheetHostRepository implements SingletonInterface
         } catch (UniqueConstraintViolationException) {
             // Already allowed — nothing to do.
         }
+    }
+
+    // --- Phase 4 draft surface ---------------------------------------------
+
+    /**
+     * @return list<string>
+     */
+    public function hostsForSourceDraft(string $scope): array
+    {
+        $source = 'simplecmp-' . $scope;
+        $rows = $this->selectDraftRows($scope);
+        $hosts = [];
+        foreach ($rows as $row) {
+            if (($row['source'] ?? null) !== $source) {
+                continue;
+            }
+            $host = strtolower((string) ($row['host'] ?? ''));
+            if ($host !== '') {
+                $hosts[] = $host;
+            }
+        }
+        return $hosts;
+    }
+
+    /**
+     * Allow a host in the draft set. Idempotent — duplicates are
+     * silently swallowed via the UNIQUE (draft_site, source, host).
+     */
+    public function allowDraft(string $scope, string $host, int $beUserId): void
+    {
+        $host = strtolower(trim($host));
+        if ($host === '') {
+            return;
+        }
+        try {
+            $this->insertDraftRow($scope, [
+                'pid' => 0,
+                'source' => 'simplecmp-' . $scope,
+                'host' => $host,
+            ], $beUserId);
+        } catch (UniqueConstraintViolationException) {
+            // Already in the draft set.
+        }
+    }
+
+    public function revokeDraft(string $scope, string $host): int
+    {
+        return $this->deleteDraftRows($scope, [
+            'source' => 'simplecmp-' . $scope,
+            'host' => strtolower(trim($host)),
+        ]);
     }
 }

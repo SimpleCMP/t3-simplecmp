@@ -21,6 +21,10 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 final readonly class ThemeRepository
 {
     private const string TABLE = 'tx_t3simplecmp_theme';
+    protected const string LIVE_TABLE = 'tx_t3simplecmp_theme';
+    protected const string DRAFT_TABLE = 'tx_t3simplecmp_theme_draft';
+
+    use DraftRepositoryTrait;
 
     public function __construct(
         private ConnectionPool $connectionPool,
@@ -82,5 +86,62 @@ final readonly class ThemeRepository
     {
         $this->connectionPool->getConnectionForTable(self::TABLE)
             ->delete(self::TABLE, ['site' => $site]);
+    }
+
+    // --- Phase 4 draft surface ---------------------------------------------
+
+    /**
+     * Read theme tokens from the draft table for the given scope
+     * (= site identifier). Returns null when no draft row exists.
+     *
+     * @return array<string, scalar>|null
+     */
+    public function findBySiteDraft(string $scope): ?array
+    {
+        $rows = $this->selectDraftRows($scope);
+        $row = array_values(array_filter(
+            $rows,
+            static fn (array $r) => ($r['site'] ?? null) === $scope,
+        ))[0] ?? null;
+        if ($row === null || !is_string($row['tokens']) || $row['tokens'] === '') {
+            return null;
+        }
+        try {
+            $decoded = json_decode($row['tokens'], true, 8, JSON_THROW_ON_ERROR);
+            return is_array($decoded) ? $decoded : null;
+        } catch (\JsonException) {
+            return null;
+        }
+    }
+
+    /**
+     * @param array<string, scalar> $tokens
+     */
+    public function upsertDraft(string $scope, array $tokens, int $beUserId): void
+    {
+        $existingUid = $this->draftUid($scope);
+        $payload = ['tokens' => json_encode($tokens, JSON_THROW_ON_ERROR)];
+        if ($existingUid === null) {
+            $payload['site'] = $scope;
+            $this->insertDraftRow($scope, $payload, $beUserId);
+            return;
+        }
+        $this->updateDraftRow($scope, ['uid' => $existingUid], $payload, $beUserId);
+    }
+
+    public function deleteDraft(string $scope): int
+    {
+        return $this->deleteDraftRows($scope, ['site' => $scope]);
+    }
+
+    private function draftUid(string $scope): ?int
+    {
+        $rows = $this->selectDraftRows($scope);
+        foreach ($rows as $row) {
+            if (($row['site'] ?? null) === $scope) {
+                return (int) $row['uid'];
+            }
+        }
+        return null;
     }
 }

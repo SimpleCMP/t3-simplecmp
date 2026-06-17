@@ -59,3 +59,13 @@ services:
     public: true
   SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener:
     public: true
+
+  # Phase 4 — draft workspace orchestrator. Public so functional tests
+  # can `$this->get()` it; production usage is via controller DI.
+  SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService:
+    public: true
+
+  # Phase 4 — the SystemClock is the only ClockInterface implementation
+  # we ship; alias the interface for autowiring. Tests inject their own
+  # concrete ClockInterface bypassing the container.
+  SimpleCMP\T3SimpleCmp\Service\ClockInterface: '@SimpleCMP\T3SimpleCmp\Service\SystemClock'
