@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -72,7 +73,7 @@
                     <tbody>
                         <f:for each="{rows}" as="row">
                             <tr>
-                                <td><f:format.date format="Y-m-d H:i:s">@{row.crdate}</f:format.date></td>
+                                <td><t3b:format.beDate date="{row.crdate}" /></td>
                                 <td><code title="{row.version_hash}">{row.version_hash_short}…</code></td>
                                 <td><span class="badge bg-secondary">
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{row.trigger_event}" default="{row.trigger_event}" />

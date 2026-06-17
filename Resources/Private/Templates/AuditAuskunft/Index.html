@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -105,7 +106,7 @@
                 <tbody>
                     <f:for each="{retentionRows}" as="r">
                         <tr>
-                            <td class="text-nowrap"><f:format.date format="Y-m-d H:i">@{r.crdate}</f:format.date></td>
+                            <td class="text-nowrap"><t3b:format.beDate date="{r.crdate}" /></td>
                             <td><code class="small">{r.target_table}</code></td>
                             <td>{r.target_site -> f:format.htmlentities()}</td>
                             <td class="text-end">{r.rows_deleted}</td>

@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -72,7 +73,7 @@
         <h3><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.timing" /></h3>
         <dl class="row">
             <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.received" /></dt>
-            <dd class="col-sm-10"><f:format.date format="Y-m-d H:i:s">{detection.received_at}</f:format.date></dd>
+            <dd class="col-sm-10"><t3b:format.beDate date="{detection.received_at}" /></dd>
             <f:if condition="{detection.sent_at}">
                 <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.sentAt" /></dt>
                 <dd class="col-sm-10"><code>{detection.sent_at}</code></dd>

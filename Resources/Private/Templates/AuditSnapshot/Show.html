@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -31,7 +32,7 @@
     <dt class="col-sm-3">
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" />
     </dt>
-    <dd class="col-sm-9"><f:format.date format="Y-m-d H:i:s">@{snapshot.crdate}</f:format.date></dd>
+    <dd class="col-sm-9"><t3b:format.beDate date="{snapshot.crdate}" /></dd>
     <dt class="col-sm-3">
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" />
     </dt>
@@ -66,7 +67,7 @@
         <p class="text-body-secondary small">
             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.previous"
                          arguments="{0: previous.version_hash}" />
-            (<f:format.date format="Y-m-d H:i:s">@{previous.crdate}</f:format.date>)
+            (<t3b:format.beDate date="{previous.crdate}" />)
         </p>
         <f:if condition="{diff}">
             <f:then>
@@ -109,7 +110,7 @@
             <tbody>
                 <f:for each="{consentLogRows}" as="row">
                     <tr>
-                        <td><f:format.date format="Y-m-d H:i:s">@{row.crdate}</f:format.date></td>
+                        <td><t3b:format.beDate date="{row.crdate}" /></td>
                         <td><code title="{row.visitor_id_sha256}">{row.visitor_id_short}…</code></td>
                         <td>
                             <span class="badge bg-{row.type_class}">

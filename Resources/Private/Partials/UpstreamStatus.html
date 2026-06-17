@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 <f:render section="upstreamStatus" arguments="{_all}" />
 
@@ -69,7 +70,7 @@
                                     ·
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.synced" />
                                 </span>
-                                <strong><f:format.date format="Y-m-d H:i">@{upstreamStatus.upstream.lastSyncAt}</f:format.date></strong>
+                                <strong><t3b:format.beDate date="{upstreamStatus.upstream.lastSyncAt}" /></strong>
                             </f:if>
                             <span class="ms-2">
                                 <f:if condition="{upstreamStatus.upstream.inSync}">
@@ -98,7 +99,7 @@
                                 <span class="text-body-secondary ms-1">
                                     ·
                                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checkedAt" />
-                                    <f:format.date format="Y-m-d H:i">@{upstreamStatus.upstream.failedAt}</f:format.date>
+                                    <t3b:format.beDate date="{upstreamStatus.upstream.failedAt}" />
                                 </span>
                             </f:if>
                         </f:case>
@@ -171,7 +172,7 @@
                             <f:if condition="{upstreamStatus.lastCallAt}">
                                 <f:then>
                                     <strong>
-                                        <f:format.date format="Y-m-d H:i:s">@{upstreamStatus.lastCallAt}</f:format.date>
+                                        <t3b:format.beDate date="{upstreamStatus.lastCallAt}" />
                                     </strong>
                                 </f:then>
                                 <f:else>

@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -87,7 +88,7 @@
             <tbody>
                 <f:for each="{decisions}" as="d">
                     <tr>
-                        <td class="text-nowrap small"><f:format.date format="Y-m-d H:i:s">@{d.crdate}</f:format.date></td>
+                        <td class="text-nowrap small"><t3b:format.beDate date="{d.crdate}" /></td>
                         <td><span class="badge text-bg-{d.type_class}">{d.decision_type}</span></td>
                         <td><code class="small">{d.version_hash_short}…</code></td>
                         <td>
@@ -132,7 +133,7 @@
                     <core:icon identifier="actions-database" size="small" />
                     <code>{s.version_hash_short}…</code>
                     <span class="text-body-secondary small ms-2">
-                        (<f:format.date format="Y-m-d H:i">@{s.row.crdate}</f:format.date>)
+                        (<t3b:format.beDate date="{s.row.crdate}" />)
                     </span>
                 </span>
                 <span class="badge text-bg-light">{s.row.trigger_event}</span>

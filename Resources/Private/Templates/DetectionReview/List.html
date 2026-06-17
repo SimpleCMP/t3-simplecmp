@@ -1,5 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <f:layout name="Module" />
@@ -307,7 +308,7 @@
                                 </span>
                             </td>
                             <td>
-                                <f:format.date format="Y-m-d H:i">{detection.received_at}</f:format.date>
+                                <t3b:format.beDate date="{detection.received_at}" />
                             </td>
                             <td><span class="text-body-secondary">{detection.source}</span></td>
                             <td class="text-end">
