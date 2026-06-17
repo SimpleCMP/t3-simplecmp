@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver;
 use SimpleCMP\T3SimpleCmp\Service\LockState;
+use SimpleCMP\T3SimpleCmp\Service\SettingsDriftEntry;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -57,16 +58,34 @@ final class SettingsController extends ActionController
         $proposals = $this->effectiveSettings->trackerProposals($site);
 
         // Fluid's strict template engine doesn't auto-invoke DTO
-        // methods like `needsAction()` — pre-compute the filter +
-        // expose a flat `needsAction` flag per entry for the template.
+        // methods like `needsAction()` — pre-compute every flag the
+        // template needs as a flat field. `effectiveValue` is what
+        // the resolver actually returns (active wins, otherwise YAML)
+        // so the "Live (aktiv)" column shows what visitors see, not
+        // a misleading raw-DB null. `isCustom` is true only when the
+        // editor has set an opinion that differs from YAML — that's
+        // the only state where Reset is meaningful.
         $driftDecorated = array_map(
-            static fn ($entry) => [
-                'key' => $entry->key,
-                'activeValue' => $entry->activeValue,
-                'yamlValue' => $entry->yamlValue,
-                'state' => $entry->state,
-                'needsAction' => $entry->needsAction(),
-            ],
+            static function ($entry): array {
+                $hasActiveOpinion = $entry->activeValue !== null
+                    || $entry->state === SettingsDriftEntry::STATE_DRIFT_CUSTOM
+                    || $entry->state === SettingsDriftEntry::STATE_DRIFT_YAML_NEWER;
+                // For "in-sync", "in-sync" means active==yaml OR no opinion → fallback.
+                // Either way, effective = activeValue when set, else yamlValue.
+                $effective = $hasActiveOpinion ? $entry->activeValue : $entry->yamlValue;
+                $isCustom = $hasActiveOpinion
+                    && !self::valuesEqualForDisplay($entry->activeValue, $entry->yamlValue);
+                return [
+                    'key' => $entry->key,
+                    'activeValue' => $entry->activeValue,
+                    'yamlValue' => $entry->yamlValue,
+                    'effectiveValue' => $effective,
+                    'state' => $entry->state,
+                    'needsAction' => $entry->needsAction(),
+                    'isCustom' => $isCustom,
+                    'isFallback' => !$hasActiveOpinion,
+                ];
+            },
             $drift,
         );
         $actionableDrift = array_values(array_filter(
@@ -249,6 +268,23 @@ final class SettingsController extends ActionController
     }
 
     // --- helpers ----------------------------------------------------------
+
+    /**
+     * Lightweight equality check for the "is custom override?" flag.
+     * Same semantics as `EffectiveSettingsResolver::valuesEqual` but
+     * inlined here so we can compute it without re-running drift().
+     */
+    private static function valuesEqualForDisplay(mixed $a, mixed $b): bool
+    {
+        if (is_array($a) && is_array($b)) {
+            return json_encode($a) === json_encode($b);
+        }
+        if (is_array($a) || is_array($b)) {
+            return false;
+        }
+        return $a === $b
+            || ($a !== null && $b !== null && is_scalar($a) && is_scalar($b) && (string) $a === (string) $b);
+    }
 
     private function currentBeUserId(): int
     {

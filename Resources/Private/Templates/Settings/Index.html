@@ -195,71 +195,72 @@
         </f:if>
 
         <!-- Volle Settings-Tabelle: alle 12 Editor-Content-Keys -->
-        <details class="mt-4">
-            <summary class="h5">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.allKeys" />
-            </summary>
-            <div class="table-responsive mt-2">
-                <table class="table table-sm table-striped">
-                    <thead>
+        <h2 class="h5 mt-4">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.allKeys" />
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
+                        </th>
+                        <th>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
+                        </th>
+                        <th>Status</th>
+                        <th class="text-end">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{drift}" as="entry">
                         <tr>
-                            <th>Key</th>
-                            <th>
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
-                            </th>
-                            <th>
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
-                            </th>
-                            <th>Status</th>
-                            <th class="text-end">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
-                            </th>
+                            <td><code class="small">{entry.key}</code></td>
+                            <td>
+                                <code class="small {f:if(condition: entry.isFallback, then: 'text-body-tertiary', else: 'text-body-secondary')}">{entry.effectiveValue -> f:format.json()}</code>
+                                <f:if condition="{entry.isFallback}">
+                                    <span class="badge text-bg-light ms-1 small" title="No editor opinion — fallback to YAML">YAML-Fallback</span>
+                                </f:if>
+                            </td>
+                            <td>
+                                <code class="small">{entry.yamlValue -> f:format.json()}</code>
+                            </td>
+                            <td>
+                                <f:switch expression="{entry.state}">
+                                    <f:case value="in-sync">
+                                        <span class="badge text-bg-success">in sync</span>
+                                    </f:case>
+                                    <f:case value="drift-yaml-newer">
+                                        <span class="badge text-bg-warning">drift</span>
+                                    </f:case>
+                                    <f:case value="bootstrap-pending">
+                                        <span class="badge text-bg-info">pending</span>
+                                    </f:case>
+                                    <f:defaultCase>
+                                        <span class="badge text-bg-secondary">{entry.state}</span>
+                                    </f:defaultCase>
+                                </f:switch>
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <f:if condition="{entry.isCustom}">
+                                    <f:form action="resetKey" controller="Settings" method="post" class="d-inline m-0">
+                                        <f:form.hidden name="site" value="{selectedSite}" />
+                                        <f:form.hidden name="key" value="{entry.key}" />
+                                        <button type="submit" class="btn btn-default btn-sm"
+                                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
+                                            <core:icon identifier="actions-undo" size="small" />
+                                        </button>
+                                    </f:form>
+                                </f:if>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <f:for each="{drift}" as="entry">
-                            <tr>
-                                <td><code class="small">{entry.key}</code></td>
-                                <td>
-                                    <code class="small text-body-secondary">{entry.activeValue -> f:format.json()}</code>
-                                </td>
-                                <td>
-                                    <code class="small">{entry.yamlValue -> f:format.json()}</code>
-                                </td>
-                                <td>
-                                    <f:switch expression="{entry.state}">
-                                        <f:case value="in-sync">
-                                            <span class="badge text-bg-success">in sync</span>
-                                        </f:case>
-                                        <f:case value="drift-yaml-newer">
-                                            <span class="badge text-bg-warning">drift</span>
-                                        </f:case>
-                                        <f:case value="bootstrap-pending">
-                                            <span class="badge text-bg-info">pending</span>
-                                        </f:case>
-                                        <f:defaultCase>
-                                            <span class="badge text-bg-secondary">{entry.state}</span>
-                                        </f:defaultCase>
-                                    </f:switch>
-                                </td>
-                                <td class="text-end text-nowrap">
-                                    <f:if condition="{entry.activeValue}">
-                                        <f:form action="resetKey" controller="Settings" method="post" class="d-inline m-0">
-                                            <f:form.hidden name="site" value="{selectedSite}" />
-                                            <f:form.hidden name="key" value="{entry.key}" />
-                                            <button type="submit" class="btn btn-default btn-sm"
-                                                    title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
-                                                <core:icon identifier="actions-undo" size="small" />
-                                            </button>
-                                        </f:form>
-                                    </f:if>
-                                </td>
-                            </tr>
-                        </f:for>
-                    </tbody>
-                </table>
-            </div>
-        </details>
+                    </f:for>
+                </tbody>
+            </table>
+        </div>
 
     </f:then>
     <f:else>
