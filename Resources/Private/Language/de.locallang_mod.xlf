@@ -5,7 +5,7 @@
     <body>
       <trans-unit id="mlang_tabs_tab"><source>SimpleCMP</source><target>SimpleCMP</target></trans-unit>
       <trans-unit id="mlang_labels_tablabel"><source>SimpleCMP — detections and service catalog</source><target>SimpleCMP — Detektionen und Dienste-Katalog</target></trans-unit>
-      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden, und den Dienste-Katalog der Registry verwalten. Bibliotheks-Treffer per Klick übernehmen, unbekannte Tracker kuratieren oder Einträge aus der Registry auf das Besucher-Banner heben.</target></trans-unit>
+      <trans-unit id="mlang_labels_tabdescr"><source>Triage trackers reported by the SimpleCMP CMS bridge and manage the registered service catalog. Approve recognised detections, curate new services for unknown trackers, and promote registry entries to the visitor banner.</source><target>Tracker triagieren, die von der SimpleCMP-Bridge gemeldet wurden, und den Dienste-Katalog der Registry verwalten. Bibliotheks-Treffer per Klick übernehmen, unbekannte Tracker als Dienst anlegen oder Einträge aus der Registry auf das Besucher-Banner heben.</target></trans-unit>
 
       <trans-unit id="nav.detections"><source>Detections</source><target>Detektionen</target></trans-unit>
       <trans-unit id="nav.registry"><source>Services</source><target>Dienste</target></trans-unit>
@@ -145,7 +145,7 @@
       <trans-unit id="registry.action.edit"><source>Edit</source><target>Bearbeiten</target></trans-unit>
       <trans-unit id="registry.action.delete.title"><source>Delete this service from the registry. Library-sourced services can only be unadopted from the Library tab.</source><target>Diesen Dienst aus der Registry löschen. Aus der Bibliothek übernommene Dienste werden im Bibliothek-Tab zurückgenommen.</target></trans-unit>
       <trans-unit id="registry.action.delete.confirm"><source>Remove this service from the banner? Visitors will stop being prompted for it.</source><target>Diesen Dienst aus dem Banner entfernen? Besucher werden nicht mehr danach gefragt.</target></trans-unit>
-      <trans-unit id="registry.empty"><source>No services in the registry yet. Adopt one from the Library tab or curate one from the Detections list.</source><target>Noch keine Dienste in der Registry. Übernehmen Sie einen aus der Bibliothek oder kuratieren Sie einen aus den Detektionen.</target></trans-unit>
+      <trans-unit id="registry.empty"><source>No services in the registry yet. Adopt one from the Library tab or curate one from the Detections list.</source><target>Noch keine Dienste in der Registry. Übernehmen Sie einen aus der Bibliothek oder legen Sie einen aus den Detektionen an.</target></trans-unit>
       <trans-unit id="registry.empty.filtered.title"><source>No services match the active filters.</source><target>Kein Dienst entspricht den aktiven Filtern.</target></trans-unit>
       <trans-unit id="registry.empty.filtered.reset"><source>Reset all filters</source><target>Alle Filter zurücksetzen</target></trans-unit>
 
@@ -234,7 +234,7 @@
 
       <trans-unit id="list.title"><source>SimpleCMP — tracker detections</source><target>SimpleCMP — Tracker-Detektionen</target></trans-unit>
       <trans-unit id="list.header.pending"><source>need action</source><target>brauchen Aktion</target></trans-unit>
-      <trans-unit id="list.header.curated"><source>already curated</source><target>bereits kuratiert</target></trans-unit>
+      <trans-unit id="list.header.curated"><source>already curated</source><target>bereits angelegt</target></trans-unit>
       <trans-unit id="list.header.dismissed"><source>dismissed</source><target>verworfen</target></trans-unit>
       <trans-unit id="list.header.total"><source>total</source><target>gesamt</target></trans-unit>
       <trans-unit id="list.empty"><source>No detections yet. The CMS-bridge endpoint will populate this list once the SimpleCMP frontend reports a tracker.</source><target>Noch keine Detektionen. Sobald das SimpleCMP-Frontend einen Tracker meldet, erscheint er hier.</target></trans-unit>
@@ -252,7 +252,7 @@
       <trans-unit id="list.col.selectAll"><source>Select all rows</source><target>Alle Zeilen auswählen</target></trans-unit>
       <trans-unit id="list.col.selectRow"><source>Select row</source><target>Zeile auswählen</target></trans-unit>
 
-      <trans-unit id="state.kuratiert"><source>Curated</source><target>Kuratiert</target></trans-unit>
+      <trans-unit id="state.kuratiert"><source>Curated</source><target>Angelegt</target></trans-unit>
       <trans-unit id="state.erkannt"><source>Recognised</source><target>Erkannt</target></trans-unit>
       <trans-unit id="state.unbekannt"><source>Unknown</source><target>Unbekannt</target></trans-unit>
       <trans-unit id="state.verworfen"><source>Dismissed</source><target>Verworfen</target></trans-unit>
@@ -261,11 +261,11 @@
       <trans-unit id="list.action.approve"><source>Approve</source><target>Übernehmen</target></trans-unit>
       <trans-unit id="list.action.customize"><source>Customise</source><target>Anpassen</target></trans-unit>
       <trans-unit id="list.action.customize.title"><source>Open the pre-filled service form to review or edit before saving.</source><target>Das vorbefüllte Dienst-Formular öffnen, um vor dem Speichern zu prüfen oder anzupassen.</target></trans-unit>
-      <trans-unit id="list.action.curate"><source>Curate</source><target>Kuratieren</target></trans-unit>
+      <trans-unit id="list.action.curate"><source>Curate</source><target>Anlegen</target></trans-unit>
       <trans-unit id="list.action.curate.title"><source>Open the new-service form (no library match — enter details manually).</source><target>Das Formular für einen neuen Dienst öffnen (keine Übereinstimmung in der Bibliothek — manuell eintragen).</target></trans-unit>
       <trans-unit id="list.action.editService"><source>Edit service</source><target>Dienst bearbeiten</target></trans-unit>
       <trans-unit id="list.action.unadoptMatched"><source>Undo</source><target>Rückgängig</target></trans-unit>
-      <trans-unit id="list.action.unadoptMatched.title"><source>Remove the matched service from the registry. The detection flips back from Curated to Recognised or Unknown.</source><target>Den passenden Dienst aus der Registry entfernen. Die Detektion fällt von Kuratiert zurück auf Erkannt oder Unbekannt.</target></trans-unit>
+      <trans-unit id="list.action.unadoptMatched.title"><source>Remove the matched service from the registry. The detection flips back from Curated to Recognised or Unknown.</source><target>Den passenden Dienst aus der Registry entfernen. Die Detektion fällt von Angelegt zurück auf Erkannt oder Unbekannt.</target></trans-unit>
       <trans-unit id="list.action.editService.title"><source>Open the registry entry that covers this detection.</source><target>Den Registry-Eintrag öffnen, der diese Detektion abdeckt.</target></trans-unit>
 
       <trans-unit id="list.action.dismiss"><source>Dismiss</source><target>Verwerfen</target></trans-unit>
@@ -299,7 +299,7 @@
       <trans-unit id="filter.status.pending"><source>Needs action</source><target>Brauchen Aktion</target></trans-unit>
       <trans-unit id="filter.status.erkannt"><source>Only recognised</source><target>Nur erkannte</target></trans-unit>
       <trans-unit id="filter.status.unbekannt"><source>Only unknown</source><target>Nur unbekannte</target></trans-unit>
-      <trans-unit id="filter.status.kuratiert"><source>Only curated</source><target>Nur kuratierte</target></trans-unit>
+      <trans-unit id="filter.status.kuratiert"><source>Only curated</source><target>Nur angelegte</target></trans-unit>
       <trans-unit id="filter.status.verworfen"><source>Only dismissed</source><target>Nur verworfene</target></trans-unit>
       <trans-unit id="filter.status.all"><source>All statuses</source><target>Alle</target></trans-unit>
 
@@ -324,7 +324,7 @@
 
       <trans-unit id="list.confidence.tooltip"><source>Confidence: green ≥ 5 reports, gray ≥ 2, yellow = single report.</source><target>Vertrauen: Grün ≥ 5 Meldungen, Grau ≥ 2, Gelb = nur eine Meldung.</target></trans-unit>
       <trans-unit id="list.spike.title"><source>Unusual detection volume today.</source><target>Ungewöhnlich viele Detektionen heute.</target></trans-unit>
-      <trans-unit id="list.spike.body"><source>%d new detections today vs. %s/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source><target>%d neue Detektionen heute, gleitender 7-Tage-Schnitt: %s/Tag. Mit besonderer Vorsicht prüfen — geflutete Tabellen sind ein bekannter Angriffsvektor, um die Kuratierung zu manipulieren.</target></trans-unit>
+      <trans-unit id="list.spike.body"><source>%d new detections today vs. %s/day rolling 7-day average. Review with extra care — flooded tables are a known vector for social-engineering attacks against the curation flow.</source><target>%d neue Detektionen heute, gleitender 7-Tage-Schnitt: %s/Tag. Mit besonderer Vorsicht prüfen — geflutete Tabellen sind ein bekannter Angriffsvektor, um die Pflege der Dienste-Registry zu manipulieren.</target></trans-unit>
 
       <trans-unit id="approve.modal.title"><source>Approve service from library?</source><target>Dienst aus der Bibliothek übernehmen?</target></trans-unit>
       <trans-unit id="approve.modal.confirm"><source>Approve</source><target>Übernehmen</target></trans-unit>
