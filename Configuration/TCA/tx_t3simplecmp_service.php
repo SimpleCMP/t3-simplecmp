@@ -28,6 +28,11 @@ return [
         // for drag-and-drop ordering). `service_id` is varchar, so we rely on
         // `default_sortby` instead for display order.
         'default_sortby' => 'service_id ASC',
+        // Phase 4: live table is read-only via editor surfaces.
+        // Editor writes go through tx_t3simplecmp_service_draft and
+        // the Veröffentlichen action promotes draft → live atomically.
+        'readOnly' => true,
+        'hideTable' => true,
     ],
     'columns' => [
         // Virtual field: renders an inline yellow callout at the top of

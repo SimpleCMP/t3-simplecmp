@@ -82,7 +82,47 @@ final class DetectionReviewController extends ActionController
         private readonly \TYPO3\CMS\Core\Site\SiteFinder $siteFinder,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration $resetGeneration,
         private readonly \SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
+    }
+
+    /**
+     * Phase 4 — acquire the global service-registry lock.
+     */
+    private function ensureGlobalDraft(): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $beUserId,
+        );
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für die globale Service-Registry gehört BE-User uid=%d.',
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
+    }
+
+    private function ensureSiteDraft(string $site): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für Site "%s" gehört BE-User uid=%d.',
+                $site,
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     public function listAction(
@@ -705,12 +745,22 @@ final class DetectionReviewController extends ActionController
             // a stale link is the only way to land here. Bounce.
             return $this->redirectToList($filters);
         }
-        $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
+        try {
+            $beUserId = $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($filters);
+        }
         // Übernehmen inserts (or updates) the registry row. The registry
         // holds admin-curated services only, so anything here appears on
         // the FE banner. fromLibrary=true stamps library_adopted_at so
         // the Dienste tab can derive Aus-Bibliothek source state.
-        $this->serviceRepository->upsert($match, $pid, true);
+        $this->serviceRepository->upsertDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $match,
+            $beUserId,
+            true,
+        );
         return $this->redirectToList($filters);
     }
 
@@ -754,7 +804,16 @@ final class DetectionReviewController extends ActionController
             // against stale URLs.
             return $this->redirectToList($filters);
         }
-        $this->serviceRepository->delete((string) $derived['match']['id']);
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($filters);
+        }
+        $this->serviceRepository->deleteDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            (string) $derived['match']['id'],
+        );
         return $this->redirectToList($filters);
     }
 
@@ -779,7 +838,23 @@ final class DetectionReviewController extends ActionController
             && is_string($row['source'] ?? null) && $row['source'] !== ''
             && is_string($row['origin'] ?? null) && $row['origin'] !== ''
         ) {
-            $this->allowedStylesheetHostRepository->allow((string) $row['source'], (string) $row['origin']);
+            // Source format: `simplecmp-<site>`. Strip prefix to derive
+            // the workspace scope (= site identifier).
+            $rawSource = (string) $row['source'];
+            $site = str_starts_with($rawSource, 'simplecmp-')
+                ? substr($rawSource, strlen('simplecmp-'))
+                : $rawSource;
+            try {
+                $beUserId = $this->ensureSiteDraft($site);
+            } catch (\RuntimeException $e) {
+                $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+                return $this->redirectToList($filters);
+            }
+            $this->allowedStylesheetHostRepository->allowDraft(
+                $site,
+                (string) $row['origin'],
+                $beUserId,
+            );
         }
         return $this->redirectToList($filters);
     }

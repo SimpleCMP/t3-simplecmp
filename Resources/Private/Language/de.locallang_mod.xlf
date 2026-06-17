@@ -103,6 +103,18 @@
       <trans-unit id="module.auskunft.retentionLog.col.mode"><source>Mode</source><target>Modus</target></trans-unit>
       <trans-unit id="module.auskunft.retentionLog.col.reason"><source>Reason</source><target>Begründung</target></trans-unit>
 
+      <!-- Draft/Publish workspace (Phase 4) -->
+      <trans-unit id="draft.banner.heading"><source>You are working in a draft</source><target>Du arbeitest im Entwurf</target></trans-unit>
+      <trans-unit id="draft.banner.body"><source>Edits in this tab are written to the draft workspace for scope "%s" — they are not visible to visitors yet. Click Publish to promote them to the live banner configuration; click Discard to throw the draft away.</source><target>Änderungen in diesem Tab landen im Entwurfs-Workspace für Scope „%s" — sie sind für Besucher noch nicht sichtbar. Klick „Veröffentlichen" um sie auf die Live-Banner-Konfiguration zu übertragen; „Verwerfen" verwirft den Entwurf.</target></trans-unit>
+      <trans-unit id="draft.banner.liveMode"><source>You are working in live mode. The first edit will automatically switch this scope into draft mode.</source><target>Du arbeitest im Live-Modus. Die erste Änderung schaltet diesen Scope automatisch in den Entwurfsmodus.</target></trans-unit>
+      <trans-unit id="draft.publish.button"><source>Publish</source><target>Veröffentlichen</target></trans-unit>
+      <trans-unit id="draft.discard.button"><source>Discard draft</source><target>Entwurf verwerfen</target></trans-unit>
+      <trans-unit id="draft.discard.confirm"><source>Really discard all unpublished changes for this scope?</source><target>Wirklich alle nicht-veröffentlichten Änderungen für diesen Scope verwerfen?</target></trans-unit>
+      <trans-unit id="draft.lock.conflict.heading"><source>Scope locked by another editor</source><target>Scope von anderem Editor gesperrt</target></trans-unit>
+      <trans-unit id="draft.lock.conflict.body"><source>Scope "%s" is currently being edited by BE user uid=%d. Either wait until they publish, or take over the lock (their draft will be discarded).</source><target>Scope „%s" wird gerade von BE-User uid=%d bearbeitet. Entweder abwarten bis veröffentlicht wird, oder den Lock übernehmen (deren Entwurf wird dann verworfen).</target></trans-unit>
+      <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source><target>Lock übernehmen</target></trans-unit>
+      <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source><target>Wirklich den Entwurf des anderen Editors verwerfen und den Lock übernehmen?</target></trans-unit>
+
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source><target>SimpleCMP — registrierte Dienste</target></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source><target>eigene</target></trans-unit>
       <trans-unit id="registry.header.library"><source>from library</source><target>aus Bibliothek</target></trans-unit>

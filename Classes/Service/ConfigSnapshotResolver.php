@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SimpleCMP\T3SimpleCmp\Service;
 
 use Psr\Log\LoggerInterface;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository;
+use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
@@ -78,6 +80,8 @@ final readonly class ConfigSnapshotResolver
         private ServiceRepository $serviceRepository,
         private ThemeRepository $themeRepository,
         private TranslationOverrideRepository $overrideRepository,
+        private ManagedTrackerRepository $managedTrackerRepository,
+        private AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
         private SiteFinder $siteFinder,
         private LoggerInterface $logger,
     ) {
@@ -106,11 +110,17 @@ final readonly class ConfigSnapshotResolver
             'services' => $this->serviceRepository->findAll(),
             'theme' => $this->themeRepository->findBySite($siteIdentifier) ?? [],
             'translations' => $this->overrideRepository->findBySite($siteIdentifier) ?? [],
+            'managedTrackers' => $this->managedTrackerRepository->findBySite($siteIdentifier),
+            'allowedStylesheetHosts' => $this->allowedStylesheetHostRepository->hostsForSource(
+                'simplecmp-' . $siteIdentifier,
+            ),
             'settings' => $this->collectSettings($site),
-            // `schemaVersion` lets future readers spot when the snapshot
-            // shape itself changed (e.g. when Phase 2 adds new
-            // consent-log-relevant fields). Bump on shape changes.
-            'schemaVersion' => 1,
+            // Phase 4 bump: snapshots now include managedTrackers +
+            // allowedStylesheetHosts. v1 readers see those as extra
+            // top-level keys they don't recognise (forward-compatible);
+            // hash dedup is content-based so existing snapshots stay
+            // distinct from new ones automatically.
+            'schemaVersion' => 2,
         ];
     }
 

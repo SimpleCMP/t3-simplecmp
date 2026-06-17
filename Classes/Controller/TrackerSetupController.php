@@ -47,7 +47,25 @@ final class TrackerSetupController extends ActionController
         private readonly BackendUriBuilder $backendUriBuilder,
         private readonly ManagedTrackerRepository $managedTrackerRepository,
         private readonly TrackerRegistry $trackerRegistry,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
+    }
+
+    private function ensureSiteDraft(string $site): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für Site "%s" gehört BE-User uid=%d.',
+                $site,
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     public function initializeAction(): void
@@ -226,12 +244,20 @@ final class TrackerSetupController extends ActionController
             ]);
         }
 
-        $this->managedTrackerRepository->save(
+        try {
+            $beUserId = $this->ensureSiteDraft($site);
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
+        $this->managedTrackerRepository->saveDraft(
+            $site,
             $uid === 0 ? null : $uid,
             $site,
             $type,
             $serviceId,
             $this->normalizeValues($type, $values),
+            $beUserId,
         );
 
         $this->addFlashMessage(
@@ -244,7 +270,13 @@ final class TrackerSetupController extends ActionController
 
     public function deleteAction(int $uid, string $site): ResponseInterface
     {
-        $this->managedTrackerRepository->delete($uid);
+        try {
+            $this->ensureSiteDraft($site);
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
+        $this->managedTrackerRepository->deleteDraft($site, $uid);
         $this->addFlashMessage(
             $this->translate('module.trackerSetup.deleted'),
             '',

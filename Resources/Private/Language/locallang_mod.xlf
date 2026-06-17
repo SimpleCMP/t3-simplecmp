@@ -103,6 +103,18 @@
       <trans-unit id="module.auskunft.retentionLog.col.mode"><source>Mode</source></trans-unit>
       <trans-unit id="module.auskunft.retentionLog.col.reason"><source>Reason</source></trans-unit>
 
+      <!-- Draft/Publish workspace (Phase 4) -->
+      <trans-unit id="draft.banner.heading"><source>You are working in a draft</source></trans-unit>
+      <trans-unit id="draft.banner.body"><source>Edits in this tab are written to the draft workspace for scope "%s" — they are not visible to visitors yet. Click Publish to promote them to the live banner configuration; click Discard to throw the draft away.</source></trans-unit>
+      <trans-unit id="draft.banner.liveMode"><source>You are working in live mode. The first edit will automatically switch this scope into draft mode.</source></trans-unit>
+      <trans-unit id="draft.publish.button"><source>Publish</source></trans-unit>
+      <trans-unit id="draft.discard.button"><source>Discard draft</source></trans-unit>
+      <trans-unit id="draft.discard.confirm"><source>Really discard all unpublished changes for this scope?</source></trans-unit>
+      <trans-unit id="draft.lock.conflict.heading"><source>Scope locked by another editor</source></trans-unit>
+      <trans-unit id="draft.lock.conflict.body"><source>Scope "%s" is currently being edited by BE user uid=%d. Either wait until they publish, or take over the lock (their draft will be discarded).</source></trans-unit>
+      <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source></trans-unit>
+      <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source></trans-unit>
+
       <trans-unit id="registry.title"><source>SimpleCMP — registered services</source></trans-unit>
       <trans-unit id="registry.header.custom"><source>custom</source></trans-unit>
       <trans-unit id="registry.header.library"><source>from library</source></trans-unit>

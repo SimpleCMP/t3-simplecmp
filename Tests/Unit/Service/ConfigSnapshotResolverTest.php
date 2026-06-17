@@ -34,6 +34,8 @@ final class ConfigSnapshotResolverTest extends TestCase
             $this->createMock(ServiceRepository::class),
             $this->createMock(ThemeRepository::class),
             $this->createMock(TranslationOverrideRepository::class),
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository::class),
+            $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository::class),
             $finder,
             new NullLogger(),
         );
@@ -48,10 +50,10 @@ final class ConfigSnapshotResolverTest extends TestCase
         $snapshot = $resolver->resolveCurrentSnapshot('default');
         self::assertIsArray($snapshot);
         self::assertSame(
-            ['services', 'theme', 'translations', 'settings', 'schemaVersion'],
+            ['services', 'theme', 'translations', 'managedTrackers', 'allowedStylesheetHosts', 'settings', 'schemaVersion'],
             array_keys($snapshot),
         );
-        self::assertSame(1, $snapshot['schemaVersion']);
+        self::assertSame(2, $snapshot['schemaVersion']);
     }
 
     #[Test]
@@ -176,10 +178,17 @@ final class ConfigSnapshotResolverTest extends TestCase
         $finder = $this->createMock(SiteFinder::class);
         $finder->method('getSiteByIdentifier')->willReturn($site);
 
+        $managedTrackerRepo = $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository::class);
+        $managedTrackerRepo->method('findBySite')->willReturn([]);
+        $allowedHostsRepo = $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository::class);
+        $allowedHostsRepo->method('hostsForSource')->willReturn([]);
+
         return new ConfigSnapshotResolver(
             $serviceRepo,
             $themeRepo,
             $overrideRepo,
+            $managedTrackerRepo,
+            $allowedHostsRepo,
             $finder,
             new NullLogger(),
         );

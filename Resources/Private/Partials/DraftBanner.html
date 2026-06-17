@@ -1,0 +1,88 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:comment>
+    Phase-4 Draft-Workspace-Banner. Rendered at the top of every BE
+    module tab. Three states:
+
+    1. No draft + no lock anywhere: "Live-Modus" hint (compact).
+    2. Draft owned by current user: "Du arbeitest im Entwurf" + Publish/Discard buttons.
+    3. Lock held by another user: conflict view + Takeover button.
+
+    Required arguments:
+      lockState         : LockState DTO from DraftWorkspaceService::currentLock()
+      currentBeUserId   : (int) $GLOBALS['BE_USER']->user['uid']
+      hasDraft          : (bool) DraftWorkspaceService::hasDraft($scope)
+      scope             : string — '__global__' or site identifier
+      uri_publish       : string — URL to PublishController::publish
+      uri_discard       : string — URL to PublishController::discard
+      uri_takeover      : string — URL to PublishController::takeover
+</f:comment>
+
+<f:if condition="{lockState.conflict}">
+    <f:then>
+        <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+            <core:icon identifier="actions-lock" size="medium" />
+            <div class="flex-grow-1">
+                <strong>{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.heading')}</strong>
+                <p class="mb-2 small">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.body"
+                                 arguments="{0: scope, 1: lockState.ownerBeUserId}" />
+                </p>
+                <form method="post" action="{uri_takeover}" class="m-0">
+                    <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
+                    <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                    <button type="submit" class="btn btn-warning btn-sm"
+                            onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.confirm\')}');">
+                        <core:icon identifier="actions-arrow-right" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.button" />
+                    </button>
+                </form>
+            </div>
+        </div>
+    </f:then>
+    <f:else>
+        <f:if condition="{hasDraft}">
+            <f:then>
+                <div class="alert alert-info d-flex align-items-start gap-2 mb-3" role="alert">
+                    <core:icon identifier="actions-edit-pick-date" size="medium" />
+                    <div class="flex-grow-1">
+                        <strong>{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.heading')}</strong>
+                        <p class="mb-2 small">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.body"
+                                         arguments="{0: scope}" />
+                        </p>
+                        <div class="d-flex gap-2">
+                            <form method="post" action="{uri_publish}" class="m-0">
+                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
+                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <core:icon identifier="actions-upload" size="small" />
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
+                                </button>
+                            </form>
+                            <form method="post" action="{uri_discard}" class="m-0">
+                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[scope]" value="{scope}" />
+                                <input type="hidden" name="tx_simplecmptypo3_simplecmp_detections[returnUrl]" value="{currentUrl}" />
+                                <button type="submit" class="btn btn-default btn-sm"
+                                        onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
+                                    <core:icon identifier="actions-close" size="small" />
+                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </f:then>
+            <f:else>
+                <p class="text-body-secondary small mb-2">
+                    <core:icon identifier="actions-info-circle" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.liveMode" />
+                </p>
+            </f:else>
+        </f:if>
+    </f:else>
+</f:if>
+
+</html>

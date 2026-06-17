@@ -5,6 +5,7 @@ declare(strict_types=1);
 use SimpleCMP\T3SimpleCmp\Controller\AuditAuskunftController;
 use SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController;
 use SimpleCMP\T3SimpleCmp\Controller\DetectionReviewController;
+use SimpleCMP\T3SimpleCmp\Controller\PublishController;
 use SimpleCMP\T3SimpleCmp\Controller\DiscoveryController;
 use SimpleCMP\T3SimpleCmp\Controller\LibraryBrowserController;
 use SimpleCMP\T3SimpleCmp\Controller\RegistryListController;
@@ -84,6 +85,11 @@ return [
                 'index',
                 'lookup',
                 'download',
+            ],
+            PublishController::class => [
+                'publish',
+                'discard',
+                'takeover',
             ],
         ],
     ],

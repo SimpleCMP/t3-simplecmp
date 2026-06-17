@@ -41,7 +41,31 @@ final class RegistryListController extends ActionController
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
         private readonly RegistryListPresenter $registryListPresenter,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
+    }
+
+    /**
+     * Phase 4 — acquire the global service-registry draft lock and
+     * copy live → draft if not yet present.
+     */
+    private function ensureGlobalDraft(): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $beUserId,
+        );
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für die globale Service-Registry gehört BE-User uid=%d. Bitte abwarten oder den Lock übernehmen.',
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     public function listAction(
@@ -194,7 +218,17 @@ final class RegistryListController extends ActionController
         if ($derived === RegistryListPresenter::SOURCE_LIBRARY) {
             return $this->redirect('list', null, null, $filterArg);
         }
-        $this->serviceRepository->delete($serviceId);
+        try {
+            $beUserId = $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $filterArg);
+        }
+        $this->serviceRepository->deleteDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $serviceId,
+        );
+        $this->draftWorkspace->touchLock(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL);
         return $this->redirect('list', null, null, $filterArg);
     }
 

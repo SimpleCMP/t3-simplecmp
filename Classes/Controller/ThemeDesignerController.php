@@ -435,7 +435,31 @@ final class ThemeDesignerController extends ActionController
         private readonly SiteFinder $siteFinder,
         private readonly \TYPO3\CMS\Backend\Routing\UriBuilder $backendUriBuilder,
         private readonly ComplianceCheckService $complianceCheck,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
+    }
+
+    /**
+     * Phase 4 — acquire the draft lock for `$site` and copy live into
+     * draft if no draft exists yet. Returns the BE user uid that owns
+     * the resulting (or pre-existing) draft. Throws on lock conflict
+     * — caller is expected to surface the conflict via FlashMessage.
+     */
+    private function ensureSiteDraft(string $site): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für Site "%s" gehört bereits BE-User uid=%d. Bitte abwarten oder den Lock übernehmen.',
+                $site,
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     public function indexAction(string $site = '', string $language = ''): ResponseInterface
@@ -457,7 +481,11 @@ final class ThemeDesignerController extends ActionController
         }
 
         $site = $this->normalizeSite($site, $availableSites);
-        $stored = $this->themeRepository->findBySite($site) ?? [];
+        // Phase 4: draft-aware read. If a draft exists for this site,
+        // show the editor their pending state; otherwise show live.
+        $stored = $this->draftWorkspace->hasDraft($site)
+            ? ($this->themeRepository->findBySiteDraft($site) ?? [])
+            : ($this->themeRepository->findBySite($site) ?? []);
         $tokens = array_merge(self::DEFAULT_TOKENS, $stored);
         $hasCustomTheme = $stored !== [];
 
@@ -565,7 +593,9 @@ final class ThemeDesignerController extends ActionController
         // see / edit one language at a time. The Vorschau-Sprache
         // picker already switches the active language, which doubles
         // as the override-scope picker.
-        $allOverrides = $this->overrideRepository->findBySite($site) ?? [];
+        $allOverrides = $this->draftWorkspace->hasDraft($site)
+            ? ($this->overrideRepository->findBySiteDraft($site) ?? [])
+            : ($this->overrideRepository->findBySite($site) ?? []);
         $forLang = $allOverrides[$previewLanguage] ?? ['tone' => null, 'overrides' => []];
         $overridesForLang = $forLang['overrides'];
         $toneForLang = $forLang['tone'] ?? self::TONE_FORMAL;
@@ -889,8 +919,14 @@ final class ThemeDesignerController extends ActionController
     ): ResponseInterface {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
+        try {
+            $beUserId = $this->ensureSiteDraft($site);
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
+        }
         $clean = self::sanitizeTokens($tokens);
-        $this->themeRepository->upsert($site, $clean);
+        $this->themeRepository->upsertDraft($site, $clean, $beUserId);
 
         // Merge submitted-language overrides + tone with already-stored
         // ones for other languages so saving the German tab doesn't
@@ -902,7 +938,9 @@ final class ThemeDesignerController extends ActionController
         $cleanOverrides = self::sanitizeOverrides($overrides);
         $cleanTone = self::sanitizeTone($tone);
 
-        $stored = $this->overrideRepository->findBySite($site) ?? [];
+        $stored = $this->overrideRepository->findBySiteDraft($site)
+            ?? $this->overrideRepository->findBySite($site)
+            ?? [];
         foreach ($cleanOverrides as $lang => $entries) {
             $existingTone = $stored[$lang]['tone'] ?? null;
             $stored[$lang] = [
@@ -920,7 +958,7 @@ final class ThemeDesignerController extends ActionController
         } elseif ($submittedLang !== '') {
             $stored[$submittedLang]['tone'] = $cleanTone;
         }
-        $this->overrideRepository->upsert($site, $stored);
+        $this->overrideRepository->upsertDraft($site, $stored, $beUserId);
 
         return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
     }
@@ -1033,8 +1071,20 @@ final class ThemeDesignerController extends ActionController
     {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
-        $this->themeRepository->delete($site);
-        $this->overrideRepository->delete($site);
+        try {
+            $beUserId = $this->ensureSiteDraft($site);
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index', null, null, ['site' => $site]);
+        }
+        // Reset means "drop any tokens/overrides in the draft so the
+        // visitor sees defaults after the next publish". Live is
+        // untouched until the editor clicks Veröffentlichen.
+        $this->themeRepository->deleteDraft($site);
+        $this->overrideRepository->deleteDraft($site);
+        // Touch the lock so the editor stays the owner of the (now
+        // empty) draft scope.
+        $this->draftWorkspace->touchLock($site);
         return $this->redirect('index', null, null, ['site' => $site]);
     }
 

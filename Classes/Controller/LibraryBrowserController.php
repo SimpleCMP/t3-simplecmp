@@ -81,6 +81,7 @@ final class LibraryBrowserController extends ActionController
         private readonly BundledLibraryInfo $bundledLibrary,
         private readonly DetectionRepository $detectionRepository,
         private readonly LibraryRecommendationService $recommendationService,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
     }
 
@@ -254,14 +255,43 @@ final class LibraryBrowserController extends ActionController
     ): ResponseInterface {
         $entry = $this->loadLibraryEntry($serviceId);
         if ($entry !== null) {
-            $pid = $this->storagePidResolver->resolveDefault();
-            // fromLibrary: true → stamps `library_adopted_at` so the
-            // Dienste tab can later distinguish Aus-Bibliothek rows
-            // from Eigene rows, and surface Verwaist if the bundled
-            // library drops this service in a future composer update.
-            $this->serviceRepository->upsert($entry, $pid, true);
+            try {
+                $beUserId = $this->ensureGlobalDraft();
+            } catch (\RuntimeException $e) {
+                $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+                return $this->redirect('list', null, null, $this->filterArg($status, $search));
+            }
+            // fromLibrary: true → stamps `library_adopted_at`
+            $this->serviceRepository->upsertDraft(
+                \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+                $entry,
+                $beUserId,
+                true,
+            );
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
+    }
+
+    /**
+     * Phase 4 — acquire the global service-registry draft lock.
+     */
+    private function ensureGlobalDraft(): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        $lock = $this->draftWorkspace->initializeDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $beUserId,
+        );
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für die globale Service-Registry gehört BE-User uid=%d. Bitte abwarten oder den Lock übernehmen.',
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     /**
@@ -285,14 +315,24 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        $pid = $this->storagePidResolver->resolveDefault();
+        try {
+            $beUserId = $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
             $entry = $this->loadLibraryEntry($serviceId);
             if ($entry !== null) {
-                $this->serviceRepository->upsert($entry, $pid, true);
+                $this->serviceRepository->upsertDraft(
+                    \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+                    $entry,
+                    $beUserId,
+                    true,
+                );
             }
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
@@ -303,7 +343,16 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        $this->serviceRepository->delete($serviceId);
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
+        $this->serviceRepository->deleteDraft(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $serviceId,
+        );
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
@@ -320,11 +369,20 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
-            $this->serviceRepository->delete($serviceId);
+            $this->serviceRepository->deleteDraft(
+                \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+                $serviceId,
+            );
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }

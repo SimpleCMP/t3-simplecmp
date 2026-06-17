@@ -700,9 +700,85 @@ Iterations shipped:
     "Revision & Nachweis" tab in the detections module with
     canonical-JSON view + line-diff against the previous snapshot.
 
-The extension now uses seven `tx_t3simplecmp_*` tables: service registry,
-detection log, theme, managed tracker, library cache, translation
-override, and allowed-stylesheet host. Run
+## Draft/Publish Workspace (Phase 4)
+
+Phase 4 reworks the editor flow: rather than each save going live
+immediately (with a snapshot per keystroke), edits now land in
+draft mirror tables. The editor reviews their pending state, then
+clicks **Veröffentlichen** to atomically promote draft → live
+and trigger a single deliberate snapshot with
+`trigger_event='publish'`.
+
+### Architecture
+
+Per banner-config table (`service`, `theme`, `translation_override`,
+`managed_tracker`, `allowed_stylesheet_host`) there is now a
+`*_draft` mirror table with the same columns plus three workspace
+bookkeeping columns:
+
+  - `draft_site` — `''` for the globally-shared service registry,
+    site identifier otherwise
+  - `draft_owner_be_user` — the editor currently working on the
+    draft
+  - `draft_modified_at` — last write within the draft (touch-style)
+
+A new `tx_t3simplecmp_publish_lock` table tracks the
+*scope-to-editor* assignment via a UNIQUE(`scope`) constraint: at
+most one editor per scope can have a pending draft at any time.
+
+Scopes are either:
+
+  - `__global__` for the service registry (shared across sites)
+  - a site identifier for per-site theme / overrides / trackers /
+    hosts
+
+### Editor workflow
+
+1. Editor opens a SimpleCMP module tab → list shows live state.
+2. First save / adopt / delete triggers
+   `DraftWorkspaceService::initializeDraft($scope, $beUserId)`:
+   acquires the lock and copies live → draft.
+3. Subsequent edits hit the draft table only; FE bundle continues to
+   read live (no visitor-visible change).
+4. Editor clicks **Veröffentlichen** → `DraftPublishService::publish`
+   runs an atomic transaction (DELETE live, INSERT FROM draft,
+   DELETE draft) and fires a snapshot.
+5. The editor can also **Discard** to throw the draft away, or
+   **Take Over** if another editor holds the lock.
+
+### CLI / direct-edit lockdown
+
+Phase 4 makes live banner-config tables `readOnly` in TCA and
+adds a DataHandler hook that refuses any UPDATE/DELETE via the
+editor API on those tables. Editors must use the SimpleCMP module
+tabs + the Publish flow. Direct SQL bypasses everything by design
+(same trade-off as the audit tables); the audit log is the
+operator-disciplined record.
+
+### Snapshot schema bump
+
+`tx_t3simplecmp_config_snapshot.canonical_json` now serializes
+five tables instead of three (managed_tracker + allowed_stylesheet_host
+were previously off-snapshot). The `schemaVersion` field bumps
+from `1` to `2`. Pre-Phase-4 snapshots stay in the audit trail
+untouched; the next publish creates a `schemaVersion: 2` entry
+whose content includes the additional tables.
+
+### Files
+
+| Layer | Files |
+|---|---|
+| Tables | 5 `*_draft` mirrors + `tx_t3simplecmp_publish_lock` |
+| Services | `DraftWorkspaceService` (lock + copy-on-write), `DraftPublishService` (atomic promotion) |
+| DTOs | `LockState`, `PublishResult` |
+| Controller | `PublishController` (publish/discard/takeover actions) |
+| TCA | `tx_t3simplecmp_publish_lock` + `tx_t3simplecmp_service_draft` (live `service.php` now `readOnly+hideTable`) |
+| Hook | `EnforceLiveBannerConfigReadOnly` (refuses direct edits to live tables) |
+| Tests | `DraftWorkspaceServiceLockTest` (9 cases) + `LockStateTest` (4 cases) + `DraftWorkspaceServiceCopyTest` (6 functional cases) + `DraftPublishServiceTest` (4 functional cases) |
+
+The extension now uses thirteen `tx_t3simplecmp_*` tables: 5 live
+banner-config tables + 5 draft mirrors + audit-snapshot + consent-log +
+audit-retention-log + detection log + library-cache + publish-lock. Run
 `vendor/bin/typo3 database:updateschema` after upgrading.
 
 See the upstream

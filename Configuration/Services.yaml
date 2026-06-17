@@ -64,6 +64,8 @@ services:
   # can `$this->get()` it; production usage is via controller DI.
   SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService:
     public: true
+  SimpleCMP\T3SimpleCmp\Service\DraftPublishService:
+    public: true
 
   # Phase 4 — the SystemClock is the only ClockInterface implementation
   # we ship; alias the interface for autowiring. Tests inject their own

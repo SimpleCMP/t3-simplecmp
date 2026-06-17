@@ -37,14 +37,21 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['proc
     [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson::class]
     = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EncodePurposesJson::class;
 
-// Append-only audit snapshots of the banner config (Phase 1). Fires
-// once per DataHandler invocation, after all individual rows have
-// been processed — collects affected sites and stores a snapshot per
-// site. Identical-content saves dedupe via a sha256 hash, so editor
-// re-saves without changes don't create churn.
+// Phase 4 — Live banner-config tables are read-only via editor surfaces.
+// All edits route through draft tables and the Veröffentlichen action.
+// Direct attempts via the editor API are refused with a FlashMessage
+// pointing the operator at the SimpleCMP module tabs.
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']
-    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\SnapshotConfigOnSave::class]
-    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\SnapshotConfigOnSave::class;
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceLiveBannerConfigReadOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceLiveBannerConfigReadOnly::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']
+    [\SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceLiveBannerConfigReadOnly::class]
+    = \SimpleCMP\T3SimpleCmp\Hooks\DataHandler\EnforceLiveBannerConfigReadOnly::class;
+
+// Phase 1 SnapshotConfigOnSave is intentionally removed — Phase 4
+// routes snapshot creation through DraftPublishService with
+// trigger_event='publish'. Direct saves to live tables can no longer
+// happen anyway (readOnly + EnforceLiveBannerConfigReadOnly above).
 
 // Editor-level append-only enforcement for the snapshot table. TCA
 // `readOnly`/`hideTable` is the first defence; this hook refuses any
