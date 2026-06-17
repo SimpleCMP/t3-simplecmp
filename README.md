@@ -758,11 +758,20 @@ operator-disciplined record.
 ### Snapshot schema bump
 
 `tx_t3simplecmp_config_snapshot.canonical_json` now serializes
-five tables instead of three (managed_tracker + allowed_stylesheet_host
-were previously off-snapshot). The `schemaVersion` field bumps
-from `1` to `2`. Pre-Phase-4 snapshots stay in the audit trail
-untouched; the next publish creates a `schemaVersion: 2` entry
-whose content includes the additional tables.
+exactly the five DB-editable banner-config tables — services,
+theme, translations, managedTrackers, allowedStylesheetHosts.
+The `schemaVersion` field bumps from `1` to `3`.
+
+`schemaVersion: 1` snapshots carried 3 tables + a YAML site-
+settings subset. `schemaVersion: 3` drops the site-settings (incl.
+the previously-included `simplecmp.trackers` YAML array) entirely:
+YAML lives in `config/sites/<id>/settings.yaml` under Git
+versioning and doesn't belong in the editor-publication audit
+trail. Use `git log -- config/sites/` for YAML-state history.
+
+Pre-Phase-4 snapshots stay in the audit trail untouched; the next
+publish creates a `schemaVersion: 3` entry whose content reflects
+the new shape.
 
 ### Files
 
