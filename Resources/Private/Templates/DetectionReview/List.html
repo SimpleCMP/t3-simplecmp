@@ -8,6 +8,8 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'detections', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab, uri_trackerSetupTab: uri_trackerSetupTab, uri_auditTab: uri_auditTab, uri_auskunftTab: uri_auskunftTab, uri_settingsTab: uri_settingsTab}" />
 
+    <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
     <f:flashMessages />
 
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>

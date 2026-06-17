@@ -83,6 +83,7 @@ final class DetectionReviewController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration $resetGeneration,
         private readonly \SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -231,7 +232,7 @@ final class DetectionReviewController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $moduleTemplate->assignMultiple([
+        $moduleTemplate->assignMultiple($this->wizardBannerContext->forAnyPendingSite() + [
             'detections' => $rowsWithActions,
             'status' => $filters['status'],
             'source' => $filters['source'],

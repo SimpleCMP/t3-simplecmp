@@ -527,6 +527,64 @@
       <trans-unit id="module.trackerSetup.tmRecommendation.heading"><source>Using more than 2 trackers? Consider a Tag Manager.</source><target>Mehr als zwei Tracker? Tag Manager prüfen.</target></trans-unit>
       <trans-unit id="module.trackerSetup.tmRecommendation.body"><source>Each extra tracker multiplies CSP entries, Service-DB rows, and editor friction. A Tag Manager (Matomo TM for privacy-first, Google TM for marketing-driven sites) reduces all of that to a single SimpleCMP service — and lets marketing add or swap tags without TYPO3 deployments. Server-side TM goes further: first-party cookies, no third-party DNS, ITP-resilient.</source><target>Jeder zusätzliche Tracker vervielfacht CSP-Einträge, Service-DB-Zeilen und den Pflegeaufwand. Ein Tag Manager (Matomo TM für privacy-first, Google TM für marketinggetriebene Sites) reduziert das auf einen einzelnen SimpleCMP-Service — und das Marketing kann Tags hinzufügen oder austauschen, ohne TYPO3-Deployment. Server-seitiger TM geht weiter: First-Party-Cookies, keine Third-Party-DNS-Anfragen, ITP-resistent.</target></trans-unit>
       <trans-unit id="module.trackerSetup.tmRecommendation.docsLink"><source>Read the full Tag-Manager-First recommendation</source><target>Vollständige Tag-Manager-First-Empfehlung lesen</target></trans-unit>
+
+      <!-- Setup-Wizard -->
+      <trans-unit id="module.wizard.title"><source>SimpleCMP Setup</source><target>SimpleCMP-Einrichtung</target></trans-unit>
+      <trans-unit id="module.wizard.site"><source>Site</source><target>Site</target></trans-unit>
+      <trans-unit id="module.wizard.back"><source>Back</source><target>Zurück</target></trans-unit>
+      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found.</source><target>Keine Site mit SimpleCMP-Set gefunden. Bitte zuerst das Site Set „simplecmp/t3-simplecmp" einer Site zuweisen.</target></trans-unit>
+      <trans-unit id="module.wizard.error.notLoggedIn"><source>The setup wizard requires a logged-in BE user.</source><target>Der Einrichtungsassistent benötigt einen angemeldeten BE-User.</target></trans-unit>
+      <trans-unit id="module.wizard.error.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d.</source><target>Der Entwurf für Site „%s" wird gerade vom BE-User uid=%d bearbeitet.</target></trans-unit>
+      <trans-unit id="module.wizard.banner.heading"><source>SimpleCMP — initial setup is still pending</source><target>SimpleCMP — die Erst-Einrichtung steht noch aus</target></trans-unit>
+      <trans-unit id="module.wizard.banner.body"><source>3 quick steps: pick a tracker, choose a banner design, publish.</source><target>3 schnelle Schritte: Tracker auswählen, Banner-Design wählen, veröffentlichen.</target></trans-unit>
+      <trans-unit id="module.wizard.banner.start"><source>Start wizard</source><target>Assistent starten</target></trans-unit>
+      <trans-unit id="module.wizard.banner.skip"><source>Remind me later</source><target>Später erinnern</target></trans-unit>
+      <trans-unit id="module.wizard.stepper.welcome"><source>Welcome</source><target>Start</target></trans-unit>
+      <trans-unit id="module.wizard.stepper.tracker"><source>Tracker</source><target>Tracker</target></trans-unit>
+      <trans-unit id="module.wizard.stepper.design"><source>Design</source><target>Design</target></trans-unit>
+      <trans-unit id="module.wizard.stepper.publish"><source>Publish</source><target>Veröffentlichen</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.heading"><source>Welcome to SimpleCMP</source><target>Willkommen bei SimpleCMP</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.intro"><source>This wizard walks you through the initial setup in three steps.</source><target>Dieser Assistent führt dich in drei Schritten durch die Erst-Einrichtung. Du kannst ihn jederzeit verlassen — die regulären Tabs können alles, was der Assistent auch tut.</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step1.title"><source>Connect a tracker</source><target>Tracker verbinden</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step1.body"><source>Pick the analytics provider you actually use.</source><target>Wähle den Analytics-Anbieter, den du wirklich verwendest — Matomo, GA4, GTM, Meta Pixel oder Microsoft UET. Überspringen, wenn du nicht trackst.</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step2.title"><source>Choose a banner design</source><target>Banner-Design wählen</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step2.body"><source>Four ready-to-use presets.</source><target>Vier fertige Presets — Ecke unten rechts, Leiste unten, Leiste oben, zentriertes Modal. Feinabstimmung später im Design-Modul.</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step3.title"><source>Publish</source><target>Veröffentlichen</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.step3.body"><source>Review and go live.</source><target>Sieh dir an, was veröffentlicht wird, und schalte live. Der Assistent nutzt denselben atomaren Publish-Pfad wie die regulären Tabs.</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.start"><source>Start with step 1</source><target>Mit Schritt 1 starten</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.skip"><source>Skip the wizard for now</source><target>Assistent für jetzt überspringen</target></trans-unit>
+      <trans-unit id="module.wizard.welcome.alreadyCompleted"><source>You've already completed the wizard for this site.</source><target>Du hast den Assistenten für diese Site bereits abgeschlossen. Die regulären Tabs sind ab jetzt deine Anlaufstelle.</target></trans-unit>
+      <trans-unit id="module.wizard.skipped.message"><source>OK — the setup banner will stay hidden.</source><target>Verstanden — der Einrichtungs-Hinweis bleibt ausgeblendet. Im Einstellungen-Tab kannst du den Assistenten jederzeit erneut starten.</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.heading"><source>Step 1 — Connect a tracker</source><target>Schritt 1 — Tracker verbinden</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.intro"><source>Pick the provider you use.</source><target>Wähle den verwendeten Anbieter. Weitere Tracker kannst du später im Tracker-Einrichtung-Tab pflegen.</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.changeProvider"><source>Change provider</source><target>Anbieter wechseln</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.save"><source>Save and continue</source><target>Speichern und weiter</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.skip"><source>No tracker yet</source><target>Noch kein Tracker</target></trans-unit>
+      <trans-unit id="module.wizard.tracker.skipBody"><source>Skip this step.</source><target>Diesen Schritt überspringen. Tracker kannst du jederzeit im Tracker-Einrichtung-Tab hinzufügen.</target></trans-unit>
+      <trans-unit id="module.wizard.design.heading"><source>Step 2 — Choose a banner design</source><target>Schritt 2 — Banner-Design wählen</target></trans-unit>
+      <trans-unit id="module.wizard.design.intro"><source>Pick a preset.</source><target>Wähle ein Preset. Farben, Typografie und Texte kannst du später im Design-Modul anpassen.</target></trans-unit>
+      <trans-unit id="module.wizard.design.save"><source>Save and continue</source><target>Speichern und weiter</target></trans-unit>
+      <trans-unit id="module.wizard.design.invalidPreset"><source>Unknown preset.</source><target>Unbekanntes Preset. Bitte eine der Karten auswählen.</target></trans-unit>
+      <trans-unit id="module.wizard.design.keepDefaults.label"><source>Keep defaults</source><target>Standard übernehmen</target></trans-unit>
+      <trans-unit id="module.wizard.design.keepDefaults.body"><source>Don't write a theme draft.</source><target>Keinen Theme-Entwurf anlegen — gebündelte Standardwerte beibehalten.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.heading"><source>Step 3 — Publish</source><target>Schritt 3 — Veröffentlichen</target></trans-unit>
+      <trans-unit id="module.wizard.publish.intro"><source>Review the setup.</source><target>Übersicht deiner Einrichtung. Mit „Jetzt veröffentlichen" werden alle Entwürfe atomar live geschaltet.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.summary"><source>Ready to publish</source><target>Bereit zum Veröffentlichen</target></trans-unit>
+      <trans-unit id="module.wizard.publish.trackers"><source>Trackers</source><target>Tracker</target></trans-unit>
+      <trans-unit id="module.wizard.publish.trackers.none"><source>No tracker draft.</source><target>Kein Tracker-Entwurf — in dieser Kategorie wird nichts veröffentlicht.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.design"><source>Banner design</source><target>Banner-Design</target></trans-unit>
+      <trans-unit id="module.wizard.publish.design.preset"><source>A custom theme draft will be published (position: %s).</source><target>Ein eigener Theme-Entwurf wird veröffentlicht (Position: %s).</target></trans-unit>
+      <trans-unit id="module.wizard.publish.design.defaults"><source>No theme draft.</source><target>Kein Theme-Entwurf — gebündelte Standardwerte werden verwendet.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.urlsMissing.heading"><source>Privacy / imprint URLs are still missing</source><target>Datenschutz-/Impressums-URL fehlen noch</target></trans-unit>
+      <trans-unit id="module.wizard.publish.urlsMissing.body"><source>Set them in the Settings tab right after the wizard.</source><target>Das Banner braucht Links zur Datenschutzerklärung und zum Impressum. Im Einstellungen-Tab unmittelbar nach dem Assistenten setzen.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.now"><source>Publish now</source><target>Jetzt veröffentlichen</target></trans-unit>
+      <trans-unit id="module.wizard.publish.keepDraft"><source>Keep as draft, finish wizard</source><target>Als Entwurf belassen, Assistent abschließen</target></trans-unit>
+      <trans-unit id="module.wizard.publish.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d.</source><target>Der Entwurf für Site „%s" wird gerade vom BE-User uid=%d bearbeitet.</target></trans-unit>
+      <trans-unit id="module.wizard.publish.error"><source>Publish failed: %s</source><target>Veröffentlichen fehlgeschlagen: %s</target></trans-unit>
+      <trans-unit id="module.wizard.finish.published"><source>Setup completed — your consent banner is now live.</source><target>Einrichtung abgeschlossen — dein Consent-Banner ist jetzt live.</target></trans-unit>
+      <trans-unit id="module.wizard.finish.draftKept"><source>Setup wizard finished.</source><target>Einrichtungsassistent abgeschlossen. Deine Änderungen bleiben als Entwurf — über die Tracker-/Design-Tabs kannst du sie später veröffentlichen.</target></trans-unit>
+      <trans-unit id="module.settings.wizardReopen.intro"><source>Want to walk through the initial setup again?</source><target>Erst-Einrichtung erneut durchgehen?</target></trans-unit>
+      <trans-unit id="module.settings.wizardReopen.link"><source>Restart the setup wizard</source><target>Einrichtungsassistenten erneut starten</target></trans-unit>
     </body>
   </file>
 </xliff>

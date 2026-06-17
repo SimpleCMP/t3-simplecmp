@@ -53,6 +53,18 @@ final class EffectiveSettingsResolver
         // via trackerProposals() — it's an array, not a scalar.
     ];
 
+    /**
+     * Internal state keys — stored in the same active_settings row but
+     * intentionally outside EDITOR_CONTENT_KEYS so they never appear
+     * in drift() / activeSnapshot() or the BE Settings tab.
+     *
+     * @var list<string>
+     */
+    public const array INTERNAL_KEYS = [
+        'simplecmp.internal.wizardCompletedAt',
+        'simplecmp.internal.wizardSkippedAt',
+    ];
+
     private const string TRACKERS_KEY_PREFIX = 'simplecmp.trackers.';
 
     /**
@@ -252,6 +264,53 @@ final class EffectiveSettingsResolver
     public function resetToYaml(string $siteIdentifier, string $key, int $beUserId): void
     {
         $this->activeSettings->deleteKey($siteIdentifier, $key, $beUserId);
+        unset($this->cache[$siteIdentifier]);
+    }
+
+    /**
+     * Read an internal-state key (wizard timestamps etc.). Returns null
+     * when no active row exists or the key was never set.
+     */
+    public function getInternal(string $siteIdentifier, string $internalKey): mixed
+    {
+        if (!in_array($internalKey, self::INTERNAL_KEYS, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'getInternal: "%s" is not in INTERNAL_KEYS.',
+                $internalKey,
+            ));
+        }
+        $cached = $this->loadCache($siteIdentifier);
+        return $cached['active'][$internalKey] ?? null;
+    }
+
+    /**
+     * Write an internal-state key. Bypasses the editor adopt workflow —
+     * not subject to drift detection, not surfaced in the Settings tab.
+     */
+    public function setInternal(string $siteIdentifier, string $internalKey, mixed $value, int $beUserId): void
+    {
+        if (!in_array($internalKey, self::INTERNAL_KEYS, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'setInternal: "%s" is not in INTERNAL_KEYS.',
+                $internalKey,
+            ));
+        }
+        $this->activeSettings->upsertKey($siteIdentifier, $internalKey, $value, $beUserId);
+        unset($this->cache[$siteIdentifier]);
+    }
+
+    /**
+     * Drop an internal-state key (e.g. wizard reopen flow).
+     */
+    public function deleteInternal(string $siteIdentifier, string $internalKey, int $beUserId): void
+    {
+        if (!in_array($internalKey, self::INTERNAL_KEYS, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'deleteInternal: "%s" is not in INTERNAL_KEYS.',
+                $internalKey,
+            ));
+        }
+        $this->activeSettings->deleteKey($siteIdentifier, $internalKey, $beUserId);
         unset($this->cache[$siteIdentifier]);
     }
 

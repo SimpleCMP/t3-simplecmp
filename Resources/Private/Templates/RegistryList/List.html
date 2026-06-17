@@ -10,6 +10,8 @@
         <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, currentUrl: currentUrl}" />
     </f:if>
 
+    <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:registry.title" /></h1>
     <p class="text-body-secondary">
         <strong>{customCount}</strong>

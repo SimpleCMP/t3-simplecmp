@@ -33,6 +33,7 @@ final class SettingsController extends ActionController
         private readonly EffectiveSettingsResolver $effectiveSettings,
         private readonly ManagedTrackerRepository $managedTrackers,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -102,7 +103,7 @@ final class SettingsController extends ActionController
             $proposals,
         );
 
-        $this->moduleTemplate->assignMultiple([
+        $this->moduleTemplate->assignMultiple($this->wizardBannerContext->forSite($site) + [
             'hasSites' => true,
             'sites' => $sites,
             'selectedSite' => $site,
@@ -118,6 +119,10 @@ final class SettingsController extends ActionController
                 0,
             ),
             'editorKeys' => EffectiveSettingsResolver::EDITOR_CONTENT_KEYS,
+            'uri_wizardReopen' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.SetupWizard_reopen',
+                ['site' => $site],
+            ),
         ]);
         $this->assignTabUris($this->moduleTemplate);
         return $this->moduleTemplate->renderResponse('Settings/Index');

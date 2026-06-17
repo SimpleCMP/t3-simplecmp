@@ -7,6 +7,7 @@ use SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController;
 use SimpleCMP\T3SimpleCmp\Controller\DetectionReviewController;
 use SimpleCMP\T3SimpleCmp\Controller\PublishController;
 use SimpleCMP\T3SimpleCmp\Controller\SettingsController;
+use SimpleCMP\T3SimpleCmp\Controller\SetupWizardController;
 use SimpleCMP\T3SimpleCmp\Controller\DiscoveryController;
 use SimpleCMP\T3SimpleCmp\Controller\LibraryBrowserController;
 use SimpleCMP\T3SimpleCmp\Controller\RegistryListController;
@@ -100,6 +101,17 @@ return [
                 'setCustom',
                 'resetKey',
                 'adoptTracker',
+            ],
+            SetupWizardController::class => [
+                'welcome',
+                'skip',
+                'reopen',
+                'tracker',
+                'saveTracker',
+                'design',
+                'saveDesign',
+                'publish',
+                'finish',
             ],
         ],
     ],

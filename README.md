@@ -873,6 +873,35 @@ See the upstream
 [SimpleCMP requirements](https://github.com/SimpleCMP/simplecmp/blob/main/docs/requirements.md)
 for the JS-side roadmap.
 
+## Setup Wizard (Phase 6)
+
+For first-time editors a linear onboarding wizard reduces the 7-tab
+learning curve to a guided 3-step flow: **Tracker → Design → Publish**.
+
+* A non-intrusive banner (`WizardBanner.html` partial) is rendered on
+  every SimpleCMP tab while the wizard hasn't been completed yet —
+  click **Start wizard** to enter the flow, **Remind me later** to skip.
+* Step 1 picks one tracker provider (Matomo / GA4 / GTM / Meta Pixel /
+  Microsoft UET) and writes the configuration to the
+  `managed_tracker_draft` table via the same code path the regular
+  Tracker-Setup tab uses.
+* Step 2 picks a banner-style preset (card / bar-bottom / bar-top /
+  centered modal) which gets persisted as a theme draft.
+* Step 3 reviews everything and atomically publishes via
+  `DraftPublishService::publish()`, the same publish path the standard
+  tabs use — full audit snapshot included.
+
+Wizard state lives in the Phase-5 `tx_t3simplecmp_active_settings`
+table under two internal keys (`simplecmp.internal.wizardCompletedAt`,
+`simplecmp.internal.wizardSkippedAt`), kept outside
+`EFFECTIVE_CONTENT_KEYS` so they never appear in drift detection or
+audit snapshots. The Settings tab has a footer link to relaunch the
+wizard at any time (`reopen` action — clears both timestamps).
+
+The wizard is purely a UX layer over Phase 4 + Phase 5 — no parallel
+data store, no separate publish path. If the wizard is bypassed, the
+standard tabs achieve the exact same end state.
+
 ## License
 
 BSD-3-Clause. Mirrors the upstream SimpleCMP license.

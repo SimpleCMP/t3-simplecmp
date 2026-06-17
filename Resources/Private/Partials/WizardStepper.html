@@ -1,0 +1,52 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<ol class="t3sc-wizard-steps list-unstyled d-flex gap-2 mb-4 small">
+    <li class="t3sc-wizard-step {f:if(condition: '{currentStep} >= 0', then: 'is-done', else: '')} {f:if(condition: '{currentStep} == 0', then: 'is-current', else: '')}">
+        <span class="t3sc-wizard-step-num">1</span>
+        <span class="t3sc-wizard-step-label">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.stepper.welcome" />
+        </span>
+    </li>
+    <li class="t3sc-wizard-step-arrow">›</li>
+    <li class="t3sc-wizard-step {f:if(condition: '{currentStep} >= 1', then: 'is-done', else: '')} {f:if(condition: '{currentStep} == 1', then: 'is-current', else: '')}">
+        <span class="t3sc-wizard-step-num">2</span>
+        <span class="t3sc-wizard-step-label">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.stepper.tracker" />
+        </span>
+    </li>
+    <li class="t3sc-wizard-step-arrow">›</li>
+    <li class="t3sc-wizard-step {f:if(condition: '{currentStep} >= 2', then: 'is-done', else: '')} {f:if(condition: '{currentStep} == 2', then: 'is-current', else: '')}">
+        <span class="t3sc-wizard-step-num">3</span>
+        <span class="t3sc-wizard-step-label">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.stepper.design" />
+        </span>
+    </li>
+    <li class="t3sc-wizard-step-arrow">›</li>
+    <li class="t3sc-wizard-step {f:if(condition: '{currentStep} >= 3', then: 'is-done', else: '')} {f:if(condition: '{currentStep} == 3', then: 'is-current', else: '')}">
+        <span class="t3sc-wizard-step-num">4</span>
+        <span class="t3sc-wizard-step-label">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.stepper.publish" />
+        </span>
+    </li>
+</ol>
+
+<style>
+.t3sc-wizard-steps { padding: 0; align-items: center; }
+.t3sc-wizard-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--bs-tertiary-bg, #e9ecef);
+    color: var(--bs-body-color-secondary, #6c757d);
+}
+.t3sc-wizard-step.is-done { background: var(--bs-success-bg-subtle, #d1e7dd); color: var(--bs-success-text-emphasis, #0a3622); }
+.t3sc-wizard-step.is-current { background: var(--bs-primary, #0d6efd); color: #fff; font-weight: 500; }
+.t3sc-wizard-step-num { font-weight: 600; }
+.t3sc-wizard-step-arrow { color: var(--bs-body-color-secondary); display: inline-flex; align-items: center; padding: 0 0.25rem; }
+</style>
+
+</html>

@@ -17,6 +17,8 @@
     uri_settingsTab: uri_settingsTab
 }" />
 
+<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
 <f:if condition="{hasSites}">
     <f:then>
 
@@ -260,6 +262,15 @@
                     </f:for>
                 </tbody>
             </table>
+        </div>
+
+        <div class="border-top pt-3 mt-5 small text-body-secondary">
+            <core:icon identifier="actions-rocket" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.intro" />
+            <a href="{uri_wizardReopen}" class="alert-link">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.link" />
+                →
+            </a>
         </div>
 
     </f:then>

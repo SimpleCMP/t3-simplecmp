@@ -44,6 +44,7 @@ final class AuditSnapshotController extends ActionController
         private readonly BackendUriBuilder $backendUriBuilder,
         private readonly ConfigSnapshotRepository $repository,
         private readonly ConsentLogRepository $consentLogRepository,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -75,7 +76,7 @@ final class AuditSnapshotController extends ActionController
 
         $siteOptions = $this->siteOptions($sites, $perPage);
 
-        $this->moduleTemplate->assignMultiple([
+        $this->moduleTemplate->assignMultiple($this->wizardBannerContext->forSite($selected) + [
             'hasSites' => true,
             'siteOptions' => $siteOptions,
             'selectedSite' => $selected,

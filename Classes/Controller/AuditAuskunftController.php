@@ -51,6 +51,7 @@ final class AuditAuskunftController extends ActionController
         private readonly AuskunftJsonExporter $jsonExporter,
         private readonly AuskunftCsvExporter $csvExporter,
         private readonly AuditRetentionLogRepository $retentionLog,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -66,7 +67,7 @@ final class AuditAuskunftController extends ActionController
         $sites = $this->collectSites();
         $retentionRows = array_map($this->decorateRetentionRow(...), $this->retentionLog->findRecent(20));
 
-        $this->moduleTemplate->assignMultiple([
+        $this->moduleTemplate->assignMultiple($this->wizardBannerContext->forAnyPendingSite() + [
             'hasSites' => $sites !== [],
             'sites' => $sites,
             'retentionRows' => $retentionRows,

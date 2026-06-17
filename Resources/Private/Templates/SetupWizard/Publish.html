@@ -1,0 +1,129 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:if condition="{hasSites}">
+    <f:then>
+        <f:render partial="WizardStepper" arguments="{
+            currentStep: 3,
+            uri_welcome: uri_welcome,
+            uri_tracker: uri_tracker,
+            uri_design: uri_design,
+            uri_publish: uri_publish
+        }" />
+
+        <h1 class="mb-3">
+            <core:icon identifier="actions-rocket" size="medium" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.heading" />
+        </h1>
+        <p class="text-body-secondary mb-4">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.intro" />
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.summary" />
+                </strong>
+            </div>
+            <div class="card-body">
+                <h6>
+                    <core:icon identifier="actions-cog" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers" />
+                </h6>
+                <f:if condition="{draftTrackers}">
+                    <f:then>
+                        <ul class="list-unstyled">
+                            <f:for each="{draftTrackers}" as="row">
+                                <li class="mb-1">
+                                    <core:icon identifier="actions-check" size="small" />
+                                    <strong>{row.providerLabel}</strong>
+                                    — <code class="small">{row.service_id}</code>
+                                </li>
+                            </f:for>
+                        </ul>
+                    </f:then>
+                    <f:else>
+                        <p class="text-body-secondary small mb-0">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers.none" />
+                        </p>
+                    </f:else>
+                </f:if>
+
+                <hr />
+
+                <h6>
+                    <core:icon identifier="actions-palette" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design" />
+                </h6>
+                <f:if condition="{draftHasTheme}">
+                    <f:then>
+                        <p class="mb-0">
+                            <core:icon identifier="actions-check" size="small" />
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.preset"
+                                         arguments="{0: draftThemePosition}" />
+                        </p>
+                    </f:then>
+                    <f:else>
+                        <p class="text-body-secondary small mb-0">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.defaults" />
+                        </p>
+                    </f:else>
+                </f:if>
+            </div>
+        </div>
+
+        <f:if condition="{privacyPolicyUrl} == '' || {imprintUrl} == ''">
+            <div class="alert alert-warning d-flex align-items-start gap-2 mb-4">
+                <core:icon identifier="actions-info-circle" size="medium" />
+                <div>
+                    <strong>
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.heading" />
+                    </strong>
+                    <p class="mb-0 small">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.body" />
+                    </p>
+                </div>
+            </div>
+        </f:if>
+
+        <div class="d-flex align-items-center justify-content-between mt-4">
+            <f:link.action action="design"
+                           arguments="{site: selectedSite}"
+                           class="btn btn-link text-body-secondary">
+                <core:icon identifier="actions-arrow-left" size="small" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
+            </f:link.action>
+            <div class="d-flex gap-2">
+                <f:form action="finish" controller="SetupWizard" method="post" class="m-0">
+                    <f:form.hidden name="site" value="{selectedSite}" />
+                    <f:form.hidden name="mode" value="draft" />
+                    <button type="submit" class="btn btn-default">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.keepDraft" />
+                    </button>
+                </f:form>
+                <f:form action="finish" controller="SetupWizard" method="post" class="m-0">
+                    <f:form.hidden name="site" value="{selectedSite}" />
+                    <f:form.hidden name="mode" value="publish" />
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <core:icon identifier="actions-rocket" size="small" />
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.now" />
+                    </button>
+                </f:form>
+            </div>
+        </div>
+
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

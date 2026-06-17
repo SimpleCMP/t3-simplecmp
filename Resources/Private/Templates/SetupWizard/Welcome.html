@@ -1,0 +1,116 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:if condition="{hasSites}">
+    <f:then>
+        <f:render partial="WizardStepper" arguments="{
+            currentStep: 0,
+            uri_welcome: uri_welcome,
+            uri_tracker: uri_tracker,
+            uri_design: uri_design,
+            uri_publish: uri_publish
+        }" />
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="mb-0">
+                <core:icon identifier="actions-rocket" size="medium" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.heading" />
+            </h1>
+            <f:if condition="{f:count(subject: siteOptions)} > 1">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="t3simplecmp-wizard-site" class="form-label mb-0 small text-body-secondary">
+                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.site" />
+                    </label>
+                    <select id="t3simplecmp-wizard-site"
+                            class="form-select form-select-sm"
+                            style="width:auto"
+                            onchange="if (this.value) window.location.assign(this.value);">
+                        <f:for each="{siteOptions}" as="opt">
+                            <option value="{opt.url}" {f:if(condition: '{opt.identifier} == {selectedSite}', then: 'selected')}>{opt.label}</option>
+                        </f:for>
+                    </select>
+                </div>
+            </f:if>
+        </div>
+
+        <p class="text-body-secondary mb-4">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.intro" />
+        </p>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="badge text-bg-primary me-2">1</span>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step1.title" />
+                        </h5>
+                        <p class="card-text small text-body-secondary mb-0">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step1.body" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="badge text-bg-primary me-2">2</span>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step2.title" />
+                        </h5>
+                        <p class="card-text small text-body-secondary mb-0">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step2.body" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="badge text-bg-primary me-2">3</span>
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step3.title" />
+                        </h5>
+                        <p class="card-text small text-body-secondary mb-0">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.step3.body" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between">
+            <f:form action="skip" controller="SetupWizard" method="post" class="m-0">
+                <f:form.hidden name="site" value="{selectedSite}" />
+                <button type="submit" class="btn btn-link text-body-secondary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.skip" />
+                </button>
+            </f:form>
+            <f:link.action action="tracker" arguments="{site: selectedSite}" class="btn btn-primary btn-lg">
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.start" />
+                <core:icon identifier="actions-arrow-right" size="small" />
+            </f:link.action>
+        </div>
+
+        <f:if condition="{isCompleted}">
+            <div class="alert alert-success mt-4 small">
+                <core:icon identifier="actions-check" size="small" />
+                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.welcome.alreadyCompleted" />
+            </div>
+        </f:if>
+
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

@@ -1,0 +1,106 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+<f:if condition="{hasSites}">
+    <f:then>
+        <f:render partial="WizardStepper" arguments="{
+            currentStep: 2,
+            uri_welcome: uri_welcome,
+            uri_tracker: uri_tracker,
+            uri_design: uri_design,
+            uri_publish: uri_publish
+        }" />
+
+        <h1 class="mb-3">
+            <core:icon identifier="actions-palette" size="medium" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.design.heading" />
+        </h1>
+        <p class="text-body-secondary mb-4">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.design.intro" />
+        </p>
+
+        <f:form action="saveDesign" controller="SetupWizard" method="post">
+            <f:form.hidden name="site" value="{selectedSite}" />
+
+            <div class="row g-3 mb-4">
+                <f:for each="{presets}" as="preset">
+                    <div class="col-md-6 col-lg-3">
+                        <label class="card h-100 cursor-pointer">
+                            <input type="radio"
+                                   name="preset"
+                                   value="{preset.key}"
+                                   class="visually-hidden" />
+                            <div class="card-body">
+                                <div class="ratio ratio-16x9 bg-body-secondary rounded mb-3 position-relative">
+                                    <div class="position-absolute bottom-0 end-0 m-2 bg-primary text-white rounded px-2 py-1 small">
+                                        <f:if condition="{preset.position} == 'bottom-right'">
+                                            <span style="font-size:0.7rem">↘</span>
+                                        </f:if>
+                                        <f:if condition="{preset.position} == 'bottom-full'">
+                                            <span style="font-size:0.7rem">▬</span>
+                                        </f:if>
+                                        <f:if condition="{preset.position} == 'top-full'">
+                                            <span style="font-size:0.7rem">▔</span>
+                                        </f:if>
+                                        <f:if condition="{preset.position} == 'middle-center'">
+                                            <span style="font-size:0.7rem">▣</span>
+                                        </f:if>
+                                    </div>
+                                </div>
+                                <h5 class="card-title mb-1">{preset.label}</h5>
+                                <p class="card-text small text-body-secondary mb-0">{preset.description}</p>
+                            </div>
+                        </label>
+                    </div>
+                </f:for>
+                <div class="col-md-6 col-lg-3">
+                    <label class="card h-100 cursor-pointer border-dashed">
+                        <input type="radio"
+                               name="preset"
+                               value="default"
+                               class="visually-hidden"
+                               checked />
+                        <div class="card-body">
+                            <div class="ratio ratio-16x9 bg-body-tertiary rounded mb-3 d-flex align-items-center justify-content-center">
+                                <core:icon identifier="actions-check" size="large" />
+                            </div>
+                            <h5 class="card-title mb-1">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.design.keepDefaults.label" />
+                            </h5>
+                            <p class="card-text small text-body-secondary mb-0">
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.design.keepDefaults.body" />
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-4">
+                <f:link.action action="tracker"
+                               arguments="{site: selectedSite}"
+                               class="btn btn-link text-body-secondary">
+                    <core:icon identifier="actions-arrow-left" size="small" />
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
+                </f:link.action>
+                <button type="submit" class="btn btn-primary">
+                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.design.save" />
+                    <core:icon identifier="actions-arrow-right" size="small" />
+                </button>
+            </div>
+        </f:form>
+
+    </f:then>
+    <f:else>
+        <div class="alert alert-warning">
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
+        </div>
+    </f:else>
+</f:if>
+
+</f:section>
+</html>

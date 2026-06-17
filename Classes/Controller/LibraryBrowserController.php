@@ -83,6 +83,7 @@ final class LibraryBrowserController extends ActionController
         private readonly LibraryRecommendationService $recommendationService,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -197,7 +198,7 @@ final class LibraryBrowserController extends ActionController
             \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             $this->request,
         );
-        $moduleTemplate->assignMultiple($bannerVars + [
+        $moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forAnyPendingSite() + [
             'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             'upstreamStatus' => $this->buildUpstreamStatus(count($allEntries)),
             'entries' => $rows,

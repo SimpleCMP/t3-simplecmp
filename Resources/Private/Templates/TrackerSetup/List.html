@@ -20,6 +20,8 @@
     <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, currentUrl: currentUrl}" />
 </f:if>
 
+<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
 <f:if condition="{hasSites}">
     <f:then>
 

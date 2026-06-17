@@ -535,6 +535,64 @@
       <trans-unit id="module.trackerSetup.tmRecommendation.heading"><source>Using more than 2 trackers? Consider a Tag Manager.</source></trans-unit>
       <trans-unit id="module.trackerSetup.tmRecommendation.body"><source>Each extra tracker multiplies CSP entries, Service-DB rows, and editor friction. A Tag Manager (Matomo TM for privacy-first, Google TM for marketing-driven sites) reduces all of that to a single SimpleCMP service — and lets marketing add or swap tags without TYPO3 deployments. Server-side TM goes further: first-party cookies, no third-party DNS, ITP-resilient.</source></trans-unit>
       <trans-unit id="module.trackerSetup.tmRecommendation.docsLink"><source>Read the full Tag-Manager-First recommendation</source></trans-unit>
+
+      <!-- Setup-Wizard (linear onboarding over Phase-4/5 stack) -->
+      <trans-unit id="module.wizard.title"><source>SimpleCMP Setup</source></trans-unit>
+      <trans-unit id="module.wizard.site"><source>Site</source></trans-unit>
+      <trans-unit id="module.wizard.back"><source>Back</source></trans-unit>
+      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found. Add the "simplecmp/t3-simplecmp" Site Set to a site first.</source></trans-unit>
+      <trans-unit id="module.wizard.error.notLoggedIn"><source>The setup wizard requires a logged-in BE user.</source></trans-unit>
+      <trans-unit id="module.wizard.error.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d. Wait for them to publish, or use the publish toolbar to take over the lock.</source></trans-unit>
+      <trans-unit id="module.wizard.banner.heading"><source>SimpleCMP — initial setup is still pending</source></trans-unit>
+      <trans-unit id="module.wizard.banner.body"><source>3 quick steps: pick a tracker, choose a banner design, publish.</source></trans-unit>
+      <trans-unit id="module.wizard.banner.start"><source>Start wizard</source></trans-unit>
+      <trans-unit id="module.wizard.banner.skip"><source>Remind me later</source></trans-unit>
+      <trans-unit id="module.wizard.stepper.welcome"><source>Welcome</source></trans-unit>
+      <trans-unit id="module.wizard.stepper.tracker"><source>Tracker</source></trans-unit>
+      <trans-unit id="module.wizard.stepper.design"><source>Design</source></trans-unit>
+      <trans-unit id="module.wizard.stepper.publish"><source>Publish</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.heading"><source>Welcome to SimpleCMP</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.intro"><source>This wizard walks you through the initial setup in three steps. You can leave it any time — the standard tabs cover everything the wizard does, plus more.</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step1.title"><source>Connect a tracker</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step1.body"><source>Pick the analytics provider you actually use — Matomo, GA4, GTM, Meta Pixel or Microsoft UET. Skip if you don't track anything.</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step2.title"><source>Choose a banner design</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step2.body"><source>Four ready-to-use presets — corner card, bottom bar, top bar, centered modal. Detail-tweaking happens later in the Design module.</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step3.title"><source>Publish</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.step3.body"><source>Review what gets published, then go live. The wizard uses the same atomic publish path the standard tabs use.</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.start"><source>Start with step 1</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.skip"><source>Skip the wizard for now</source></trans-unit>
+      <trans-unit id="module.wizard.welcome.alreadyCompleted"><source>You've already completed the wizard for this site. The standard tabs are your primary editing surface from here on.</source></trans-unit>
+      <trans-unit id="module.wizard.skipped.message"><source>OK — the setup banner will stay hidden. Open the Settings tab to re-launch the wizard any time.</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.heading"><source>Step 1 — Connect a tracker</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.intro"><source>Pick the provider you use. You can manage more trackers later in the Tracker setup tab.</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.changeProvider"><source>Change provider</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.save"><source>Save and continue</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.skip"><source>No tracker yet</source></trans-unit>
+      <trans-unit id="module.wizard.tracker.skipBody"><source>Skip this step. You can add trackers later from the Tracker setup tab.</source></trans-unit>
+      <trans-unit id="module.wizard.design.heading"><source>Step 2 — Choose a banner design</source></trans-unit>
+      <trans-unit id="module.wizard.design.intro"><source>Pick a preset. You can fine-tune colors, typography and copy later in the Design module.</source></trans-unit>
+      <trans-unit id="module.wizard.design.save"><source>Save and continue</source></trans-unit>
+      <trans-unit id="module.wizard.design.invalidPreset"><source>Unknown preset. Pick one of the cards.</source></trans-unit>
+      <trans-unit id="module.wizard.design.keepDefaults.label"><source>Keep defaults</source></trans-unit>
+      <trans-unit id="module.wizard.design.keepDefaults.body"><source>Don't write a theme draft — leave the bundled defaults as is.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.heading"><source>Step 3 — Publish</source></trans-unit>
+      <trans-unit id="module.wizard.publish.intro"><source>Review the setup. Click "Publish now" to atomically promote your drafts to live.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.summary"><source>Ready to publish</source></trans-unit>
+      <trans-unit id="module.wizard.publish.trackers"><source>Trackers</source></trans-unit>
+      <trans-unit id="module.wizard.publish.trackers.none"><source>No tracker draft — nothing to publish in this category.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.design"><source>Banner design</source></trans-unit>
+      <trans-unit id="module.wizard.publish.design.preset"><source>A custom theme draft will be published (position: %s).</source></trans-unit>
+      <trans-unit id="module.wizard.publish.design.defaults"><source>No theme draft — bundled defaults will be used.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.urlsMissing.heading"><source>Privacy / imprint URLs are still missing</source></trans-unit>
+      <trans-unit id="module.wizard.publish.urlsMissing.body"><source>The banner needs links to your privacy policy and imprint. Set them in the Settings tab right after the wizard.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.now"><source>Publish now</source></trans-unit>
+      <trans-unit id="module.wizard.publish.keepDraft"><source>Keep as draft, finish wizard</source></trans-unit>
+      <trans-unit id="module.wizard.publish.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d.</source></trans-unit>
+      <trans-unit id="module.wizard.publish.error"><source>Publish failed: %s</source></trans-unit>
+      <trans-unit id="module.wizard.finish.published"><source>Setup completed — your consent banner is now live.</source></trans-unit>
+      <trans-unit id="module.wizard.finish.draftKept"><source>Setup wizard finished. Your changes stay in the draft state — open the Tracker / Design tabs to publish when ready.</source></trans-unit>
+      <trans-unit id="module.settings.wizardReopen.intro"><source>Want to walk through the initial setup again?</source></trans-unit>
+      <trans-unit id="module.settings.wizardReopen.link"><source>Restart the setup wizard</source></trans-unit>
     </body>
   </file>
 </xliff>

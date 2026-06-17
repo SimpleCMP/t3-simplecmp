@@ -43,6 +43,7 @@ final class RegistryListController extends ActionController
         private readonly RegistryListPresenter $registryListPresenter,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
 
@@ -145,7 +146,7 @@ final class RegistryListController extends ActionController
             \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             $this->request,
         );
-        $moduleTemplate->assignMultiple($bannerVars + [
+        $moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forAnyPendingSite() + [
             'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
             'services' => $rows,
             'source' => $source,

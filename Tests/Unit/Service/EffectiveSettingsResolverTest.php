@@ -236,6 +236,97 @@ final class EffectiveSettingsResolverTest extends TestCase
         self::assertSame('IMPR', $snap['simplecmp.imprintUrl']);
     }
 
+    #[Test]
+    public function getInternalReturnsNullWhenNotSet(): void
+    {
+        $resolver = $this->makeResolver(yaml: [], active: null);
+        self::assertNull($resolver->getInternal(self::SITE, EffectiveSettingsResolver::INTERNAL_KEYS[0]));
+    }
+
+    #[Test]
+    public function getInternalReturnsValueWhenStored(): void
+    {
+        $resolver = $this->makeResolver(
+            yaml: [],
+            active: ['simplecmp.internal.wizardCompletedAt' => 1734567890],
+        );
+        self::assertSame(
+            1734567890,
+            $resolver->getInternal(self::SITE, 'simplecmp.internal.wizardCompletedAt'),
+        );
+    }
+
+    #[Test]
+    public function getInternalRefusesUnknownKey(): void
+    {
+        $resolver = $this->makeResolver(yaml: [], active: null);
+        $this->expectException(\InvalidArgumentException::class);
+        $resolver->getInternal(self::SITE, 'simplecmp.bridgeRateLimit');
+    }
+
+    #[Test]
+    public function setInternalWritesValueViaUpsert(): void
+    {
+        $activeRepo = $this->createMock(ActiveSettingsRepository::class);
+        $activeRepo->method('findBySite')->willReturn(null);
+        $activeRepo->expects(self::once())
+            ->method('upsertKey')
+            ->with(self::SITE, 'simplecmp.internal.wizardCompletedAt', 1700000000, 7);
+
+        $resolver = $this->makeResolverWithActiveRepo(yaml: [], activeRepo: $activeRepo);
+        $resolver->setInternal(self::SITE, 'simplecmp.internal.wizardCompletedAt', 1700000000, 7);
+    }
+
+    #[Test]
+    public function setInternalRefusesUnknownKey(): void
+    {
+        $resolver = $this->makeResolver(yaml: [], active: null);
+        $this->expectException(\InvalidArgumentException::class);
+        $resolver->setInternal(self::SITE, 'simplecmp.privacyPolicyUrl', 'x', 1);
+    }
+
+    #[Test]
+    public function deleteInternalCallsRepoDeleteKey(): void
+    {
+        $activeRepo = $this->createMock(ActiveSettingsRepository::class);
+        $activeRepo->method('findBySite')->willReturn(null);
+        $activeRepo->expects(self::once())
+            ->method('deleteKey')
+            ->with(self::SITE, 'simplecmp.internal.wizardSkippedAt', 3);
+
+        $resolver = $this->makeResolverWithActiveRepo(yaml: [], activeRepo: $activeRepo);
+        $resolver->deleteInternal(self::SITE, 'simplecmp.internal.wizardSkippedAt', 3);
+    }
+
+    #[Test]
+    public function driftDoesNotIncludeInternalKeys(): void
+    {
+        $resolver = $this->makeResolver(
+            yaml: ['simplecmp.privacyPolicyUrl' => 'X'],
+            active: [
+                'simplecmp.privacyPolicyUrl' => 'X',
+                'simplecmp.internal.wizardCompletedAt' => 1700000000,
+            ],
+        );
+        foreach ($resolver->drift(self::SITE) as $entry) {
+            self::assertStringStartsNotWith('simplecmp.internal.', $entry->key);
+        }
+    }
+
+    #[Test]
+    public function activeSnapshotDoesNotIncludeInternalKeys(): void
+    {
+        $resolver = $this->makeResolver(
+            yaml: ['simplecmp.privacyPolicyUrl' => 'X'],
+            active: [
+                'simplecmp.privacyPolicyUrl' => 'X',
+                'simplecmp.internal.wizardCompletedAt' => 1700000000,
+            ],
+        );
+        $snap = $resolver->activeSnapshot(self::SITE);
+        self::assertArrayNotHasKey('simplecmp.internal.wizardCompletedAt', $snap);
+    }
+
     // ---- helpers ----------------------------------------------------------
 
     /**
