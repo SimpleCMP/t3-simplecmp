@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\ViewHelpers\Library;
 
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -17,7 +18,10 @@ final class AvailableCountViewHelper extends AbstractViewHelper
 {
     public function render(): int
     {
-        $serviceRepository = GeneralUtility::makeInstance(ServiceRepository::class);
+        $serviceRepository = GeneralUtility::makeInstance(
+            ServiceRepository::class,
+            GeneralUtility::makeInstance(ConnectionPool::class),
+        );
         $adoptedSet = [];
         foreach ($serviceRepository->findAll() as $row) {
             $id = (string) ($row['id'] ?? '');
