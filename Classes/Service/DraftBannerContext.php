@@ -41,7 +41,12 @@ final readonly class DraftBannerContext
     public function forScope(string $scope, ?ServerRequestInterface $request = null): array
     {
         $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
-        $currentUrl = $request !== null ? (string) $request->getUri() : '';
+        if ($request !== null) {
+            $uri = $request->getUri();
+            $currentUrl = $uri->getPath() . ($uri->getQuery() !== '' ? '?' . $uri->getQuery() : '');
+        } else {
+            $currentUrl = '';
+        }
         $lockState = $this->workspace->currentLock($scope);
         $hasDraft = $this->workspace->hasDraft($scope);
         return [
