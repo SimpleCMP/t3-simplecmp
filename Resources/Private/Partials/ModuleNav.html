@@ -54,6 +54,15 @@
             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.designer" />
         </a>
     </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'settings\'', then: 'active')}"
+           href="{uri_settingsTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'settings\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-cog-alt" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.settings" />
+        </a>
+    </li>
 
     <f:comment>Separator between draft-affected and independent tabs</f:comment>
     <li class="nav-item d-flex align-items-center px-2" role="separator" aria-hidden="true">
@@ -74,15 +83,6 @@
             <f:if condition="{libAvailable} > 0">
                 <span class="badge text-bg-warning ms-1">{libAvailable}</span>
             </f:if>
-        </a>
-    </li>
-    <li class="nav-item" role="presentation">
-        <a class="nav-link {f:if(condition: '{active} == \'settings\'', then: 'active')}"
-           href="{uri_settingsTab}"
-           role="tab"
-           aria-selected="{f:if(condition: '{active} == \'settings\'', then: 'true', else: 'false')}">
-            <core:icon identifier="actions-cog-alt" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.settings" />
         </a>
     </li>
     <li class="nav-item" role="presentation">
