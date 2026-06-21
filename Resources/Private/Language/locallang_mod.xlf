@@ -13,6 +13,7 @@
       <trans-unit id="nav.services"><source>Library</source></trans-unit>
       <trans-unit id="nav.audit"><source>Audit &amp; record</source></trans-unit>
       <trans-unit id="nav.auskunft"><source>Auskunft</source></trans-unit>
+      <trans-unit id="nav.designer"><source>Design</source></trans-unit>
 
       <trans-unit id="module.audit.title"><source>Audit &amp; record</source></trans-unit>
       <trans-unit id="module.audit.heading"><source>Banner configuration audit trail</source></trans-unit>
@@ -137,6 +138,7 @@
 
       <trans-unit id="module.settings.adopt.success"><source>Setting "%s" adopted from site configuration.</source></trans-unit>
       <trans-unit id="module.settings.adopt.allSuccess"><source>All drifting settings adopted from site configuration.</source></trans-unit>
+      <trans-unit id="module.settings.custom.save"><source>Save</source></trans-unit>
       <trans-unit id="module.settings.custom.success"><source>Custom value for "%s" stored.</source></trans-unit>
       <trans-unit id="module.settings.reset.success"><source>Setting "%s" reset — falls back to site configuration.</source></trans-unit>
       <trans-unit id="module.settings.reset.button"><source>Reset to site configuration</source></trans-unit>

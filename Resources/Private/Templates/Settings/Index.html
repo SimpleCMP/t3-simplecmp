@@ -14,7 +14,8 @@
     uri_trackerSetupTab: uri_trackerSetupTab,
     uri_auditTab: uri_auditTab,
     uri_auskunftTab: uri_auskunftTab,
-    uri_settingsTab: uri_settingsTab
+    uri_settingsTab: uri_settingsTab,
+    uri_designerTab: uri_designerTab
 }" />
 
 <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
@@ -247,16 +248,40 @@
                                 </f:switch>
                             </td>
                             <td class="text-end text-nowrap">
-                                <f:if condition="{entry.isCustom}">
-                                    <f:form action="resetKey" controller="Settings" method="post" class="d-inline m-0">
+                                <div class="d-flex gap-1 justify-content-end align-items-center flex-wrap">
+                                    <f:form action="setCustom" controller="Settings" method="post" class="d-inline-flex gap-1 align-items-center m-0">
                                         <f:form.hidden name="site" value="{selectedSite}" />
                                         <f:form.hidden name="key" value="{entry.key}" />
-                                        <button type="submit" class="btn btn-default btn-sm"
-                                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
-                                            <core:icon identifier="actions-undo" size="small" />
+                                        <f:if condition="{entry.type} == 'bool'">
+                                            <f:then>
+                                                <select name="value" class="form-select form-select-sm" style="width:auto">
+                                                    <option value="true" {f:if(condition: entry.effectiveValueForInput == 'true', then: 'selected')}>true</option>
+                                                    <option value="false" {f:if(condition: entry.effectiveValueForInput == 'false', then: 'selected')}>false</option>
+                                                </select>
+                                            </f:then>
+                                            <f:else>
+                                                <input type="text" name="value"
+                                                       class="form-control form-control-sm"
+                                                       style="min-width:10rem; max-width:18rem;"
+                                                       value="{entry.effectiveValueForInput}" />
+                                            </f:else>
+                                        </f:if>
+                                        <button type="submit" class="btn btn-primary btn-sm"
+                                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.custom.save')}">
+                                            <core:icon identifier="actions-document-save" size="small" />
                                         </button>
                                     </f:form>
-                                </f:if>
+                                    <f:if condition="{entry.isCustom}">
+                                        <f:form action="resetKey" controller="Settings" method="post" class="d-inline m-0">
+                                            <f:form.hidden name="site" value="{selectedSite}" />
+                                            <f:form.hidden name="key" value="{entry.key}" />
+                                            <button type="submit" class="btn btn-default btn-sm"
+                                                    title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
+                                                <core:icon identifier="actions-undo" size="small" />
+                                            </button>
+                                        </f:form>
+                                    </f:if>
+                                </div>
                             </td>
                         </tr>
                     </f:for>

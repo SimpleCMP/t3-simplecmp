@@ -723,6 +723,28 @@ final class ThemeDesignerController extends ActionController
             // send form values.
             'safePaletteJson' => json_encode(self::SAFE_PALETTE, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_HEX_QUOT | JSON_HEX_APOS),
             'hasCustomTheme' => $hasCustomTheme,
+            'uri_detectionsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.DetectionReview_list',
+            ),
+            'uri_registryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.RegistryList_list',
+            ),
+            'uri_libraryTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.LibraryBrowser_list',
+            ),
+            'uri_trackerSetupTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.TrackerSetup_list',
+            ),
+            'uri_auditTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.AuditSnapshot_list',
+            ),
+            'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.AuditAuskunft_index',
+            ),
+            'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Settings_index',
+            ),
+            'uri_designerTab' => $this->uri('index'),
             'uri_save' => $this->uri('save'),
             'uri_reset' => $this->uri('reset', ['site' => $site]),
         ]);

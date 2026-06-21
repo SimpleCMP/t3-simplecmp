@@ -17,17 +17,12 @@ use SimpleCMP\T3SimpleCmp\Controller\TrackerSetupController;
 /**
  * Backend module registration.
  *
- * Two flat sibling modules under the "Websites" group — TYPO3's BE module
- * menu is intentionally 2-level only, so the SimpleCMP feature area is
- * grouped by adjacency + the shared icon rather than a hierarchical
- * sub-menu. The detections module hosts three tabs reflecting the
- * 3-table architecture: Detections (observation log) | Dienste (registry
- * surface, source-tagged) | Bibliothek (bundled library browser):
+ * Single module under the "Websites" group with tabs. The designer is
+ * a tab inside the same module rather than a separate module entry:
  *
  *   Websites
  *     ├─ Einrichtung (core)
- *     ├─ SimpleCMP             (tabs: Detections | Dienste | Bibliothek)
- *     └─ SimpleCMP-Banner-Design (theme designer)
+ *     └─ SimpleCMP  (tabs: Detections | Dienste | Bibliothek | … | Design)
  */
 return [
     'simplecmp_detections' => [
@@ -113,17 +108,6 @@ return [
                 'publish',
                 'finish',
             ],
-        ],
-    ],
-    'simplecmp_design' => [
-        'parent' => 'site',
-        'position' => ['after' => 'simplecmp_detections'],
-        'access' => 'admin',
-        'path' => '/module/simplecmp/design',
-        'iconIdentifier' => 'simplecmp-module',
-        'labels' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf',
-        'extensionName' => 'SimpleCmpTypo3',
-        'controllerActions' => [
             ThemeDesignerController::class => [
                 'index',
                 'save',

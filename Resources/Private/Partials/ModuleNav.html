@@ -5,21 +5,18 @@
 <f:comment>
     Shared tab nav for the simplecmp_detections module.
 
-    Three tabs reflecting the 3-table architecture:
-    - Detections — observation log (DetectionReviewController)
-    - Dienste — registry index regardless of source
-      (RegistryListController)
-    - Bibliothek — bundled library browser + Adopt action
-      (LibraryBrowserController)
+    Group A — Konfiguration (Entwurf): tabs that operate on draft state.
+    Group B — Betrieb: tabs that are independent of the draft workflow.
 
-    The three URIs are assigned by each controller — we don't construct
-    them in Fluid because Extbase's URI builder is scoped to the current
-    controller and can't switch cleanly. Pass
-    `active="detections"|"registry"|"library"` from the parent template
+    The URIs are assigned by each controller — we don't construct them in
+    Fluid because Extbase's URI builder is scoped to the current controller
+    and can't switch cleanly. Pass `active="..."` from the parent template
     to drive the active-state styling.
 </f:comment>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
+
+    <f:comment>Group A: Konfiguration (Entwurf)</f:comment>
     <li class="nav-item" role="presentation">
         <a class="nav-link {f:if(condition: '{active} == \'detections\'', then: 'active')}"
            href="{uri_detectionsTab}"
@@ -57,6 +54,24 @@
         </a>
     </li>
     <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'designer\'', then: 'active')}"
+           href="{uri_designerTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'designer\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-brush" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.designer" />
+        </a>
+    </li>
+
+    <f:comment>Separator between draft-affected and independent tabs</f:comment>
+    <li class="nav-item d-flex align-items-center px-2" role="separator" aria-hidden="true">
+        <span style="white-space:nowrap; font-size:0.7rem; color:var(--bs-secondary-color);
+                     padding:0 0.4rem; border-left:1px solid var(--bs-border-color);
+                     border-right:1px solid var(--bs-border-color);">Betrieb</span>
+    </li>
+
+    <f:comment>Group B: Betrieb (draft-independent)</f:comment>
+    <li class="nav-item" role="presentation">
         <a class="nav-link {f:if(condition: '{active} == \'settings\'', then: 'active')}"
            href="{uri_settingsTab}"
            role="tab"
@@ -83,5 +98,6 @@
             <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.auskunft" />
         </a>
     </li>
+
 </ul>
 </html>

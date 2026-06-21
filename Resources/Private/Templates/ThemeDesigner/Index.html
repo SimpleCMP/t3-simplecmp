@@ -160,6 +160,18 @@
         }
     </f:asset.css>
 
+    <f:render partial="ModuleNav" arguments="{
+        active: 'designer',
+        uri_detectionsTab: uri_detectionsTab,
+        uri_registryTab: uri_registryTab,
+        uri_libraryTab: uri_libraryTab,
+        uri_trackerSetupTab: uri_trackerSetupTab,
+        uri_auditTab: uri_auditTab,
+        uri_auskunftTab: uri_auskunftTab,
+        uri_settingsTab: uri_settingsTab,
+        uri_designerTab: uri_designerTab
+    }" />
+
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
     <p class="text-body-secondary">
         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />

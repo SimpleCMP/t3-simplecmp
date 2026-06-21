@@ -76,6 +76,17 @@ final class SettingsController extends ActionController
                 $effective = $hasActiveOpinion ? $entry->activeValue : $entry->yamlValue;
                 $isCustom = $hasActiveOpinion
                     && !self::valuesEqualForDisplay($entry->activeValue, $entry->yamlValue);
+                $refValue = $entry->yamlValue ?? $entry->activeValue;
+                $type = match(true) {
+                    is_bool($refValue) => 'bool',
+                    is_array($refValue) => 'array',
+                    default => 'string',
+                };
+                $effectiveForInput = match($type) {
+                    'bool' => ($effective ? 'true' : 'false'),
+                    'array' => json_encode($effective ?? [], JSON_PRETTY_PRINT),
+                    default => (string) ($effective ?? ''),
+                };
                 return [
                     'key' => $entry->key,
                     'activeValue' => $entry->activeValue,
@@ -85,6 +96,8 @@ final class SettingsController extends ActionController
                     'needsAction' => $entry->needsAction(),
                     'isCustom' => $isCustom,
                     'isFallback' => !$hasActiveOpinion,
+                    'type' => $type,
+                    'effectiveValueForInput' => $effectiveForInput,
                 ];
             },
             $drift,
@@ -368,6 +381,7 @@ final class SettingsController extends ActionController
             'uri_auditTab' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.AuditSnapshot_list'),
             'uri_auskunftTab' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.AuditAuskunft_index'),
             'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.Settings_index'),
+            'uri_designerTab' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.ThemeDesigner_index'),
         ]);
     }
 
