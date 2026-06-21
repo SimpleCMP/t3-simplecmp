@@ -289,6 +289,9 @@ final class DetectionReviewController extends ActionController
             'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Settings_index',
             ),
+            'uri_designerTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.ThemeDesigner_index',
+            ),
             'uri_discover' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Discovery_index',
             ),

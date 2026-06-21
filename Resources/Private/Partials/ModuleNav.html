@@ -1,6 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:t3b="http://typo3.org/ns/SimpleCMP/T3SimpleCmp/ViewHelpers"
       data-namespace-typo3-fluid="true">
-{namespace core=TYPO3\CMS\Core\ViewHelpers}
 
 <f:comment>
     Shared tab nav for the simplecmp_detections module.
@@ -36,15 +37,6 @@
         </a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link {f:if(condition: '{active} == \'library\'', then: 'active')}"
-           href="{uri_libraryTab}"
-           role="tab"
-           aria-selected="{f:if(condition: '{active} == \'library\'', then: 'true', else: 'false')}">
-            <core:icon identifier="actions-database" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.library" />
-        </a>
-    </li>
-    <li class="nav-item" role="presentation">
         <a class="nav-link {f:if(condition: '{active} == \'trackerSetup\'', then: 'active')}"
            href="{uri_trackerSetupTab}"
            role="tab"
@@ -71,6 +63,19 @@
     </li>
 
     <f:comment>Group B: Betrieb (draft-independent)</f:comment>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {f:if(condition: '{active} == \'library\'', then: 'active')}"
+           href="{uri_libraryTab}"
+           role="tab"
+           aria-selected="{f:if(condition: '{active} == \'library\'', then: 'true', else: 'false')}">
+            <core:icon identifier="actions-database" size="small" />
+            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:nav.library" />
+            <f:variable name="libAvailable">{t3b:library.availableCount()}</f:variable>
+            <f:if condition="{libAvailable} > 0">
+                <span class="badge text-bg-warning ms-1">{libAvailable}</span>
+            </f:if>
+        </a>
+    </li>
     <li class="nav-item" role="presentation">
         <a class="nav-link {f:if(condition: '{active} == \'settings\'', then: 'active')}"
            href="{uri_settingsTab}"

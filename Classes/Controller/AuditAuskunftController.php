@@ -321,6 +321,9 @@ final class AuditAuskunftController extends ActionController
             'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Settings_index',
             ),
+            'uri_designerTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.ThemeDesigner_index',
+            ),
         ]);
     }
 

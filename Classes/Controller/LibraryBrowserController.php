@@ -81,8 +81,6 @@ final class LibraryBrowserController extends ActionController
         private readonly BundledLibraryInfo $bundledLibrary,
         private readonly DetectionRepository $detectionRepository,
         private readonly LibraryRecommendationService $recommendationService,
-        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
-        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
     ) {
     }
@@ -194,12 +192,7 @@ final class LibraryBrowserController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $bannerVars = $this->bannerContext->forScope(
-            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-            $this->request,
-        );
-        $moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forAnyPendingSite() + [
-            'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+        $moduleTemplate->assignMultiple($this->wizardBannerContext->forAnyPendingSite() + [
             'upstreamStatus' => $this->buildUpstreamStatus(count($allEntries)),
             'entries' => $rows,
             'status' => $status,
@@ -240,6 +233,9 @@ final class LibraryBrowserController extends ActionController
             'uri_settingsTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Settings_index',
             ),
+            'uri_designerTab' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.ThemeDesigner_index',
+            ),
             'topRecommended' => $topRecommendedInline,
             'recommendationHeadline' => $headline,
             'recommendationOverflow' => max(0, count($recommendations) - count($topRecommendedInline)),
@@ -265,43 +261,10 @@ final class LibraryBrowserController extends ActionController
     ): ResponseInterface {
         $entry = $this->loadLibraryEntry($serviceId);
         if ($entry !== null) {
-            try {
-                $beUserId = $this->ensureGlobalDraft();
-            } catch (\RuntimeException $e) {
-                $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-                return $this->redirect('list', null, null, $this->filterArg($status, $search));
-            }
             // fromLibrary: true → stamps `library_adopted_at`
-            $this->serviceRepository->upsertDraft(
-                \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-                $entry,
-                $beUserId,
-                true,
-            );
+            $this->serviceRepository->upsert($entry, 0, true);
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
-    }
-
-    /**
-     * Phase 4 — acquire the global service-registry draft lock.
-     */
-    private function ensureGlobalDraft(): int
-    {
-        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
-        if ($beUserId <= 0) {
-            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
-        }
-        $lock = $this->draftWorkspace->initializeDraft(
-            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-            $beUserId,
-        );
-        if ($lock->conflict) {
-            throw new \RuntimeException(sprintf(
-                'Lock für die globale Service-Registry gehört BE-User uid=%d. Bitte abwarten oder den Lock übernehmen.',
-                $lock->ownerBeUserId,
-            ));
-        }
-        return $beUserId;
     }
 
     /**
@@ -325,24 +288,13 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        try {
-            $beUserId = $this->ensureGlobalDraft();
-        } catch (\RuntimeException $e) {
-            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('list', null, null, $this->filterArg($status, $search));
-        }
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
             $entry = $this->loadLibraryEntry($serviceId);
             if ($entry !== null) {
-                $this->serviceRepository->upsertDraft(
-                    \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-                    $entry,
-                    $beUserId,
-                    true,
-                );
+                $this->serviceRepository->upsert($entry, 0, true);
             }
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
@@ -353,16 +305,7 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        try {
-            $this->ensureGlobalDraft();
-        } catch (\RuntimeException $e) {
-            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('list', null, null, $this->filterArg($status, $search));
-        }
-        $this->serviceRepository->deleteDraft(
-            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-            $serviceId,
-        );
+        $this->serviceRepository->delete($serviceId);
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
@@ -379,20 +322,11 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        try {
-            $this->ensureGlobalDraft();
-        } catch (\RuntimeException $e) {
-            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('list', null, null, $this->filterArg($status, $search));
-        }
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
-            $this->serviceRepository->deleteDraft(
-                \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-                $serviceId,
-            );
+            $this->serviceRepository->delete($serviceId);
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
