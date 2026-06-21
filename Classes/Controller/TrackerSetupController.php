@@ -125,7 +125,6 @@ final class TrackerSetupController extends ActionController
 
         $bannerVars = $this->bannerContext->forScope($selected, $this->request);
         $this->moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forSite($selected) + [
-            'draftScope' => $selected,
             'hasSites' => true,
             'sites' => $sites,
             'siteOptions' => $siteOptions,
