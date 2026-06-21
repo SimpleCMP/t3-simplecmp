@@ -87,6 +87,7 @@ return [
                 'publish',
                 'discard',
                 'takeover',
+                'init',
             ],
             SettingsController::class => [
                 'index',

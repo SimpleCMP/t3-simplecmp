@@ -181,11 +181,13 @@
         <f:render partial="DraftBanner" arguments="{
             lockState: lockState,
             hasDraft: hasDraft,
+            isDraftEditable: isDraftEditable,
             currentBeUserId: currentBeUserId,
             scope: draftScope,
             uri_publish: uri_publish,
             uri_discard: uri_discard,
             uri_takeover: uri_takeover,
+            uri_createDraft: uri_createDraft,
             currentUrl: currentUrl
         }" />
     </f:if>
@@ -693,7 +695,7 @@
             </div>
         </div>
 
-        <div class="btn-toolbar gap-2 mt-3 border-top pt-3">
+        <div class="btn-toolbar gap-2 mt-3 border-top pt-3 {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
             <button type="submit" class="btn btn-primary">
                 <core:icon identifier="actions-save" size="small" />
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />

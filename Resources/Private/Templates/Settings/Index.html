@@ -19,9 +19,11 @@
 }" />
 
 <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+<f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: scope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
 
 <f:if condition="{hasSites}">
     <f:then>
+        <div class="{f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
 
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h1 class="mb-0">
@@ -298,6 +300,7 @@
             </a>
         </div>
 
+        </div>
     </f:then>
     <f:else>
         <div class="alert alert-warning">

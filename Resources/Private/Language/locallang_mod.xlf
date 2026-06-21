@@ -115,6 +115,9 @@
       <trans-unit id="draft.lock.conflict.body"><source>Scope "%s" is currently being edited by BE user uid=%d. Either wait until they publish, or take over the lock (their draft will be discarded).</source></trans-unit>
       <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source></trans-unit>
       <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source></trans-unit>
+      <trans-unit id="draft.banner.locked.heading"><source>Draft required</source></trans-unit>
+      <trans-unit id="draft.banner.locked.body"><source>No draft is active for this scope. Create a draft to start editing — your changes will only be visible to visitors after you publish.</source></trans-unit>
+      <trans-unit id="draft.banner.createDraft.button"><source>Create draft</source></trans-unit>
 
       <!-- Phase 5 — Settings tab (site configuration as proposal) -->
       <trans-unit id="nav.settings"><source>Settings</source></trans-unit>

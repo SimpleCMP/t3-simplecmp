@@ -7,7 +7,7 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'registry', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab, uri_trackerSetupTab: uri_trackerSetupTab, uri_auditTab: uri_auditTab, uri_auskunftTab: uri_auskunftTab, uri_settingsTab: uri_settingsTab, uri_designerTab: uri_designerTab}" />
     <f:if condition="{draftScope}">
-        <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, currentUrl: currentUrl}" />
+        <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
     </f:if>
 
     <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
@@ -133,7 +133,7 @@
                                 </f:if>
                             </td>
                             <td class="text-end">
-                                <div class="btn-group btn-group-sm" role="group">
+                                <div class="btn-group btn-group-sm {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}" role="group">
                                     <button type="button"
                                             class="btn btn-default"
                                             data-info-trigger

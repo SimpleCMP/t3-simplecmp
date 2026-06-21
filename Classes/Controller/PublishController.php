@@ -141,6 +141,42 @@ final class PublishController extends ActionController
         return $this->redirectAfter($returnUrl);
     }
 
+    /**
+     * Initialise a new draft for $scope (Variante A: create-on-demand by
+     * the editor via an explicit "Create draft" button).
+     */
+    public function initAction(string $scope, string $returnUrl = ''): ResponseInterface
+    {
+        $beUserId = $this->currentBeUserId();
+        if ($beUserId <= 0) {
+            $this->addFlashMessage(
+                'Entwurf anlegen ist nur als angemeldeter BE-User möglich.',
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirectAfter($returnUrl);
+        }
+        $lock = $this->workspace->initializeDraft($scope, $beUserId);
+        if ($lock->conflict) {
+            $this->addFlashMessage(
+                sprintf(
+                    'Lock für "%s" gehört BE-User uid=%d — Entwurf-Initialisierung abgelehnt.',
+                    $scope,
+                    $lock->ownerBeUserId,
+                ),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+        } else {
+            $this->addFlashMessage(
+                sprintf('Entwurf für "%s" angelegt.', $scope),
+                '',
+                ContextualFeedbackSeverity::OK,
+            );
+        }
+        return $this->redirectAfter($returnUrl);
+    }
+
     private function currentBeUserId(): int
     {
         $beUser = $GLOBALS['BE_USER'] ?? null;

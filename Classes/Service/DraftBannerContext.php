@@ -28,11 +28,13 @@ final readonly class DraftBannerContext
      * @return array{
      *     lockState: LockState,
      *     hasDraft: bool,
+     *     isDraftEditable: bool,
      *     currentBeUserId: int,
      *     scope: string,
      *     uri_publish: string,
      *     uri_discard: string,
      *     uri_takeover: string,
+     *     uri_createDraft: string,
      *     currentUrl: string,
      * }
      */
@@ -40,9 +42,12 @@ final readonly class DraftBannerContext
     {
         $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
         $currentUrl = $request !== null ? (string) $request->getUri() : '';
+        $lockState = $this->workspace->currentLock($scope);
+        $hasDraft = $this->workspace->hasDraft($scope);
         return [
-            'lockState' => $this->workspace->currentLock($scope),
-            'hasDraft' => $this->workspace->hasDraft($scope),
+            'lockState' => $lockState,
+            'hasDraft' => $hasDraft,
+            'isDraftEditable' => $hasDraft && !$lockState->conflict,
             'currentBeUserId' => $beUserId,
             'scope' => $scope,
             'uri_publish' => (string) $this->backendUriBuilder->buildUriFromRoute(
@@ -53,6 +58,9 @@ final readonly class DraftBannerContext
             ),
             'uri_takeover' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Publish_takeover',
+            ),
+            'uri_createDraft' => (string) $this->backendUriBuilder->buildUriFromRoute(
+                'simplecmp_detections.Publish_init',
             ),
             'currentUrl' => $currentUrl,
         ];

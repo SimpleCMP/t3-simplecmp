@@ -446,21 +446,22 @@ final class ThemeDesignerController extends ActionController
      * the resulting (or pre-existing) draft. Throws on lock conflict
      * — caller is expected to surface the conflict via FlashMessage.
      */
-    private function ensureSiteDraft(string $site): int
+    private function ensureSiteDraftOrRedirect(string $site, string $language = ''): ?\TYPO3\CMS\Core\Http\RedirectResponse
     {
-        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
-        if ($beUserId <= 0) {
-            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        if (!$this->draftWorkspace->hasDraft($site)) {
+            $this->addFlashMessage('Kein Entwurf aktiv. Bitte erst einen Entwurf anlegen.', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
         }
-        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
+        $lock = $this->draftWorkspace->currentLock($site);
         if ($lock->conflict) {
-            throw new \RuntimeException(sprintf(
-                'Lock für Site "%s" gehört bereits BE-User uid=%d. Bitte abwarten oder den Lock übernehmen.',
-                $site,
-                $lock->ownerBeUserId,
-            ));
+            $this->addFlashMessage(
+                sprintf('Lock für Site "%s" gehört BE-User uid=%d.', $site, $lock->ownerBeUserId),
+                '',
+                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
         }
-        return $beUserId;
+        return null;
     }
 
     public function indexAction(string $site = '', string $language = ''): ResponseInterface
@@ -946,12 +947,10 @@ final class ThemeDesignerController extends ActionController
     ): ResponseInterface {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
-        try {
-            $beUserId = $this->ensureSiteDraft($site);
-        } catch (\RuntimeException $e) {
-            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
+        if ($err = $this->ensureSiteDraftOrRedirect($site, $language)) {
+            return $err;
         }
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
         $clean = self::sanitizeTokens($tokens);
         $this->themeRepository->upsertDraft($site, $clean, $beUserId);
 
@@ -1098,11 +1097,8 @@ final class ThemeDesignerController extends ActionController
     {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
-        try {
-            $beUserId = $this->ensureSiteDraft($site);
-        } catch (\RuntimeException $e) {
-            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('index', null, null, ['site' => $site]);
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
         }
         // Reset means "drop any tokens/overrides in the draft so the
         // visitor sees defaults after the next publish". Live is

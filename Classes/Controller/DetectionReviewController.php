@@ -84,6 +84,7 @@ final class DetectionReviewController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Domain\Repository\AllowedStylesheetHostRepository $allowedStylesheetHostRepository,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $draftBannerContext,
     ) {
     }
 
@@ -96,10 +97,10 @@ final class DetectionReviewController extends ActionController
         if ($beUserId <= 0) {
             throw new \RuntimeException('Editor draft requires a logged-in BE user.');
         }
-        $lock = $this->draftWorkspace->initializeDraft(
-            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-            $beUserId,
-        );
+        if (!$this->draftWorkspace->hasDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)) {
+            throw new \RuntimeException('Kein Entwurf für die globale Service-Registry aktiv.');
+        }
+        $lock = $this->draftWorkspace->currentLock(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL);
         if ($lock->conflict) {
             throw new \RuntimeException(sprintf(
                 'Lock für die globale Service-Registry gehört BE-User uid=%d.',
@@ -115,7 +116,10 @@ final class DetectionReviewController extends ActionController
         if ($beUserId <= 0) {
             throw new \RuntimeException('Editor draft requires a logged-in BE user.');
         }
-        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
+        if (!$this->draftWorkspace->hasDraft($site)) {
+            throw new \RuntimeException(sprintf('Kein Entwurf für Site "%s" aktiv.', $site));
+        }
+        $lock = $this->draftWorkspace->currentLock($site);
         if ($lock->conflict) {
             throw new \RuntimeException(sprintf(
                 'Lock für Site "%s" gehört BE-User uid=%d.',
@@ -232,7 +236,10 @@ final class DetectionReviewController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $moduleTemplate->assignMultiple($this->wizardBannerContext->forAnyPendingSite() + [
+        $moduleTemplate->assignMultiple(
+            $this->wizardBannerContext->forAnyPendingSite()
+            + $this->draftBannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request)
+            + [
             'detections' => $rowsWithActions,
             'status' => $filters['status'],
             'source' => $filters['source'],
@@ -887,6 +894,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->executeStatement(
                 'UPDATE ' . self::DETECTION_TABLE
@@ -909,6 +922,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->executeStatement(
                 'UPDATE ' . self::DETECTION_TABLE
@@ -937,6 +956,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         // Resolve the redirect filters up front so the bump loop below can't
         // clobber the `$source` filter param (mirrors bulkPurgeSelectedAction).
         $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
@@ -982,6 +1007,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
             ->executeStatement(
                 'UPDATE ' . self::DETECTION_TABLE
@@ -1003,6 +1034,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         return $this->bulkUpdateDismissed($uids, $status, $source, $kind, $confidence, time());
     }
 
@@ -1019,6 +1056,12 @@ final class DetectionReviewController extends ActionController
         string $kind = '',
         string $confidence = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
+        }
         return $this->bulkUpdateDismissed($uids, $status, $source, $kind, $confidence, 0);
     }
 
@@ -1037,6 +1080,12 @@ final class DetectionReviewController extends ActionController
         string $confidence = '',
     ): ResponseInterface {
         $filters = $this->normalizeFilters($status, $source, $kind, $confidence);
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirectToList($filters);
+        }
         $ints = $this->intUids($uids);
         if ($ints === []) {
             return $this->redirectToList($filters);

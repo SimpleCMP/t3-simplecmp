@@ -6,7 +6,7 @@
     Phase-4 Draft-Workspace-Banner. Rendered at the top of every BE
     module tab. Three states:
 
-    1. No draft + no lock anywhere: "Live-Modus" hint (compact).
+    1. No draft: locked alert with "Create draft" button — ALL write actions gated.
     2. Draft owned by current user: "Du arbeitest im Entwurf" + Publish/Discard buttons.
     3. Lock held by another user: conflict view + Takeover button.
 
@@ -14,11 +14,26 @@
       lockState         : LockState DTO from DraftWorkspaceService::currentLock()
       currentBeUserId   : (int) $GLOBALS['BE_USER']->user['uid']
       hasDraft          : (bool) DraftWorkspaceService::hasDraft($scope)
+      isDraftEditable   : (bool) hasDraft && !lockState.conflict
       scope             : string — '__global__' or site identifier
       uri_publish       : string — URL to PublishController::publish
       uri_discard       : string — URL to PublishController::discard
       uri_takeover      : string — URL to PublishController::takeover
+      uri_createDraft   : string — URL to PublishController::init
+      currentUrl        : string — current page URL for returnUrl
 </f:comment>
+
+<style>
+.simplecmp-draft-locked button[type="submit"],
+.simplecmp-draft-locked button[data-bs-toggle="dropdown"],
+.simplecmp-draft-locked button.dropdown-toggle,
+.simplecmp-draft-locked button[data-approve-trigger],
+.simplecmp-draft-locked a.btn:not(.page-link) {
+    pointer-events: none !important;
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+</style>
 
 <f:if condition="{lockState.conflict}">
     <f:then>
@@ -76,10 +91,23 @@
                 </div>
             </f:then>
             <f:else>
-                <p class="text-body-secondary small mb-2">
-                    <core:icon identifier="actions-info-circle" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.liveMode" />
-                </p>
+                <div class="alert alert-secondary d-flex align-items-start gap-2 mb-3" role="alert">
+                    <core:icon identifier="actions-lock" size="medium" />
+                    <div class="flex-grow-1">
+                        <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.heading" /></strong>
+                        <p class="mb-2 small">
+                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.body" />
+                        </p>
+                        <form method="post" action="{uri_createDraft}" class="m-0">
+                            <input type="hidden" name="scope" value="{scope}" />
+                            <input type="hidden" name="returnUrl" value="{currentUrl}" />
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <core:icon identifier="actions-add" size="small" />
+                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.createDraft.button" />
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </f:else>
         </f:if>
     </f:else>

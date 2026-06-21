@@ -10,6 +10,8 @@
 
     <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
 
+     <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: scope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
+
     <f:flashMessages />
 
     <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
@@ -155,6 +157,7 @@
                 </option>
             </f:for>
         </select>
+        <div class="{f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
         <f:if condition="{status} == 'verworfen'">
             <f:then>
                 <div class="btn-group ms-auto" role="group">
@@ -241,6 +244,7 @@
                 </div>
             </f:else>
         </f:if>
+        </div>
     </div>
 
     <f:if condition="{detections -> f:count()} > 0">
@@ -314,7 +318,7 @@
                             </td>
                             <td><span class="text-body-secondary">{detection.source}</span></td>
                             <td class="text-end">
-                                <div class="btn-group btn-group-sm" role="group">
+                                <div class="btn-group btn-group-sm {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}" role="group">
                                     <a href="{detection.uri_show}"
                                        class="btn btn-default"
                                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">

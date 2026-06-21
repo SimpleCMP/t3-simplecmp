@@ -18,7 +18,7 @@
     uri_designerTab: uri_designerTab
 }" />
 <f:if condition="{draftScope}">
-    <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, currentUrl: currentUrl}" />
+    <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
 </f:if>
 
 <f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
@@ -79,7 +79,7 @@
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbHeading" />
                 </strong>
 
-                <div class="dropdown">
+                <div class="dropdown {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
                     <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <core:icon identifier="actions-plus" size="small" />
                         <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.add" />
@@ -116,6 +116,7 @@
                                         <td><code>{row.service_id}</code></td>
                                         <td class="text-body-secondary small">{row.summary}</td>
                                         <td class="text-end">
+                                            <div class="d-inline-flex gap-1 {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
                                             <f:link.action action="edit"
                                                            arguments="{uid: row.uid}"
                                                            class="btn btn-default btn-sm">
@@ -131,6 +132,7 @@
                                                     <core:icon identifier="actions-delete" size="small" />
                                                 </button>
                                             </f:form>
+                                            </div>
                                         </td>
                                     </tr>
                                 </f:for>

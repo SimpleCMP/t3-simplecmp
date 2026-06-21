@@ -34,6 +34,7 @@ final class SettingsController extends ActionController
         private readonly ManagedTrackerRepository $managedTrackers,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $draftBannerContext,
     ) {
     }
 
@@ -116,7 +117,10 @@ final class SettingsController extends ActionController
             $proposals,
         );
 
-        $this->moduleTemplate->assignMultiple($this->wizardBannerContext->forSite($site) + [
+        $this->moduleTemplate->assignMultiple(
+            $this->wizardBannerContext->forSite($site)
+            + $this->draftBannerContext->forScope($site, $this->request)
+            + [
             'hasSites' => true,
             'sites' => $sites,
             'selectedSite' => $site,
@@ -152,6 +156,9 @@ final class SettingsController extends ActionController
         if ($beUserId <= 0 || !$this->siteIsKnown($site)) {
             return $this->redirect('index', null, null, ['site' => $site]);
         }
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
+        }
         $this->effectiveSettings->adoptAll($site, $beUserId);
         $this->addFlashMessage(
             sprintf($this->translate('module.settings.bootstrap.success'), $site),
@@ -164,6 +171,9 @@ final class SettingsController extends ActionController
     public function adoptKeyAction(string $site, string $key): ResponseInterface
     {
         $beUserId = $this->currentBeUserId();
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
+        }
         try {
             $this->effectiveSettings->adoptKey($site, $key, $beUserId);
             $this->addFlashMessage(
@@ -180,6 +190,9 @@ final class SettingsController extends ActionController
     public function adoptAllAction(string $site): ResponseInterface
     {
         $beUserId = $this->currentBeUserId();
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
+        }
         $this->effectiveSettings->adoptAll($site, $beUserId);
         $this->addFlashMessage(
             $this->translate('module.settings.adopt.allSuccess'),
@@ -192,6 +205,9 @@ final class SettingsController extends ActionController
     public function setCustomAction(string $site, string $key, string $value): ResponseInterface
     {
         $beUserId = $this->currentBeUserId();
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
+        }
         try {
             // Try JSON decode first — for bool/int/array values the
             // form submits a JSON-encoded string. Falls back to raw
@@ -213,6 +229,9 @@ final class SettingsController extends ActionController
     public function resetKeyAction(string $site, string $key): ResponseInterface
     {
         $beUserId = $this->currentBeUserId();
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
+        }
         $this->effectiveSettings->resetToYaml($site, $key, $beUserId);
         $this->addFlashMessage(
             sprintf($this->translate('module.settings.reset.success'), $key),
@@ -253,16 +272,8 @@ final class SettingsController extends ActionController
             return $this->redirect('index', null, null, ['site' => $site]);
         }
 
-        // Acquire the per-site draft lock and write a managed_tracker
-        // draft row using the proposal's config.
-        $lock = $this->draftWorkspace->initializeDraft($site, $beUserId);
-        if ($lock->conflict) {
-            $this->addFlashMessage(
-                sprintf('Lock für Site "%s" gehört BE-User uid=%d.', $site, $lock->ownerBeUserId),
-                '',
-                ContextualFeedbackSeverity::ERROR,
-            );
-            return $this->redirect('index', null, null, ['site' => $site]);
+        if ($err = $this->ensureSiteDraftOrRedirect($site)) {
+            return $err;
         }
         $this->managedTrackers->saveDraft(
             $site,
@@ -286,6 +297,24 @@ final class SettingsController extends ActionController
     }
 
     // --- helpers ----------------------------------------------------------
+
+    private function ensureSiteDraftOrRedirect(string $site): ?ResponseInterface
+    {
+        if (!$this->draftWorkspace->hasDraft($site)) {
+            $this->addFlashMessage('Kein Entwurf aktiv. Bitte erst einen Entwurf anlegen.', '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index', null, null, ['site' => $site]);
+        }
+        $lock = $this->draftWorkspace->currentLock($site);
+        if ($lock->conflict) {
+            $this->addFlashMessage(
+                sprintf('Lock für Site "%s" gehört BE-User uid=%d.', $site, $lock->ownerBeUserId),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('index', null, null, ['site' => $site]);
+        }
+        return null;
+    }
 
     /**
      * Lightweight equality check for the "is custom override?" flag.
