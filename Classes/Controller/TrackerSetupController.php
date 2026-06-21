@@ -123,7 +123,7 @@ final class TrackerSetupController extends ActionController
             ];
         }
 
-        $bannerVars = $this->bannerContext->forScope($selected, $this->request);
+        $bannerVars = $this->bannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request);
         $this->moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forSite($selected) + [
             'hasSites' => true,
             'sites' => $sites,

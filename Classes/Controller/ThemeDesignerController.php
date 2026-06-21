@@ -625,7 +625,7 @@ final class ThemeDesignerController extends ActionController
             : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         // Phase 4 — pre-build the DraftBanner partial's arguments.
-        $bannerVars = $this->bannerContext->forScope($site, $this->request);
+        $bannerVars = $this->bannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request);
 
         $moduleTemplate->assignMultiple($bannerVars + [
             'draftScope' => $site,

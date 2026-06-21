@@ -119,7 +119,7 @@ final class SettingsController extends ActionController
 
         $this->moduleTemplate->assignMultiple(
             $this->wizardBannerContext->forSite($site)
-            + $this->draftBannerContext->forScope($site, $this->request)
+            + $this->draftBannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request)
             + [
             'hasSites' => true,
             'sites' => $sites,
