@@ -7,6 +7,8 @@
 
 <f:section name="Content">
 
+<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
 <f:render partial="ModuleNav" arguments="{
     active: 'audit',
     uri_detectionsTab: uri_detectionsTab,
@@ -18,8 +20,6 @@
     uri_settingsTab: uri_settingsTab,
     uri_designerTab: uri_designerTab
 }" />
-
-<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
 
 <f:if condition="{hasSites}">
     <f:then>

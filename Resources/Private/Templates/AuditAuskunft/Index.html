@@ -7,6 +7,8 @@
 
 <f:section name="Content">
 
+<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
 <f:render partial="ModuleNav" arguments="{
     active: 'auskunft',
     uri_detectionsTab: uri_detectionsTab,
@@ -18,8 +20,6 @@
     uri_settingsTab: uri_settingsTab,
     uri_designerTab: uri_designerTab
 }" />
-
-<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
 
 <h1 class="mb-3">
     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.heading" />

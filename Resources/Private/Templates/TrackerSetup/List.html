@@ -6,6 +6,8 @@
 
 <f:section name="Content">
 
+<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
+
 <f:render partial="ModuleNav" arguments="{
     active: 'trackerSetup',
     uri_detectionsTab: uri_detectionsTab,
@@ -20,8 +22,6 @@
 <f:if condition="{draftScope}">
     <f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: draftScope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
 </f:if>
-
-<f:render partial="WizardBanner" arguments="{wizardBannerVisible: wizardBannerVisible, wizardBannerSite: wizardBannerSite, uri_wizardStart: uri_wizardStart}" />
 
 <f:if condition="{hasSites}">
     <f:then>
