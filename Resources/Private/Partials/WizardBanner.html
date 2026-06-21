@@ -14,10 +14,10 @@
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
-            <a href="{uri_wizardStart}" class="btn btn-primary btn-sm">
+            <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='{uri_wizardStart}'">
                 <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.start" />
                 <core:icon identifier="actions-arrow-right" size="small" />
-            </a>
+            </button>
             <f:form action="skip" controller="SetupWizard" method="post" class="m-0">
                 <f:form.hidden name="site" value="{wizardBannerSite}" />
                 <button type="submit" class="btn btn-link btn-sm text-body-secondary">
