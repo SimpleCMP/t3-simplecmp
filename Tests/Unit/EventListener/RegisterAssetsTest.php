@@ -913,7 +913,63 @@ final class RegisterAssetsTest extends TestCase
         self::assertStringNotContainsString('--simplecmp-broken-nested', $script);
     }
 
+    #[Test]
+    public function liveFeAuditEmitsDraftRevisionMarker(): void
+    {
+        // In audit mode the FE must stamp back which version it rendered
+        // (source + newest draft_modified_at) so the BE can verify it.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            queryParams: ['simplecmp_audit' => '1', 'simplecmp_preview' => 'valid-token'],
+        );
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $this->nonceService->method('verify')->willReturn(
+            \SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification::ok(),
+        );
+        $this->draftWorkspace->method('hasDraft')->willReturn(true);
+        $this->draftWorkspace->method('draftRevision')->willReturnCallback(
+            static fn (string $scope): int
+                => $scope === \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL ? 100 : 200,
+        );
+        $this->services->method('findAll')->willReturn([]);
+        $this->services->method('findAllDraft')->willReturn([]);
+
+        $marker = $this->captureInlineJs('simplecmp-preview-meta');
+        self::assertNotNull($marker, 'preview-meta inline JS was not emitted in audit mode');
+        self::assertStringContainsString('"source":"draft"', $marker);
+        // Revision is the newest draft_modified_at across scopes (max).
+        self::assertStringContainsString('"revision":200', $marker);
+    }
+
+    #[Test]
+    public function noRevisionMarkerOutsideAuditMode(): void
+    {
+        // A normal visitor render (no ?simplecmp_audit=1) carries no marker.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+        );
+        self::assertNull($this->captureInlineJs('simplecmp-preview-meta'));
+    }
+
     // --- helpers -----------------------------------------------------------
+
+    /**
+     * Capture the inline JS emitted under a given asset id, or null.
+     */
+    private function captureInlineJs(string $assetId): ?string
+    {
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')->willReturnCallback(
+            function (string $identifier, string $payload) use (&$captured, $assetId): AssetCollector {
+                if ($identifier === $assetId) {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            }
+        );
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+        return $captured;
+    }
 
     /**
      * Run the listener and return the parsed `SimpleCMP.init(...)`

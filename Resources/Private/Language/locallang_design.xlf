@@ -64,6 +64,10 @@
       <trans-unit id="designer.audit.feAudit.heading"><source>From the live frontend (%s)</source></trans-unit>
       <trans-unit id="designer.audit.feAudit.allPassed"><source>All checks on the live frontend passed.</source></trans-unit>
       <trans-unit id="designer.audit.feAudit.timeout"><source>No response from %s after 10 seconds. Check that the site is reachable and that the SimpleCMP bundle is loaded there.</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.revDraftOk"><source>Verified: your current draft was checked (revision %s).</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.revDraftMismatch"><source>Warning: the audit checked draft revision %s, but the current draft is %s. The draft changed after this page loaded — reload before trusting the result.</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.revLiveUnexpected"><source>Warning: the LIVE (published) version was checked, not your draft. The preview token may be missing or expired — reload the page and try again.</source></trans-unit>
+      <trans-unit id="designer.audit.feAudit.revLive"><source>Checked the live (published) version — no draft exists for this site.</source></trans-unit>
       <trans-unit id="designer.audit.pass.services-have-purposes"><source>All services declare at least one processing purpose.</source></trans-unit>
       <trans-unit id="designer.audit.fail.services-have-purposes"><source>%d service(s) have no purposes declared: %s. Consent must be specific per purpose — tag each service with at least one purpose category in the service registry.</source></trans-unit>
 

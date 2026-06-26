@@ -184,6 +184,16 @@ development.
     query-dropping language redirect at the document root, the token may
     not survive the redirect and the audit falls back to the live
     config.)
+  - **Revision verification.** In audit mode the FE now stamps a hidden
+    marker — `<meta name="simplecmp-preview" content="source=…;rev=…">`
+    plus a `postMessage` to the BE — recording whether the *draft* or
+    *live* banner was rendered and, for drafts, the newest
+    `draft_modified_at` across the rendered scopes (new
+    `DraftWorkspaceService::draftRevision()`). The designer compares it
+    against the draft it expects and shows a one-line verdict under the
+    audit button: confirmed ("draft revision X checked"), or a warning
+    when the live version was judged instead of the draft, or when the
+    draft changed after the page loaded (reload-before-trust).
 
 - **FE library-upstream client hardened against a slow/unreachable
   upstream.** `LibraryUpstreamClient::lookup()` makes a synchronous

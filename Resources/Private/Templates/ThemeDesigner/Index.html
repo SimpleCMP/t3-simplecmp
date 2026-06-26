@@ -333,7 +333,13 @@
                  data-fe-audit-i18n-all-passed="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.allPassed')}"
                  data-fe-audit-i18n-timeout="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.timeout')}"
                  data-fe-audit-i18n-severity-critical="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical')}"
-                 data-fe-audit-i18n-severity-warning="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning')}">
+                 data-fe-audit-i18n-severity-warning="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning')}"
+                 data-fe-audit-expected-source="{feAuditExpectedSource}"
+                 data-fe-audit-expected-rev="{feAuditExpectedRevision}"
+                 data-fe-audit-i18n-rev-draft-ok="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftOk')}"
+                 data-fe-audit-i18n-rev-draft-mismatch="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftMismatch')}"
+                 data-fe-audit-i18n-rev-live-unexpected="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLiveUnexpected')}"
+                 data-fe-audit-i18n-rev-live="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLive')}">
                 <button type="button"
                         class="btn btn-default btn-sm"
                         data-fe-audit-trigger
@@ -345,6 +351,7 @@
                 <small class="ms-2 text-body-secondary" data-fe-audit-status>
                     <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.idle"/>
                 </small>
+                <div class="small mt-1" data-fe-audit-revision hidden></div>
                 <div data-fe-audit class="mt-2" hidden>
                     <p class="mb-2 small fw-semibold" data-fe-audit-heading></p>
                     <ul class="list-unstyled mb-0" data-fe-audit-list></ul>

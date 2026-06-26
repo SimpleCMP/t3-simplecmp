@@ -677,6 +677,18 @@ final class ThemeDesignerController extends ActionController
             // published one. Empty when no bridge secret is configured —
             // the audit then falls back to auditing the live config.
             'feAuditPreviewToken' => $this->mintPreviewToken($site),
+            // Revision the live-FE audit is EXPECTED to render, so
+            // ThemePreview.js can compare it against what the FE actually
+            // stamps back (see RegisterAssets::emitPreviewRevisionMarker)
+            // and flag drift — e.g. "live judged instead of draft" or
+            // "draft changed since this page loaded".
+            'feAuditExpectedSource' => ($this->draftWorkspace->hasDraft($site)
+                || $this->draftWorkspace->hasDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL))
+                ? 'draft' : 'live',
+            'feAuditExpectedRevision' => max(
+                $this->draftWorkspace->draftRevision(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL),
+                $this->draftWorkspace->draftRevision($site),
+            ),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,

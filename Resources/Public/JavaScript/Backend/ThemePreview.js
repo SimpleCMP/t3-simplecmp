@@ -272,6 +272,11 @@ class ThemePreview {
     statusEl.textContent = this._stringFromLocale('running', 'Running on live FE…');
     containerEl.hidden = true;
     listEl.innerHTML = '';
+    const revisionEl = document.querySelector('[data-fe-audit-revision]');
+    if (revisionEl) {
+      revisionEl.hidden = true;
+      revisionEl.textContent = '';
+    }
 
     const auditUrl = new URL(url, window.location.origin);
     auditUrl.searchParams.set('simplecmp_audit', '1');
@@ -309,13 +314,64 @@ class ThemePreview {
       statusEl.textContent = tmpl.replace('%s', auditUrl.host);
     }, 10000);
 
+    // The FE posts two messages: a `simplecmp-typo3-preview-meta` marker
+    // (which version was rendered) and the `simplecmp-audit-from-fe`
+    // results. Order isn't guaranteed, so we stash the marker and render
+    // the revision line both when it arrives and once results land.
+    let previewMeta = null;
     const handler = (event) => {
-      if (event.data?.type !== 'simplecmp-audit-from-fe') return;
-      if (!Array.isArray(event.data.results)) return;
+      const data = event.data;
+      if (data?.type === 'simplecmp-typo3-preview-meta') {
+        previewMeta = data;
+        this._renderFeAuditRevision(previewMeta);
+        return;
+      }
+      if (data?.type !== 'simplecmp-audit-from-fe') return;
+      if (!Array.isArray(data.results)) return;
       cleanup();
-      this._renderFeAuditResults(event.data, i18n, { statusEl, containerEl, listEl, headingEl });
+      this._renderFeAuditResults(data, i18n, { statusEl, containerEl, listEl, headingEl });
+      this._renderFeAuditRevision(previewMeta);
     };
     window.addEventListener('message', handler);
+  }
+
+  /**
+   * Render the "which version was checked" verification line from the
+   * FE-posted preview marker, compared against the draft the BE expects.
+   */
+  _renderFeAuditRevision(meta) {
+    const el = document.querySelector('[data-fe-audit-revision]');
+    const wrapper = document.querySelector('[data-fe-audit-i18n-running]');
+    if (!el || !wrapper || !meta) return;
+    const expectedSource = wrapper.getAttribute('data-fe-audit-expected-source') || 'live';
+    const expectedRev = wrapper.getAttribute('data-fe-audit-expected-rev') || '0';
+    const renderedRev = String(meta.revision ?? '0');
+    const fmt = (ts) => {
+      const n = parseInt(ts, 10);
+      return n > 0 ? new Date(n * 1000).toLocaleString() : '–';
+    };
+    let text;
+    let cls;
+    if (meta.source === 'draft' && expectedSource === 'draft') {
+      if (renderedRev === expectedRev) {
+        text = this._stringFromLocale('revDraftOk', 'Checked: draft (rev %s).').replace('%s', fmt(renderedRev));
+        cls = 'text-success';
+      } else {
+        text = this._stringFromLocale('revDraftMismatch', 'Warning: checked draft rev %s, current is %s — reload the page.')
+          .replace('%s', fmt(renderedRev))
+          .replace('%s', fmt(expectedRev));
+        cls = 'text-danger';
+      }
+    } else if (meta.source === 'live' && expectedSource === 'draft') {
+      text = this._stringFromLocale('revLiveUnexpected', 'Warning: the LIVE version was checked, not your draft (preview token missing/expired?).');
+      cls = 'text-danger';
+    } else {
+      text = this._stringFromLocale('revLive', 'Checked: live version (no draft present).');
+      cls = 'text-body-secondary';
+    }
+    el.textContent = text;
+    el.className = 'small mt-1 ' + cls;
+    el.hidden = false;
   }
 
   _readDomAuditI18n() {

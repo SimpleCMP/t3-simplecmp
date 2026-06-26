@@ -152,6 +152,34 @@ final readonly class DraftWorkspaceService
     }
 
     /**
+     * Revision marker for the scope's current draft: the newest
+     * `draft_modified_at` across all of the scope's draft tables, or 0
+     * when no draft row exists. Both sides of the live-FE-audit read it
+     * identically — the BE to know the expected revision, the FE
+     * (RegisterAssets) to report which revision it actually rendered —
+     * so the editor can confirm the preview judged the right version.
+     */
+    public function draftRevision(string $scope): int
+    {
+        $draftSite = $scope === LockState::SCOPE_GLOBAL ? '' : $scope;
+        $newest = 0;
+        foreach ($this->tablePairsForScope($scope) as $pair) {
+            $qb = $this->connectionPool->getConnectionForTable($pair['draft'])->createQueryBuilder();
+            $value = $qb->select('draft_modified_at')
+                ->from($pair['draft'])
+                ->where($qb->expr()->eq('draft_site', $qb->createNamedParameter($draftSite, Connection::PARAM_STR)))
+                ->orderBy('draft_modified_at', 'DESC')
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->fetchOne();
+            if (is_numeric($value)) {
+                $newest = max($newest, (int) $value);
+            }
+        }
+        return $newest;
+    }
+
+    /**
      * Copy live state for this scope into the draft tables and acquire
      * the lock. Idempotent: re-invoking when draft already exists
      * touches the lock without re-copying. Caller must check for lock

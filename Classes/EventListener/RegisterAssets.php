@@ -126,6 +126,11 @@ final readonly class RegisterAssets
         // config. No token (the normal visitor case) → published config.
         $previewDraft = $this->resolvePreviewDraft($request, $site);
 
+        // In audit mode, stamp a hidden revision marker into the render +
+        // postMessage it to the BE so the editor can confirm WHICH version
+        // (draft vs live, and which draft revision) the audit just judged.
+        $this->emitPreviewRevisionMarker($request, $site, $previewDraft);
+
         $config = $this->buildInitConfig($settings, $site, $request, $previewDraft);
         if ($config === null) {
             return;
@@ -228,6 +233,59 @@ final readonly class RegisterAssets
         }
         $source = self::PREVIEW_NONCE_SOURCE_PREFIX . $site->getIdentifier();
         return $this->nonceService->verify($token, $source)->isValid();
+    }
+
+    /**
+     * In audit mode (`?simplecmp_audit=1`, only ever set by the BE
+     * designer's live-FE-audit button) write a hidden revision marker so
+     * the editor can verify the audit judged the intended version:
+     *
+     * - a hidden `<meta name="simplecmp-preview">` carrying
+     *   `source=draft|live;rev=<draftModifiedAt>;site=<id>` (visible to
+     *   anyone inspecting the iframe source — the "hidden in the window"
+     *   part), and
+     * - a `postMessage` to the BE parent so ThemePreview.js can compare
+     *   the rendered revision against the draft currently open in the BE
+     *   and flag drift ("Live judged instead of draft" / "draft changed
+     *   meanwhile").
+     *
+     * `revision` is the newest `draft_modified_at` across the rendered
+     * draft scopes (0 when the live config was served). Gated on audit
+     * mode so normal visitor renders carry no marker.
+     */
+    private function emitPreviewRevisionMarker(ServerRequestInterface $request, Site $site, bool $previewDraft): void
+    {
+        if (($request->getQueryParams()['simplecmp_audit'] ?? null) !== '1') {
+            return;
+        }
+        $siteId = $site->getIdentifier();
+        $source = $previewDraft ? 'draft' : 'live';
+        $revision = $previewDraft
+            ? max(
+                $this->draftWorkspace->draftRevision(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL),
+                $this->draftWorkspace->draftRevision($siteId),
+            )
+            : 0;
+
+        $this->pageRenderer->addHeaderData(
+            '<meta name="simplecmp-preview" content="'
+            . htmlspecialchars(
+                sprintf('source=%s;rev=%d;site=%s', $source, $revision, $siteId),
+                ENT_QUOTES | ENT_HTML5,
+            )
+            . '" />',
+        );
+
+        $payload = json_encode(
+            ['type' => 'simplecmp-typo3-preview-meta', 'source' => $source, 'revision' => $revision, 'site' => $siteId],
+            JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES,
+        );
+        $this->assetCollector->addInlineJavaScript(
+            'simplecmp-preview-meta',
+            'try{window.parent.postMessage(' . $payload . ',"*");}catch(e){}',
+            [],
+            ['priority' => false, 'csp' => true],
+        );
     }
 
     /**
