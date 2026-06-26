@@ -276,6 +276,14 @@ class ThemePreview {
     const auditUrl = new URL(url, window.location.origin);
     auditUrl.searchParams.set('simplecmp_audit', '1');
     auditUrl.searchParams.set('cb', Date.now().toString());
+    // HMAC preview token (minted BE-side, source-bound to this site).
+    // Tells RegisterAssets to render the editor's pending DRAFT config
+    // into the audited iframe instead of the published one. Absent when
+    // no bridge secret is configured → audit falls back to live config.
+    const previewToken = trigger.getAttribute('data-fe-audit-preview-token');
+    if (previewToken) {
+      auditUrl.searchParams.set('simplecmp_preview', previewToken);
+    }
     // Belt-and-suspenders: ALSO add the audit marker as a hash
     // fragment so TYPO3's language redirect (which drops query
     // strings going `/` → `/de/`) doesn't disarm the audit. The

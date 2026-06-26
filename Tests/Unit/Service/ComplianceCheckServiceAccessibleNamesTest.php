@@ -155,7 +155,10 @@ final class ComplianceCheckServiceAccessibleNamesTest extends TestCase
         $effectiveSettings->method('get')->willReturnCallback(
             static fn (string $siteId, string $key, mixed $default = null) => $default
         );
-        $service = new ComplianceCheckService($serviceRepo, $overrideRepo, $themeRepo, $effectiveSettings);
+        // preferDraft defaults to false in audit(), so the workspace is
+        // never consulted here — a bare mock keeps the constructor happy.
+        $draftWorkspace = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService::class);
+        $service = new ComplianceCheckService($serviceRepo, $overrideRepo, $themeRepo, $effectiveSettings, $draftWorkspace);
         $site = $this->createMock(Site::class);
         $site->method('getIdentifier')->willReturn('default');
         // The check we exercise only consults the override repo. The

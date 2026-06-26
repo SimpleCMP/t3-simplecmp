@@ -38,6 +38,7 @@ final class RegisterAssetsTest extends TestCase
     private TranslationOverrideRepository&MockObject $overrideRepository;
     private BridgeSecretProvider&MockObject $secretProvider;
     private BridgeNonceService&MockObject $nonceService;
+    private \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService&MockObject $draftWorkspace;
     private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
@@ -53,6 +54,9 @@ final class RegisterAssetsTest extends TestCase
         $this->overrideRepository->method('findBySite')->willReturn(null);
         $this->secretProvider = $this->createMock(BridgeSecretProvider::class);
         $this->nonceService = $this->createMock(BridgeNonceService::class);
+        // Default: no draft workspace → hasDraft() returns false, so the
+        // listener reads live config exactly as before this feature.
+        $this->draftWorkspace = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService::class);
         $this->logger = $this->createMock(LoggerInterface::class);
     }
 
@@ -134,6 +138,83 @@ final class RegisterAssetsTest extends TestCase
         self::assertSame('https://example.com/privacy', $config['privacyPolicy']);
         self::assertArrayNotHasKey('cmsBridgeUrl', $config);
         self::assertArrayNotHasKey('cmsBridgeAuth', $config);
+    }
+
+    #[Test]
+    public function liveFeAuditPreviewTokenRendersDraftServices(): void
+    {
+        // A valid, site-bound preview token must flip the FE service
+        // reads to the global-scope draft so the live-FE audit judges the
+        // editor's pending registry, not the published one.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            queryParams: ['simplecmp_preview' => 'valid-token'],
+        );
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $this->nonceService->method('verify')
+            ->with('valid-token', 'simplecmp-preview-default')
+            ->willReturn(\SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification::ok());
+        $this->draftWorkspace->method('hasDraft')->willReturnCallback(
+            static fn (string $scope): bool
+                => $scope === \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+        );
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'live-only', 'name' => 'live-only', 'purposes' => ['analytics']],
+        ]);
+        $this->services->expects(self::once())
+            ->method('findAllDraft')
+            ->with(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)
+            ->willReturn([
+                ['id' => 'draft-only', 'name' => 'draft-only', 'purposes' => ['analytics']],
+            ]);
+
+        $config = $this->captureInitConfig();
+        self::assertSame(['draft-only'], array_column($config['services'], 'name'));
+    }
+
+    #[Test]
+    public function liveFeAuditFallsBackToLiveWhenNoDraftExists(): void
+    {
+        // Token valid but no global draft → published registry, no crash.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            queryParams: ['simplecmp_preview' => 'valid-token'],
+        );
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $this->nonceService->method('verify')->willReturn(
+            \SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification::ok(),
+        );
+        $this->draftWorkspace->method('hasDraft')->willReturn(false);
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'live-only', 'name' => 'live-only', 'purposes' => ['analytics']],
+        ]);
+        $this->services->expects(self::never())->method('findAllDraft');
+
+        $config = $this->captureInitConfig();
+        self::assertSame(['live-only'], array_column($config['services'], 'name'));
+    }
+
+    #[Test]
+    public function liveFeAuditIgnoresInvalidPreviewToken(): void
+    {
+        // Forged / expired / wrong-site token → published registry. The
+        // draft workspace must never even be consulted.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            queryParams: ['simplecmp_preview' => 'forged'],
+        );
+        $this->secretProvider->method('isConfigured')->willReturn(true);
+        $this->nonceService->method('verify')->willReturn(
+            \SimpleCMP\T3SimpleCmp\Service\BridgeNonceVerification::invalid(),
+        );
+        $this->draftWorkspace->expects(self::never())->method('hasDraft');
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'live-only', 'name' => 'live-only', 'purposes' => ['analytics']],
+        ]);
+        $this->services->expects(self::never())->method('findAllDraft');
+
+        $config = $this->captureInitConfig();
+        self::assertSame(['live-only'], array_column($config['services'], 'name'));
     }
 
     #[Test]
@@ -834,6 +915,29 @@ final class RegisterAssetsTest extends TestCase
 
     // --- helpers -----------------------------------------------------------
 
+    /**
+     * Run the listener and return the parsed `SimpleCMP.init(...)`
+     * config. Captures by asset id so a co-emitted theme inline script
+     * doesn't interfere.
+     *
+     * @return array<string, mixed>
+     */
+    private function captureInitConfig(): array
+    {
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')->willReturnCallback(
+            function (string $identifier, string $payload) use (&$captured): AssetCollector {
+                if ($identifier === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            }
+        );
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+        self::assertNotNull($captured, 'simplecmp-init inline JS was not emitted');
+        return $this->extractConfig($captured);
+    }
+
     private function listener(?\SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState $runtimeState = null): RegisterAssets
     {
         return new RegisterAssets(
@@ -850,6 +954,7 @@ final class RegisterAssetsTest extends TestCase
             $this->createMock(\SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository::class),
             $this->createMock(\SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener::class),
             $this->effectiveSettingsResolver(),
+            $this->draftWorkspace,
         );
     }
 
@@ -892,6 +997,7 @@ final class RegisterAssetsTest extends TestCase
         ?array $settings = [],
         string $siteIdentifier = 'default',
         bool $site = true,
+        array $queryParams = [],
     ): ServerRequestInterface {
         $req = $this->createMock(ServerRequestInterface::class);
 
@@ -909,6 +1015,7 @@ final class RegisterAssetsTest extends TestCase
                 };
             }
         );
+        $req->method('getQueryParams')->willReturn($queryParams);
         return $req;
     }
 

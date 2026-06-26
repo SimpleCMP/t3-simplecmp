@@ -162,6 +162,29 @@ development.
 
 ### Fixed
 
+- **Both compliance audits now evaluate the editor's pending DRAFT, not
+  the published config.** The ThemeDesigner shows draft form values
+  (`findBySiteDraft`) while a draft is open, but the inline compliance
+  audit (`ComplianceCheckService`) read the *live* service registry /
+  theme / overrides, and the "Live-FE-Audit" iframe rendered the *live*
+  banner — so an editor saw findings about the older published state
+  next to the draft they were editing. Now:
+  - `ComplianceCheckService::audit(Site, preferDraft: true)` resolves
+    services / theme / overrides per draft scope (global registry vs.
+    per-site theme/overrides) with a live fallback when no draft exists.
+    Site Settings stay live — they are not part of the draft workspace.
+  - The live-FE-audit iframe is served the draft banner config: the BE
+    mints a short-lived, HMAC-signed, **site-bound** preview token
+    (`BridgeNonceService`, source `simplecmp-preview-<siteId>`) and the
+    audit URL carries it as `?simplecmp_preview=…`. `RegisterAssets`
+    verifies it before switching the service/theme/override reads to the
+    draft. Fails closed: no/forged/expired token, or no bridge secret →
+    the published config renders, exactly as before. Draft state never
+    leaks to anonymous visitors. (Note: on sites that force a
+    query-dropping language redirect at the document root, the token may
+    not survive the redirect and the audit falls back to the live
+    config.)
+
 - **FE library-upstream client hardened against a slow/unreachable
   upstream.** `LibraryUpstreamClient::lookup()` makes a synchronous
   server-to-server call on a cache miss; if the upstream was down or slow

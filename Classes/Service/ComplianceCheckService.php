@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace SimpleCMP\T3SimpleCmp\Service;
 
 use TYPO3\CMS\Core\Site\Entity\Site;
+use SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService;
 use SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver;
+use SimpleCMP\T3SimpleCmp\Service\LockState;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
@@ -45,6 +47,7 @@ final readonly class ComplianceCheckService
         private TranslationOverrideRepository $overrideRepository,
         private ThemeRepository $themeRepository,
         private EffectiveSettingsResolver $effectiveSettings,
+        private DraftWorkspaceService $draftWorkspace,
     ) {
     }
 
@@ -189,26 +192,52 @@ final readonly class ComplianceCheckService
      * Order matches upstream `src/audit/index.ts` `CHECKS` array so
      * downstream code can match by index when needed.
      *
+     * `$preferDraft` makes the audit evaluate the editor's pending
+     * draft instead of the published ("freigegebene") banner config —
+     * the BE designer passes `true` so the findings shown next to the
+     * draft form actually describe what the editor is about to publish,
+     * not the older live state. Resolution is per draft scope with a
+     * live fallback: the global service registry switches to its draft
+     * only when a global draft exists, the per-site theme / translation
+     * overrides switch only when a site-scoped draft exists. Site
+     * Settings are NOT part of the draft workspace (theme / overrides /
+     * services are), so the settings-based checks always read the active
+     * configuration regardless of `$preferDraft`.
+     *
      * @return list<Result>
      */
-    public function audit(Site $site): array
+    public function audit(Site $site, bool $preferDraft = false): array
     {
+        $siteId = $site->getIdentifier();
+        $serviceDraft = $preferDraft && $this->draftWorkspace->hasDraft(LockState::SCOPE_GLOBAL);
+        $siteDraft = $preferDraft && $this->draftWorkspace->hasDraft($siteId);
+
+        $services = $serviceDraft
+            ? $this->serviceRepository->findAllDraft(LockState::SCOPE_GLOBAL)
+            : $this->serviceRepository->findAll();
+        $themeTokens = ($siteDraft
+            ? $this->themeRepository->findBySiteDraft($siteId)
+            : $this->themeRepository->findBySite($siteId)) ?? [];
+        $overrides = $siteDraft
+            ? $this->overrideRepository->findBySiteDraft($siteId)
+            : $this->overrideRepository->findBySite($siteId);
+
         $results = [];
 
         $results[] = $this->checkPrivacyPolicyUrl($site);
         $results[] = $this->checkFirstLayerReject($site);
-        $results[] = $this->checkOptInDefaults();
+        $results[] = $this->checkOptInDefaults($services);
         $results[] = $this->checkPreConsentBlocking($site);
         $results[] = $this->checkPersistentRevocationTrigger($site);
         $results[] = $this->checkImprintUrlDach($site);
-        $results[] = $this->checkServicesHavePurposes();
-        $results[] = $this->checkDeclineLabelClarity($site);
-        $results[] = $this->checkNoMarketingNudgeInDescription($site);
-        $results[] = $this->checkDescriptionLength($site);
-        $results[] = $this->checkPairedTokenOverrides($site);
-        $results[] = $this->checkBannerContrast($site);
-        $results[] = $this->checkButtonEqualProminence($site);
-        $results[] = $this->checkAccessibleNameOverrides($site);
+        $results[] = $this->checkServicesHavePurposes($services);
+        $results[] = $this->checkDeclineLabelClarity($overrides);
+        $results[] = $this->checkNoMarketingNudgeInDescription($overrides);
+        $results[] = $this->checkDescriptionLength($overrides);
+        $results[] = $this->checkPairedTokenOverrides($themeTokens);
+        $results[] = $this->checkBannerContrast($themeTokens);
+        $results[] = $this->checkButtonEqualProminence($themeTokens);
+        $results[] = $this->checkAccessibleNameOverrides($overrides);
 
         return $results;
     }
@@ -273,11 +302,11 @@ final readonly class ComplianceCheckService
     }
 
     /**
+     * @param list<array<string, mixed>> $services
      * @return Result
      */
-    private function checkOptInDefaults(): array
+    private function checkOptInDefaults(array $services): array
     {
-        $services = $this->serviceRepository->findAll();
         $offenders = [];
         foreach ($services as $service) {
             // The TYPO3 service-registry shape carries `required` and
@@ -342,11 +371,11 @@ final readonly class ComplianceCheckService
     }
 
     /**
+     * @param list<array<string, mixed>> $services
      * @return Result
      */
-    private function checkServicesHavePurposes(): array
+    private function checkServicesHavePurposes(array $services): array
     {
-        $services = $this->serviceRepository->findAll();
         $offenders = [];
         foreach ($services as $service) {
             $purposes = $service['purposes'] ?? [];
@@ -369,12 +398,13 @@ final readonly class ComplianceCheckService
      * overrides. Mirrors upstream
      * `heuristics.checkDeclineLabelClarity` predicate by language.
      *
+     * @param array<string, array{tone: ?string, overrides: array<string, string>}>|null $overrides
      * @return Result
      */
-    private function checkDeclineLabelClarity(Site $site): array
+    private function checkDeclineLabelClarity(?array $overrides): array
     {
         $hits = $this->scanOverrideKey(
-            $site->getIdentifier(),
+            $overrides,
             'decline',
             self::WEAK_DECLINE_PATTERNS,
             includeMatchedPhrase: false,
@@ -398,12 +428,13 @@ final readonly class ComplianceCheckService
      * overrides. Mirrors upstream
      * `heuristics.checkNoMarketingNudgeInDescription`.
      *
+     * @param array<string, array{tone: ?string, overrides: array<string, string>}>|null $overrides
      * @return Result
      */
-    private function checkNoMarketingNudgeInDescription(Site $site): array
+    private function checkNoMarketingNudgeInDescription(?array $overrides): array
     {
         $hits = $this->scanOverrideKey(
-            $site->getIdentifier(),
+            $overrides,
             'consentNotice.description',
             self::MARKETING_NUDGE_PATTERNS,
             includeMatchedPhrase: true,
@@ -427,11 +458,11 @@ final readonly class ComplianceCheckService
      * outside the readable length band. Mirrors upstream
      * `heuristics.checkDescriptionLength` predicate.
      *
+     * @param array<string, array{tone: ?string, overrides: array<string, string>}>|null $rows
      * @return Result
      */
-    private function checkDescriptionLength(Site $site): array
+    private function checkDescriptionLength(?array $rows): array
     {
-        $rows = $this->overrideRepository->findBySite($site->getIdentifier());
         if ($rows === null || $rows === []) {
             return $this->pass('heuristic-description-length', '2.1');
         }
@@ -481,11 +512,11 @@ final readonly class ComplianceCheckService
      * `simplecmp` consumes overrides via raw CSS variables at FE
      * mount, with no per-token override-vs-default distinction.
      *
+     * @param array<string, scalar> $tokens
      * @return Result
      */
-    private function checkPairedTokenOverrides(Site $site): array
+    private function checkPairedTokenOverrides(array $tokens): array
     {
-        $tokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
         // Drop non-color tokens — `position`, `theme`, `layout` aren't
         // pairs and would otherwise dilute the check's scope.
         $colorOverrides = [];
@@ -543,11 +574,11 @@ final readonly class ComplianceCheckService
      * surrounding `Eigene Farben aktiv` alert already signals risk,
      * and listing concrete failing pairs is a follow-up nudge.
      *
+     * @param array<string, scalar> $stored
      * @return array<string, mixed>
      */
-    private function checkBannerContrast(Site $site): array
+    private function checkBannerContrast(array $stored): array
     {
-        $stored = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
         // Color-lock active → SAFE_PALETTE wins on the live site, no
         // contrast risk from this site's tokens.
         if (($stored['colorPaletteLocked'] ?? '1') === '1') {
@@ -611,11 +642,11 @@ final readonly class ComplianceCheckService
      * `color-configure-bg` independently — when they do, surface a
      * warning so the compliance trade-off is visible.
      *
+     * @param array<string, scalar> $stored
      * @return Result
      */
-    private function checkButtonEqualProminence(Site $site): array
+    private function checkButtonEqualProminence(array $stored): array
     {
-        $stored = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
         // Color-lock active → SAFE_PALETTE wins on the live site and
         // any per-button overrides are inert. No equal-prominence risk.
         if (($stored['colorPaletteLocked'] ?? '1') === '1') {
@@ -751,11 +782,11 @@ final readonly class ComplianceCheckService
      * `id`, same severity, so a BE-passing config plus a passing live
      * audit together give the full REQ-N11 coverage.
      *
+     * @param array<string, array{tone: ?string, overrides: array<string, string>}>|null $rows
      * @return Result
      */
-    private function checkAccessibleNameOverrides(Site $site): array
+    private function checkAccessibleNameOverrides(?array $rows): array
     {
-        $rows = $this->overrideRepository->findBySite($site->getIdentifier());
         if ($rows === null || $rows === []) {
             return $this->pass('dom-accessible-names', '2.2');
         }
@@ -794,13 +825,17 @@ final readonly class ComplianceCheckService
         );
     }
 
+    /**
+     * @param array<string, array{tone: ?string, overrides: array<string, string>}>|null $rows
+     * @param array<string, list<array{phrase: string, reason: string}>> $patterns
+     * @return list<string>
+     */
     private function scanOverrideKey(
-        string $siteIdentifier,
+        ?array $rows,
         string $dottedKey,
         array $patterns,
         bool $includeMatchedPhrase,
     ): array {
-        $rows = $this->overrideRepository->findBySite($siteIdentifier);
         if ($rows === null || $rows === []) {
             return [];
         }

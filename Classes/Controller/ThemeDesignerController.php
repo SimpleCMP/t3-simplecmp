@@ -437,6 +437,8 @@ final class ThemeDesignerController extends ActionController
         private readonly ComplianceCheckService $complianceCheck,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\BridgeNonceService $nonceService,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider $secretProvider,
     ) {
     }
 
@@ -561,14 +563,20 @@ final class ThemeDesignerController extends ActionController
         }
 
         // Compliance audit — runs the legal-requirement checks against
-        // the live site config (settings + service registry). Results
-        // mirror the upstream `simplecmp.audit()` JS surface so a
+        // the draft-or-live banner config (settings + service registry).
+        // Results mirror the upstream `simplecmp.audit()` JS surface so a
         // single CHANGELOG entry on either side prompts the other to
         // re-sync. The template renders them as an inline-banner at
         // the top of the form so editors see findings before they
         // touch any other control.
+        // `preferDraft: true` — the form above shows the pending draft
+        // (findBySiteDraft, see $stored). The audit must judge the SAME
+        // state, otherwise an editor sees draft fields next to findings
+        // computed from the older published config. ComplianceCheckService
+        // falls back to live per scope when no draft exists.
         $auditResults = $this->complianceCheck->audit(
-            $this->siteFinder->getSiteByIdentifier($site)
+            $this->siteFinder->getSiteByIdentifier($site),
+            preferDraft: true,
         );
         $auditWorstSeverity = $this->complianceCheck->worstSeverity($auditResults);
         // Enrich each finding with a clickable URL pointing at the
@@ -663,6 +671,12 @@ final class ThemeDesignerController extends ActionController
             // Empty string when the site doesn't expose a base
             // (shouldn't happen for SimpleCMP-Set sites).
             'siteBaseUrl' => $this->siteBaseUrl($site),
+            // HMAC preview token the live-FE-audit iframe appends as
+            // `?simplecmp_preview=` so RegisterAssets serves this site's
+            // DRAFT banner config to the audit render instead of the
+            // published one. Empty when no bridge secret is configured —
+            // the audit then falls back to auditing the live config.
+            'feAuditPreviewToken' => $this->mintPreviewToken($site),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
@@ -1058,6 +1072,25 @@ final class ThemeDesignerController extends ActionController
             return '';
         }
         return (string) $site->getBase();
+    }
+
+    /**
+     * Mint the HMAC preview token for this site's live-FE audit. The
+     * token is source-bound to `simplecmp-preview-<siteId>` so it only
+     * unlocks THIS site's draft (see RegisterAssets::resolvePreviewDraft).
+     * Returns '' when no bridge secret is configured — the FE then can't
+     * be switched to draft and the audit evaluates the live config, same
+     * as before this feature existed. Possession proves BE authorisation
+     * because the token is only ever rendered into this admin-only module.
+     */
+    private function mintPreviewToken(string $siteIdentifier): string
+    {
+        if (!$this->secretProvider->isConfigured()) {
+            return '';
+        }
+        return $this->nonceService->issue(
+            \SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets::PREVIEW_NONCE_SOURCE_PREFIX . $siteIdentifier,
+        );
     }
 
     /**

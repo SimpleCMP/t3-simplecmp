@@ -68,6 +68,19 @@ final readonly class RegisterAssets
         'simplecmp-contextual-notice',
     ];
 
+    /**
+     * Source prefix bound into the live-FE-audit preview token. The BE
+     * ThemeDesigner mints `issue(PREVIEW_NONCE_SOURCE_PREFIX . <siteId>)`
+     * and appends it as `?simplecmp_preview=<token>` to the audit iframe
+     * URL; this listener verifies it (HMAC + expiry + source binding,
+     * see BridgeNonceService) before serving DRAFT banner config to the
+     * FE. Without a valid token the FE always renders the published
+     * config — so draft state never leaks to anonymous visitors, and the
+     * per-site source binding stops a token minted for site A from
+     * unlocking site B's draft.
+     */
+    public const string PREVIEW_NONCE_SOURCE_PREFIX = 'simplecmp-preview-';
+
     public function __construct(
         private AssetCollector $assetCollector,
         private PageRenderer $pageRenderer,
@@ -82,6 +95,7 @@ final readonly class RegisterAssets
         private \SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository $snapshotRepository,
         private \SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener $snapshotListener,
         private \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
+        private \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
     ) {
     }
 
@@ -105,7 +119,14 @@ final readonly class RegisterAssets
             return;
         }
 
-        $config = $this->buildInitConfig($settings, $site, $request);
+        // Live-FE-Audit preview: a BE-minted, HMAC-signed token in
+        // `?simplecmp_preview=` switches the service / theme / override
+        // reads to the editor's pending DRAFT, so the audit iframe judges
+        // what the editor is about to publish instead of the older live
+        // config. No token (the normal visitor case) → published config.
+        $previewDraft = $this->resolvePreviewDraft($request, $site);
+
+        $config = $this->buildInitConfig($settings, $site, $request, $previewDraft);
         if ($config === null) {
             return;
         }
@@ -185,7 +206,70 @@ final readonly class RegisterAssets
         // Theme injection stays at the default (end of body) — its
         // MutationObserver attaches to `document.body`, which only
         // exists once parsing has progressed past <head>.
-        $this->injectTheme($site);
+        $this->injectTheme($site, $previewDraft);
+    }
+
+    /**
+     * Whether this request should render the editor's pending DRAFT
+     * banner config instead of the published one. True only when a
+     * valid, non-expired, site-bound preview token rides along in
+     * `?simplecmp_preview=` (minted by the BE ThemeDesigner's live-FE-
+     * audit button). Fails closed: no token, no bridge secret, or any
+     * verification failure → published config.
+     */
+    private function resolvePreviewDraft(ServerRequestInterface $request, Site $site): bool
+    {
+        $token = $request->getQueryParams()['simplecmp_preview'] ?? null;
+        if (!is_string($token) || $token === '') {
+            return false;
+        }
+        if (!$this->secretProvider->isConfigured()) {
+            return false;
+        }
+        $source = self::PREVIEW_NONCE_SOURCE_PREFIX . $site->getIdentifier();
+        return $this->nonceService->verify($token, $source)->isValid();
+    }
+
+    /**
+     * Service registry rows, draft when `$draft` and a global-scope
+     * draft exists, else the published live rows.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function readServices(bool $draft): array
+    {
+        if ($draft && $this->draftWorkspace->hasDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)) {
+            return $this->serviceRepository->findAllDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL);
+        }
+        return $this->serviceRepository->findAll();
+    }
+
+    /**
+     * Theme tokens for the site, draft when `$draft` and a site-scoped
+     * draft exists, else the published live row.
+     *
+     * @return array<string, scalar>|null
+     */
+    private function readThemeTokens(string $site, bool $draft): ?array
+    {
+        if ($draft && $this->draftWorkspace->hasDraft($site)) {
+            return $this->themeRepository->findBySiteDraft($site);
+        }
+        return $this->themeRepository->findBySite($site);
+    }
+
+    /**
+     * Translation overrides for the site, draft when `$draft` and a
+     * site-scoped draft exists, else the published live row.
+     *
+     * @return array<string, array{tone: ?string, overrides: array<string, string>}>|null
+     */
+    private function readOverrides(string $site, bool $draft): ?array
+    {
+        if ($draft && $this->draftWorkspace->hasDraft($site)) {
+            return $this->overrideRepository->findBySiteDraft($site);
+        }
+        return $this->overrideRepository->findBySite($site);
     }
 
     /**
@@ -289,9 +373,9 @@ final readonly class RegisterAssets
      * Skipped when no row exists for this site — falls back cleanly
      * to the bundle's built-in token defaults (`src/ui/styles/tokens.ts`).
      */
-    private function injectTheme(Site $site): void
+    private function injectTheme(Site $site, bool $draft = false): void
     {
-        $tokens = $this->themeRepository->findBySite($site->getIdentifier());
+        $tokens = $this->readThemeTokens($site->getIdentifier(), $draft);
         if ($tokens === null || $tokens === []) {
             return;
         }
@@ -468,9 +552,9 @@ final readonly class RegisterAssets
      * `bottom-right` if the token is missing or holds a tampered
      * value.
      */
-    private function resolveTriggerPosition(Site $site): string
+    private function resolveTriggerPosition(Site $site, bool $draft = false): string
     {
-        $tokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        $tokens = $this->readThemeTokens($site->getIdentifier(), $draft) ?? [];
         $candidate = $tokens['triggerPosition'] ?? null;
         if (is_string($candidate) && isset(\SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController::TRIGGER_POSITIONS[$candidate])) {
             return $candidate;
@@ -521,9 +605,9 @@ final readonly class RegisterAssets
      *
      * @return array<string, array<string, mixed>>
      */
-    private function buildOverrideTranslations(string $siteIdentifier): array
+    private function buildOverrideTranslations(string $siteIdentifier, bool $draft = false): array
     {
-        $rows = $this->overrideRepository->findBySite($siteIdentifier);
+        $rows = $this->readOverrides($siteIdentifier, $draft);
         if ($rows === null || $rows === []) {
             return [];
         }
@@ -556,9 +640,9 @@ final readonly class RegisterAssets
      *
      * @return array<string, 'informal'>
      */
-    private function buildTones(string $siteIdentifier): array
+    private function buildTones(string $siteIdentifier, bool $draft = false): array
     {
-        $rows = $this->overrideRepository->findBySite($siteIdentifier);
+        $rows = $this->readOverrides($siteIdentifier, $draft);
         if ($rows === null || $rows === []) {
             return [];
         }
@@ -620,7 +704,7 @@ final readonly class RegisterAssets
         return $base;
     }
 
-    private function buildInitConfig(object $settings, Site $site, ServerRequestInterface $request): ?array
+    private function buildInitConfig(object $settings, Site $site, ServerRequestInterface $request, bool $previewDraft = false): ?array
     {
         // Phase 5: settings reads go through EffectiveSettingsResolver
         // so editor-confirmed active values win over YAML proposals.
@@ -635,7 +719,7 @@ final readonly class RegisterAssets
         $get = fn (string $key, mixed $default = null): mixed
             => $this->effectiveSettings->get($siteIdentifier, $key, $default);
 
-        [$services, $serviceTranslations] = $this->buildRuntimeServices();
+        [$services, $serviceTranslations] = $this->buildRuntimeServices($previewDraft);
         $config = [
             'storageName' => $get('simplecmp.storageName') ?: 'simplecmp-' . $site->getIdentifier(),
             'services' => $services,
@@ -650,7 +734,7 @@ final readonly class RegisterAssets
                 // bottom-right; the bundle's `<simplecmp-trigger>`
                 // component reads this and applies its corresponding
                 // `:host([position='…'])` rule.
-                'position' => $this->resolveTriggerPosition($site),
+                'position' => $this->resolveTriggerPosition($site, $previewDraft),
             ],
         ];
         // REQ-N4 region engine: baseline regime + optional per-visitor region
@@ -675,7 +759,7 @@ final readonly class RegisterAssets
         //   4. per-site BE-designer manual overrides — last wins so an
         //      editor's hand-written string beats both the tone preset
         //      and the bundle default
-        $tones = $this->buildTones($site->getIdentifier());
+        $tones = $this->buildTones($site->getIdentifier(), $previewDraft);
         if ($tones !== []) {
             $config['tones'] = $tones;
         }
@@ -685,7 +769,7 @@ final readonly class RegisterAssets
         // field so it can inject the matching framework adapter
         // (e.g. Bootstrap 5's `--bs-*` mapping). Suppress when
         // `default` so the bundle treats it as unset.
-        $themeTokens = $this->themeRepository->findBySite($site->getIdentifier()) ?? [];
+        $themeTokens = $this->readThemeTokens($site->getIdentifier(), $previewDraft) ?? [];
         $themeChoice = isset($themeTokens['theme']) ? (string) $themeTokens['theme'] : 'default';
         if ($themeChoice !== '' && $themeChoice !== 'default') {
             $config['theme'] = $themeChoice;
@@ -699,7 +783,7 @@ final readonly class RegisterAssets
             $config['layout'] = $layoutChoice;
         }
         $translations = $serviceTranslations;
-        $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier());
+        $overrideTranslations = $this->buildOverrideTranslations($site->getIdentifier(), $previewDraft);
         if ($overrideTranslations !== []) {
             $translations = $this->mergeTranslationsDeep($translations, $overrideTranslations);
         }
@@ -1098,13 +1182,13 @@ final readonly class RegisterAssets
      *
      * @return array{0: list<array<string, mixed>>, 1: array<string, mixed>}
      */
-    private function buildRuntimeServices(): array
+    private function buildRuntimeServices(bool $draft = false): array
     {
         // The registry only ever holds admin-curated services post-
         // fe_visible architecture — every row appears on the FE banner.
         // Classifier coverage for library cookies is consulted via the
         // bundled `simplecmp/services-library` JSONs at lookup time.
-        $rows = $this->serviceRepository->findAll();
+        $rows = $this->readServices($draft);
         $services = [];
         $translations = [];
         foreach ($rows as $row) {
