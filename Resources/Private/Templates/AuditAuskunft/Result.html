@@ -21,22 +21,22 @@
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.heading" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.heading" />
     </h1>
     <a href="{uri_back}" class="btn btn-default btn-sm">
         <core:icon identifier="actions-arrow-left" size="small" />
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.back" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.back" />
     </a>
 </div>
 
 <div class="card mb-3">
     <div class="card-body">
         <dl class="row mb-0 small">
-            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.site" /></dt>
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.site" /></dt>
             <dd class="col-sm-9"><code>{site}</code></dd>
-            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorUuid" /></dt>
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorUuid" /></dt>
             <dd class="col-sm-9"><code>{visitorUuid}</code></dd>
-            <dt class="col-sm-3"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorHash" /></dt>
+            <dt class="col-sm-3"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.visitorHash" /></dt>
             <dd class="col-sm-9"><code>{visitorHashShort}…</code> <span class="text-body-secondary">(sha256, site-scoped)</span></dd>
         </dl>
     </div>
@@ -49,7 +49,7 @@
         <f:form.hidden name="format" value="json" />
         <button type="submit" class="btn btn-primary">
             <core:icon identifier="actions-download" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadJson" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadJson" />
         </button>
     </f:form>
     <f:form action="download" method="post" class="m-0">
@@ -58,7 +58,7 @@
         <f:form.hidden name="format" value="csv" />
         <button type="submit" class="btn btn-default">
             <core:icon identifier="actions-download" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadCsv" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.downloadCsv" />
         </button>
     </f:form>
 </div>
@@ -66,25 +66,25 @@
 <f:if condition="{totalDecisions} == 0">
     <div class="alert alert-warning">
         <core:icon identifier="actions-info-circle" size="small" />
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.noMatches" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.noMatches" />
     </div>
 </f:if>
 
 <f:if condition="{totalDecisions} > 0">
     <h2 class="h4">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.decisions" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.decisions" />
         <span class="badge text-bg-secondary">{totalDecisions}</span>
     </h2>
     <div class="table-responsive mb-4">
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.when" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.type" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.versionHash" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.decisions" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.uaFamily" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.pageHost" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.when" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.type" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.versionHash" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.decisions" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.uaFamily" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.col.pageHost" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -122,11 +122,11 @@
 
 <f:if condition="{totalSnapshots} > 0">
     <h2 class="h4">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshots" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshots" />
         <span class="badge text-bg-secondary">{totalSnapshots}</span>
     </h2>
     <p class="text-body-secondary small">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshotsIntro" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.auskunft.result.snapshotsIntro" />
     </p>
     <f:for each="{snapshots}" as="s">
         <details class="card mb-3">

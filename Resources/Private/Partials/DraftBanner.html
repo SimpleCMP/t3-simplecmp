@@ -40,18 +40,18 @@
         <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
             <core:icon identifier="actions-lock" size="medium" />
             <div class="flex-grow-1">
-                <strong>{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.heading')}</strong>
+                <strong>{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.heading')}</strong>
                 <p class="mb-2 small">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.body"
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.conflict.body"
                                  arguments="{0: scope, 1: lockState.ownerBeUserId}" />
                 </p>
                 <f:form action="takeover" controller="Publish" method="post" class="m-0">
                     <f:form.hidden name="scope" value="{scope}" />
                     <f:form.hidden name="returnUrl" value="{currentUrl}" />
                     <button type="submit" class="btn btn-warning btn-sm"
-                            onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.confirm\')}');">
+                            onclick="return confirm('{f:translate(key: \'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.confirm\')}');">
                         <core:icon identifier="actions-arrow-right" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.button" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.lock.takeover.button" />
                     </button>
                 </f:form>
             </div>
@@ -63,9 +63,9 @@
                 <div class="alert alert-info d-flex align-items-start gap-2 mb-3" role="alert">
                     <core:icon identifier="actions-edit-pick-date" size="medium" />
                     <div class="flex-grow-1">
-                        <strong>{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.heading')}</strong>
+                        <strong>{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.heading')}</strong>
                         <p class="mb-2 small">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.body"
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.body"
                                          arguments="{0: scope}" />
                         </p>
                         <div class="d-flex gap-2">
@@ -74,16 +74,16 @@
                                 <f:form.hidden name="returnUrl" value="{currentUrl}" />
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <core:icon identifier="actions-upload" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
                                 </button>
                             </f:form>
                             <f:form action="discard" controller="Publish" method="post" class="m-0">
                                 <f:form.hidden name="scope" value="{scope}" />
                                 <f:form.hidden name="returnUrl" value="{currentUrl}" />
                                 <button type="submit" class="btn btn-default btn-sm"
-                                        onclick="return confirm('{f:translate(key: \'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
+                                        onclick="return confirm('{f:translate(key: \'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
                                     <core:icon identifier="actions-close" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
                                 </button>
                             </f:form>
                         </div>
@@ -94,16 +94,16 @@
                 <div class="alert alert-secondary d-flex align-items-start gap-2 mb-3" role="alert">
                     <core:icon identifier="actions-lock" size="medium" />
                     <div class="flex-grow-1">
-                        <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.heading" /></strong>
+                        <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.heading" /></strong>
                         <p class="mb-2 small">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.body" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.locked.body" />
                         </p>
                         <form method="post" action="{uri_createDraft}" class="m-0">
                             <input type="hidden" name="scope" value="{scope}" />
                             <input type="hidden" name="returnUrl" value="{currentUrl}" />
                             <button type="submit" class="btn btn-primary btn-sm">
                                 <core:icon identifier="actions-add" size="small" />
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.createDraft.button" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.createDraft.button" />
                             </button>
                         </form>
                     </div>

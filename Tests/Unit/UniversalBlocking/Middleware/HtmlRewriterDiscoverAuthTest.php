@@ -29,13 +29,13 @@ final class HtmlRewriterDiscoverAuthTest extends TestCase
 
     protected function setUp(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']
             = base64_encode(random_bytes(32));
     }
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']);
     }
 
     #[Test]
@@ -110,7 +110,7 @@ final class HtmlRewriterDiscoverAuthTest extends TestCase
         // middleware.
         $nonce = $this->nonceService();
         $token = $nonce->issue(self::SOURCE, 3600);
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']);
         self::assertFalse(
             $this->isValid($this->rewriter($nonce), $token, $this->siteWithStorageName(self::SOURCE)),
         );

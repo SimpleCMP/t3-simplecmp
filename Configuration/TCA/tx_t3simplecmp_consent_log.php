@@ -19,12 +19,12 @@ declare(strict_types=1);
  */
 return [
     'ctrl' => [
-        'title' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_consent_log',
+        'title' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_consent_log',
         'label' => 'visitor_id_sha256',
         'label_alt' => 'version_hash',
         'label_alt_force' => true,
         'crdate' => 'crdate',
-        'iconfile' => 'EXT:t3_simplecmp/Resources/Public/Icons/simplecmp.svg',
+        'iconfile' => 'EXT:simplecmp/Resources/Public/Icons/simplecmp.svg',
         'searchFields' => 'site,version_hash,visitor_id_sha256,decision_type',
         'rootLevel' => -1,
         'default_sortby' => 'crdate DESC',

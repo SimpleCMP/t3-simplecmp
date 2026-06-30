@@ -7,36 +7,36 @@
 
 <f:section name="Content">
     <h1>
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.title" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.title" />
         — <code>{detection.identifier}</code>
     </h1>
     <p>
         <a href="{uri_list}" class="btn btn-sm btn-default">
             <core:icon identifier="actions-chevron-left" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.back" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.back" />
         </a>
     </p>
 
     <div class="row">
         <div class="col-md-6 mb-3">
-            <h3><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.identity" /></h3>
+            <h3><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.identity" /></h3>
             <dl class="row">
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></dt>
                 <dd class="col-sm-8"><span class="badge bg-secondary">{detection.kind}</span></dd>
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></dt>
                 <dd class="col-sm-8"><code>{detection.identifier}</code></dd>
                 <f:if condition="{detection.origin}">
-                    <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></dt>
+                    <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></dt>
                     <dd class="col-sm-8"><code>{detection.origin}</code></dd>
                 </f:if>
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></dt>
                 <dd class="col-sm-8">{detection.source}</dd>
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.occurrences" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.occurrences" /></dt>
                 <dd class="col-sm-8"><strong>{detection.occurrences}</strong></dd>
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></dt>
                 <dd class="col-sm-8">
                     <span class="badge {detection.state_class}">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
                     </span>
                     <f:if condition="{detection.match.name}">
                         <small class="d-block text-body-secondary mt-1">{detection.match.name}</small>
@@ -45,24 +45,24 @@
             </dl>
         </div>
         <div class="col-md-6 mb-3">
-            <h3><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.page" /></h3>
+            <h3><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.page" /></h3>
             <dl class="row">
-                <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.pageUrl" /></dt>
+                <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.pageUrl" /></dt>
                 <dd class="col-sm-8"><a href="{detection.page_url}" target="_blank" rel="noopener"><code>{detection.page_url}</code></a></dd>
                 <f:if condition="{detection.first_seen_on}">
-                    <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.firstSeenOn" /></dt>
+                    <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.firstSeenOn" /></dt>
                     <dd class="col-sm-8"><code>{detection.first_seen_on}</code></dd>
                 </f:if>
                 <f:if condition="{detection.referrer}">
-                    <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.referrer" /></dt>
+                    <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.referrer" /></dt>
                     <dd class="col-sm-8"><code>{detection.referrer}</code></dd>
                 </f:if>
                 <f:if condition="{detection.user_agent}">
-                    <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.userAgent" /></dt>
+                    <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.userAgent" /></dt>
                     <dd class="col-sm-8"><small>{detection.user_agent}</small></dd>
                 </f:if>
                 <f:if condition="{detection.library_version}">
-                    <dt class="col-sm-4"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.libraryVersion" /></dt>
+                    <dt class="col-sm-4"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.libraryVersion" /></dt>
                     <dd class="col-sm-8"><code>simplecmp {detection.library_version}</code></dd>
                 </f:if>
             </dl>
@@ -70,27 +70,27 @@
     </div>
 
     <div class="mb-3">
-        <h3><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.timing" /></h3>
+        <h3><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.timing" /></h3>
         <dl class="row">
-            <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.received" /></dt>
+            <dt class="col-sm-2"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.received" /></dt>
             <dd class="col-sm-10"><t3b:format.beDate date="{detection.received_at}" /></dd>
             <f:if condition="{detection.sent_at}">
-                <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.sentAt" /></dt>
+                <dt class="col-sm-2"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.sentAt" /></dt>
                 <dd class="col-sm-10"><code>{detection.sent_at}</code></dd>
             </f:if>
             <f:if condition="{detection.first_seen}">
-                <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.firstSeen" /></dt>
+                <dt class="col-sm-2"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.firstSeen" /></dt>
                 <dd class="col-sm-10"><code>{detection.first_seen}</code> ms</dd>
             </f:if>
             <f:if condition="{detection.last_seen}">
-                <dt class="col-sm-2"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.lastSeen" /></dt>
+                <dt class="col-sm-2"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.field.lastSeen" /></dt>
                 <dd class="col-sm-10"><code>{detection.last_seen}</code> ms</dd>
             </f:if>
         </dl>
     </div>
 
     <div class="mb-3">
-        <h3><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.payload" /></h3>
+        <h3><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:show.section.payload" /></h3>
         <pre style="background:#f4f4f4;padding:1rem;border-radius:4px;font-size:0.85em;overflow:auto;max-height:400px;"><code>{payloadJson}</code></pre>
     </div>
 
@@ -99,13 +99,13 @@
             <f:case value="erkannt">
                 <a href="{detection.uri_createService}" class="btn btn-default">
                     <core:icon identifier="actions-pencil" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
                 </a>
             </f:case>
             <f:case value="unbekannt">
                 <a href="{detection.uri_createService}" class="btn btn-warning">
                     <core:icon identifier="actions-plus" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
                 </a>
             </f:case>
         </f:switch>

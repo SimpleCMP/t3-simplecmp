@@ -18,10 +18,10 @@
 
         <h1 class="mb-3">
             <core:icon identifier="actions-cog" size="medium" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.heading" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.heading" />
         </h1>
         <p class="text-body-secondary mb-4">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.intro" />
         </p>
 
         <f:if condition="{selectedType}">
@@ -32,7 +32,7 @@
                         <f:link.action action="tracker"
                                        arguments="{site: selectedSite}"
                                        class="btn btn-sm btn-link float-end">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.changeProvider" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.changeProvider" />
                         </f:link.action>
                     </div>
                     <div class="card-body">
@@ -89,10 +89,10 @@
                                                arguments="{site: selectedSite}"
                                                class="btn btn-link text-body-secondary">
                                     <core:icon identifier="actions-arrow-left" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
                                 </f:link.action>
                                 <button type="submit" class="btn btn-primary">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.save" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.save" />
                                     <core:icon identifier="actions-arrow-right" size="small" />
                                 </button>
                             </div>
@@ -122,10 +122,10 @@
                                 <div class="card-body">
                                     <core:icon identifier="actions-close" size="medium" />
                                     <h5 class="card-title mt-2">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.skip" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.skip" />
                                     </h5>
                                     <p class="card-text small text-body-secondary mb-0">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.skipBody" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.tracker.skipBody" />
                                     </p>
                                 </div>
                             </button>
@@ -138,7 +138,7 @@
                                    arguments="{site: selectedSite}"
                                    class="btn btn-link text-body-secondary">
                         <core:icon identifier="actions-arrow-left" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
                     </f:link.action>
                 </div>
             </f:else>
@@ -147,7 +147,7 @@
     </f:then>
     <f:else>
         <div class="alert alert-warning">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
         </div>
     </f:else>
 </f:if>

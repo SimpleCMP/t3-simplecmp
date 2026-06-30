@@ -18,12 +18,12 @@ declare(strict_types=1);
  */
 return [
     'ctrl' => [
-        'title' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_publish_lock',
+        'title' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_publish_lock',
         'label' => 'scope',
         'label_alt' => 'owner_be_user',
         'label_alt_force' => true,
         'crdate' => 'crdate',
-        'iconfile' => 'EXT:t3_simplecmp/Resources/Public/Icons/simplecmp.svg',
+        'iconfile' => 'EXT:simplecmp/Resources/Public/Icons/simplecmp.svg',
         'searchFields' => 'scope,owner_be_user',
         'rootLevel' => -1,
         'default_sortby' => 'last_activity_at DESC',

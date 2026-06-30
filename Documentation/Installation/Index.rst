@@ -55,7 +55,7 @@ bootstrap one:
 detections*. When no secret is configured, the page shows a
 yellow callout with a *Generate bridge secret* button. Clicking
 it writes a fresh value into :file:`config/system/settings.php`
-under :php:`$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']`.
+under :php:`$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']`.
 
 **Option 2 — CLI.** Run:
 
@@ -70,7 +70,7 @@ recommended for production deployments:
 ..  code-block:: php
 
     // In config/system/additional.php:
-    $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
+    $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']
         = getenv('SIMPLECMP_BRIDGE_SECRET') ?: null;
 
 One secret per TYPO3 installation. If you run multiple installs and

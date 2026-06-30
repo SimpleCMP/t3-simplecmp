@@ -7,21 +7,21 @@
         <core:icon identifier="actions-rocket" size="medium" />
         <div class="flex-grow-1">
             <strong>
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.heading" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.heading" />
             </strong>
             <p class="mb-0 small text-body-secondary">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.body" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.body" />
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
             <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='{uri_wizardStart}'">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.start" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.start" />
                 <core:icon identifier="actions-arrow-right" size="small" />
             </button>
             <f:form action="skip" controller="SetupWizard" method="post" class="m-0">
                 <f:form.hidden name="site" value="{wizardBannerSite}" />
                 <button type="submit" class="btn btn-link btn-sm text-body-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.skip" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.banner.skip" />
                 </button>
             </f:form>
         </div>

@@ -21,30 +21,30 @@
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.heading" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.heading" />
         — <code>{snapshot.version_hash}</code>
     </h1>
     <a href="{uri_back}" class="btn btn-sm btn-default">
         <core:icon identifier="actions-chevron-left" size="small" />
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.back" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.back" />
     </a>
 </div>
 
 <dl class="row mb-4">
     <dt class="col-sm-3">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" />
     </dt>
     <dd class="col-sm-9"><t3b:format.beDate date="{snapshot.crdate}" /></dd>
     <dt class="col-sm-3">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" />
     </dt>
     <dd class="col-sm-9">
         <span class="badge bg-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{snapshot.trigger_event}" default="{snapshot.trigger_event}" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{snapshot.trigger_event}" default="{snapshot.trigger_event}" />
         </span>
     </dd>
     <dt class="col-sm-3">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" />
     </dt>
     <dd class="col-sm-9">
         <f:if condition="{snapshot.creator_be_user} > 0">
@@ -57,17 +57,17 @@
 </dl>
 
 <h2>
-    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.snapshot" />
+    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.snapshot" />
 </h2>
 <pre class="bg-body-secondary p-3 rounded" style="max-height:50vh; overflow:auto;"><code>{snapshotPretty}</code></pre>
 
 <h2 class="mt-4">
-    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.diff" />
+    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.diff" />
 </h2>
 <f:if condition="{previous}">
     <f:then>
         <p class="text-body-secondary small">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.previous"
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.previous"
                          arguments="{0: previous.version_hash}" />
             (<t3b:format.beDate date="{previous.crdate}" />)
         </p>
@@ -77,24 +77,24 @@
             </f:then>
             <f:else>
                 <div class="alert alert-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.empty" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.empty" />
                 </div>
             </f:else>
         </f:if>
     </f:then>
     <f:else>
         <div class="alert alert-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.firstSnapshot" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.diff.firstSnapshot" />
         </div>
     </f:else>
 </f:if>
 
 <h2 class="mt-4">
-    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions" />
+    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions" />
     ({consentLogCount})
 </h2>
 <p class="text-body-secondary small">
-    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions.intro" />
+    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.section.decisions.intro" />
 </p>
 
 <f:if condition="{consentLogRows}">
@@ -102,11 +102,11 @@
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.visitor" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.type" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.decisions" /></th>
-                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.context" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.visitor" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.type" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.decisions" /></th>
+                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.col.context" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@
                         <td><code title="{row.visitor_id_sha256}">{row.visitor_id_short}…</code></td>
                         <td>
                             <span class="badge bg-{row.type_class}">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.type.{row.decision_type}" default="{row.decision_type}" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.type.{row.decision_type}" default="{row.decision_type}" />
                             </span>
                         </td>
                         <td>
@@ -145,14 +145,14 @@
         </table>
         <f:if condition="{consentLogCount} > 100">
             <p class="text-body-secondary small">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.truncated"
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.truncated"
                              arguments="{0: 100, 1: consentLogCount}" />
             </p>
         </f:if>
     </f:then>
     <f:else>
         <div class="alert alert-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.empty" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.show.decisions.empty" />
         </div>
     </f:else>
 </f:if>

@@ -22,12 +22,12 @@ declare(strict_types=1);
  */
 return [
     'ctrl' => [
-        'title' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_config_snapshot',
+        'title' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_config_snapshot',
         'label' => 'version_hash',
         'label_alt' => 'site',
         'label_alt_force' => true,
         'crdate' => 'crdate',
-        'iconfile' => 'EXT:t3_simplecmp/Resources/Public/Icons/simplecmp.svg',
+        'iconfile' => 'EXT:simplecmp/Resources/Public/Icons/simplecmp.svg',
         'searchFields' => 'site,version_hash,trigger_event',
         'rootLevel' => -1,
         'default_sortby' => 'crdate DESC',

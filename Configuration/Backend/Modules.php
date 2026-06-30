@@ -31,7 +31,7 @@ return [
         'access' => 'admin',
         'path' => '/module/simplecmp/detections',
         'iconIdentifier' => 'simplecmp-module',
-        'labels' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf',
+        'labels' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf',
         'extensionName' => 'SimpleCmpTypo3',
         'controllerActions' => [
             DetectionReviewController::class => [

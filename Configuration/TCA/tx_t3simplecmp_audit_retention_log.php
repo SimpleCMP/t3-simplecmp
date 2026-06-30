@@ -15,12 +15,12 @@ declare(strict_types=1);
  */
 return [
     'ctrl' => [
-        'title' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_audit_retention_log',
+        'title' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_audit_retention_log',
         'label' => 'target_table',
         'label_alt' => 'crdate',
         'label_alt_force' => true,
         'crdate' => 'crdate',
-        'iconfile' => 'EXT:t3_simplecmp/Resources/Public/Icons/simplecmp.svg',
+        'iconfile' => 'EXT:simplecmp/Resources/Public/Icons/simplecmp.svg',
         'searchFields' => 'target_table,target_site,invoked_by,invocation_reason',
         'rootLevel' => -1,
         'default_sortby' => 'crdate DESC',

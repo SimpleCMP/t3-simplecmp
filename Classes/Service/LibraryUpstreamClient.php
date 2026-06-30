@@ -77,7 +77,7 @@ final readonly class LibraryUpstreamClient
      * `libraryUpstreamSkipWhenInSync`. When true (default), the sync
      * gate in `lookup()` short-circuits upstream calls if the bundled
      * library is provably in sync with upstream. Admins can flip OFF
-     * in Settings → Extension Configuration → t3_simplecmp for
+     * in Settings → Extension Configuration → simplecmp for
      * debugging the upstream wiring.
      */
     private bool $skipWhenInSync;
@@ -98,7 +98,7 @@ final readonly class LibraryUpstreamClient
         // TYPO3_CONF_VARS until the form is saved). Default to ON in
         // that case — the optimization is provably safe.
         try {
-            $config = $extensionConfiguration->get('t3_simplecmp');
+            $config = $extensionConfiguration->get('simplecmp');
             $configured = is_array($config) ? ($config['libraryUpstreamSkipWhenInSync'] ?? true) : true;
         } catch (\Throwable) {
             $configured = true;

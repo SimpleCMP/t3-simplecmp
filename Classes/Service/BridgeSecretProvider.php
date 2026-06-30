@@ -10,10 +10,10 @@ use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 /**
  * Single source of truth for the HMAC secret that signs bridge nonces.
  *
- * Reads from `$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']`.
+ * Reads from `$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']`.
  * Typical deployment uses env interpolation in `additional.php`:
  *
- *     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
+ *     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']
  *         = getenv('SIMPLECMP_BRIDGE_SECRET') ?: null;
  *
  * If no secret is configured, calling `ensureExists()` from a backend
@@ -43,7 +43,7 @@ use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 final readonly class BridgeSecretProvider
 {
     private const string CONFIG_KEY = 'bridgeSecret';
-    private const string EXTENSION_KEY = 't3_simplecmp';
+    private const string EXTENSION_KEY = 'simplecmp';
     private const int MIN_SECRET_BYTES = 32;
     private const int GENERATED_BYTES = 32;
 

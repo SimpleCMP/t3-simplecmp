@@ -350,13 +350,13 @@ final readonly class RegisterAssets
      */
     private function resolveBundleAndTranslations(Site $site, ServerRequestInterface $request): array
     {
-        $fullBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.global.js';
+        $fullBundle = 'EXT:simplecmp/Resources/Public/JavaScript/simplecmp.global.js';
         // Ops-key: direct read to keep parity with the SiteSettings
         // mock used by RegisterAssetsTest.
         if (!(bool) $site->getSettings()->get('simplecmp.useSlimBundle', false)) {
             return [$fullBundle, []];
         }
-        $slimBundle = 'EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js';
+        $slimBundle = 'EXT:simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js';
         $slimAbs = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($slimBundle);
         if ($slimAbs === '' || !is_file($slimAbs)) {
             $this->logger->warning(
@@ -372,7 +372,7 @@ final readonly class RegisterAssets
             // build — nothing to inject; skip the file probe entirely.
             return [$slimBundle, []];
         }
-        $packPath = 'EXT:t3_simplecmp/Resources/Public/JavaScript/translations/' . $isoCode . '.json';
+        $packPath = 'EXT:simplecmp/Resources/Public/JavaScript/translations/' . $isoCode . '.json';
         $packAbs = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($packPath);
         if ($packAbs === '' || !is_file($packAbs)) {
             $this->logger->warning(

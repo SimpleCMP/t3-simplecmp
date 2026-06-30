@@ -12,6 +12,27 @@ development.
 
 ### Changed
 
+- **BREAKING: the TYPO3 extension key was renamed `t3_simplecmp` →
+  `simplecmp`.** The Composer package name (`simplecmp/t3-simplecmp`),
+  the PHP namespace (`SimpleCMP\T3SimpleCmp\`), the database tables
+  (`tx_t3simplecmp_*`), the Site Set name (`simplecmp/t3-simplecmp`) and
+  the upgrade-wizard identifier are all **unchanged** — so there is no
+  data migration. What changes:
+  - All resource references move from `EXT:t3_simplecmp/…` /
+    `LLL:EXT:t3_simplecmp/…` to `EXT:simplecmp/…`. Update any
+    project-side TypoScript, Fluid, TSconfig or PHP that referenced the
+    old path.
+  - **Extension Configuration moves** from
+    `$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']` to
+    `['EXTENSIONS']['simplecmp']`. Re-enter the `bridgeSecret` (and
+    `libraryUpstreamSkipWhenInSync`) under the new key, or rename the key
+    in `config/system/settings.php` — otherwise the bridge secret reads
+    as unconfigured and the webhook/consent-log features silently
+    disable until you open the BE module (which regenerates a secret).
+  - After updating, run `composer dumpautoload` (or `composer update
+    simplecmp/t3-simplecmp`) so TYPO3 re-maps the package to the new
+    key, then flush all caches.
+
 - **Consent Mode v2 is now wired end-to-end for GA4 and GTM, and the
   `block` vs. `signal-gate` posture is a first-class per-tracker setting.**
   Previously each Google tracker was *both* load-blocked (`data-name=…`
@@ -266,7 +287,7 @@ development.
 - **`ext_conf_template.txt`** establishes the first extension-
   configuration field in this ext: `libraryUpstreamSkipWhenInSync`
   (default ON). Reachable at Settings → Extension Configuration →
-  t3_simplecmp. Flip OFF to force upstream calls regardless of bundle
+  simplecmp. Flip OFF to force upstream calls regardless of bundle
   sync state — debug-only, the optimization is provably safe
   otherwise.
 - `LibraryUpstreamHealth::cachedInSync(?string $url, string $bundleDataHash)`
@@ -320,10 +341,10 @@ signal and the info modal both depend on it).
   don't trigger drift signals. When upstream signals drift, an inline
   `composer update simplecmp/services-library` hint appears. A "Jetzt
   prüfen" button flushes the 30-minute cache for an on-demand re-probe.
-  New cache backend `t3_simplecmp_library_upstream_health` is
+  New cache backend `simplecmp_library_upstream_health` is
   registered automatically; run `database:updateschema` on upgrade so
   the cache tables get created
-  (`cache_t3_simplecmp_library_upstream_health` and its `_tags`
+  (`cache_simplecmp_library_upstream_health` and its `_tags`
   companion).
 - New services: `LibraryUpstreamHealth` (cached `/v1/health` probe
   with bundle-dataHash-aware invalidation), `BundledLibraryInfo` (thin

@@ -50,7 +50,7 @@ final class PurposeItems
 
         foreach ($keys as $key) {
             $config['items'][] = [
-                'label' => 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.item.'
+                'label' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.item.'
                     . $key,
                 'value' => $key,
             ];

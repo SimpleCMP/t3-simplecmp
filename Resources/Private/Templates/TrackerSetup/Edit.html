@@ -8,8 +8,8 @@
 
 <h1>
     <f:if condition="{isNew}">
-        <f:then><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.newHeading" /></f:then>
-        <f:else><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.editHeading" /></f:else>
+        <f:then><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.newHeading" /></f:then>
+        <f:else><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.editHeading" /></f:else>
     </f:if>
     <small class="text-body-secondary">— {providerLabel}</small>
 </h1>
@@ -79,11 +79,11 @@
 
     <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <f:link.action action="list" arguments="{site: site}" class="btn btn-default">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.cancel" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.cancel" />
         </f:link.action>
         <button type="submit" class="btn btn-primary">
             <core:icon identifier="actions-save" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.save" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.save" />
         </button>
     </div>
 </f:form>

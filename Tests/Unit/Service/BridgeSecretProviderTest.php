@@ -14,7 +14,7 @@ final class BridgeSecretProviderTest extends TestCase
 {
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']);
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']);
     }
 
     #[Test]
@@ -28,7 +28,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForEmptyString(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = '';
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = '';
         $provider = new BridgeSecretProvider(null);
         self::assertNull($provider->get());
     }
@@ -36,7 +36,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForNonString(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = 12345;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = 12345;
         $provider = new BridgeSecretProvider(null);
         self::assertNull($provider->get());
     }
@@ -44,7 +44,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function returnsNullForTooShortSecret(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = 'too-short';
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = 'too-short';
         $provider = new BridgeSecretProvider(null);
         self::assertNull($provider->get());
     }
@@ -53,7 +53,7 @@ final class BridgeSecretProviderTest extends TestCase
     public function returnsConfiguredSecret(): void
     {
         $secret = base64_encode(random_bytes(32));
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = $secret;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = $secret;
         $provider = new BridgeSecretProvider(null);
         self::assertSame($secret, $provider->get());
         self::assertTrue($provider->isConfigured());
@@ -66,7 +66,7 @@ final class BridgeSecretProviderTest extends TestCase
         $configurationManager->expects(self::once())
             ->method('setLocalConfigurationValueByPath')
             ->with(
-                'EXTENSIONS/t3_simplecmp/bridgeSecret',
+                'EXTENSIONS/simplecmp/bridgeSecret',
                 self::callback(static fn (mixed $value): bool => is_string($value) && strlen($value) >= 32),
             );
 
@@ -79,7 +79,7 @@ final class BridgeSecretProviderTest extends TestCase
     #[Test]
     public function ensureExistsIsNoOpWhenAlreadyConfigured(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret']
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret']
             = base64_encode(random_bytes(32));
         $configurationManager = $this->createMock(ConfigurationManager::class);
         $configurationManager->expects(self::never())
@@ -96,14 +96,14 @@ final class BridgeSecretProviderTest extends TestCase
         // Pre-existing secret — unlike ensureExists, rotate must
         // overwrite it.
         $oldSecret = base64_encode(random_bytes(32));
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = $oldSecret;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = $oldSecret;
 
         $newValue = null;
         $configurationManager = $this->createMock(ConfigurationManager::class);
         $configurationManager->expects(self::once())
             ->method('setLocalConfigurationValueByPath')
             ->with(
-                'EXTENSIONS/t3_simplecmp/bridgeSecret',
+                'EXTENSIONS/simplecmp/bridgeSecret',
                 self::callback(static function (mixed $value) use ($oldSecret, &$newValue): bool {
                     if (!is_string($value) || strlen($value) < 32) {
                         return false;
@@ -128,7 +128,7 @@ final class BridgeSecretProviderTest extends TestCase
         // A too-short value is rejected by get() but IS present — generating
         // over it would write a secret the (env-bound) too-short value
         // overrides next request → churn. Warn, don't write.
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['t3_simplecmp']['bridgeSecret'] = 'too-short';
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simplecmp']['bridgeSecret'] = 'too-short';
 
         $configurationManager = $this->createMock(ConfigurationManager::class);
         $configurationManager->expects(self::never())->method('setLocalConfigurationValueByPath');
@@ -150,7 +150,7 @@ final class BridgeSecretProviderTest extends TestCase
         // (No $GLOBALS bridgeSecret set → runtime absent.)
         $configurationManager = $this->createMock(ConfigurationManager::class);
         $configurationManager->method('getLocalConfigurationValueByPath')
-            ->with('EXTENSIONS/t3_simplecmp/bridgeSecret')
+            ->with('EXTENSIONS/simplecmp/bridgeSecret')
             ->willReturn(base64_encode(random_bytes(32)));
         $configurationManager->expects(self::never())->method('setLocalConfigurationValueByPath');
         $logger = $this->createMock(LoggerInterface::class);

@@ -172,9 +172,9 @@
         uri_designerTab: uri_designerTab
     }" />
 
-    <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
+    <h1><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.title" /></h1>
     <p class="text-body-secondary">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.intro" />
     </p>
 
     <f:if condition="{draftScope}">
@@ -206,20 +206,20 @@
                 <div class="alert alert-{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'danger', else: 'warning')} mt-3">
                     <h2 class="h5 mb-2">
                         <core:icon identifier="{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'actions-exclamation', else: 'actions-info')}" size="small"/>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.title"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.title"/>
                         <span class="badge text-bg-{f:if(condition: '{auditWorstSeverity} == \'critical\'', then: 'danger', else: 'warning')} ms-2">
                             <f:if condition="{auditCriticalCount}">
                                 <f:then>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.criticalCount" arguments="{0: auditCriticalCount}"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.criticalCount" arguments="{0: auditCriticalCount}"/>
                                 </f:then>
                                 <f:else>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.warningCount" arguments="{0: auditWarningCount}"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.warningCount" arguments="{0: auditWarningCount}"/>
                                 </f:else>
                             </f:if>
                         </span>
                     </h2>
                     <p class="mb-2 small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.intro"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.intro"/>
                     </p>
                     <ul class="list-unstyled mb-0">
                         <f:for each="{auditFailed}" as="finding">
@@ -227,23 +227,23 @@
                                 <span class="badge text-bg-{f:if(condition: '{finding.severity} == \'critical\'', then: 'danger', else: 'warning')} flex-shrink-0">
                                     <f:if condition="{finding.severity} == 'critical'">
                                         <f:then>
-                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical"/>
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical"/>
                                         </f:then>
                                         <f:else>
-                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning"/>
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning"/>
                                         </f:else>
                                     </f:if>
                                 </span>
                                 <div>
                                     <strong>
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
                                     </strong>
                                     <a href="{finding.complianceUri}"
                                        target="simplecmp-compliance"
                                        class="ms-1 small text-decoration-none"
-                                       title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.sectionLink', arguments: '{0: finding.section}')}">§{finding.section}</a>
+                                       title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.sectionLink', arguments: '{0: finding.section}')}">§{finding.section}</a>
                                     <div class="small">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.detailKey}"
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.detailKey}"
                                                      arguments="{0: finding.context.count, 1: finding.context.sample}"
                                                      default="—"/>
                                     </div>
@@ -254,13 +254,13 @@
                     <f:if condition="{auditPassed}">
                         <details class="mt-3">
                             <summary class="small text-body-secondary">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.passedToggle" arguments="{0: '{auditPassed -> f:count()}'}"/>
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.passedToggle" arguments="{0: '{auditPassed -> f:count()}'}"/>
                             </summary>
                             <ul class="list-unstyled small mt-2 mb-0">
                                 <f:for each="{auditPassed}" as="finding">
                                     <li class="mb-1">
                                         <span class="badge text-bg-success me-1">OK</span>
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:{finding.titleKey}" default="{finding.id}"/>
                                         <a href="{finding.complianceUri}" target="simplecmp-compliance" class="ms-1 text-decoration-none text-body-secondary">§{finding.section}</a>
                                     </li>
                                 </f:for>
@@ -279,7 +279,7 @@
                     -->
                     <div data-dom-audit class="mt-3" hidden>
                         <p class="mb-2 small fw-semibold">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
                         </p>
                         <ul class="list-unstyled mb-0" data-dom-audit-list></ul>
                     </div>
@@ -290,10 +290,10 @@
                 <div class="alert alert-success mt-3">
                     <core:icon identifier="actions-check" size="small"/>
                     <strong>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassed"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassed"/>
                     </strong>
                     <span class="text-body-secondary ms-1 small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassedDetail" arguments="{0: '{auditResults -> f:count()}'}"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.allPassedDetail" arguments="{0: '{auditResults -> f:count()}'}"/>
                     </span>
                     <!--
                         Same DOM-audit container as in the failure branch.
@@ -307,7 +307,7 @@
                     -->
                     <div data-dom-audit class="mt-3" hidden>
                         <p class="mb-2 small fw-semibold">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.domHeading"/>
                         </p>
                         <ul class="list-unstyled mb-0" data-dom-audit-list></ul>
                     </div>
@@ -327,29 +327,29 @@
         -->
         <f:if condition="{siteBaseUrl}">
             <div class="mt-3 mb-4 p-3 border rounded bg-body-tertiary"
-                 data-fe-audit-i18n-running="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.running')}"
-                 data-fe-audit-i18n-done="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.done')}"
-                 data-fe-audit-i18n-heading="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.heading')}"
-                 data-fe-audit-i18n-all-passed="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.allPassed')}"
-                 data-fe-audit-i18n-timeout="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.timeout')}"
-                 data-fe-audit-i18n-severity-critical="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical')}"
-                 data-fe-audit-i18n-severity-warning="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning')}"
+                 data-fe-audit-i18n-running="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.running')}"
+                 data-fe-audit-i18n-done="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.done')}"
+                 data-fe-audit-i18n-heading="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.heading')}"
+                 data-fe-audit-i18n-all-passed="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.allPassed')}"
+                 data-fe-audit-i18n-timeout="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.timeout')}"
+                 data-fe-audit-i18n-severity-critical="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.critical')}"
+                 data-fe-audit-i18n-severity-warning="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.severity.warning')}"
                  data-fe-audit-expected-source="{feAuditExpectedSource}"
                  data-fe-audit-expected-rev="{feAuditExpectedRevision}"
-                 data-fe-audit-i18n-rev-draft-ok="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftOk')}"
-                 data-fe-audit-i18n-rev-draft-mismatch="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftMismatch')}"
-                 data-fe-audit-i18n-rev-live-unexpected="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLiveUnexpected')}"
-                 data-fe-audit-i18n-rev-live="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLive')}">
+                 data-fe-audit-i18n-rev-draft-ok="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftOk')}"
+                 data-fe-audit-i18n-rev-draft-mismatch="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revDraftMismatch')}"
+                 data-fe-audit-i18n-rev-live-unexpected="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLiveUnexpected')}"
+                 data-fe-audit-i18n-rev-live="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.revLive')}">
                 <button type="button"
                         class="btn btn-default btn-sm"
                         data-fe-audit-trigger
                         data-fe-audit-url="{siteBaseUrl}"
                         data-fe-audit-preview-token="{feAuditPreviewToken}">
                     <core:icon identifier="actions-refresh" size="small"/>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.run"/>
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.run"/>
                 </button>
                 <small class="ms-2 text-body-secondary" data-fe-audit-status>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.idle"/>
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.audit.feAudit.idle"/>
                 </small>
                 <div class="small mt-1" data-fe-audit-revision hidden></div>
                 <div data-fe-audit class="mt-2" hidden>
@@ -363,17 +363,17 @@
     <f:if condition="{hasAvailableSites}">
         <f:else>
             <f:be.infobox
-                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.title')}"
+                title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.title')}"
                 state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING')}">
                 <p>
                     <f:translate
-                        key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.message"
+                        key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.message"
                         arguments="{0: setIdentifier}"/>
                 </p>
                 <f:if condition="{allSites}">
                     <p class="mb-1">
                         <strong>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.knownSites"/>
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.knownSites"/>
                         </strong>
                     </p>
                     <ul class="mb-2">
@@ -384,7 +384,7 @@
                 </f:if>
                 <p class="mb-1">
                     <strong>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.howTo"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.emptyState.howTo"/>
                     </strong>
                 </p>
 <pre class="mb-0"><code>dependencies:
@@ -399,7 +399,7 @@
 
         <div class="d-flex align-items-center mb-3 gap-3">
             <label for="simplecmp-designer-site" class="form-label mb-0">
-                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.label" /></strong>
+                <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.label" /></strong>
             </label>
             <select id="simplecmp-designer-site" class="form-select form-select-sm" style="width:auto"
                     onchange="if (this.value) window.location.assign(this.value);">
@@ -410,12 +410,12 @@
             <f:if condition="{hasLanguageChoice}">
                 <label for="simplecmp-designer-language" class="form-label mb-0 ms-3">
                     <strong>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.languagePicker.label" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.languagePicker.label" />
                     </strong>
                 </label>
                 <select id="simplecmp-designer-language" class="form-select form-select-sm" style="width:auto"
                         data-preview-language-picker
-                        data-preview-iframe-base="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}">
+                        data-preview-iframe-base="{f:uri.resource(path: 'Preview/index.html', extensionName: 'simplecmp')}">
                     <f:for each="{languageOptions}" as="opt">
                         <option value="{opt.code}" data-href="{opt.url}" {f:if(condition: '{opt.code} == {previewLanguage}', then: 'selected')}>{opt.label}</option>
                     </f:for>
@@ -423,7 +423,7 @@
             </f:if>
             <f:if condition="{hasCustomTheme}">
                 <span class="badge bg-info text-dark">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.customBadge" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.sitePicker.customBadge" />
                 </span>
             </f:if>
         </div>
@@ -433,10 +433,10 @@
 
                 <fieldset class="mb-4 simplecmp-style-presets">
                     <legend class="h5">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.stylePresets" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.stylePresets" />
                     </legend>
                     <p class="text-body-secondary small mb-2">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.stylePresets.intro" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.stylePresets.intro" />
                     </p>
                     <div class="d-flex flex-wrap gap-2 align-items-stretch">
                         <f:for each="{stylePresets}" as="preset" key="key">
@@ -456,7 +456,7 @@
                 <f:for each="{otherFieldGroups}" as="fields" key="group">
                     <fieldset class="mb-4">
                         <legend class="h5">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
                         <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
                     </fieldset>
@@ -467,14 +467,14 @@
                         <span class="simplecmp-colors-chevron" aria-hidden="true">
                             <core:icon identifier="actions-chevron-right" size="small" />
                         </span>
-                        <span><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.colors" /></span>
+                        <span><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.colors" /></span>
                         <span class="badge bg-success simplecmp-colors-badge-safe" style="font-weight:normal">
                             <core:icon identifier="actions-lock" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.complianceSafe" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.complianceSafe" />
                         </span>
                         <span class="badge bg-warning text-dark simplecmp-colors-badge-custom" style="font-weight:normal">
                             <core:icon identifier="actions-exclamation-triangle" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.customRisk" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.customRisk" />
                         </span>
                     </summary>
 
@@ -489,23 +489,23 @@
                                    data-token="colorPaletteLocked"
                                    {f:if(condition: '!{colorPaletteLocked}', then: 'checked')}>
                             <label class="form-check-label" for="token-colorPaletteLocked">
-                                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom" /></strong>
+                                <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom" /></strong>
                             </label>
                             <div class="form-text small">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom.help" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.useCustom.help" />
                             </div>
                         </div>
 
                         <div class="alert alert-warning small mb-3 simplecmp-colors-unlocked-warning" role="note">
-                            <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning" /></strong>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning.body" />
+                            <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning" /></strong>
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.colors.unlocked.warning.body" />
                         </div>
 
                         <fieldset class="simplecmp-colors-fieldset" {f:if(condition: '{colorPaletteLocked}', then: 'disabled')}>
                             <f:for each="{colorFieldGroups}" as="fields" key="group">
                                 <fieldset class="mb-3">
                                     <legend class="h6">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                                     </legend>
                                     <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
                                 </fieldset>
@@ -516,10 +516,10 @@
 
                 <fieldset class="mb-4">
                     <legend class="h5">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.overrides"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.overrides"/>
                     </legend>
                     <p class="text-body-secondary small mb-3">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.intro"/>
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.intro"/>
                     </p>
 
                     <!--
@@ -534,7 +534,7 @@
                         <f:if condition="{hasLanguageChoice}">
                             <div class="d-flex align-items-center gap-2">
                                 <label for="override-lang-picker" class="form-label fw-semibold mb-0">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.scopeLabel"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.scopeLabel"/>
                                 </label>
                                 <select id="override-lang-picker"
                                         class="form-select form-select-sm"
@@ -558,10 +558,10 @@
                         <f:if condition="{hasInformalTone}">
                             <div class="d-flex align-items-center gap-2 ms-md-auto">
                                 <span class="form-label fw-semibold mb-0">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneLabel"/>:
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneLabel"/>:
                                 </span>
                                 <span class="text-body-secondary small">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneFormal"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneFormal"/>
                                 </span>
                                 <div class="form-check form-switch mb-0">
                                     <input class="form-check-input" type="checkbox" role="switch"
@@ -571,7 +571,7 @@
                                            {f:if(condition: '{toneForLang} == \'informal\'', then: 'checked')}/>
                                 </div>
                                 <span class="text-body-secondary small">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneInformal"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.toneInformal"/>
                                 </span>
                             </div>
                         </f:if>
@@ -582,11 +582,11 @@
                         <div class="mb-3 simplecmp-override-row" data-override-row data-override-key="{row.key}">
                             <label for="override-{row.key}" class="form-label d-flex align-items-center justify-content-between mb-1">
                                 <span class="fw-semibold">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.label.{row.key}" default="{row.key}"/>
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.label.{row.key}" default="{row.key}"/>
                                 </span>
                                 <f:if condition="{row.value}">
                                     <span class="badge text-bg-info ms-2">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.activeBadge"/>
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.activeBadge"/>
                                     </span>
                                 </f:if>
                             </label>
@@ -614,18 +614,18 @@
                                 <button type="button"
                                         class="btn btn-default btn-sm simplecmp-override-clear"
                                         data-override-clear
-                                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
-                                        aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
+                                        title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
+                                        aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.clear')}"
                                         {f:if(condition: '!{row.value}', then: 'hidden')}>
                                     <core:icon identifier="actions-close" size="small"/>
                                 </button>
                             </div>
                             <small class="d-block text-body-secondary mt-1 simplecmp-override-default" data-override-default>
                                 <span class="fw-semibold">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultLabel" />:
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultLabel" />:
                                 </span>
                                 <em data-override-default-text>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultFallback" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.overrides.defaultFallback" />
                                 </em>
                             </small>
                         </div>
@@ -645,14 +645,14 @@
                 -->
                 <div data-preview-sticky style="position: sticky; top: calc(var(--module-docheader-height, 6rem) + .75rem); max-height: calc(100vh - var(--module-docheader-height, 6rem) - 1.5rem); overflow-y: auto; padding-right: .25rem">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <h5 class="mb-0"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
+                        <h5 class="mb-0"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
                         <span class="badge bg-warning text-dark" data-unsaved-indicator hidden style="font-weight:normal">
                             <core:icon identifier="actions-exclamation-triangle" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.unsaved" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.unsaved" />
                         </span>
                     </div>
                     <p class="text-body-secondary small mb-2">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
                     </p>
                     <!--
                         `f:uri.resource` produces `…/Preview/index.html?<cache-buster>`,
@@ -663,39 +663,39 @@
                     -->
                     <iframe data-preview-iframe
                             data-safe-palette="{safePaletteJson}"
-                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 't3_simplecmp')}&lang={previewLanguage}&tone={toneForLang}&theme={tokens.theme}&layout={tokens.layout}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
-                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
+                            src="{f:uri.resource(path: 'Preview/index.html', extensionName: 'simplecmp')}&lang={previewLanguage}&tone={toneForLang}&theme={tokens.theme}&layout={tokens.layout}&privacy={policyUrls.privacy -> f:format.urlencode()}&imprint={policyUrls.imprint -> f:format.urlencode()}&overrides={overridesEncoded}"
+                            title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title')}"
                             style="width:100%;height:440px;border:1px solid #dde2e7;border-radius:4px;background:#f5f7f9"
                             sandbox="allow-scripts allow-same-origin"></iframe>
 
                     <div class="alert alert-{f:if(condition: '{policyUrls.hasPrivacy} && {policyUrls.hasImprint}', then: 'info', else: 'warning')} mt-3 mb-0 py-2 small">
                         <strong class="d-block mb-1">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.heading"/>
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.heading"/>
                         </strong>
                         <div class="d-flex flex-column gap-1">
                             <div>
                                 <span class="text-body-secondary">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.privacy"/>:
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.privacy"/>:
                                 </span>
                                 <f:if condition="{policyUrls.hasPrivacy}">
                                     <f:then><code>{policyUrls.privacy}</code></f:then>
-                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
+                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
                                 </f:if>
                             </div>
                             <div>
                                 <span class="text-body-secondary">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.imprint"/>:
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.imprint"/>:
                                 </span>
                                 <f:if condition="{policyUrls.hasImprint}">
                                     <f:then><code>{policyUrls.imprint}</code></f:then>
-                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
+                                    <f:else><em class="text-warning"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.unset"/></em></f:else>
                                 </f:if>
                             </div>
                         </div>
                         <f:if condition="{siteSettingsUri}">
                             <a href="{siteSettingsUri}" class="btn btn-default btn-sm mt-2">
                                 <core:icon identifier="actions-open" size="small"/>
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.editAction"/>
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.policyUrls.editAction"/>
                             </a>
                         </f:if>
                     </div>
@@ -706,14 +706,14 @@
         <div class="btn-toolbar gap-2 mt-3 border-top pt-3 {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
             <button type="submit" class="btn btn-primary">
                 <core:icon identifier="actions-save" size="small" />
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
             </button>
             <f:if condition="{hasCustomTheme}">
                 <a href="{uri_reset}"
                    class="btn btn-default text-danger"
-                   data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
+                   data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
                     <core:icon identifier="actions-undo" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
                 </a>
             </f:if>
         </div>
@@ -727,12 +727,12 @@
     <f:for each="{fields}" as="key">
         <div class="mb-2">
             <label for="token-{key}" class="form-label">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.{key}" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.{key}" />
             </label>
             <f:switch expression="{key}">
                 <f:case value="position">
                     <div class="simplecmp-position-picker" role="radiogroup"
-                         aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.position')}">
+                         aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.position')}">
                         <f:for each="{positionOptions}" as="opt">
                             <label class="simplecmp-position-cell" data-row="{opt.vRow}" data-col="{opt.vCol}"
                                    style="grid-row:{opt.row};grid-column:{opt.col}"
@@ -759,7 +759,7 @@
                         </f:for>
                     </select>
                     <small class="d-block text-body-secondary mt-1">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.theme.hint" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.theme.hint" />
                     </small>
                 </f:case>
                 <f:case value="layout">
@@ -773,7 +773,7 @@
                         </f:for>
                     </select>
                     <small class="d-block text-body-secondary mt-1">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.layout.hint" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.layout.hint" />
                     </small>
                 </f:case>
                 <f:case value="triggerPosition">
@@ -784,12 +784,12 @@
                             style="max-width:18rem">
                         <f:for each="{triggerOptions}" as="opt">
                             <option value="{opt.key}" {f:if(condition: '{tokens.triggerPosition} == {opt.key}', then: 'selected')}>
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.option.{opt.key}" default="{opt.label}" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.option.{opt.key}" default="{opt.label}" />
                             </option>
                         </f:for>
                     </select>
                     <small class="d-block text-body-secondary mt-1">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.hint" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.triggerPosition.hint" />
                     </small>
                 </f:case>
                 <f:case value="color-trigger-bg">
@@ -821,7 +821,7 @@
                     </div>
                     <f:if condition="{key} == 'color-primary'">
                         <small class="d-block text-body-secondary mt-1">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-primary.hint" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.color-primary.hint" />
                         </small>
                     </f:if>
                 </f:defaultCase>
@@ -859,26 +859,26 @@
               aria-hidden="true"></span>
         <code class="text-body-secondary"
               data-optional-color-display
-              data-unset-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset')}">
+              data-unset-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset')}">
             <f:if condition="{field.isSet}">
                 <f:then>{field.value}</f:then>
                 <f:else>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.unset" />
                 </f:else>
             </f:if>
         </code>
         <button type="button"
                 class="btn btn-default btn-sm ms-auto"
                 data-optional-color-reset
-                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset')}">
+                title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset')}">
             <core:icon identifier="actions-undo" size="small"/>
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.reset" />
         </button>
         <button type="button"
                 class="btn btn-default btn-sm ms-auto"
                 data-optional-color-enable>
             <core:icon identifier="actions-edit-pick-date" size="small"/>
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.setCustom" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.optionalColor.setCustom" />
         </button>
     </div>
 </f:section>

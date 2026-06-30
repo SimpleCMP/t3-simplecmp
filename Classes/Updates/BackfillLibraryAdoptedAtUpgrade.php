@@ -57,7 +57,7 @@ final class BackfillLibraryAdoptedAtUpgrade implements UpgradeWizardInterface, C
         $libraryIds = $this->libraryIds();
         $updated = $this->serviceRepository->backfillLibraryAdoptedAt($libraryIds);
         $this->output?->writeln(sprintf(
-            't3_simplecmp: backfilled library_adopted_at on %d row(s).',
+            'simplecmp: backfilled library_adopted_at on %d row(s).',
             $updated,
         ));
         return true;

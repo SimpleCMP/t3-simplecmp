@@ -18,22 +18,22 @@
 
         <h1 class="mb-3">
             <core:icon identifier="actions-rocket" size="medium" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.heading" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.heading" />
         </h1>
         <p class="text-body-secondary mb-4">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.intro" />
         </p>
 
         <div class="card mb-4">
             <div class="card-header">
                 <strong>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.summary" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.summary" />
                 </strong>
             </div>
             <div class="card-body">
                 <h6>
                     <core:icon identifier="actions-cog" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers" />
                 </h6>
                 <f:if condition="{draftTrackers}">
                     <f:then>
@@ -49,7 +49,7 @@
                     </f:then>
                     <f:else>
                         <p class="text-body-secondary small mb-0">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers.none" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.trackers.none" />
                         </p>
                     </f:else>
                 </f:if>
@@ -58,19 +58,19 @@
 
                 <h6>
                     <core:icon identifier="actions-palette" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design" />
                 </h6>
                 <f:if condition="{draftHasTheme}">
                     <f:then>
                         <p class="mb-0">
                             <core:icon identifier="actions-check" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.preset"
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.preset"
                                          arguments="{0: draftThemePosition}" />
                         </p>
                     </f:then>
                     <f:else>
                         <p class="text-body-secondary small mb-0">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.defaults" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.design.defaults" />
                         </p>
                     </f:else>
                 </f:if>
@@ -82,10 +82,10 @@
                 <core:icon identifier="actions-info-circle" size="medium" />
                 <div>
                     <strong>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.heading" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.heading" />
                     </strong>
                     <p class="mb-0 small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.body" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.urlsMissing.body" />
                     </p>
                 </div>
             </div>
@@ -96,14 +96,14 @@
                            arguments="{site: selectedSite}"
                            class="btn btn-link text-body-secondary">
                 <core:icon identifier="actions-arrow-left" size="small" />
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.back" />
             </f:link.action>
             <div class="d-flex gap-2">
                 <f:form action="finish" controller="SetupWizard" method="post" class="m-0">
                     <f:form.hidden name="site" value="{selectedSite}" />
                     <f:form.hidden name="mode" value="draft" />
                     <button type="submit" class="btn btn-default">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.keepDraft" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.keepDraft" />
                     </button>
                 </f:form>
                 <f:form action="finish" controller="SetupWizard" method="post" class="m-0">
@@ -111,7 +111,7 @@
                     <f:form.hidden name="mode" value="publish" />
                     <button type="submit" class="btn btn-primary btn-lg">
                         <core:icon identifier="actions-rocket" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.now" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.publish.now" />
                     </button>
                 </f:form>
             </div>
@@ -120,7 +120,7 @@
     </f:then>
     <f:else>
         <div class="alert alert-warning">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.wizard.noSites" />
         </div>
     </f:else>
 </f:if>

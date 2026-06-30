@@ -16,25 +16,25 @@
 
     <f:flashMessages />
 
-    <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
+    <h1><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.title" /></h1>
     <p class="text-body-secondary">
         <strong>{pendingCount}</strong>
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.pending" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.pending" />
         · {curatedCount}
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.curated" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.curated" />
         · {dismissedCount}
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.dismissed" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.dismissed" />
         · {totalCount}
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.total" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.header.total" />
     </p>
 
     <f:if condition="{spikeAlert}">
         <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
             <core:icon identifier="actions-exclamation-triangle" size="medium" />
             <div>
-                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.spike.title" /></strong>
+                <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.spike.title" /></strong>
                 <div>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.spike.body" arguments="{0: todayCount, 1: sevenDayAverage}" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.spike.body" arguments="{0: todayCount, 1: sevenDayAverage}" />
                 </div>
             </div>
         </div>
@@ -45,15 +45,15 @@
             <div class="callout callout-warning mb-3">
                 <div class="callout-content">
                     <h4 class="callout-title">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.title" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.title" />
                     </h4>
                     <p class="callout-body">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.body" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.disabled.body" />
                     </p>
                     <form method="post" action="{uri_generateBridgeSecret}">
                         <button type="submit" class="btn btn-primary">
                             <core:icon identifier="actions-plus" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.generate" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.generate" />
                         </button>
                     </form>
                 </div>
@@ -62,27 +62,27 @@
         <f:else>
             <p class="mb-3 d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-success" disabled
-                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured.tooltip')}">
+                        title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured.tooltip')}">
                     <core:icon identifier="actions-check" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.configured" />
                 </button>
                 <a href="{uri_discover}" class="btn btn-primary">
                     <core:icon identifier="actions-search" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
                 </a>
                 <form method="post" action="{uri_reclassifyUnknowns}" class="m-0">
                     <button type="submit" class="btn btn-outline-primary"
-                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify.tooltip')}">
+                            title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify.tooltip')}">
                         <core:icon identifier="actions-cloud" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.reclassify" />
                     </button>
                 </form>
                 <form method="post" action="{uri_generateBridgeSecret}" class="m-0"
-                      data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.confirm')}">
+                      data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.confirm')}">
                     <button type="submit" class="btn btn-outline-secondary"
-                            title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.tooltip')}">
+                            title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate.tooltip')}">
                         <core:icon identifier="actions-refresh" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:bridgeSecret.rotate" />
                     </button>
                 </form>
             </p>
@@ -94,25 +94,25 @@
             <div class="callout-content">
                 <h4 class="callout-title">
                     <core:icon identifier="actions-shield" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.title" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.title" />
                 </h4>
                 <p class="callout-body">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.body" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.body" />
                 </p>
                 <p class="callout-body mb-0">
-                    <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.selfHost" /></strong>
+                    <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.selfHost" /></strong>
                 </p>
                 <div class="d-flex flex-wrap gap-2 mt-2">
                     <f:for each="{stylesheetNudgeSites}" as="nudgeSite">
                         <a href="{nudgeSite.uri_enable}" class="btn btn-primary btn-sm">
                             <core:icon identifier="actions-cog" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.enable" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.enable" />
                             <code class="ms-1">{nudgeSite.identifier}</code>
                         </a>
                     </f:for>
                     <a href="{uri_discover}" class="btn btn-outline-primary btn-sm">
                         <core:icon identifier="actions-search" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.discover" />
                     </a>
                 </div>
             </div>
@@ -121,41 +121,41 @@
 
     <div class="btn-toolbar mb-3 align-items-center gap-2" role="toolbar">
         <select data-list-filter="status" class="form-select form-select-sm" style="width:auto"
-                aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.status.label')}">
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.status.label')}">
             <f:for each="{statusOptions}" as="opt">
                 <option value="{opt}" {f:if(condition: '{opt} == {status}', then: 'selected')}>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.status.{opt}" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.status.{opt}" />
                 </option>
             </f:for>
         </select>
         <select data-list-filter="source" class="form-select form-select-sm" style="width:auto"
-                aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.source.label')}">
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.source.label')}">
             <option value="" {f:if(condition: '{source} == \'\'', then: 'selected')}>
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.source.all" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.source.all" />
             </option>
             <f:for each="{sourceOptions}" as="opt">
                 <option value="{opt}" {f:if(condition: '{opt} == {source}', then: 'selected')}>{opt}</option>
             </f:for>
         </select>
         <select data-list-filter="kind" class="form-select form-select-sm" style="width:auto"
-                aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.label')}">
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.label')}">
             <option value="" {f:if(condition: '{kind} == \'\'', then: 'selected')}>
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.all" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.all" />
             </option>
             <f:for each="{kindOptions}" as="opt">
                 <option value="{opt}" {f:if(condition: '{opt} == {kind}', then: 'selected')}>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.{opt}" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.kind.{opt}" />
                 </option>
             </f:for>
         </select>
         <select data-list-filter="confidence" class="form-select form-select-sm" style="width:auto"
-                aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.label')}">
+                aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.label')}">
             <option value="" {f:if(condition: '{confidence} == \'\'', then: 'selected')}>
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.all" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.all" />
             </option>
             <f:for each="{confidenceOptions}" as="opt">
                 <option value="{opt}" {f:if(condition: '{opt} == {confidence}', then: 'selected')}>
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.{opt}" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:filter.confidence.{opt}" />
                 </option>
             </f:for>
         </select>
@@ -170,7 +170,7 @@
                             data-bulk-select-trigger
                             disabled>
                         <core:icon identifier="actions-undo" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkUndismissSelected" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkUndismissSelected" />
                         <span class="badge bg-light text-dark ms-1" data-bulk-select-count style="line-height:1;border:0">0</span>
                     </button>
                     <button type="submit"
@@ -179,9 +179,9 @@
                             class="btn btn-default text-danger"
                             data-bulk-select-trigger
                             disabled
-                            data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkPurgeSelected.confirm')}">
+                            data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkPurgeSelected.confirm')}">
                         <core:icon identifier="actions-delete" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkPurgeSelected" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkPurgeSelected" />
                     </button>
                 </div>
             </f:then>
@@ -195,7 +195,7 @@
                             disabled
                             style="border-top-right-radius:0;border-bottom-right-radius:0">
                         <core:icon identifier="actions-close" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissSelected" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissSelected" />
                         <span class="badge bg-light text-dark ms-1" data-bulk-select-count style="line-height:1;border:0">0</span>
                     </button>
                     <button type="button"
@@ -203,7 +203,7 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false">
                         <span class="visually-hidden">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.moreBulkOptions" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.moreBulkOptions" />
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -211,10 +211,10 @@
                             <form method="post"
                                   action="{uri_bulkDismissAll}"
                                   class="m-0"
-                                  data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissAll.confirm')}">
+                                  data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissAll.confirm')}">
                                 <button type="submit" class="dropdown-item">
                                     <core:icon identifier="actions-close" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissAll" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkDismissAll" />
                                 </button>
                             </form>
                         </li>
@@ -238,7 +238,7 @@
                                         data-bulk-select-trigger
                                         disabled>
                                     <core:icon identifier="actions-undo" size="small" />
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkUndismissSelected" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.bulkUndismissSelected" />
                                 </button>
                             </li>
                         </f:if>
@@ -254,7 +254,7 @@
             <div class="d-flex align-items-center mb-2 gap-3">
                 <div class="d-flex align-items-center gap-2">
                     <label for="simplecmp-per-page" class="form-label mb-0 text-body-secondary small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.perPageLabel" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.perPageLabel" />
                     </label>
                     <select id="simplecmp-per-page" data-per-page class="form-select form-select-sm" style="width:auto">
                         <f:for each="{perPageOptions}" as="option">
@@ -263,7 +263,7 @@
                     </select>
                 </div>
                 <div class="text-body-secondary small ms-auto">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.range" arguments="{0: rangeStart, 1: rangeEnd, 2: filteredCount}" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.range" arguments="{0: rangeStart, 1: rangeEnd, 2: filteredCount}" />
                 </div>
             </div>
 
@@ -276,16 +276,16 @@
                         <th class="col-checkbox">
                             <input type="checkbox"
                                    data-bulk-select-all
-                                   aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.selectAll')}" />
+                                   aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.selectAll')}" />
                         </th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></th>
-                        <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.occurrences" /></th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.received" /></th>
-                        <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></th>
-                        <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.actions" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.state" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.kind" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.identifier" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.origin" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.occurrences" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.received" /></th>
+                        <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.source" /></th>
+                        <th class="text-end"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.actions" /></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -296,11 +296,11 @@
                                        name="uids[]"
                                        value="{detection.uid}"
                                        data-bulk-select-row
-                                       aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.selectRow')}" />
+                                       aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.col.selectRow')}" />
                             </td>
                             <td>
                                 <span class="badge {detection.state_class}">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:state.{detection.state}" />
                                 </span>
                                 <f:if condition="{detection.match.name}">
                                     <small class="d-block text-body-secondary mt-1">{detection.match.name}</small>
@@ -311,7 +311,7 @@
                             <td><f:if condition="{detection.origin}"><code>{detection.origin}</code></f:if></td>
                             <td class="text-end">
                                 <span class="badge {detection.confidence_class}"
-                                      title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.confidence.tooltip')}">
+                                      title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.confidence.tooltip')}">
                                     {detection.occurrences}
                                 </span>
                             </td>
@@ -323,7 +323,7 @@
                                 <div class="btn-group btn-group-sm {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}" role="group">
                                     <a href="{detection.uri_show}"
                                        class="btn btn-default"
-                                       title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
+                                       title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.show')}">
                                         <core:icon identifier="actions-document-view" size="small" />
                                     </a>
                                     <f:switch expression="{detection.state}">
@@ -334,83 +334,83 @@
                                                     data-approve-url="{detection.uri_approve}"
                                                     data-approve-payload="{detection.approve_modal_data}"
                                                     data-approve-affected-count="{detection.approve_affected_count}"
-                                                    data-label-title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.title')}"
-                                                    data-label-cancel="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.cancel')}"
-                                                    data-label-confirm="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.confirm')}"
-                                                    data-label-vendor="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.vendor')}"
-                                                    data-label-purposes="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.purposes')}"
-                                                    data-label-privacy="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.privacy')}"
-                                                    data-label-cookies="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.cookies')}"
-                                                    data-label-origins="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.origins')}"
-                                                    data-label-section-frontend="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.frontend')}"
-                                                    data-label-section-raw="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.raw')}"
-                                                    data-label-section-impact="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.impact')}"
-                                                    data-label-field-service-id="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.serviceId')}"
-                                                    data-label-field-retention="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.retention')}"
-                                                    data-label-field-i18n-names="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.i18nNames')}"
-                                                    data-label-field-library-source="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.librarySource')}"
-                                                    data-label-preview-title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.title')}"
-                                                    data-label-preview-disclaimer="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.disclaimer')}"
-                                                    data-label-preview-consent-toggle="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.consentToggle')}"
-                                                    data-label-impact-affected="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.impact.affected')}"
-                                                    data-label-impact-future="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.impact.future')}"
-                                                    data-purpose-analytics-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.label')}"
-                                                    data-purpose-analytics-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.description')}"
-                                                    data-purpose-marketing-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.label')}"
-                                                    data-purpose-marketing-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.description')}"
-                                                    data-purpose-advertising-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.label')}"
-                                                    data-purpose-advertising-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.description')}"
-                                                    data-purpose-functional-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.label')}"
-                                                    data-purpose-functional-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.description')}"
-                                                    data-purpose-personalization-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.label')}"
-                                                    data-purpose-personalization-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.description')}"
-                                                    data-purpose-security-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.label')}"
-                                                    data-purpose-security-description="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.description')}">
+                                                    data-label-title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.title')}"
+                                                    data-label-cancel="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.cancel')}"
+                                                    data-label-confirm="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.confirm')}"
+                                                    data-label-vendor="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.vendor')}"
+                                                    data-label-purposes="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.purposes')}"
+                                                    data-label-privacy="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.privacy')}"
+                                                    data-label-cookies="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.cookies')}"
+                                                    data-label-origins="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.modal.origins')}"
+                                                    data-label-section-frontend="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.frontend')}"
+                                                    data-label-section-raw="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.raw')}"
+                                                    data-label-section-impact="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.section.impact')}"
+                                                    data-label-field-service-id="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.serviceId')}"
+                                                    data-label-field-retention="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.retention')}"
+                                                    data-label-field-i18n-names="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.i18nNames')}"
+                                                    data-label-field-library-source="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.field.librarySource')}"
+                                                    data-label-preview-title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.title')}"
+                                                    data-label-preview-disclaimer="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.disclaimer')}"
+                                                    data-label-preview-consent-toggle="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.preview.consentToggle')}"
+                                                    data-label-impact-affected="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.impact.affected')}"
+                                                    data-label-impact-future="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.impact.future')}"
+                                                    data-purpose-analytics-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.label')}"
+                                                    data-purpose-analytics-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.analytics.description')}"
+                                                    data-purpose-marketing-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.label')}"
+                                                    data-purpose-marketing-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.marketing.description')}"
+                                                    data-purpose-advertising-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.label')}"
+                                                    data-purpose-advertising-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.advertising.description')}"
+                                                    data-purpose-functional-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.label')}"
+                                                    data-purpose-functional-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.functional.description')}"
+                                                    data-purpose-personalization-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.label')}"
+                                                    data-purpose-personalization-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.personalization.description')}"
+                                                    data-purpose-security-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.label')}"
+                                                    data-purpose-security-description="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:approve.purpose.security.description')}">
                                                 <core:icon identifier="actions-check" size="small" />
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.approve" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.approve" />
                                             </button>
                                             <a href="{detection.uri_createService}"
                                                class="btn btn-default"
-                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize.title')}">
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize.title')}">
                                                 <core:icon identifier="actions-pencil" size="small" />
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.customize" />
                                             </a>
                                         </f:case>
                                         <f:case value="unbekannt">
                                             <a href="{detection.uri_createService}"
                                                class="btn btn-warning"
-                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate.title')}">
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate.title')}">
                                                 <core:icon identifier="actions-plus" size="small" />
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.curate" />
                                             </a>
                                         </f:case>
                                         <f:case value="kuratiert">
                                             <f:if condition="{detection.uri_editService}">
                                                 <a href="{detection.uri_editService}"
                                                    class="btn btn-default"
-                                                   title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.editService.title')}">
+                                                   title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.editService.title')}">
                                                     <core:icon identifier="actions-pencil" size="small" />
-                                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.editService" />
+                                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.editService" />
                                                 </a>
                                             </f:if>
                                             <a href="{detection.uri_unadoptMatched}"
                                                class="btn btn-default"
-                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched.title')}">
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched.title')}">
                                                 <core:icon identifier="actions-undo" size="small" />
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.unadoptMatched" />
                                             </a>
                                         </f:case>
                                         <f:case value="verworfen">
                                             <a href="{detection.uri_undismiss}"
                                                class="btn btn-default"
-                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.undismiss.title')}">
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.undismiss.title')}">
                                                 <core:icon identifier="actions-undo" size="small" />
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.undismiss" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.undismiss" />
                                             </a>
                                             <a href="{detection.uri_purge}"
                                                class="btn btn-default text-danger"
-                                               data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.purge.confirm')}"
-                                               title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.purge.title')}">
+                                               data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.purge.confirm')}"
+                                               title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.purge.title')}">
                                                 <core:icon identifier="actions-delete" size="small" />
                                             </a>
                                         </f:case>
@@ -418,24 +418,24 @@
                                     <f:if condition="{detection.state} != 'verworfen'">
                                         <a href="{detection.uri_dismiss}"
                                            class="btn btn-default"
-                                           title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.dismiss.title')}">
+                                           title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.dismiss.title')}">
                                             <core:icon identifier="actions-close" size="small" />
                                             <span class="visually-hidden">
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.dismiss" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.dismiss" />
                                             </span>
                                         </a>
                                     </f:if>
                                     <f:if condition="{detection.uri_allowStylesheet}">
                                         <a href="{detection.uri_allowStylesheet}"
                                            class="btn btn-default text-success"
-                                           title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet.title')}">
+                                           title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet.title')}">
                                             <core:icon identifier="actions-check" size="small" />
                                             <span class="visually-hidden">
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.action.allowStylesheet" />
                                             </span>
                                         </a>
                                         <span class="text-muted ms-1" style="cursor:help"
-                                              title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.stylesheet.selfHostHint')}">
+                                              title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.stylesheet.selfHostHint')}">
                                             <core:icon identifier="actions-info-circle" size="small" />
                                         </span>
                                     </f:if>
@@ -448,7 +448,7 @@
             </form>
 
             <f:if condition="{totalPages} > 1">
-                <nav aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.nav')}">
+                <nav aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.nav')}">
                     <ul class="pagination pagination-sm justify-content-end">
                         <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
                             <a class="page-link" href="{uri_pageFirst}" aria-label="First">«</a>
@@ -458,7 +458,7 @@
                         </li>
                         <li class="page-item disabled">
                             <span class="page-link">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
                             </span>
                         </li>
                         <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
@@ -476,7 +476,7 @@
                 <f:then>
                     <div class="callout callout-info">
                         <div class="callout-content">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.dismissed" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.dismissed" />
                         </div>
                     </div>
                 </f:then>
@@ -486,12 +486,12 @@
                             <div class="callout callout-info">
                                 <div class="callout-content">
                                     <h4 class="callout-title">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.title" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.title" />
                                     </h4>
                                     <div>
                                         <a href="{uri_resetFilters}" class="btn btn-default btn-sm">
                                             <core:icon identifier="actions-close" size="small" />
-                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.reset" />
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty.filtered.reset" />
                                         </a>
                                     </div>
                                 </div>
@@ -500,7 +500,7 @@
                         <f:else>
                             <div class="callout callout-info">
                                 <div class="callout-content">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.empty" />
                                 </div>
                             </div>
                         </f:else>

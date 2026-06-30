@@ -942,7 +942,7 @@ final readonly class ComplianceCheckService
             return $key;
         }
         $translated = $service->sL(
-            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_design.xlf:' . $key,
+            'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:' . $key,
         );
         return $translated !== '' ? $translated : $key;
     }

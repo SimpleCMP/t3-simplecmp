@@ -321,10 +321,10 @@ to save ~15–20 KB gzip on every page load. The full bundle ships all
 
 Two ingredients are required:
 
-1. `EXT:t3_simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js`
+1. `EXT:simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js`
    — the slim English-only IIFE artifact built by the upstream bundle
    (`tsup` entry `simplecmp.core`).
-2. `EXT:t3_simplecmp/Resources/Public/JavaScript/translations/<lang>.json`
+2. `EXT:simplecmp/Resources/Public/JavaScript/translations/<lang>.json`
    for each active site language — copied verbatim from the upstream
    `src/engine/translations/`.
 

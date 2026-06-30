@@ -7,17 +7,17 @@
 <f:section name="Content">
     <f:render partial="ModuleNav" arguments="{active: 'detections', uri_detectionsTab: uri_detectionsTab, uri_registryTab: uri_registryTab, uri_libraryTab: uri_libraryTab, uri_trackerSetupTab: uri_trackerSetupTab, uri_auditTab: uri_auditTab, uri_auskunftTab: uri_auskunftTab, uri_settingsTab: uri_settingsTab, uri_designerTab: uri_designerTab}" />
 
-    <h1><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.title" /></h1>
+    <h1><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.title" /></h1>
     <p class="text-body-secondary">
-        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.intro" />
+        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.intro" />
     </p>
 
     <f:if condition="{secretMissing}">
         <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
             <core:icon identifier="actions-exclamation-triangle" size="medium" />
             <div>
-                <strong><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.title" /></strong>
-                <div><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.body" /></div>
+                <strong><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.title" /></strong>
+                <div><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.secretMissing.body" /></div>
             </div>
         </div>
     </f:if>
@@ -27,25 +27,25 @@
          data-discover-fetch-sitemap-url="{uri_fetchSitemap}"
          data-discover-token="{discoverToken}"
          data-discover-back-url="{uri_back}"
-         data-i18n-starting="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.starting')}"
-         data-i18n-stopping="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.stopping')}"
-         data-i18n-paused="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.paused')}"
-         data-i18n-done="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.done')}"
-         data-i18n-no-urls="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.noUrls')}"
-         data-i18n-sitemap-result="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapResult')}"
-         data-i18n-sitemap-blocked="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapBlocked')}"
-         data-i18n-sitemap-error="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapError')}"
-         data-i18n-iframe-error="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.iframeError')}"
-         data-i18n-cleared="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.cleared')}"
-         data-i18n-restored="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.restored')}"
-         data-i18n-eta="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.eta')}"
+         data-i18n-starting="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.starting')}"
+         data-i18n-stopping="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.stopping')}"
+         data-i18n-paused="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.paused')}"
+         data-i18n-done="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.done')}"
+         data-i18n-no-urls="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.noUrls')}"
+         data-i18n-sitemap-result="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapResult')}"
+         data-i18n-sitemap-blocked="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapBlocked')}"
+         data-i18n-sitemap-error="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.sitemapError')}"
+         data-i18n-iframe-error="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.iframeError')}"
+         data-i18n-cleared="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.cleared')}"
+         data-i18n-restored="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.restored')}"
+         data-i18n-eta="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.eta')}"
          data-discover-current-site="{site}">
         <div class="col-lg-5">
             <form method="get" action="{uri_index}" class="mb-3">
                 <f:if condition="{availableSites -> f:count()} > 1">
                     <div class="mb-3">
                         <label for="discover-site" class="form-label">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.site" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.site" />
                         </label>
                         <select id="discover-site" name="site"
                                 class="form-select" data-discover-site>
@@ -60,7 +60,7 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <h2 class="h5 mb-2">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.sitemap" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.sitemap" />
                     </h2>
                     <div class="input-group input-group-sm mb-2">
                         <input type="url"
@@ -68,22 +68,22 @@
                                data-discover-sitemap-url
                                value="{sitemapUrl}"
                                spellcheck="false"
-                               aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.sitemap')}">
+                               aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.sitemap')}">
                         <button type="button" class="btn btn-outline-secondary" data-discover-refetch>
                             <core:icon identifier="actions-refresh" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.refetch" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.refetch" />
                         </button>
                     </div>
                     <f:if condition="{urls -> f:count()} == 0">
                         <div class="alert alert-info small mb-2">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.empty" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.empty" />
                         </div>
                     </f:if>
                     <label class="form-label small d-flex justify-content-between" for="discover-urls">
-                        <span><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.label" /></span>
+                        <span><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.label" /></span>
                         <span class="text-body-secondary">
                             <strong><span data-discover-url-count>{urls -> f:count()}</span></strong>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.found" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.found" />
                         </span>
                     </label>
                     <textarea id="discover-urls"
@@ -92,41 +92,41 @@
                               rows="8"
                               spellcheck="false"
                               style="font-family:monospace; font-size:0.85rem;"
-                              placeholder="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.placeholder')}"><f:for each="{urls}" as="u">{u}
+                              placeholder="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.placeholder')}"><f:for each="{urls}" as="u">{u}
 </f:for></textarea>
                     <div class="form-text small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.help" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.urls.help" />
                     </div>
                 </div>
             </div>
 
             <div class="d-flex gap-2 mb-3">
                 <button type="button" class="btn btn-primary" data-discover-start
-                        data-label-start="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.start')}"
-                        data-label-stop="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.stop')}"
-                        data-label-continue="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.continue')}"
+                        data-label-start="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.start')}"
+                        data-label-stop="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.stop')}"
+                        data-label-continue="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.continue')}"
                         {f:if(condition: '{secretMissing}', then: 'disabled')}>
                     <span data-discover-icon-play><core:icon identifier="actions-play" size="small" /></span>
                     <span data-discover-icon-pause hidden><core:icon identifier="actions-pause" size="small" /></span>
                     <span data-discover-start-label>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.start" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.start" />
                     </span>
                 </button>
                 <button type="button" class="btn btn-outline-secondary" data-discover-reset
-                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.reset.title')}">
+                        title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.reset.title')}">
                     <core:icon identifier="actions-refresh" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.reset" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.reset" />
                 </button>
                 <a href="{uri_back}" class="btn btn-link ms-auto">
                     <core:icon identifier="actions-arrow-left" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.back" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.back" />
                 </a>
             </div>
 
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="discover-show-iframe" data-discover-show-iframe>
                 <label class="form-check-label small" for="discover-show-iframe">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.showIframe" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.showIframe" />
                 </label>
             </div>
 
@@ -143,12 +143,12 @@
 
         <div class="col-lg-7">
             <h2 class="h5 mb-2">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log" />
             </h2>
             <div class="border rounded p-2 mb-3" data-discover-log
                  style="height:300px; overflow:auto; font-family:monospace; font-size:0.85rem; background:var(--token-color-background-content, #fafafa);">
                 <em class="text-body-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.empty" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:discover.log.empty" />
                 </em>
             </div>
 

@@ -330,7 +330,7 @@ final class AuditAuskunftController extends ActionController
     private function translate(string $key): string
     {
         return (string) ($this->getLanguageService()->sL(
-            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key,
+            'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key,
         ) ?? '');
     }
 

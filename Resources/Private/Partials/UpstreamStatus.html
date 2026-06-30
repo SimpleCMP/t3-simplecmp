@@ -12,15 +12,15 @@
                 <div class="d-flex align-items-center gap-2 me-auto">
                     <core:icon identifier="actions-cloud" size="medium" />
                     <strong>
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.title" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.title" />
                     </strong>
                 </div>
                 <f:if condition="{upstreamStatus.enabled}">
                     <form method="post" action="{upstreamStatus.uri_refresh}" class="m-0" data-simplecmp-upstream-refresh>
                         <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh.tooltip')}">
+                                title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh.tooltip')}">
                             <core:icon identifier="actions-refresh" size="small" />
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.refresh" />
                         </button>
                     </form>
                 </f:if>
@@ -29,11 +29,11 @@
             <div class="row gx-3 gy-2">
                 <div class="col-md-6">
             <div class="text-body-secondary text-uppercase fw-semibold small mb-1" style="letter-spacing: 0.04em;">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.snapshot" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.snapshot" />
             </div>
             <div class="small mb-1">
                 <span class="text-body-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.label" />:
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.label" />:
                 </span>
                 <f:if condition="{upstreamStatus.bundle.version}">
                     <f:then><strong>{upstreamStatus.bundle.version}</strong></f:then>
@@ -41,26 +41,26 @@
                 </f:if>
                 <span class="text-body-secondary">
                     ({upstreamStatus.bundle.serviceCount}
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />)
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />)
                 </span>
                 <f:if condition="{upstreamStatus.bundle.sha}">
                     <code class="text-body-secondary ms-1" title="{upstreamStatus.bundle.sha}">@{upstreamStatus.bundle.shortSha}</code>
                 </f:if>
                 <a href="{upstreamStatus.bundle.changelogUrl}" target="_blank" rel="noopener noreferrer" class="ms-2">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.changelog" /> ↗
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.bundle.changelog" /> ↗
                 </a>
             </div>
 
             <f:if condition="{upstreamStatus.enabled}">
                 <div class="small mb-2">
                     <span class="text-body-secondary">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.snapshot.label" />:
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.snapshot.label" />:
                     </span>
                     <f:switch expression="{upstreamStatus.upstream.state}">
                         <f:case value="ok">
                             <strong>{upstreamStatus.upstream.serviceCount}</strong>
                             <span class="text-body-secondary">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.services" />
                             </span>
                             <f:if condition="{upstreamStatus.upstream.sourceSha}">
                                 <code class="text-body-secondary ms-1" title="{upstreamStatus.upstream.sourceSha}">@{upstreamStatus.upstream.shortSourceSha}</code>
@@ -68,7 +68,7 @@
                             <f:if condition="{upstreamStatus.upstream.lastSyncAt}">
                                 <span class="text-body-secondary ms-1">
                                     ·
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.synced" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.synced" />
                                 </span>
                                 <strong><t3b:format.beDate date="{upstreamStatus.upstream.lastSyncAt}" /></strong>
                             </f:if>
@@ -76,15 +76,15 @@
                                 <f:if condition="{upstreamStatus.upstream.inSync}">
                                     <f:then>
                                         <span class="badge badge-success">
-                                            ✓ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.inSync" />
+                                            ✓ <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.inSync" />
                                         </span>
                                     </f:then>
                                     <f:else>
                                         <span class="badge badge-warning">
-                                            ⚠ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.updatesAvailable" />
+                                            ⚠ <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.updatesAvailable" />
                                         </span>
                                         <span class="text-body-secondary ms-2">
-                                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.howToUpdate" />
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.howToUpdate" />
                                             <code>composer update simplecmp/services-library</code>
                                         </span>
                                     </f:else>
@@ -93,12 +93,12 @@
                         </f:case>
                         <f:case value="down">
                             <span class="badge badge-danger">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.unreachable" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.unreachable" />
                             </span>
                             <f:if condition="{upstreamStatus.upstream.failedAt}">
                                 <span class="text-body-secondary ms-1">
                                     ·
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checkedAt" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checkedAt" />
                                     <t3b:format.beDate date="{upstreamStatus.upstream.failedAt}" />
                                 </span>
                             </f:if>
@@ -106,11 +106,11 @@
                         <f:defaultCase>
                             <span class="text-body-secondary" data-simplecmp-upstream-stale>
                                 <core:icon identifier="actions-clock" size="small" />
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.stale" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.stale" />
                             </span>
                             <span class="text-body-secondary ms-1" data-simplecmp-upstream-checking hidden="hidden">
                                 <core:icon identifier="spinner-circle" size="small" />
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checking" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.checking" />
                             </span>
                         </f:defaultCase>
                     </f:switch>
@@ -120,14 +120,14 @@
                 </div>
                 <div class="col-md-6">
             <div class="text-body-secondary text-uppercase fw-semibold small mb-1 d-flex align-items-center gap-1" style="letter-spacing: 0.04em;">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime" />
                 <button type="button"
                         class="btn btn-link p-0 m-0 lh-1 border-0 text-body-secondary"
                         style="cursor: help;"
                         tabindex="-1"
                         onclick="return false;"
-                        title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}"
-                        aria-label="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}">
+                        title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}"
+                        aria-label="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.section.runtime.hint')}">
                     <core:icon identifier="actions-info-circle" size="small" />
                 </button>
             </div>
@@ -136,30 +136,30 @@
                     <f:then>
                         <div>
                             <span class="text-body-secondary">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache" />:
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache" />:
                             </span>
                             <strong>{upstreamStatus.cache.positive}</strong> <span class="text-body-secondary">+</span>
                             <strong>{upstreamStatus.cache.negative}</strong>
                             <span class="text-body-secondary">
-                                (<f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.positive" /> / <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.negative" />)
+                                (<f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.positive" /> / <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.cache.negative" />)
                             </span>
                         </div>
 
                         <div>
                             <span class="text-body-secondary">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayCalls" />:
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayCalls" />:
                             </span>
                             <strong>{upstreamStatus.todayCalls}</strong>
                             <f:if condition="{upstreamStatus.maxBudget} > 0">
                                 <span class="text-body-secondary">/ {upstreamStatus.maxBudget}</span>
                                 <f:if condition="{upstreamStatus.budgetExhausted}">
                                     <span class="badge badge-warning ms-1">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.budget.exhausted" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.budget.exhausted" />
                                     </span>
                                 </f:if>
                             </f:if>
                             <f:if condition="{upstreamStatus.todayFailures} > 0">
-                                <span class="text-danger ms-2" title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayFailures')}">
+                                <span class="text-danger ms-2" title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.todayFailures')}">
                                     ⚠ {upstreamStatus.todayFailures}
                                 </span>
                             </f:if>
@@ -167,7 +167,7 @@
 
                         <div>
                             <span class="text-body-secondary">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall" />:
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall" />:
                             </span>
                             <f:if condition="{upstreamStatus.lastCallAt}">
                                 <f:then>
@@ -177,7 +177,7 @@
                                 </f:then>
                                 <f:else>
                                     <span class="text-body-secondary">
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall.never" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.lastCall.never" />
                                     </span>
                                 </f:else>
                             </f:if>
@@ -185,7 +185,7 @@
                     </f:then>
                     <f:else>
                         <span class="badge badge-secondary">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.disabled" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.disabled" />
                         </span>
                     </f:else>
                 </f:if>
@@ -196,7 +196,7 @@
             <f:if condition="{upstreamStatus.enabled} && {upstreamStatus.sites -> f:count()} > 1">
                 <details class="mt-2">
                     <summary class="text-body-secondary small">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.sites.toggle"
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.sites.toggle"
                                      arguments="{0: '{upstreamStatus.sites -> f:count()}'}" />
                     </summary>
                     <ul class="list-unstyled mt-2 mb-0 small">
@@ -206,7 +206,7 @@
                                 <span class="text-body-secondary">→</span> &nbsp;
                                 <code>{site.url}</code> &nbsp;
                                 <span class="text-body-secondary">
-                                    (<f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.site.budget" />: {site.budget})
+                                    (<f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:upstream.site.budget" />: {site.budget})
                                 </span>
                             </li>
                         </f:for>

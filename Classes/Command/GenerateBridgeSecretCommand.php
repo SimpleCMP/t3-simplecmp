@@ -73,12 +73,12 @@ final class GenerateBridgeSecretCommand extends Command
         $output->writeln('  SIMPLECMP_BRIDGE_SECRET=' . $secret);
         $output->writeln('');
         $output->writeln('  # In config/system/additional.php:');
-        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'t3_simplecmp\'][\'bridgeSecret\']');
+        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'simplecmp\'][\'bridgeSecret\']');
         $output->writeln('      = getenv(\'SIMPLECMP_BRIDGE_SECRET\') ?: null;');
         $output->writeln('');
         $output->writeln('Or inline (less secure — not recommended for production):');
         $output->writeln('');
-        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'t3_simplecmp\'][\'bridgeSecret\']');
+        $output->writeln('  $GLOBALS[\'TYPO3_CONF_VARS\'][\'EXTENSIONS\'][\'simplecmp\'][\'bridgeSecret\']');
         $output->writeln('      = \'' . $secret . '\';');
         $output->writeln('');
 

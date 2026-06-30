@@ -27,11 +27,11 @@
 
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h1 class="mb-0">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.heading" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.heading" />
             </h1>
             <div class="d-flex align-items-center gap-2">
                 <label for="t3simplecmp-settings-site" class="form-label mb-0 text-body-secondary small">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.site" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.site" />
                 </label>
                 <select id="t3simplecmp-settings-site"
                         class="form-select form-select-sm"
@@ -45,7 +45,7 @@
         </div>
 
         <p class="text-body-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.intro" />
         </p>
 
         <!-- Bootstrap-Banner: noch keine active_settings für Site -->
@@ -55,16 +55,16 @@
                     <core:icon identifier="actions-info-circle" size="medium" />
                     <div class="flex-grow-1">
                         <strong>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.heading" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.heading" />
                         </strong>
                         <p class="mb-2 small">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.body" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.body" />
                         </p>
                         <f:form action="bootstrap" controller="Settings" method="post" class="m-0">
                             <f:form.hidden name="site" value="{selectedSite}" />
                             <button type="submit" class="btn btn-warning btn-sm">
                                 <core:icon identifier="actions-check" size="small" />
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.button" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.bootstrap.button" />
                             </button>
                         </f:form>
                     </div>
@@ -78,13 +78,13 @@
                 <div class="card-header bg-info-subtle d-flex align-items-center justify-content-between">
                     <h2 class="h5 mb-0">
                         <core:icon identifier="actions-info-circle" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.heading"
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.heading"
                                      arguments="{0: driftCount}" />
                     </h2>
                     <f:form action="adoptAll" controller="Settings" method="post" class="m-0">
                         <f:form.hidden name="site" value="{selectedSite}" />
                         <button type="submit" class="btn btn-primary btn-sm">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adoptAll" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adoptAll" />
                         </button>
                     </f:form>
                 </div>
@@ -94,13 +94,13 @@
                             <tr>
                                 <th>Key</th>
                                 <th>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
                                 </th>
                                 <th>
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
                                 </th>
                                 <th class="text-end">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
                                 </th>
                             </tr>
                         </thead>
@@ -126,7 +126,7 @@
                                             <f:form.hidden name="site" value="{selectedSite}" />
                                             <f:form.hidden name="key" value="{entry.key}" />
                                             <button type="submit" class="btn btn-primary btn-sm">
-                                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adopt" />
+                                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.adopt" />
                                             </button>
                                         </f:form>
                                     </td>
@@ -144,7 +144,7 @@
                 <div class="card-header bg-info-subtle">
                     <h2 class="h5 mb-0">
                         <core:icon identifier="actions-cog" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.heading"
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.heading"
                                      arguments="{0: unadoptedTrackerCount}" />
                     </h2>
                 </div>
@@ -166,7 +166,7 @@
                                             <td>{prop.type}</td>
                                             <td><code class="small">{prop.serviceId}</code></td>
                                             <td colspan="2" class="small">
-                                                ✓ <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.alreadyAdopted" />
+                                                ✓ <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.alreadyAdopted" />
                                             </td>
                                         </tr>
                                     </f:then>
@@ -185,7 +185,7 @@
                                                     <f:form.hidden name="type" value="{prop.type}" />
                                                     <f:form.hidden name="serviceId" value="{prop.serviceId}" />
                                                     <button type="submit" class="btn btn-primary btn-sm">
-                                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.adopt" />
+                                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.tracker.adopt" />
                                                     </button>
                                                 </f:form>
                                             </td>
@@ -201,7 +201,7 @@
 
         <!-- Volle Settings-Tabelle: alle 12 Editor-Content-Keys -->
         <h2 class="h5 mt-4">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.allKeys" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.allKeys" />
         </h2>
         <div class="table-responsive">
             <table class="table table-sm table-striped">
@@ -209,14 +209,14 @@
                     <tr>
                         <th>Key</th>
                         <th>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.active" />
                         </th>
                         <th>
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.yaml" />
                         </th>
                         <th>Status</th>
                         <th class="text-end">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.drift.col.actions" />
                         </th>
                     </tr>
                 </thead>
@@ -269,7 +269,7 @@
                                             </f:else>
                                         </f:if>
                                         <button type="submit" class="btn btn-primary btn-sm"
-                                                title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.custom.save')}">
+                                                title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.custom.save')}">
                                             <core:icon identifier="actions-document-save" size="small" />
                                         </button>
                                     </f:form>
@@ -278,7 +278,7 @@
                                             <f:form.hidden name="site" value="{selectedSite}" />
                                             <f:form.hidden name="key" value="{entry.key}" />
                                             <button type="submit" class="btn btn-default btn-sm"
-                                                    title="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
+                                                    title="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.reset.button')}">
                                                 <core:icon identifier="actions-undo" size="small" />
                                             </button>
                                         </f:form>
@@ -293,9 +293,9 @@
 
         <div class="border-top pt-3 mt-5 small text-body-secondary">
             <core:icon identifier="actions-rocket" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.intro" />
             <a href="{uri_wizardReopen}" class="alert-link">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.link" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.wizardReopen.link" />
                 →
             </a>
         </div>
@@ -304,7 +304,7 @@
     </f:then>
     <f:else>
         <div class="alert alert-warning">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.noSites" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.settings.noSites" />
         </div>
     </f:else>
 </f:if>

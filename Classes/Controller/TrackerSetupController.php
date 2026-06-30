@@ -525,7 +525,7 @@ final class TrackerSetupController extends ActionController
         if (str_starts_with($key, 'LLL:')) {
             return $this->getLanguageService()->sL($key);
         }
-        return $this->getLanguageService()->sL('LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key);
+        return $this->getLanguageService()->sL('LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key);
     }
 
     private function getLanguageService(): LanguageService

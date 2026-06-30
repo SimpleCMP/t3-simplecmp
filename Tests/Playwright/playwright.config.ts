@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
 
 /**
- * Playwright config for the t3_simplecmp BE suite.
+ * Playwright config for the simplecmp BE suite.
  *
  * Drives the real TYPO3 v14 backend against a local ddev instance.
  * Mutates the database — each test resets `tx_t3simplecmp_*` tables

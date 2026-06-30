@@ -26,13 +26,13 @@
 
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h1 class="mb-0">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.heading" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.heading" />
             </h1>
 
             <!-- Per-site picker. Pre-built URLs, no form submit. -->
             <div class="d-flex align-items-center gap-2">
                 <label for="t3simplecmp-audit-site" class="form-label mb-0 text-body-secondary small">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.site" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.site" />
                 </label>
                 <select id="t3simplecmp-audit-site"
                         class="form-select form-select-sm"
@@ -46,12 +46,12 @@
         </div>
 
         <p class="text-body-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.intro" />
         </p>
 
         <div class="alert alert-info small">
             <core:icon identifier="actions-info-circle" size="small" />
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.cliHint" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.cliHint" />
             <code>vendor/bin/typo3 simplecmp:snapshot-config --site={selectedSite}</code>
         </div>
 
@@ -59,7 +59,7 @@
             <f:then>
                 <div class="d-flex align-items-center mb-2 gap-3">
                     <div class="text-body-secondary small ms-auto">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.range"
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.range"
                                      arguments="{0: rangeStart, 1: rangeEnd, 2: totalCount}" />
                     </div>
                 </div>
@@ -67,11 +67,11 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
-                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.versionHash" /></th>
-                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" /></th>
-                            <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" /></th>
-                            <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.actions" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.crdate" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.versionHash" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.trigger" /></th>
+                            <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.creator" /></th>
+                            <th class="text-end"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.col.actions" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,7 +80,7 @@
                                 <td><t3b:format.beDate date="{row.crdate}" /></td>
                                 <td><code title="{row.version_hash}">{row.version_hash_short}…</code></td>
                                 <td><span class="badge bg-secondary">
-                                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{row.trigger_event}" default="{row.trigger_event}" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.trigger.{row.trigger_event}" default="{row.trigger_event}" />
                                 </span></td>
                                 <td>
                                     <f:if condition="{row.creator_be_user} > 0">
@@ -91,7 +91,7 @@
                                 <td class="text-end">
                                     <a href="{row.uri_show}" class="btn btn-sm btn-default">
                                         <core:icon identifier="actions-eye" size="small" />
-                                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.action.show" />
+                                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.action.show" />
                                     </a>
                                 </td>
                             </tr>
@@ -107,7 +107,7 @@
                             <li class="page-item {f:if(condition: '{currentPage} == 1', then: 'disabled')}">
                                 <a class="page-link" href="{uri_pagePrev}">‹</a></li>
                             <li class="page-item disabled"><span class="page-link">
-                                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
+                                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:list.pagination.pageOf" arguments="{0: currentPage, 1: totalPages}" />
                             </span></li>
                             <li class="page-item {f:if(condition: '{currentPage} == {totalPages}', then: 'disabled')}">
                                 <a class="page-link" href="{uri_pageNext}">›</a></li>
@@ -119,7 +119,7 @@
             </f:then>
             <f:else>
                 <div class="alert alert-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.empty" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.empty" />
                 </div>
             </f:else>
         </f:if>
@@ -127,7 +127,7 @@
     </f:then>
     <f:else>
         <div class="alert alert-warning">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.noSites" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.audit.noSites" />
         </div>
     </f:else>
 </f:if>

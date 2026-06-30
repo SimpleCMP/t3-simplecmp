@@ -48,10 +48,10 @@ final class OrphanCalloutFieldElement extends AbstractFormElement
 
         $lang = $this->getLanguageService();
         $title = $lang->sL(
-            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.title',
+            'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.title',
         );
         $bodyTemplate = $lang->sL(
-            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.body',
+            'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.orphanCallout.body',
         );
         $adoptedDate = date('Y-m-d', $adoptedAt);
         // The translation source carries a literal `%s` we splice the

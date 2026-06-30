@@ -26,7 +26,7 @@
 
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h1 class="mb-0">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.heading" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.heading" />
             </h1>
 
             <!--
@@ -39,7 +39,7 @@
             -->
             <div class="d-flex align-items-center gap-2">
                 <label for="t3simplecmp-tracker-site" class="form-label mb-0 small text-body-secondary">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.site" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.site" />
                 </label>
                 <select id="t3simplecmp-tracker-site"
                         class="form-select form-select-sm"
@@ -53,19 +53,19 @@
         </div>
 
         <p class="text-body-secondary">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.intro" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.intro" />
         </p>
 
         <div class="callout callout-info mb-4" role="note">
             <h5 class="callout-title">
                 <core:icon identifier="actions-lightbulb-on" size="small" />
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.heading" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.heading" />
             </h5>
             <p class="mb-1">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.body" />
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.body" />
             </p>
             <p class="mb-0 small text-body-secondary">
-                <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.docsLink" />:
+                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.tmRecommendation.docsLink" />:
                 <code>vendor/simplecmp/t3-simplecmp/docs/decisions/2026-06-08-tag-manager-first.md</code>
             </p>
         </div>
@@ -74,13 +74,13 @@
             <div class="panel-heading d-flex align-items-center justify-content-between">
                 <strong>
                     <core:icon identifier="actions-database-import" size="small" />
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbHeading" />
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbHeading" />
                 </strong>
 
                 <div class="dropdown {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
                     <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <core:icon identifier="actions-plus" size="small" />
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.add" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.add" />
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <f:for each="{providerOptions}" as="label" key="type">
@@ -100,10 +100,10 @@
                             <thead>
                                 <tr>
                                     <th style="width: 1%"></th>
-                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.provider" /></th>
-                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.serviceId" /></th>
-                                    <th><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.summary" /></th>
-                                    <th class="text-end"><f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.actions" /></th>
+                                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.provider" /></th>
+                                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.serviceId" /></th>
+                                    <th><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.summary" /></th>
+                                    <th class="text-end"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.col.actions" /></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -123,7 +123,7 @@
                                             <f:form action="delete"
                                                     method="post"
                                                     class="d-inline"
-                                                    data-confirm-message="{f:translate(key: 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.deleteConfirm')}">
+                                                    data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.deleteConfirm')}">
                                                 <f:form.hidden name="uid" value="{row.uid}" />
                                                 <f:form.hidden name="site" value="{selectedSite}" />
                                                 <button type="submit" class="btn btn-default btn-sm">
@@ -139,7 +139,7 @@
                     </f:then>
                     <f:else>
                         <div class="text-body-secondary">
-                            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbEmpty" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.dbEmpty" />
                         </div>
                     </f:else>
                 </f:if>
@@ -150,10 +150,10 @@
             <div class="alert alert-info d-flex align-items-start gap-2 mt-3" role="alert">
                 <core:icon identifier="actions-info-circle" size="medium" />
                 <div class="flex-grow-1">
-                    <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsHint"
+                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsHint"
                                  arguments="{0: unadoptedProposalsCount}" />
                     <a href="{uri_settingsTab}" class="alert-link ms-2">
-                        <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsLink" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.proposalsLink" />
                         →
                     </a>
                 </div>
@@ -163,7 +163,7 @@
     </f:then>
     <f:else>
         <f:be.infobox state="{f:constant(name: 'TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING')}">
-            <f:translate key="LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.noSites" />
+            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:module.trackerSetup.noSites" />
         </f:be.infobox>
     </f:else>
 </f:if>

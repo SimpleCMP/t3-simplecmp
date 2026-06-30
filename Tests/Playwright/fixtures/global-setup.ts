@@ -8,7 +8,7 @@ import path from 'node:path';
  * `use.storageState` then loads that snapshot for every spec — so
  * individual tests start already logged in.
  *
- * Login is required because the t3_simplecmp module is a BE-only
+ * Login is required because the simplecmp module is a BE-only
  * module. Without a session cookie the modules render the login form
  * and every spec would have to re-authenticate.
  */

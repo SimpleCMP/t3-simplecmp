@@ -648,7 +648,7 @@ final class DetectionReviewController extends ActionController
      */
     private function emitFlash(string $key, ContextualFeedbackSeverity $severity, array $arguments = []): void
     {
-        $messageKey = 'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key;
+        $messageKey = 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key;
         $message = (string) ($GLOBALS['LANG']->sL($messageKey) ?: $key);
         if ($arguments !== []) {
             $message = strtr($message, array_combine(
@@ -1305,7 +1305,7 @@ final class DetectionReviewController extends ActionController
             return null;
         }
         $translated = $lang->sL(
-            'LLL:EXT:t3_simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key
+            'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:' . $key
         );
         return $translated !== '' ? $translated : null;
     }

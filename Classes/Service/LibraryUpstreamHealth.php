@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * than waiting for the TTL to roll over.
  *
  * Cache backend: Typo3DatabaseBackend over VariableFrontend
- * (`t3_simplecmp_library_upstream_health`, registered in
+ * (`simplecmp_library_upstream_health`, registered in
  * ext_localconf.php) — same choice as `BridgeRateLimiter`.
  *
  * Network posture mirrors `LibraryUpstreamClient`: 3s timeout, silent
@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  */
 final readonly class LibraryUpstreamHealth
 {
-    public const string CACHE_IDENTIFIER = 't3_simplecmp_library_upstream_health';
+    public const string CACHE_IDENTIFIER = 'simplecmp_library_upstream_health';
     private const int TIMEOUT_SECONDS = 3;
     // Success cache is long-lived: what it gates (bundle-vs-upstream drift)
     // changes only when the library is re-published — rarer than daily — and

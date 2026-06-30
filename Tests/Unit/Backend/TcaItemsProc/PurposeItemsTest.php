@@ -57,7 +57,7 @@ final class PurposeItemsTest extends TestCase
 
         foreach ($config['items'] as $item) {
             self::assertStringStartsWith(
-                'LLL:EXT:t3_simplecmp/',
+                'LLL:EXT:simplecmp/',
                 $item['label'],
                 'Items must use LLL labels so locallang stays the single source for translations.',
             );
