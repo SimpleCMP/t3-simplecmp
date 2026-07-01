@@ -19,7 +19,7 @@
     uri_settingsTab: uri_settingsTab,
     uri_designerTab: uri_designerTab
 }" />
-<f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: scope, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
+<f:render partial="DraftBanner" arguments="{lockState: lockState, hasDraft: hasDraft, isDraftEditable: isDraftEditable, currentBeUserId: currentBeUserId, scope: scope, hideActions: 1, uri_publish: uri_publish, uri_discard: uri_discard, uri_takeover: uri_takeover, uri_createDraft: uri_createDraft, currentUrl: currentUrl}" />
 
 <f:if condition="{hasSites}">
     <f:then>
@@ -308,6 +308,8 @@
         </div>
     </f:else>
 </f:if>
+
+<f:render partial="DraftActionBar" arguments="{isDraftEditable: isDraftEditable, scope: scope, currentUrl: currentUrl}" />
 
 </f:section>
 </html>

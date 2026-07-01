@@ -33,6 +33,21 @@
     opacity: 0.4;
     cursor: not-allowed;
 }
+
+/* Shared sticky bottom action bar (DraftActionBar partial) — keeps the
+   draft lifecycle actions pinned to the bottom of every draft-gated tab.
+   sticky (not fixed) stays inside the module content column, reserves its
+   own space and never spans under the TYPO3 module menu. */
+.simplecmp-sticky-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin-top: 1rem;
+    padding: 0.75rem 0;
+    background: var(--typo3-component-bg, #fff);
+    border-top: 1px solid var(--typo3-component-border-color, #d3d3d3);
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06);
+}
 </style>
 
 <f:if condition="{lockState.conflict}">
