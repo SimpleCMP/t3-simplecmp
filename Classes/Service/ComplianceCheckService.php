@@ -653,16 +653,15 @@ final readonly class ComplianceCheckService
             return $this->pass('heuristic-button-equal-prominence', '2.1');
         }
         $overrides = [];
+        // Only the banner (first-layer) buttons are per-button
+        // configurable, so only they can be made unequal. The modal
+        // buttons share ONE uniform style (color-modal-button-bg/-text
+        // applied to all three), so they stay equally prominent by
+        // construction — no per-button audit needed there.
         $labels = [
             'color-accept-bg' => 'audit.button.accept',
             'color-decline-bg' => 'audit.button.decline',
             'color-configure-bg' => 'audit.button.configure',
-            // Second-layer (settings modal) buttons — EDPB 03/2022
-            // deceptive-design rules cover the whole consent flow, so an
-            // imbalance here is flagged just like the banner buttons.
-            'color-modal-accept-bg' => 'audit.button.modalAccept',
-            'color-modal-decline-bg' => 'audit.button.modalDecline',
-            'color-modal-save-bg' => 'audit.button.modalSave',
         ];
         foreach ($labels as $key => $labelKey) {
             $value = $stored[$key] ?? '';

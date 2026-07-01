@@ -431,11 +431,11 @@ function applyTokens(tokens) {
     if (key === 'color-trigger-bg') {
       continue;
     }
-    // Per-banner- and modal-button background overrides — scoped via
-    // `:host(simplecmp-banner|modal) .<button>` below.
+    // Banner-button background overrides + the uniform modal-button style
+    // tokens — handled by scoped rules below, not as generic :host vars.
     if (
       key === 'color-accept-bg' || key === 'color-decline-bg' || key === 'color-configure-bg'
-      || key === 'color-modal-accept-bg' || key === 'color-modal-decline-bg' || key === 'color-modal-save-bg'
+      || key === 'color-modal-button-bg' || key === 'color-modal-button-text'
     ) {
       continue;
     }
@@ -471,19 +471,19 @@ function applyTokens(tokens) {
     rules.push(`:host(simplecmp-banner) ${selector} { background: ${value} !important; }`);
     rules.push(`:host(simplecmp-banner) ${selector}:hover { background: ${value} !important; filter: brightness(0.92); }`);
   }
-  // Modal (second-layer) action-button background overrides. Mirror of
-  // RegisterAssets::injectTheme(); scoped via :host(simplecmp-modal).
-  const modalButtonOverrides = {
-    'color-modal-accept-bg': '.action.accept-all',
-    'color-modal-decline-bg': '.action.decline',
-    'color-modal-save-bg': '.action.save',
-  };
-  for (const [tokenKey, selector] of Object.entries(modalButtonOverrides)) {
-    const value = tokens?.[tokenKey];
-    if (typeof value !== 'string' || value === '') continue;
-    rules.push(`:host(simplecmp-modal) ${selector} { background: ${value} !important; }`);
-    rules.push(`:host(simplecmp-modal) ${selector}:hover { background: ${value} !important; filter: brightness(0.92); }`);
-  }
+  // Modal (second-layer) action buttons — ONE uniform style so they stay
+  // equally prominent, and to neutralise the bundle's red-outline Decline
+  // default. Mirror of RegisterAssets::injectTheme(); always emitted.
+  const modalBg = (typeof tokens?.['color-modal-button-bg'] === 'string' && tokens['color-modal-button-bg'] !== '')
+    ? tokens['color-modal-button-bg']
+    : 'var(--simplecmp-color-primary)';
+  const modalText = (typeof tokens?.['color-modal-button-text'] === 'string' && tokens['color-modal-button-text'] !== '')
+    ? tokens['color-modal-button-text']
+    : '#ffffff';
+  const modalBtns = ':host(simplecmp-modal) .action.accept-all, :host(simplecmp-modal) .action.save, :host(simplecmp-modal) .action.decline';
+  const modalBtnsHover = ':host(simplecmp-modal) .action.accept-all:hover, :host(simplecmp-modal) .action.save:hover, :host(simplecmp-modal) .action.decline:hover';
+  rules.push(`${modalBtns} { background: ${modalBg} !important; color: ${modalText} !important; border-color: transparent !important; }`);
+  rules.push(`${modalBtnsHover} { background: ${modalBg} !important; color: ${modalText} !important; filter: brightness(0.92); }`);
   // Purpose-group: indent the "▾ N Dienst" toggle button so it lines
   // up under the .meta block above. Mirror of the FE-side rule from
   // RegisterAssets::injectTheme(). The 28px equals the checkbox's

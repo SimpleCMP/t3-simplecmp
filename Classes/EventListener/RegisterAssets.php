@@ -482,9 +482,10 @@ final readonly class RegisterAssets
             if ($token === 'color-trigger-bg') {
                 continue;
             }
-            // Banner- and modal-button background overrides — per-button
-            // scoped rules emitted below the host rule.
-            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-modal-accept-bg', 'color-modal-decline-bg', 'color-modal-save-bg'], true)) {
+            // Banner-button background overrides + the uniform modal-button
+            // style tokens — all handled by scoped rules below, not as
+            // generic :host custom properties.
+            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-modal-button-bg', 'color-modal-button-text'], true)) {
                 continue;
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
@@ -539,23 +540,25 @@ final readonly class RegisterAssets
             $rules[] = ':host(simplecmp-banner) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
         }
 
-        // Modal (second-layer "großes Fenster") action-button background
-        // overrides, scoped via `:host(simplecmp-modal) .action.<button>`.
-        // Same equal-prominence caveat as the banner buttons (EDPB 03/2022
-        // covers the whole flow); the audit surfaces the warning.
-        $modalButtonOverrides = [
-            'color-modal-accept-bg' => '.action.accept-all',
-            'color-modal-decline-bg' => '.action.decline',
-            'color-modal-save-bg' => '.action.save',
-        ];
-        foreach ($modalButtonOverrides as $tokenKey => $selector) {
-            $value = $tokens[$tokenKey] ?? '';
-            if (!is_string($value) || $value === '') {
-                continue;
-            }
-            $rules[] = ':host(simplecmp-modal) ' . $selector . ' { background: ' . $value . ' !important; }';
-            $rules[] = ':host(simplecmp-modal) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
-        }
+        // Modal (second-layer "großes Fenster") action buttons — rendered
+        // with ONE uniform style so Accept-all / Save / Decline stay
+        // equally prominent (EDPB 03/2022 covers the whole flow). This
+        // also neutralises the bundle default, which makes "Decline" a red
+        // outline while the others are filled — an equal-prominence
+        // problem. Emitted whenever this site has a theme row (i.e. once
+        // the designer has been used). Background + text default to the
+        // primary fill / white and are optionally overridden together via
+        // color-modal-button-bg / -text.
+        $modalBg = (is_string($tokens['color-modal-button-bg'] ?? null) && $tokens['color-modal-button-bg'] !== '')
+            ? (string) $tokens['color-modal-button-bg']
+            : 'var(--simplecmp-color-primary)';
+        $modalText = (is_string($tokens['color-modal-button-text'] ?? null) && $tokens['color-modal-button-text'] !== '')
+            ? (string) $tokens['color-modal-button-text']
+            : '#ffffff';
+        $modalButtons = ':host(simplecmp-modal) .action.accept-all, :host(simplecmp-modal) .action.save, :host(simplecmp-modal) .action.decline';
+        $modalButtonsHover = ':host(simplecmp-modal) .action.accept-all:hover, :host(simplecmp-modal) .action.save:hover, :host(simplecmp-modal) .action.decline:hover';
+        $rules[] = $modalButtons . ' { background: ' . $modalBg . ' !important; color: ' . $modalText . ' !important; border-color: transparent !important; }';
+        $rules[] = $modalButtonsHover . ' { background: ' . $modalBg . ' !important; color: ' . $modalText . ' !important; filter: brightness(0.92); }';
 
         // Purpose-group: indent the "▾ N Dienst" toggle button so it
         // sits flush under the `.meta` block in the row above. The

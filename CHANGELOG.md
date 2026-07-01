@@ -12,17 +12,22 @@ development.
 
 ### Added
 
-- **Settings-dialog (modal) button backgrounds are now configurable**,
-  matching the banner buttons. New optional theme colors
-  `color-modal-accept-bg` / `color-modal-decline-bg` /
-  `color-modal-save-bg` map to the second-layer action buttons
-  (`:host(simplecmp-modal) .action.accept-all|.decline|.save`) in both
-  the FE (`RegisterAssets`) and the BE live preview. Because the EDPB
-  03/2022 deceptive-design rules cover the **whole** consent flow (not
-  just the first layer), overriding these is flagged by the same
-  equal-prominence compliance check as the banner buttons. The preview
-  config now also enables the modal "Accept all" button (`acceptAll:
-  true`, mirroring the FE) so its background can actually be previewed.
+- **Settings-dialog (modal) buttons: equal-prominence by default +
+  configurable style.** The bundle default made the modal "Decline"
+  button a red outline while "Accept all"/"Save" were filled — an
+  equal-prominence problem (EDPB 03/2022 deceptive-design rules cover the
+  **whole** consent flow, not just the first layer). All three modal
+  action buttons (`:host(simplecmp-modal) .action.accept-all|.save|.decline`)
+  are now rendered with ONE uniform style — same background + text, no
+  red — so they stay equally prominent by construction, in both the FE
+  (`RegisterAssets::injectTheme`) and the BE live preview. Two new
+  optional theme colors let an editor restyle that uniform look:
+  `color-modal-button-bg` (default: primary fill) and
+  `color-modal-button-text` (default: white), applied to all three
+  together so the equality can't be broken. The preview config now also
+  enables the modal "Accept all" button (`acceptAll: true`, mirroring the
+  FE) so the style can actually be previewed. (Applies once the site has
+  any theme row — i.e. after the designer has been used.)
 
 ### Changed
 

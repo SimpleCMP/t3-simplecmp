@@ -189,12 +189,16 @@ final class ThemeDesignerController extends ActionController
         'color-decline-bg' => '',
         'color-configure-bg' => '',
         // Second-layer (settings modal, "großes Fenster") action buttons.
-        // Same equal-prominence caveat as the banner buttons: the EDPB
-        // 03/2022 deceptive-design rules cover the WHOLE consent flow, so
-        // overriding these is flagged by the compliance audit too.
-        'color-modal-accept-bg' => '',
-        'color-modal-decline-bg' => '',
-        'color-modal-save-bg' => '',
+        // The bundle default makes "Decline" a red outline while
+        // Accept/Save are filled — an equal-prominence problem (EDPB
+        // 03/2022 covers the whole flow). We therefore render ALL three
+        // modal action buttons with ONE uniform style (see injectTheme),
+        // so they stay equally prominent by construction. These two
+        // optional tokens let an editor restyle that uniform look
+        // (background + text) — applied to all three together, so the
+        // equality can't be broken.
+        'color-modal-button-bg' => '',
+        'color-modal-button-text' => '',
     ];
 
     /**
@@ -360,9 +364,8 @@ final class ThemeDesignerController extends ActionController
             'color-configure-bg',
         ],
         'modal-buttons' => [
-            'color-modal-accept-bg',
-            'color-modal-decline-bg',
-            'color-modal-save-bg',
+            'color-modal-button-bg',
+            'color-modal-button-text',
         ],
         'placement' => ['position'],
         'framework' => ['theme'],
@@ -752,20 +755,15 @@ final class ThemeDesignerController extends ActionController
                     'value' => ($tokens['color-configure-bg'] ?? '') !== '' ? $tokens['color-configure-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
                     'isSet' => ($tokens['color-configure-bg'] ?? '') !== '',
                 ],
-                'modalAcceptBg' => [
-                    'key' => 'color-modal-accept-bg',
-                    'value' => ($tokens['color-modal-accept-bg'] ?? '') !== '' ? $tokens['color-modal-accept-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
-                    'isSet' => ($tokens['color-modal-accept-bg'] ?? '') !== '',
+                'modalButtonBg' => [
+                    'key' => 'color-modal-button-bg',
+                    'value' => ($tokens['color-modal-button-bg'] ?? '') !== '' ? $tokens['color-modal-button-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
+                    'isSet' => ($tokens['color-modal-button-bg'] ?? '') !== '',
                 ],
-                'modalDeclineBg' => [
-                    'key' => 'color-modal-decline-bg',
-                    'value' => ($tokens['color-modal-decline-bg'] ?? '') !== '' ? $tokens['color-modal-decline-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
-                    'isSet' => ($tokens['color-modal-decline-bg'] ?? '') !== '',
-                ],
-                'modalSaveBg' => [
-                    'key' => 'color-modal-save-bg',
-                    'value' => ($tokens['color-modal-save-bg'] ?? '') !== '' ? $tokens['color-modal-save-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
-                    'isSet' => ($tokens['color-modal-save-bg'] ?? '') !== '',
+                'modalButtonText' => [
+                    'key' => 'color-modal-button-text',
+                    'value' => ($tokens['color-modal-button-text'] ?? '') !== '' ? $tokens['color-modal-button-text'] : '#ffffff',
+                    'isSet' => ($tokens['color-modal-button-text'] ?? '') !== '',
                 ],
             ],
             // Legacy single-field helpers — kept until the template
