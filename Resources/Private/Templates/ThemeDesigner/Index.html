@@ -158,6 +158,22 @@
         .simplecmp-override-default[data-override-default-empty] {
             opacity: 0.6;
         }
+
+        /* Sticky action bar — keeps Save/Reset visible while scrolling
+           the long design form + tall preview iframe, so the Save button
+           is no longer buried at the very bottom. `sticky` (not `fixed`)
+           keeps the bar inside the module content column, reserves its own
+           space (never overlaps content) and doesn't span under the TYPO3
+           module menu. */
+        .simplecmp-sticky-actions {
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+            padding: 0.75rem 0;
+            background: var(--typo3-component-bg, #fff);
+            border-top: 1px solid var(--typo3-component-border-color, #d3d3d3);
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06);
+        }
     </f:asset.css>
 
     <f:render partial="ModuleNav" arguments="{
@@ -711,7 +727,7 @@
         </div>
         </fieldset>
 
-        <div class="btn-toolbar gap-2 mt-3 border-top pt-3 {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
+        <div class="btn-toolbar gap-2 simplecmp-sticky-actions {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
             <button type="submit" class="btn btn-primary">
                 <core:icon identifier="actions-save" size="small" />
                 <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
