@@ -12,6 +12,33 @@ development.
 
 ### Changed
 
+- **One unified draft per site across the whole module.** The draft
+  workflow previously exposed two independent drafts — a shared GLOBAL
+  service-registry draft and a per-site draft — and the tabs were split
+  across them (Design used the site scope; Dienste/Detektionen/
+  Einstellungen used the global scope; **Tracker-Einrichtung wrote
+  per-site `managed_tracker` data but published the GLOBAL scope, so
+  tracker changes were never actually published — a bug**). The result
+  was that Design could ask you to "create a draft" while other tabs
+  offered "Publish" at the same time. Now every draft-gated tab presents
+  a single **umbrella draft per site** that spans both scopes:
+  - New `ActiveSiteResolver` persists a module-wide active site (BE-user
+    module data), so all tabs — even the site-agnostic ones — agree on
+    which site's draft is being edited.
+  - `DraftWorkspaceService` gains `relatedScopes()` / `hasDraftForSite()`
+    / `initializeDraftForSite()` / `discardDraftForSite()` /
+    `lockForSite()` / `draftRevisionForSite()`, and `DraftPublishService`
+    gains `publishForSite()` — each composes the existing per-scope
+    operations over `{global, site}`. Create/Publish/Discard now act on
+    both scopes at once, which also fixes the tracker-publish bug.
+    Services stay physically global (no data-loss risk); only the
+    lifecycle is unified. `DraftBannerContext::forSite()` feeds the
+    banner/action-bar from the umbrella; `forScope()` is retained.
+  - **Trade-off (multi-site):** because the shared service registry is
+    part of the umbrella, an open draft on one site also locks the global
+    scope, so only one site can hold an open draft at a time. No impact
+    for single-site installs.
+
 - **BREAKING: the TYPO3 extension key was renamed `t3_simplecmp` →
   `simplecmp`.** The Composer package name (`simplecmp/t3-simplecmp`),
   the PHP namespace (`SimpleCMP\T3SimpleCmp\`), the database tables

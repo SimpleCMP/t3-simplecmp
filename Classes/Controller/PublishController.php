@@ -51,10 +51,10 @@ final class PublishController extends ActionController
             return $this->redirectAfter($returnUrl);
         }
 
-        $lock = $this->workspace->currentLock($scope);
-        if (!$lock->isUnlocked() && !$lock->isOwnedBy($beUserId)) {
+        $conflict = $this->conflictingLock($scope, $beUserId);
+        if ($conflict !== null) {
             $this->addFlashMessage(
-                sprintf('Lock für "%s" gehört BE-User uid=%d — Publish abgelehnt.', $scope, $lock->ownerBeUserId),
+                sprintf('Lock für "%s" gehört BE-User uid=%d — Publish abgelehnt.', $scope, $conflict->ownerBeUserId),
                 '',
                 ContextualFeedbackSeverity::ERROR,
             );
@@ -62,7 +62,7 @@ final class PublishController extends ActionController
         }
 
         try {
-            $result = $this->publishService->publish($scope, $beUserId);
+            $result = $this->publishService->publishForSite($scope, $beUserId);
         } catch (\Throwable $e) {
             $this->addFlashMessage(
                 sprintf('Publish-Fehler: %s', $e->getMessage()),
@@ -102,16 +102,16 @@ final class PublishController extends ActionController
     public function discardAction(string $scope, string $returnUrl = ''): ResponseInterface
     {
         $beUserId = $this->currentBeUserId();
-        $lock = $this->workspace->currentLock($scope);
-        if (!$lock->isUnlocked() && !$lock->isOwnedBy($beUserId)) {
+        $conflict = $this->conflictingLock($scope, $beUserId);
+        if ($conflict !== null) {
             $this->addFlashMessage(
-                sprintf('Lock für "%s" gehört BE-User uid=%d — Verwerfen abgelehnt.', $scope, $lock->ownerBeUserId),
+                sprintf('Lock für "%s" gehört BE-User uid=%d — Verwerfen abgelehnt.', $scope, $conflict->ownerBeUserId),
                 '',
                 ContextualFeedbackSeverity::ERROR,
             );
             return $this->redirectAfter($returnUrl);
         }
-        $this->publishService->discard($scope);
+        $this->workspace->discardDraftForSite($scope);
         $this->addFlashMessage(
             sprintf('Entwurf für "%s" verworfen.', $scope),
             '',
@@ -131,8 +131,10 @@ final class PublishController extends ActionController
             return $this->redirectAfter($returnUrl);
         }
         // Discard the existing draft first (their work loses, by design)
-        $this->publishService->discard($scope);
-        $this->workspace->takeoverLock($scope, $beUserId);
+        $this->workspace->discardDraftForSite($scope);
+        foreach ($this->workspace->relatedScopes($scope) as $relatedScope) {
+            $this->workspace->takeoverLock($relatedScope, $beUserId);
+        }
         $this->addFlashMessage(
             sprintf('Lock für "%s" übernommen — der vorherige Entwurf wurde verworfen.', $scope),
             '',
@@ -156,7 +158,7 @@ final class PublishController extends ActionController
             );
             return $this->redirectAfter($returnUrl);
         }
-        $lock = $this->workspace->initializeDraft($scope, $beUserId);
+        $lock = $this->workspace->initializeDraftForSite($scope, $beUserId);
         if ($lock->conflict) {
             $this->addFlashMessage(
                 sprintf(
@@ -175,6 +177,23 @@ final class PublishController extends ActionController
             );
         }
         return $this->redirectAfter($returnUrl);
+    }
+
+    /**
+     * First lock in the site's umbrella (global + per-site) that is held
+     * by a DIFFERENT BE user, or null when every related scope is free or
+     * owned by this user. Used to gate publish/discard for the whole
+     * umbrella, not just one scope.
+     */
+    private function conflictingLock(string $scope, int $beUserId): ?\SimpleCMP\T3SimpleCmp\Service\LockState
+    {
+        foreach ($this->workspace->relatedScopes($scope) as $relatedScope) {
+            $lock = $this->workspace->currentLock($relatedScope);
+            if (!$lock->isUnlocked() && !$lock->isOwnedBy($beUserId)) {
+                return $lock;
+            }
+        }
+        return null;
     }
 
     private function currentBeUserId(): int

@@ -44,6 +44,7 @@ final class RegistryListController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\ActiveSiteResolver $activeSiteResolver,
     ) {
     }
 
@@ -142,12 +143,15 @@ final class RegistryListController extends ActionController
 
         $pageArg = $filterArg + ['perPage' => $perPage];
         $moduleTemplate = $this->initModuleTemplate();
-        $bannerVars = $this->bannerContext->forScope(
-            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
-            $this->request,
-        );
+        // Unified per-site draft: the service registry is global, but the
+        // draft lifecycle is presented per site (the umbrella spans the
+        // global service scope + the active site). Service writes below
+        // still target SCOPE_GLOBAL — only the banner/lifecycle is scoped
+        // to the active site so all tabs agree on one draft.
+        $activeSite = $this->activeSiteResolver->resolve();
+        $bannerVars = $this->bannerContext->forSite($activeSite, $this->request);
         $moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forAnyPendingSite() + [
-            'draftScope' => \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            'draftScope' => $activeSite,
             'services' => $rows,
             'source' => $source,
             'purpose' => $purpose,

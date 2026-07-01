@@ -440,6 +440,7 @@ final class ThemeDesignerController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\BridgeNonceService $nonceService,
         private readonly \SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider $secretProvider,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\ActiveSiteResolver $activeSiteResolver,
     ) {
     }
 
@@ -485,7 +486,7 @@ final class ThemeDesignerController extends ActionController
             return $moduleTemplate->renderResponse('ThemeDesigner/Index');
         }
 
-        $site = $this->normalizeSite($site, $availableSites);
+        $site = $this->activeSiteResolver->resolve($site);
         // Phase 4: draft-aware read. If a draft exists for this site,
         // show the editor their pending state; otherwise show live.
         $stored = $this->draftWorkspace->hasDraft($site)
@@ -641,7 +642,7 @@ final class ThemeDesignerController extends ActionController
         // SCOPE_GLOBAL here made the UI report "editable" from an
         // unrelated global draft while saveAction rejected the write for
         // want of a site draft (the "my change isn't saved" bug).
-        $bannerVars = $this->bannerContext->forScope($site, $this->request);
+        $bannerVars = $this->bannerContext->forSite($site, $this->request);
 
         $moduleTemplate->assignMultiple($bannerVars + [
             'draftScope' => $site,
@@ -690,13 +691,8 @@ final class ThemeDesignerController extends ActionController
             // stamps back (see RegisterAssets::emitPreviewRevisionMarker)
             // and flag drift — e.g. "live judged instead of draft" or
             // "draft changed since this page loaded".
-            'feAuditExpectedSource' => ($this->draftWorkspace->hasDraft($site)
-                || $this->draftWorkspace->hasDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL))
-                ? 'draft' : 'live',
-            'feAuditExpectedRevision' => max(
-                $this->draftWorkspace->draftRevision(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL),
-                $this->draftWorkspace->draftRevision($site),
-            ),
+            'feAuditExpectedSource' => $this->draftWorkspace->hasDraftForSite($site) ? 'draft' : 'live',
+            'feAuditExpectedRevision' => $this->draftWorkspace->draftRevisionForSite($site),
             'overrideKeys' => $overrideKeys,
             'overrideLanguage' => $previewLanguage,
             'overridesEncoded' => $overridesEncoded,
@@ -979,24 +975,29 @@ final class ThemeDesignerController extends ActionController
         array $overrides = [],
         string $tone = '',
     ): ResponseInterface {
-        $availableSites = $this->availableSites();
-        $site = $this->normalizeSite($site, $availableSites);
+        $site = $this->activeSiteResolver->resolve($site);
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
 
         // Autosave path: the designer JS posts the whole form with an
         // `autosave` flag on every debounced change. Answer with JSON
-        // (no redirect/re-render) and, when there is no editable site
-        // draft, a 409 the JS surfaces as a save error instead of
-        // silently following the redirect.
+        // (no redirect/re-render) and, when there is no editable draft,
+        // a 409 the JS surfaces as a save error instead of silently
+        // following the redirect.
         $body = $GLOBALS['TYPO3_REQUEST']?->getParsedBody();
         $isAutosave = is_array($body) && (($body['autosave'] ?? '') !== '');
         if ($isAutosave) {
-            if (!$this->draftWorkspace->hasDraft($site) || $this->draftWorkspace->currentLock($site)->conflict) {
+            if (!$this->draftWorkspace->hasDraftForSite($site) || $this->draftWorkspace->lockForSite($site)->conflict) {
                 return new JsonResponse(['ok' => false, 'error' => 'no-editable-draft'], 409);
+            }
+            // Theme/overrides live in the per-site scope. If the umbrella
+            // was opened but the site scope isn't materialized yet, create
+            // it now so the write has a target.
+            if (!$this->draftWorkspace->hasDraft($site)) {
+                $this->draftWorkspace->initializeDraft($site, $beUserId);
             }
         } elseif ($err = $this->ensureSiteDraftOrRedirect($site, $language)) {
             return $err;
         }
-        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
         $clean = self::sanitizeTokens($tokens);
         $this->themeRepository->upsertDraft($site, $clean, $beUserId);
 
@@ -1033,7 +1034,7 @@ final class ThemeDesignerController extends ActionController
         $this->overrideRepository->upsertDraft($site, $stored, $beUserId);
 
         if ($isAutosave) {
-            return new JsonResponse(['ok' => true, 'revision' => $this->draftWorkspace->draftRevision($site)]);
+            return new JsonResponse(['ok' => true, 'revision' => $this->draftWorkspace->draftRevisionForSite($site)]);
         }
 
         return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
@@ -1164,8 +1165,7 @@ final class ThemeDesignerController extends ActionController
 
     public function resetAction(string $site = ''): ResponseInterface
     {
-        $availableSites = $this->availableSites();
-        $site = $this->normalizeSite($site, $availableSites);
+        $site = $this->activeSiteResolver->resolve($site);
         if ($err = $this->ensureSiteDraftOrRedirect($site)) {
             return $err;
         }
@@ -1363,17 +1363,6 @@ final class ThemeDesignerController extends ActionController
         }
         sort($ids);
         return $ids;
-    }
-
-    /**
-     * @param list<string> $available
-     */
-    private function normalizeSite(string $site, array $available): string
-    {
-        if ($site !== '' && in_array($site, $available, true)) {
-            return $site;
-        }
-        return $available[0] ?? 'default';
     }
 
     /**

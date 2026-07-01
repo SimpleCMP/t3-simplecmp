@@ -35,6 +35,7 @@ final class SettingsController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $draftBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\ActiveSiteResolver $activeSiteResolver,
     ) {
     }
 
@@ -53,7 +54,7 @@ final class SettingsController extends ActionController
             $this->assignTabUris($this->moduleTemplate);
             return $this->moduleTemplate->renderResponse('Settings/Index');
         }
-        $site = $this->resolveSelectedSite($site, $sites);
+        $site = $this->activeSiteResolver->resolve($site);
 
         $drift = $this->effectiveSettings->drift($site);
         $isBootstrapped = $this->effectiveSettings->isBootstrapped($site);
@@ -119,7 +120,7 @@ final class SettingsController extends ActionController
 
         $this->moduleTemplate->assignMultiple(
             $this->wizardBannerContext->forSite($site)
-            + $this->draftBannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request)
+            + $this->draftBannerContext->forSite($site, $this->request)
             + [
             'hasSites' => true,
             'sites' => $sites,

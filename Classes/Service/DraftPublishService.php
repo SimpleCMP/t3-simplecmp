@@ -95,6 +95,32 @@ final readonly class DraftPublishService
     }
 
     /**
+     * Publish a site's unified draft: promote BOTH the global service
+     * scope and the per-site scope. Each {@see publish()} call keeps its
+     * own correct table set + delete semantics, so nothing is put at risk.
+     * The per-table results are merged (the scopes touch disjoint tables);
+     * `noOp` is true only when neither scope had a draft. Passing the
+     * global sentinel collapses to a single global publish.
+     */
+    public function publishForSite(string $site, int $beUserId): PublishResult
+    {
+        $perTable = [];
+        $hash = null;
+        $noOp = true;
+        foreach ($this->workspace->relatedScopes($site) as $scope) {
+            $result = $this->publish($scope, $beUserId);
+            $perTable += $result->perTable;
+            if (!$result->noOp) {
+                $noOp = false;
+            }
+            if ($result->snapshotHash !== null) {
+                $hash = $result->snapshotHash;
+            }
+        }
+        return new PublishResult(scope: $site, perTable: $perTable, snapshotHash: $hash, noOp: $noOp);
+    }
+
+    /**
      * @param array{live: string, draft: string, siteColumn: ?string, columns: list<string>, siteColumnIsBridgeSource?: bool} $pair
      * @return array{deleted: int, inserted: int}
      */

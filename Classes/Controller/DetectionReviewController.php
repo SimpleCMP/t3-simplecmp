@@ -85,6 +85,7 @@ final class DetectionReviewController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $draftBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\ActiveSiteResolver $activeSiteResolver,
     ) {
     }
 
@@ -238,7 +239,7 @@ final class DetectionReviewController extends ActionController
         $moduleTemplate = $this->initModuleTemplate();
         $moduleTemplate->assignMultiple(
             $this->wizardBannerContext->forAnyPendingSite()
-            + $this->draftBannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request)
+            + $this->draftBannerContext->forSite($this->activeSiteResolver->resolve(), $this->request)
             + [
             'detections' => $rowsWithActions,
             'status' => $filters['status'],

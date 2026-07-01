@@ -50,6 +50,7 @@ final class TrackerSetupController extends ActionController
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
+        private readonly \SimpleCMP\T3SimpleCmp\Service\ActiveSiteResolver $activeSiteResolver,
     ) {
     }
 
@@ -85,7 +86,9 @@ final class TrackerSetupController extends ActionController
             return $this->moduleTemplate->renderResponse('TrackerSetup/List');
         }
 
-        $selected = $this->resolveSelectedSite($site, $sites);
+        // Module-wide active site (persisted): a pick here also drives the
+        // other tabs' unified draft banner.
+        $selected = $this->activeSiteResolver->resolve($site);
 
         $dbTrackers = $this->managedTrackerRepository->findBySite($selected);
 
@@ -123,7 +126,7 @@ final class TrackerSetupController extends ActionController
             ];
         }
 
-        $bannerVars = $this->bannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request);
+        $bannerVars = $this->bannerContext->forSite($selected, $this->request);
         $this->moduleTemplate->assignMultiple($bannerVars + $this->wizardBannerContext->forSite($selected) + [
             'hasSites' => true,
             'sites' => $sites,

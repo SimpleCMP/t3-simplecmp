@@ -125,6 +125,39 @@ final class DraftWorkspaceServiceCopyTest extends FunctionalTestCase
         self::assertFalse($this->workspace->hasDraft('default'));
     }
 
+    #[Test]
+    public function initializeDraftForSiteCreatesBothScopes(): void
+    {
+        // One "create draft" spans the global service registry AND the
+        // per-site tables — the unified umbrella draft.
+        $this->insertService('matomo', 'Matomo Analytics');
+        $this->insertTheme('default', '{"color-primary":"#abc"}');
+
+        $lock = $this->workspace->initializeDraftForSite('default', 9);
+
+        self::assertFalse($lock->conflict);
+        self::assertTrue($this->workspace->hasDraftForSite('default'));
+        self::assertTrue($this->workspace->hasDraft(LockState::SCOPE_GLOBAL));
+        self::assertTrue($this->workspace->hasDraft('default'));
+        self::assertCount(1, $this->draftServices());
+        self::assertCount(1, $this->draftThemes());
+    }
+
+    #[Test]
+    public function discardDraftForSiteClearsBothScopes(): void
+    {
+        $this->insertService('matomo', 'Matomo Analytics');
+        $this->insertTheme('default', '{"color-primary":"#abc"}');
+        $this->workspace->initializeDraftForSite('default', 9);
+        self::assertTrue($this->workspace->hasDraftForSite('default'));
+
+        $this->workspace->discardDraftForSite('default');
+
+        self::assertFalse($this->workspace->hasDraftForSite('default'));
+        self::assertCount(0, $this->draftServices());
+        self::assertCount(0, $this->draftThemes());
+    }
+
     // --- DB helpers --------------------------------------------------------
 
     private function insertService(string $serviceId, string $name): void

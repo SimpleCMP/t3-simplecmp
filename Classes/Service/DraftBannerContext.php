@@ -40,6 +40,40 @@ final readonly class DraftBannerContext
      */
     public function forScope(string $scope, ?ServerRequestInterface $request = null): array
     {
+        return $this->build(
+            $scope,
+            $this->workspace->currentLock($scope),
+            $this->workspace->hasDraft($scope),
+            $this->workspace->draftRevision($scope),
+            $request,
+        );
+    }
+
+    /**
+     * Umbrella variant: banner state for a site's UNIFIED draft, spanning
+     * the shared global service scope AND the per-site scope. Every
+     * draft-gated tab uses this so they all report the same state. The
+     * `scope` posted by the banner/action-bar forms is the site itself —
+     * PublishController turns that into the umbrella publish/discard/init.
+     *
+     * @return array{lockState: LockState, hasDraft: bool, isDraftEditable: bool, currentBeUserId: int, scope: string, draftRevision: int, uri_publish: string, uri_discard: string, uri_takeover: string, uri_createDraft: string, currentUrl: string}
+     */
+    public function forSite(string $site, ?ServerRequestInterface $request = null): array
+    {
+        return $this->build(
+            $site,
+            $this->workspace->lockForSite($site),
+            $this->workspace->hasDraftForSite($site),
+            $this->workspace->draftRevisionForSite($site),
+            $request,
+        );
+    }
+
+    /**
+     * @return array{lockState: LockState, hasDraft: bool, isDraftEditable: bool, currentBeUserId: int, scope: string, draftRevision: int, uri_publish: string, uri_discard: string, uri_takeover: string, uri_createDraft: string, currentUrl: string}
+     */
+    private function build(string $scope, LockState $lockState, bool $hasDraft, int $draftRevision, ?ServerRequestInterface $request): array
+    {
         $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
         if ($request !== null) {
             $uri = $request->getUri();
@@ -47,14 +81,13 @@ final readonly class DraftBannerContext
         } else {
             $currentUrl = '';
         }
-        $lockState = $this->workspace->currentLock($scope);
-        $hasDraft = $this->workspace->hasDraft($scope);
         return [
             'lockState' => $lockState,
             'hasDraft' => $hasDraft,
             'isDraftEditable' => $hasDraft && !$lockState->conflict,
             'currentBeUserId' => $beUserId,
             'scope' => $scope,
+            'draftRevision' => $draftRevision,
             'uri_publish' => (string) $this->backendUriBuilder->buildUriFromRoute(
                 'simplecmp_detections.Publish_publish',
             ),

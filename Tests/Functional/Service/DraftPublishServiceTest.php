@@ -93,6 +93,34 @@ final class DraftPublishServiceTest extends FunctionalTestCase
         self::assertStringContainsString('#def', (string) $bySite['other']);
     }
 
+    #[Test]
+    public function publishForSitePromotesBothGlobalAndPerSiteScopes(): void
+    {
+        // A global service and a per-site theme, opened as ONE umbrella
+        // draft. publishForSite() must promote BOTH — the per-site scope
+        // is what a global-only publish used to skip (the tracker/theme
+        // "publish did nothing" bug).
+        $this->insertService('matomo', 'Matomo Analytics');
+        $this->insertTheme('default', '{"color-primary":"#abc"}');
+        $this->workspace->initializeDraftForSite('default', 7);
+        $this->renameDraftService('matomo', 'Matomo Pro');
+        $this->setDraftTokens('default', '{"color-primary":"#changed"}');
+
+        $result = $this->publishService->publishForSite('default', 7);
+
+        self::assertFalse($result->noOp);
+        // Global service scope promoted.
+        $services = $this->liveServices();
+        self::assertSame('Matomo Pro', $services[0]['name']);
+        // Per-site scope promoted (a global-only publish never touched it).
+        $themes = array_column($this->liveThemes(), 'tokens', 'site');
+        self::assertStringContainsString('changed', (string) $themes['default']);
+        // Both scopes cleared + unlocked.
+        self::assertFalse($this->workspace->hasDraftForSite('default'));
+        self::assertTrue($this->workspace->currentLock('default')->isUnlocked());
+        self::assertTrue($this->workspace->currentLock(LockState::SCOPE_GLOBAL)->isUnlocked());
+    }
+
     // --- DB helpers --------------------------------------------------------
 
     private function insertService(string $serviceId, string $name): void

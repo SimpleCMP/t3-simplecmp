@@ -216,6 +216,105 @@ final readonly class DraftWorkspaceService
         $this->releaseLock($scope);
     }
 
+    // --- Per-site umbrella -------------------------------------------------
+    //
+    // A site's config spans two physical draft scopes: the shared GLOBAL
+    // service registry and the per-site tables (theme / overrides /
+    // trackers / hosts). The module presents ONE draft per site, so these
+    // helpers run the existing per-scope operations over BOTH scopes as a
+    // unit. Services stay physically global (draft_site=''), so no data is
+    // put at risk — only the lifecycle is unified.
+
+    /**
+     * The scopes that make up a site's unified draft. Passing the global
+     * sentinel (or an empty string) collapses to the global scope only,
+     * so callers can use the umbrella helpers uniformly.
+     *
+     * @return list<string>
+     */
+    public function relatedScopes(string $site): array
+    {
+        if ($site === '' || $site === LockState::SCOPE_GLOBAL) {
+            return [LockState::SCOPE_GLOBAL];
+        }
+        return [LockState::SCOPE_GLOBAL, $site];
+    }
+
+    /**
+     * True if EITHER the global service draft or the site draft exists.
+     */
+    public function hasDraftForSite(string $site): bool
+    {
+        foreach ($this->relatedScopes($site) as $scope) {
+            if ($this->hasDraft($scope)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Newest draft_modified_at across both scopes (0 when none).
+     */
+    public function draftRevisionForSite(string $site): int
+    {
+        $newest = 0;
+        foreach ($this->relatedScopes($site) as $scope) {
+            $newest = max($newest, $this->draftRevision($scope));
+        }
+        return $newest;
+    }
+
+    /**
+     * Combined lock for the umbrella: returns the site lock if held, else
+     * the global lock, else unlocked. Mirrors currentLock()'s semantics
+     * (ownership is enforced at publish/init time, not via the conflict
+     * flag).
+     */
+    public function lockForSite(string $site): LockState
+    {
+        if ($site !== '' && $site !== LockState::SCOPE_GLOBAL) {
+            $siteLock = $this->currentLock($site);
+            if (!$siteLock->isUnlocked()) {
+                return $siteLock;
+            }
+        }
+        $globalLock = $this->currentLock(LockState::SCOPE_GLOBAL);
+        return $globalLock->isUnlocked() ? LockState::unlocked($site) : $globalLock;
+    }
+
+    /**
+     * Open (or reopen) a site's unified draft: initialize BOTH scopes and
+     * acquire both locks. Returns a conflicting LockState as soon as any
+     * scope is held by another user (nothing is created in that case for
+     * the conflicting scope — acquireLock refuses it).
+     */
+    public function initializeDraftForSite(string $site, int $beUserId): LockState
+    {
+        $result = null;
+        foreach ($this->relatedScopes($site) as $scope) {
+            $lock = $this->initializeDraft($scope, $beUserId);
+            if ($lock->conflict) {
+                return $lock;
+            }
+            if ($result === null || $scope === $site) {
+                $result = $lock;
+            }
+        }
+        return $result ?? LockState::unlocked($site);
+    }
+
+    /**
+     * Discard a site's unified draft: clear both scopes and release both
+     * locks.
+     */
+    public function discardDraftForSite(string $site): void
+    {
+        foreach ($this->relatedScopes($site) as $scope) {
+            $this->discardDraft($scope);
+        }
+    }
+
     // --- internals ----------------------------------------------------------
 
     /**
