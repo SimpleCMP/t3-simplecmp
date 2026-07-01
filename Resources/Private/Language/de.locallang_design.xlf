@@ -130,6 +130,7 @@
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source><target>Text &amp; Hintergrund</target></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source><target>Erweiterte Farben</target></trans-unit>
       <trans-unit id="designer.group.banner-buttons"><source>Banner buttons (compliance-critical)</source><target>Banner-Buttons (compliance-relevant)</target></trans-unit>
+      <trans-unit id="designer.group.modal-buttons"><source>Settings-dialog buttons (compliance-critical)</source><target>Einstellungsdialog-Buttons (compliance-relevant)</target></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source><target>Banner-Position</target></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source><target>CSS-Framework</target></trans-unit>
       <trans-unit id="designer.group.template"><source>Banner template</source><target>Banner-Vorlage</target></trans-unit>
@@ -202,6 +203,9 @@
       <trans-unit id="designer.field.color-accept-bg"><source>"Accept" button background (optional)</source><target>Hintergrund „Akzeptieren"-Button (optional)</target></trans-unit>
       <trans-unit id="designer.field.color-decline-bg"><source>"Decline" button background (optional)</source><target>Hintergrund „Ablehnen"-Button (optional)</target></trans-unit>
       <trans-unit id="designer.field.color-configure-bg"><source>"Configure" button background (optional)</source><target>Hintergrund „Konfigurieren"-Button (optional)</target></trans-unit>
+      <trans-unit id="designer.field.color-modal-accept-bg"><source>Modal "Accept all" button background (optional)</source><target>Hintergrund „Alle akzeptieren"-Button im Dialog (optional)</target></trans-unit>
+      <trans-unit id="designer.field.color-modal-decline-bg"><source>Modal "Decline" button background (optional)</source><target>Hintergrund „Ablehnen"-Button im Dialog (optional)</target></trans-unit>
+      <trans-unit id="designer.field.color-modal-save-bg"><source>Modal "Save selection" button background (optional)</source><target>Hintergrund „Auswahl speichern"-Button im Dialog (optional)</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.reset"><source>Reset to default</source><target>Auf Standard zurücksetzen</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.setCustom"><source>Custom color</source><target>Eigene Farbe</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.unset"><source>(default)</source><target>(Standard)</target></trans-unit>
@@ -230,6 +234,9 @@
       <trans-unit id="audit.button.accept"><source>Accept</source><target>Akzeptieren</target></trans-unit>
       <trans-unit id="audit.button.decline"><source>Decline</source><target>Ablehnen</target></trans-unit>
       <trans-unit id="audit.button.configure"><source>Configure</source><target>Konfigurieren</target></trans-unit>
+      <trans-unit id="audit.button.modalAccept"><source>Settings-dialog "Accept all"</source><target>Dialog „Alle akzeptieren"</target></trans-unit>
+      <trans-unit id="audit.button.modalDecline"><source>Settings-dialog "Decline"</source><target>Dialog „Ablehnen"</target></trans-unit>
+      <trans-unit id="audit.button.modalSave"><source>Settings-dialog "Save selection"</source><target>Dialog „Auswahl speichern"</target></trans-unit>
     </body>
   </file>
 </xliff>

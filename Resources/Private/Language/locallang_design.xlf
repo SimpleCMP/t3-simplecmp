@@ -130,6 +130,7 @@
       <trans-unit id="designer.group.surface"><source>Text &amp; background</source></trans-unit>
       <trans-unit id="designer.group.advanced"><source>Advanced colors</source></trans-unit>
       <trans-unit id="designer.group.banner-buttons"><source>Banner buttons (compliance-critical)</source></trans-unit>
+      <trans-unit id="designer.group.modal-buttons"><source>Settings-dialog buttons (compliance-critical)</source></trans-unit>
       <trans-unit id="designer.group.placement"><source>Banner placement</source></trans-unit>
       <trans-unit id="designer.group.framework"><source>CSS framework</source></trans-unit>
       <trans-unit id="designer.group.template"><source>Banner template</source></trans-unit>
@@ -202,6 +203,9 @@
       <trans-unit id="designer.field.color-accept-bg"><source>"Accept" button background (optional)</source></trans-unit>
       <trans-unit id="designer.field.color-decline-bg"><source>"Decline" button background (optional)</source></trans-unit>
       <trans-unit id="designer.field.color-configure-bg"><source>"Configure" button background (optional)</source></trans-unit>
+      <trans-unit id="designer.field.color-modal-accept-bg"><source>Modal "Accept all" button background (optional)</source></trans-unit>
+      <trans-unit id="designer.field.color-modal-decline-bg"><source>Modal "Decline" button background (optional)</source></trans-unit>
+      <trans-unit id="designer.field.color-modal-save-bg"><source>Modal "Save selection" button background (optional)</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.reset"><source>Reset to default</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.setCustom"><source>Custom color</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.unset"><source>(default)</source></trans-unit>
@@ -230,6 +234,9 @@
       <trans-unit id="audit.button.accept"><source>Accept</source></trans-unit>
       <trans-unit id="audit.button.decline"><source>Decline</source></trans-unit>
       <trans-unit id="audit.button.configure"><source>Configure</source></trans-unit>
+      <trans-unit id="audit.button.modalAccept"><source>Settings-dialog "Accept all"</source></trans-unit>
+      <trans-unit id="audit.button.modalDecline"><source>Settings-dialog "Decline"</source></trans-unit>
+      <trans-unit id="audit.button.modalSave"><source>Settings-dialog "Save selection"</source></trans-unit>
     </body>
   </file>
 </xliff>

@@ -188,6 +188,13 @@ final class ThemeDesignerController extends ActionController
         'color-accept-bg' => '',
         'color-decline-bg' => '',
         'color-configure-bg' => '',
+        // Second-layer (settings modal, "großes Fenster") action buttons.
+        // Same equal-prominence caveat as the banner buttons: the EDPB
+        // 03/2022 deceptive-design rules cover the WHOLE consent flow, so
+        // overriding these is flagged by the compliance audit too.
+        'color-modal-accept-bg' => '',
+        'color-modal-decline-bg' => '',
+        'color-modal-save-bg' => '',
     ];
 
     /**
@@ -351,6 +358,11 @@ final class ThemeDesignerController extends ActionController
             'color-accept-bg',
             'color-decline-bg',
             'color-configure-bg',
+        ],
+        'modal-buttons' => [
+            'color-modal-accept-bg',
+            'color-modal-decline-bg',
+            'color-modal-save-bg',
         ],
         'placement' => ['position'],
         'framework' => ['theme'],
@@ -704,7 +716,7 @@ final class ThemeDesignerController extends ActionController
             // because the default compliance-locked mode means editors
             // don't need to see them at all. Splitting the groups here
             // keeps the template free of dynamic-key gymnastics.
-            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced', 'banner-buttons'])),
+            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced', 'banner-buttons', 'modal-buttons'])),
             'otherFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['placement', 'framework', 'template', 'trigger'])),
             'colorPaletteLocked' => ($tokens['colorPaletteLocked'] ?? '1') === '1',
             // Pre-computed access helpers for fields that Fluid can't
@@ -739,6 +751,21 @@ final class ThemeDesignerController extends ActionController
                     'key' => 'color-configure-bg',
                     'value' => ($tokens['color-configure-bg'] ?? '') !== '' ? $tokens['color-configure-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
                     'isSet' => ($tokens['color-configure-bg'] ?? '') !== '',
+                ],
+                'modalAcceptBg' => [
+                    'key' => 'color-modal-accept-bg',
+                    'value' => ($tokens['color-modal-accept-bg'] ?? '') !== '' ? $tokens['color-modal-accept-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
+                    'isSet' => ($tokens['color-modal-accept-bg'] ?? '') !== '',
+                ],
+                'modalDeclineBg' => [
+                    'key' => 'color-modal-decline-bg',
+                    'value' => ($tokens['color-modal-decline-bg'] ?? '') !== '' ? $tokens['color-modal-decline-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
+                    'isSet' => ($tokens['color-modal-decline-bg'] ?? '') !== '',
+                ],
+                'modalSaveBg' => [
+                    'key' => 'color-modal-save-bg',
+                    'value' => ($tokens['color-modal-save-bg'] ?? '') !== '' ? $tokens['color-modal-save-bg'] : ($tokens['color-primary'] ?? '#0a7cb9'),
+                    'isSet' => ($tokens['color-modal-save-bg'] ?? '') !== '',
                 ],
             ],
             // Legacy single-field helpers — kept until the template

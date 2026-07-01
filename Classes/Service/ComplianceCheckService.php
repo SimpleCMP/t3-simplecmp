@@ -657,6 +657,12 @@ final readonly class ComplianceCheckService
             'color-accept-bg' => 'audit.button.accept',
             'color-decline-bg' => 'audit.button.decline',
             'color-configure-bg' => 'audit.button.configure',
+            // Second-layer (settings modal) buttons — EDPB 03/2022
+            // deceptive-design rules cover the whole consent flow, so an
+            // imbalance here is flagged just like the banner buttons.
+            'color-modal-accept-bg' => 'audit.button.modalAccept',
+            'color-modal-decline-bg' => 'audit.button.modalDecline',
+            'color-modal-save-bg' => 'audit.button.modalSave',
         ];
         foreach ($labels as $key => $labelKey) {
             $value = $stored[$key] ?? '';

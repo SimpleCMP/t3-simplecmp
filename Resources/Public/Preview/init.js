@@ -258,6 +258,10 @@ if (cmp && typeof cmp.init === 'function') {
     // English so locales we don't ship strings for at least show
     // readable defaults instead of placeholder copy.
     fallbackLang: 'en',
+    // Mirror the FE (RegisterAssets sets acceptAll: true) so the settings
+    // modal shows the "Accept all" button — otherwise its configurable
+    // background can't be previewed.
+    acceptAll: true,
     services: [
       { name: 'preview-functional', purposes: ['functional'], required: true },
       { name: 'preview-analytics', purposes: ['analytics'] },
@@ -427,9 +431,12 @@ function applyTokens(tokens) {
     if (key === 'color-trigger-bg') {
       continue;
     }
-    // Per-banner-button background overrides — scoped via
-    // `:host(simplecmp-banner) .cn-<button>` below.
-    if (key === 'color-accept-bg' || key === 'color-decline-bg' || key === 'color-configure-bg') {
+    // Per-banner- and modal-button background overrides — scoped via
+    // `:host(simplecmp-banner|modal) .<button>` below.
+    if (
+      key === 'color-accept-bg' || key === 'color-decline-bg' || key === 'color-configure-bg'
+      || key === 'color-modal-accept-bg' || key === 'color-modal-decline-bg' || key === 'color-modal-save-bg'
+    ) {
       continue;
     }
     decls.push(`--simplecmp-${key}: ${value} !important;`);
@@ -463,6 +470,19 @@ function applyTokens(tokens) {
     if (typeof value !== 'string' || value === '') continue;
     rules.push(`:host(simplecmp-banner) ${selector} { background: ${value} !important; }`);
     rules.push(`:host(simplecmp-banner) ${selector}:hover { background: ${value} !important; filter: brightness(0.92); }`);
+  }
+  // Modal (second-layer) action-button background overrides. Mirror of
+  // RegisterAssets::injectTheme(); scoped via :host(simplecmp-modal).
+  const modalButtonOverrides = {
+    'color-modal-accept-bg': '.action.accept-all',
+    'color-modal-decline-bg': '.action.decline',
+    'color-modal-save-bg': '.action.save',
+  };
+  for (const [tokenKey, selector] of Object.entries(modalButtonOverrides)) {
+    const value = tokens?.[tokenKey];
+    if (typeof value !== 'string' || value === '') continue;
+    rules.push(`:host(simplecmp-modal) ${selector} { background: ${value} !important; }`);
+    rules.push(`:host(simplecmp-modal) ${selector}:hover { background: ${value} !important; filter: brightness(0.92); }`);
   }
   // Purpose-group: indent the "▾ N Dienst" toggle button so it lines
   // up under the .meta block above. Mirror of the FE-side rule from

@@ -10,6 +10,20 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Settings-dialog (modal) button backgrounds are now configurable**,
+  matching the banner buttons. New optional theme colors
+  `color-modal-accept-bg` / `color-modal-decline-bg` /
+  `color-modal-save-bg` map to the second-layer action buttons
+  (`:host(simplecmp-modal) .action.accept-all|.decline|.save`) in both
+  the FE (`RegisterAssets`) and the BE live preview. Because the EDPB
+  03/2022 deceptive-design rules cover the **whole** consent flow (not
+  just the first layer), overriding these is flagged by the same
+  equal-prominence compliance check as the banner buttons. The preview
+  config now also enables the modal "Accept all" button (`acceptAll:
+  true`, mirroring the FE) so its background can actually be previewed.
+
 ### Changed
 
 - **One unified draft per site across the whole module.** The draft

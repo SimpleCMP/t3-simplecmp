@@ -482,9 +482,9 @@ final readonly class RegisterAssets
             if ($token === 'color-trigger-bg') {
                 continue;
             }
-            // Banner-button background overrides — per-button scoped
-            // rules emitted below the host rule.
-            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg'], true)) {
+            // Banner- and modal-button background overrides — per-button
+            // scoped rules emitted below the host rule.
+            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-modal-accept-bg', 'color-modal-decline-bg', 'color-modal-save-bg'], true)) {
                 continue;
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
@@ -537,6 +537,24 @@ final readonly class RegisterAssets
             }
             $rules[] = ':host(simplecmp-banner) ' . $selector . ' { background: ' . $value . ' !important; }';
             $rules[] = ':host(simplecmp-banner) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
+        }
+
+        // Modal (second-layer "großes Fenster") action-button background
+        // overrides, scoped via `:host(simplecmp-modal) .action.<button>`.
+        // Same equal-prominence caveat as the banner buttons (EDPB 03/2022
+        // covers the whole flow); the audit surfaces the warning.
+        $modalButtonOverrides = [
+            'color-modal-accept-bg' => '.action.accept-all',
+            'color-modal-decline-bg' => '.action.decline',
+            'color-modal-save-bg' => '.action.save',
+        ];
+        foreach ($modalButtonOverrides as $tokenKey => $selector) {
+            $value = $tokens[$tokenKey] ?? '';
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+            $rules[] = ':host(simplecmp-modal) ' . $selector . ' { background: ' . $value . ' !important; }';
+            $rules[] = ':host(simplecmp-modal) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
         }
 
         // Purpose-group: indent the "▾ N Dienst" toggle button so it
