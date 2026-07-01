@@ -814,15 +814,21 @@ class ThemePreview {
     if (!iframe || !iframe.contentWindow) {
       return;
     }
+    // When a draft is open the form is editable and we mirror it exactly
+    // (per-field disabled state included, like form submission). When NO
+    // draft exists the whole fieldset is disabled, but the preview must
+    // still show the LAST LIVE state — so in that case we read the
+    // (disabled) inputs' live values instead of skipping them.
+    const form = this._themeForm || document.querySelector('form[data-theme-form]');
+    const editing = !!form && form.getAttribute('data-draft-editable') === '1';
     const tokens = {};
     document.querySelectorAll('[data-token]').forEach((input) => {
       const key = input.getAttribute('data-token');
       if (!key) return;
-      // Disabled inputs aren't part of the form submission, and the
-      // preview should mirror that — otherwise a disabled trigger-bg
-      // picker would keep colouring the live preview even after the
-      // editor resets the field to "use primary color".
-      if (input.disabled) return;
+      // While editing, skip individually-disabled inputs (e.g. a
+      // trigger-bg picker turned off via "use primary color") so they
+      // don't keep colouring the preview. Not while showing live.
+      if (editing && input.disabled) return;
       // `theme` and `layout` are config-time bundle flags, not CSS
       // variables. Skip them here so the postMessage payload stays
       // purely token-oriented; theme/layout changes are handled

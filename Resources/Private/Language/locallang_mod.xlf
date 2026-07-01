@@ -106,18 +106,18 @@
 
       <!-- Draft/Publish workspace (Phase 4) -->
       <trans-unit id="draft.banner.heading"><source>You are working in a draft</source></trans-unit>
-      <trans-unit id="draft.banner.body"><source>Edits in this tab are written to the draft workspace for scope "%s" — they are not visible to visitors yet. Click Publish to promote them to the live banner configuration; click Discard to throw the draft away.</source></trans-unit>
-      <trans-unit id="draft.banner.liveMode"><source>You are working in live mode. The first edit will automatically switch this scope into draft mode.</source></trans-unit>
+      <trans-unit id="draft.banner.body"><source>Edits in this tab are written to the draft workspace for site "%s" — they are not visible to visitors yet. Click Publish to promote them to the live banner configuration; click Discard to throw the draft away.</source></trans-unit>
+      <trans-unit id="draft.banner.liveMode"><source>You are working in live mode. The first edit will automatically switch this site into draft mode.</source></trans-unit>
       <trans-unit id="draft.publish.button"><source>Publish</source></trans-unit>
       <trans-unit id="draft.discard.button"><source>Discard draft</source></trans-unit>
       <trans-unit id="draft.bar.noDraft"><source>No active draft — use "Create draft" above to start editing.</source></trans-unit>
-      <trans-unit id="draft.discard.confirm"><source>Really discard all unpublished changes for this scope?</source></trans-unit>
-      <trans-unit id="draft.lock.conflict.heading"><source>Scope locked by another editor</source></trans-unit>
-      <trans-unit id="draft.lock.conflict.body"><source>Scope "%s" is currently being edited by BE user uid=%d. Either wait until they publish, or take over the lock (their draft will be discarded).</source></trans-unit>
+      <trans-unit id="draft.discard.confirm"><source>Really discard all unpublished changes for this site?</source></trans-unit>
+      <trans-unit id="draft.lock.conflict.heading"><source>Site locked by another editor</source></trans-unit>
+      <trans-unit id="draft.lock.conflict.body"><source>Site "%s" is currently being edited by BE user uid=%d. Either wait until they publish, or take over the lock (their draft will be discarded).</source></trans-unit>
       <trans-unit id="draft.lock.takeover.button"><source>Take over lock</source></trans-unit>
       <trans-unit id="draft.lock.takeover.confirm"><source>Really discard the other editor's draft and take over the lock?</source></trans-unit>
       <trans-unit id="draft.banner.locked.heading"><source>Draft required</source></trans-unit>
-      <trans-unit id="draft.banner.locked.body"><source>No draft is active for this scope. Create a draft to start editing — your changes will only be visible to visitors after you publish.</source></trans-unit>
+      <trans-unit id="draft.banner.locked.body"><source>No draft is active for this site. Create a draft to start editing — your changes will only be visible to visitors after you publish.</source></trans-unit>
       <trans-unit id="draft.banner.createDraft.button"><source>Create draft</source></trans-unit>
 
       <!-- Phase 5 — Settings tab (site configuration as proposal) -->

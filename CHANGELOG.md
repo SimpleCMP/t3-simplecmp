@@ -210,6 +210,20 @@ development.
 
 ### Fixed
 
+- **Live preview shows the last published state when no draft exists.**
+  With no draft the designer form is disabled, and the preview's token
+  collector skipped disabled inputs — so the banner preview fell back to
+  the engine defaults instead of the live-configured banner. It now reads
+  the live values from the (disabled) fields when the form isn't editable,
+  and keeps skipping individually-disabled fields only while editing a
+  draft.
+
+- **Draft banner/messages say "site", not "scope".** With the unified
+  per-site draft, the user-facing draft banner, lock-conflict and
+  discard-confirm strings (de/en) now read "site %s" — the value shown is
+  the site identifier. (Internal `$scope` naming is unchanged — it still
+  legitimately carries the `__global__` sentinel.)
+
 - **ThemeDesigner now autosaves to the draft, and its draft state is
   scoped to the site.** Two problems fixed together:
   - *Scope bug:* the designer's draft banner + field gating read the
