@@ -200,6 +200,7 @@
             isDraftEditable: isDraftEditable,
             currentBeUserId: currentBeUserId,
             scope: draftScope,
+            hideActions: 1,
             uri_publish: uri_publish,
             uri_discard: uri_discard,
             uri_takeover: uri_takeover,
@@ -410,7 +411,7 @@
 
         <f:then>
 
-    <form method="post" action="{uri_save}">
+    <form method="post" action="{uri_save}" data-theme-form data-draft-editable="{f:if(condition: '{isDraftEditable}', then: '1', else: '0')}">
         <input type="hidden" name="site" value="{site}" />
 
         <div class="d-flex align-items-center mb-3 gap-3">
@@ -669,10 +670,6 @@
                 <div data-preview-sticky style="position: sticky; top: calc(var(--module-docheader-height, 6rem) + .75rem); max-height: calc(100vh - var(--module-docheader-height, 6rem) - 1.5rem); overflow-y: auto; padding-right: .25rem">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <h5 class="mb-0"><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.title" /></h5>
-                        <span class="badge bg-warning text-dark" data-unsaved-indicator hidden style="font-weight:normal">
-                            <core:icon identifier="actions-exclamation-triangle" size="small" />
-                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.unsaved" />
-                        </span>
                     </div>
                     <p class="text-body-secondary small mb-2">
                         <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.preview.help" />
@@ -726,22 +723,52 @@
             </div>
         </div>
         </fieldset>
+    </form>
 
-        <div class="btn-toolbar gap-2 simplecmp-sticky-actions {f:if(condition: '!{isDraftEditable}', then: 'simplecmp-draft-locked')}">
-            <button type="submit" class="btn btn-primary">
-                <core:icon identifier="actions-save" size="small" />
-                <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.save" />
-            </button>
-            <f:if condition="{hasCustomTheme}">
-                <a href="{uri_reset}"
-                   class="btn btn-default text-danger"
-                   data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
-                    <core:icon identifier="actions-undo" size="small" />
-                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
-                </a>
+        <div class="btn-toolbar gap-2 align-items-center simplecmp-sticky-actions">
+            <f:if condition="{isDraftEditable}">
+                <f:then>
+                    <span class="me-auto small text-body-secondary" data-autosave-status
+                          data-i18n-pending="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.autosave.pending')}"
+                          data-i18n-saving="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.autosave.saving')}"
+                          data-i18n-saved="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.autosave.saved')}"
+                          data-i18n-error="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.autosave.error')}">
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.autosave.idle" />
+                    </span>
+                    <f:form action="publish" controller="Publish" method="post" class="m-0">
+                        <f:form.hidden name="scope" value="{draftScope}" />
+                        <f:form.hidden name="returnUrl" value="{currentUrl}" />
+                        <button type="submit" class="btn btn-primary">
+                            <core:icon identifier="actions-upload" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
+                        </button>
+                    </f:form>
+                    <f:form action="discard" controller="Publish" method="post" class="m-0">
+                        <f:form.hidden name="scope" value="{draftScope}" />
+                        <f:form.hidden name="returnUrl" value="{currentUrl}" />
+                        <button type="submit" class="btn btn-default"
+                                onclick="return confirm('{f:translate(key: \'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
+                            <core:icon identifier="actions-close" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
+                        </button>
+                    </f:form>
+                    <f:if condition="{hasCustomTheme}">
+                        <a href="{uri_reset}"
+                           class="btn btn-default text-danger"
+                           data-confirm-message="{f:translate(key: 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset.confirm')}">
+                            <core:icon identifier="actions-undo" size="small" />
+                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.action.reset" />
+                        </a>
+                    </f:if>
+                </f:then>
+                <f:else>
+                    <span class="small text-body-secondary d-flex align-items-center gap-2">
+                        <core:icon identifier="actions-lock" size="small" />
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.draftGate.barHint" />
+                    </span>
+                </f:else>
             </f:if>
         </div>
-    </form>
 
         </f:then>
     </f:if>

@@ -183,6 +183,25 @@ development.
 
 ### Fixed
 
+- **ThemeDesigner now autosaves to the draft, and its draft state is
+  scoped to the site.** Two problems fixed together:
+  - *Scope bug:* the designer's draft banner + field gating read the
+    **global** service-registry scope while token/override reads and the
+    save gate used the **per-site** scope. So the UI could show "editable"
+    from an unrelated global draft while the save was rejected for want of
+    a site draft — changes silently didn't stick. The banner/gating now
+    use the site scope consistently (`forScope($site)`).
+  - *No more manual Save:* every change is **autosaved into the draft**
+    (debounced, via `saveAction`'s new JSON/AJAX branch), with a live
+    status ("Saving… / Saved to draft · HH:MM:SS / retrying…") and a
+    `pagehide` `sendBeacon` flush so a last edit isn't lost on navigation.
+    The draft is a safe scratch space — nothing goes live until Publish.
+    The manual Save button is gone; **Publish / Discard** now live in the
+    always-visible sticky bottom bar next to the autosave status, and the
+    top draft banner no longer duplicates them (new `hideActions` flag on
+    the shared `DraftBanner` partial — other tabs unchanged). Fields stay
+    disabled with a hint until a draft is created.
+
 - **Blocked background trackers no longer render an empty contextual
   notice that lengthens the page.** A load-gated tracker `<script>` (e.g.
   Matomo, materialized by `TrackerMaterializer`, or any `<script>`

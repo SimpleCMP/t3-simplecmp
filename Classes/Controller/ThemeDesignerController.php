@@ -7,6 +7,7 @@ namespace SimpleCMP\T3SimpleCmp\Controller;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -633,7 +634,14 @@ final class ThemeDesignerController extends ActionController
             : base64_encode((string) json_encode($overridesForLang, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         // Phase 4 — pre-build the DraftBanner partial's arguments.
-        $bannerVars = $this->bannerContext->forScope(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $this->request);
+        // Per-site scope: the theme / overrides live in the site-scoped
+        // draft tables (see reads above + saveAction's gate), so the
+        // banner state, lock and Publish/Discard/Create URIs must use the
+        // SAME site scope — not the global service-registry scope. Using
+        // SCOPE_GLOBAL here made the UI report "editable" from an
+        // unrelated global draft while saveAction rejected the write for
+        // want of a site draft (the "my change isn't saved" bug).
+        $bannerVars = $this->bannerContext->forScope($site, $this->request);
 
         $moduleTemplate->assignMultiple($bannerVars + [
             'draftScope' => $site,
@@ -973,7 +981,19 @@ final class ThemeDesignerController extends ActionController
     ): ResponseInterface {
         $availableSites = $this->availableSites();
         $site = $this->normalizeSite($site, $availableSites);
-        if ($err = $this->ensureSiteDraftOrRedirect($site, $language)) {
+
+        // Autosave path: the designer JS posts the whole form with an
+        // `autosave` flag on every debounced change. Answer with JSON
+        // (no redirect/re-render) and, when there is no editable site
+        // draft, a 409 the JS surfaces as a save error instead of
+        // silently following the redirect.
+        $body = $GLOBALS['TYPO3_REQUEST']?->getParsedBody();
+        $isAutosave = is_array($body) && (($body['autosave'] ?? '') !== '');
+        if ($isAutosave) {
+            if (!$this->draftWorkspace->hasDraft($site) || $this->draftWorkspace->currentLock($site)->conflict) {
+                return new JsonResponse(['ok' => false, 'error' => 'no-editable-draft'], 409);
+            }
+        } elseif ($err = $this->ensureSiteDraftOrRedirect($site, $language)) {
             return $err;
         }
         $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
@@ -1011,6 +1031,10 @@ final class ThemeDesignerController extends ActionController
             $stored[$submittedLang]['tone'] = $cleanTone;
         }
         $this->overrideRepository->upsertDraft($site, $stored, $beUserId);
+
+        if ($isAutosave) {
+            return new JsonResponse(['ok' => true, 'revision' => $this->draftWorkspace->draftRevision($site)]);
+        }
 
         return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
     }

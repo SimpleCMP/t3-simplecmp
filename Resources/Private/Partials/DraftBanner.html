@@ -68,25 +68,29 @@
                             <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.banner.body"
                                          arguments="{0: scope}" />
                         </p>
-                        <div class="d-flex gap-2">
-                            <f:form action="publish" controller="Publish" method="post" class="m-0">
-                                <f:form.hidden name="scope" value="{scope}" />
-                                <f:form.hidden name="returnUrl" value="{currentUrl}" />
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <core:icon identifier="actions-upload" size="small" />
-                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
-                                </button>
-                            </f:form>
-                            <f:form action="discard" controller="Publish" method="post" class="m-0">
-                                <f:form.hidden name="scope" value="{scope}" />
-                                <f:form.hidden name="returnUrl" value="{currentUrl}" />
-                                <button type="submit" class="btn btn-default btn-sm"
-                                        onclick="return confirm('{f:translate(key: \'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
-                                    <core:icon identifier="actions-close" size="small" />
-                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
-                                </button>
-                            </f:form>
-                        </div>
+                        <f:if condition="{hideActions}">
+                            <f:else>
+                                <div class="d-flex gap-2">
+                                    <f:form action="publish" controller="Publish" method="post" class="m-0">
+                                        <f:form.hidden name="scope" value="{scope}" />
+                                        <f:form.hidden name="returnUrl" value="{currentUrl}" />
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <core:icon identifier="actions-upload" size="small" />
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.publish.button" />
+                                        </button>
+                                    </f:form>
+                                    <f:form action="discard" controller="Publish" method="post" class="m-0">
+                                        <f:form.hidden name="scope" value="{scope}" />
+                                        <f:form.hidden name="returnUrl" value="{currentUrl}" />
+                                        <button type="submit" class="btn btn-default btn-sm"
+                                                onclick="return confirm('{f:translate(key: \'LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.confirm\')}');">
+                                            <core:icon identifier="actions-close" size="small" />
+                                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:draft.discard.button" />
+                                        </button>
+                                    </f:form>
+                                </div>
+                            </f:else>
+                        </f:if>
                     </div>
                 </div>
             </f:then>

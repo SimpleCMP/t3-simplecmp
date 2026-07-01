@@ -28,6 +28,22 @@ class ThemePreview {
     document.addEventListener('input', this.onMaybeDirty, true);
     document.addEventListener('change', this.onMaybeDirty, true);
     this._initDirtyIndicator();
+
+    // Autosave-to-draft: any theme change is persisted into the draft
+    // automatically (debounced), so there is no manual Save button.
+    // The draft is a safe scratch space — nothing goes live until the
+    // editor clicks Publish. `data-draft-editable="1"` gates it so we
+    // never POST when no editable draft exists.
+    this._themeForm = document.querySelector('form[data-theme-form]');
+    this._saveTimer = null;
+    this._retryTimer = null;
+    this._saveInFlight = false;
+    this._dirtyPending = false;
+    // Best-effort flush when the editor navigates away (site/language
+    // switch, tab change) before the debounce fired — otherwise the last
+    // edit could be lost. sendBeacon survives the unload.
+    this.onPageHide = this.onPageHide.bind(this);
+    window.addEventListener('pagehide', this.onPageHide);
   }
 
   /**
@@ -89,10 +105,83 @@ class ThemePreview {
   };
 
   _setDirty(value) {
-    if (this._dirty === value) return;
-    this._dirty = value;
-    const badge = document.querySelector('[data-unsaved-indicator]');
-    if (badge) badge.hidden = !value;
+    // Every dirty mutation triggers a debounced autosave into the draft.
+    // (No manual Save button — the draft is persisted automatically.)
+    if (value) this.scheduleAutosave();
+  }
+
+  scheduleAutosave() {
+    const form = this._themeForm;
+    if (!form || form.getAttribute('data-draft-editable') !== '1') return;
+    this._dirtyPending = true;
+    this._setAutosaveStatus('pending');
+    if (this._retryTimer) { clearTimeout(this._retryTimer); this._retryTimer = null; }
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => this.doAutosave(), 800);
+  }
+
+  doAutosave() {
+    const form = this._themeForm;
+    if (!form || form.getAttribute('data-draft-editable') !== '1') return;
+    if (this._saveInFlight) {
+      // A save is already running — try again shortly so the newest edit
+      // isn't dropped.
+      this._saveTimer = setTimeout(() => this.doAutosave(), 400);
+      return;
+    }
+    const fd = new FormData(form);
+    fd.set('autosave', '1');
+    this._saveInFlight = true;
+    this._dirtyPending = false;
+    this._setAutosaveStatus('saving');
+    fetch(form.getAttribute('action'), {
+      method: 'POST',
+      body: fd,
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+      .then((r) => (r.ok ? r : Promise.reject(r.status)))
+      .then(() => {
+        this._saveInFlight = false;
+        if (this._dirtyPending) { this.scheduleAutosave(); return; }
+        this._setAutosaveStatus('saved');
+      })
+      .catch(() => {
+        this._saveInFlight = false;
+        this._dirtyPending = true;
+        this._setAutosaveStatus('error');
+        this._retryTimer = setTimeout(() => this.doAutosave(), 3000);
+      });
+  }
+
+  _setAutosaveStatus(state) {
+    const el = document.querySelector('[data-autosave-status]');
+    if (!el) return;
+    const msg = (k, d) => el.getAttribute('data-i18n-' + k) || d;
+    let text;
+    let cls;
+    switch (state) {
+      case 'pending': text = msg('pending', 'Unsaved changes…'); cls = 'text-body-secondary'; break;
+      case 'saving': text = msg('saving', 'Saving…'); cls = 'text-body-secondary'; break;
+      case 'saved': text = msg('saved', 'Saved · %s').replace('%s', new Date().toLocaleTimeString()); cls = 'text-success'; break;
+      case 'error': text = msg('error', 'Could not save — retrying…'); cls = 'text-danger'; break;
+      default: return;
+    }
+    el.textContent = text;
+    el.className = 'me-auto small ' + cls;
+  }
+
+  onPageHide() {
+    const form = this._themeForm;
+    if (!form || form.getAttribute('data-draft-editable') !== '1') return;
+    if (!this._dirtyPending && !this._saveInFlight) return;
+    try {
+      const fd = new FormData(form);
+      fd.set('autosave', '1');
+      navigator.sendBeacon(form.getAttribute('action'), fd);
+    } catch (_) {
+      /* best effort on unload */
+    }
   }
 
   /**
