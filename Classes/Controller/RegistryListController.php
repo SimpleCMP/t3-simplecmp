@@ -389,6 +389,9 @@ final class RegistryListController extends ActionController
         $moduleTemplate->setTitle('SimpleCMP');
         $this->pageRenderer->loadJavaScriptModule('@simplecmp/t3-simplecmp/Backend/Pagination.js');
         $this->pageRenderer->loadJavaScriptModule('@simplecmp/t3-simplecmp/Backend/ServiceInfoModal.js');
+        // Render the shared module flash-message queue so success messages
+        // (also those from PublishController redirects) show on this tab.
+        $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
         return $moduleTemplate;
     }
 }

@@ -339,6 +339,9 @@ final class DiscoveryController extends ActionController
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/Discovery.js'
         );
+        // Render the shared module flash-message queue so success messages
+        // (also those from PublishController redirects) show on this tab.
+        $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
         return $moduleTemplate;
     }
 }

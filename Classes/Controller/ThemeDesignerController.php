@@ -1417,6 +1417,11 @@ final class ThemeDesignerController extends ActionController
         $this->pageRenderer->loadJavaScriptModule(
             '@simplecmp/t3-simplecmp/Backend/ThemePreview.js'
         );
+        // Render the shared module flash-message queue so success messages
+        // from publish/discard/create-draft (which redirect here from
+        // PublishController) show up on this tab too — the whole module
+        // uses one Extbase queue (extensionName SimpleCmpTypo3).
+        $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
         return $moduleTemplate;
     }
 }
