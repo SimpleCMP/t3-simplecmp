@@ -216,7 +216,11 @@ development.
   the engine defaults instead of the live-configured banner. It now reads
   the live values from the (disabled) fields when the form isn't editable,
   and keeps skipping individually-disabled fields only while editing a
-  draft.
+  draft. The floating-trigger ("Zurückholer") position is an init-time
+  config value (not a live CSS token), so it also needs to ride on the
+  preview iframe URL — `triggerPosition` is now included in the initial
+  `src`, so the preview shows the trigger on the correct side (e.g.
+  bottom-left) instead of always defaulting to bottom-right.
 
 - **Draft banner/messages say "site", not "scope".** With the unified
   per-site draft, the user-facing draft banner, lock-conflict and
