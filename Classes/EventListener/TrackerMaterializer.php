@@ -175,6 +175,16 @@ final readonly class TrackerMaterializer
             $attributes = ['async' => 'async'];
             if ($provider->wantsLoadGate($config)) {
                 $attributes['data-name'] = $serviceId;
+                // Managed trackers are invisible background scripts
+                // (analytics/pixels), never visual embeds — so the bundle
+                // must NOT auto-insert a "load external content?" contextual
+                // notice next to the gated <script>. Without this, a blocked
+                // tracker renders an empty ~180px notice card in the body
+                // that lengthens the page while showing nothing useful
+                // pre-consent. `data-no-placeholder` is the bundle's
+                // per-element opt-out (see engine `_toggleAutoPlaceholder`).
+                // The banner still lists the tracker for consent as usual.
+                $attributes['data-no-placeholder'] = '1';
             }
             $this->assetCollector->addJavaScript(
                 'simplecmp-tracker-loader-' . $serviceId,

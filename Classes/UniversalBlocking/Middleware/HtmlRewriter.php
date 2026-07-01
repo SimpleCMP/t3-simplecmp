@@ -427,6 +427,12 @@ final class HtmlRewriter implements MiddlewareInterface
                     if ($tagName === 'script') {
                         $node->setAttribute('type', 'text/plain');
                         $node->removeAttribute('src');
+                        // A blocked <script> has no visual footprint, so the
+                        // engine must not auto-insert a "load external content?"
+                        // contextual notice next to it (that would add an empty
+                        // ~180px card that lengthens the page pre-consent).
+                        // Visual embeds (iframe/img) below keep their placeholder.
+                        $node->setAttribute('data-no-placeholder', '1');
                     } else {
                         // iframe / img / resource-hint <link>
                         $node->setAttribute($attr, 'about:blank');

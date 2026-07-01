@@ -183,6 +183,20 @@ development.
 
 ### Fixed
 
+- **Blocked background trackers no longer render an empty contextual
+  notice that lengthens the page.** A load-gated tracker `<script>` (e.g.
+  Matomo, materialized by `TrackerMaterializer`, or any `<script>`
+  neutralized by the universal-blocking `HtmlRewriter`) is invisible, but
+  the engine auto-inserted a "Load external content from X?" notice card
+  (~180px) next to it — visible as blank space that extended the page
+  pre-consent, showing nothing useful. Both paths now stamp the gated
+  `<script>` with `data-no-placeholder="1"` (the engine's per-element
+  opt-out in `_toggleAutoPlaceholder`), so background trackers stay
+  silently blocked until consent and only genuine visual embeds
+  (`iframe`/`img`) still get a click-to-load placeholder. The tracker is
+  still listed in the banner for consent, and un-gates normally on
+  accept.
+
 - **Both compliance audits now evaluate the editor's pending DRAFT, not
   the published config.** The ThemeDesigner shows draft form values
   (`findBySiteDraft`) while a draft is open, but the inline compliance
