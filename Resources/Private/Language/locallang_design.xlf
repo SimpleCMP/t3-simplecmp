@@ -11,6 +11,7 @@
 
       <trans-unit id="designer.title"><source>Banner design</source></trans-unit>
       <trans-unit id="designer.intro"><source>Customise how the SimpleCMP consent banner looks on your site. Each Site Set has its own theme; changes take effect on the next frontend page render.</source></trans-unit>
+      <trans-unit id="designer.draftGate.hint"><source>To edit the banner design, first create a draft above — the fields stay locked until then, then Save stores your changes in the draft and Publish makes them live.</source></trans-unit>
 
       <!-- Compliance-audit banner shown above the form -->
       <trans-unit id="designer.audit.title"><source>Compliance check</source></trans-unit>
