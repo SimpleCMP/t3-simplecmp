@@ -2,9 +2,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'SimpleCMP for TYPO3',
-    'description' => 'TYPO3 integration for SimpleCMP — consent manager with banner UI, '
-        . 'tracker recorder, optional service-DB endpoint, and optional CMS-bridge '
-        . 'webhook receiver for unknown-tracker alerts.',
+    'description' => 'TYPO3 integration for SimpleCMP - consent manager with banner UI, tracker recorder, optional service-DB endpoint, and optional CMS-bridge webhook receiver for unknown-tracker alerts.',
     'category' => 'plugin',
     'author' => 'Sven Wappler, Ilja Melnicenko',
     'author_email' => 'wappler@wappler.systems',
