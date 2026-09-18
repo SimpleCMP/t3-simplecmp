@@ -10,6 +10,40 @@ development.
 
 ## Unreleased
 
+## 14.0.1 — 2026-09-19
+
+### Fixed
+
+- **Path-scoped origin matchers — two services can share one host.**
+  `www.google.com` serves both the Maps embed (`/maps/embed?pb=…`) and the
+  reCAPTCHA loader (`/recaptcha/api.js`). Origin matchers were host-only and
+  `google-recaptcha` claimed `*.google.com`, so **every server-rendered Google
+  Maps embed was rewritten to `data-name="google-recaptcha"`** and the visitor
+  had to consent to *"Google reCAPTCHA — Zwecke: Dienstbereitstellung"* to see
+  a map. Consent to reCAPTCHA is not consent to Maps, and the purposes differ
+  (functional vs. marketing), so this was a correctness problem in the consent
+  record.
+
+  Matchers may now carry a path prefix — `www.google.com/maps/`,
+  `*.google.com/recaptcha/`. `HostMatcher` resolves allowlist → path-scoped →
+  exact host → wildcard → unknown-host fallback, and `HtmlRewriter` passes the
+  path it already had. Four byte-identical private copies of the matching logic
+  (`ClassifierLookup`, `DetectionListPresenter`, `ServiceCurator`,
+  `ServiceRepository`) now delegate to `Service\OriginMatcher`. (#8)
+
+- **Runtime patches attribute JS-injected embeds correctly too.** The vendored
+  engine bundle carried the same host-only limitation, so a Maps iframe injected
+  by JavaScript was still attributed by host even after the fix above. Closed
+  upstream in `SimpleCMP/simplecmp` v0.5.0 and pulled in here by the bundle sync.
+  Server-rendered and JS-injected embeds now agree.
+
+### Changed
+
+- Bundled services library refreshed: `google-maps` and `google-recaptcha` are
+  scoped by path, `*.google.com` stays with the generic `google` entry.
+
+## 14.0.0 — 2026-07-03
+
 ### Added
 
 - **Settings-dialog (modal) buttons: equal-prominence by default +
