@@ -159,23 +159,8 @@ final readonly class ClassifierLookup
     /**
      * @param array<int, mixed> $matchers
      */
-    public static function originMatches(string $origin, array $matchers): bool
+    public static function originMatches(string $origin, array $matchers, ?string $path = null): bool
     {
-        foreach ($matchers as $matcher) {
-            if (!is_string($matcher)) {
-                continue;
-            }
-            if (str_starts_with($matcher, '*.')) {
-                $suffix = substr($matcher, 1);
-                if (str_ends_with($origin, $suffix) || $origin === substr($suffix, 1)) {
-                    return true;
-                }
-                continue;
-            }
-            if ($matcher === $origin) {
-                return true;
-            }
-        }
-        return false;
+        return OriginMatcher::matches($origin, $matchers, $path);
     }
 }

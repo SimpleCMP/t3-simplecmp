@@ -237,22 +237,7 @@ final readonly class DetectionListPresenter
     /** @param list<mixed> $matchers */
     private static function originMatches(string $host, array $matchers): bool
     {
-        foreach ($matchers as $matcher) {
-            if (!is_string($matcher)) {
-                continue;
-            }
-            if (str_starts_with($matcher, '*.')) {
-                $suffix = substr($matcher, 1);
-                if (str_ends_with($host, $suffix) || $host === substr($suffix, 1)) {
-                    return true;
-                }
-                continue;
-            }
-            if ($matcher === $host) {
-                return true;
-            }
-        }
-        return false;
+        return OriginMatcher::matches($host, $matchers);
     }
 
     /**
