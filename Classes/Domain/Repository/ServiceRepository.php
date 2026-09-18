@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
+use SimpleCMP\T3SimpleCmp\Service\OriginMatcher;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -544,21 +545,6 @@ final readonly class ServiceRepository
 
     private function originMatches(string $origin, array $matchers): bool
     {
-        foreach ($matchers as $matcher) {
-            if (!is_string($matcher)) {
-                continue;
-            }
-            if (str_starts_with($matcher, '*.')) {
-                $suffix = substr($matcher, 1); // ".example.com"
-                if (str_ends_with($origin, $suffix) || $origin === substr($suffix, 1)) {
-                    return true;
-                }
-                continue;
-            }
-            if ($matcher === $origin) {
-                return true;
-            }
-        }
-        return false;
+        return OriginMatcher::matches($origin, $matchers);
     }
 }

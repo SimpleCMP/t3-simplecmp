@@ -404,7 +404,17 @@ final class HtmlRewriter implements MiddlewareInterface
                 if ($isStylesheet && in_array(strtolower($host), $this->stylesheetAllowHosts, true)) {
                     continue;
                 }
-                $resolution = $matcher->resolve($host);
+                // The path decides between two products on one host —
+                // `www.google.com/maps/embed` (Maps, marketing) vs.
+                // `www.google.com/recaptcha/api.js` (reCAPTCHA,
+                // functional). parse_url() returns null for a URL with
+                // no path at all; that is passed through as "/" so a
+                // path-scoped claim cannot match it by accident.
+                $urlPath = parse_url($url, PHP_URL_PATH);
+                $resolution = $matcher->resolve(
+                    $host,
+                    is_string($urlPath) && $urlPath !== '' ? $urlPath : '/',
+                );
                 if ($resolution === null) {
                     continue;
                 }
