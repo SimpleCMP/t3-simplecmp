@@ -89,7 +89,8 @@
             "google.com",
             "accounts.google.com",
             "developers.google.com",
-            "news.google.com"
+            "news.google.com",
+            "*.google.com"
         ]
     }
 }

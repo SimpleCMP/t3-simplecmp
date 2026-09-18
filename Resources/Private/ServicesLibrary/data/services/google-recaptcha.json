@@ -15,7 +15,10 @@
             "_GRECAPTCHA"
         ],
         "origins": [
-            "*.google.com"
+            "www.google.com/recaptcha/",
+            "www.gstatic.com/recaptcha/",
+            "recaptcha.net",
+            "www.recaptcha.net"
         ]
     }
 }

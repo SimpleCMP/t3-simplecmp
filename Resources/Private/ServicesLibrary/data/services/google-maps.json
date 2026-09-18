@@ -19,6 +19,7 @@
             }
         ],
         "origins": [
+            "www.google.com/maps/",
             "maps.google.com",
             "maps.googleapis.com",
             "maps.gstatic.com"
