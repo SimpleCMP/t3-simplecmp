@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
+use SimpleCMP\T3SimpleCmp\Tracker\TrackerFieldSpec;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -46,6 +47,7 @@ final class TrackerSetupController extends ActionController
         private readonly BackendUriBuilder $backendUriBuilder,
         private readonly ManagedTrackerRepository $managedTrackerRepository,
         private readonly TrackerRegistry $trackerRegistry,
+        private readonly TrackerFieldSpec $fieldSpec,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
         private readonly \SimpleCMP\T3SimpleCmp\Service\DraftBannerContext $bannerContext,
         private readonly \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
@@ -364,57 +366,10 @@ final class TrackerSetupController extends ActionController
      */
     private function describeFieldsFor(string $type): array
     {
-        $shape = match ($type) {
-            'matomo' => [
-                ['name' => 'url', 'kind' => 'url', 'required' => true],
-                ['name' => 'siteId', 'kind' => 'text', 'required' => true],
-                ['name' => 'disableCookies', 'kind' => 'bool', 'required' => false],
-                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
-            ],
-            'ga4' => [
-                ['name' => 'measurementId', 'kind' => 'text', 'required' => true],
-                ['name' => 'anonymizeIp', 'kind' => 'bool', 'required' => false],
-                [
-                    'name' => 'consentPosture',
-                    'kind' => 'enum',
-                    'required' => false,
-                    'options' => ['block', 'signal-gate'],
-                ],
-                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
-            ],
-            'gtm' => [
-                ['name' => 'containerId', 'kind' => 'text', 'required' => true],
-                [
-                    'name' => 'consentPosture',
-                    'kind' => 'enum',
-                    'required' => false,
-                    'options' => ['block', 'signal-gate'],
-                ],
-                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
-            ],
-            'meta' => [
-                // Meta Pixel is signal-only — no loader URL, no
-                // bootstrap snippet. The customer's own pixel template
-                // continues to load fbevents.js; this row registers the
-                // Service-DB metadata (banner listing, CSP origins,
-                // _fbp/_fbc cookie classification) and tells the engine
-                // to dispatch `fbq('consent', 'grant'|'revoke')` via the
-                // ADR-0017 vendor adapter.
-                ['name' => 'pixelId', 'kind' => 'text', 'required' => true],
-                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
-            ],
-            'microsoftUet' => [
-                ['name' => 'tagId', 'kind' => 'text', 'required' => true],
-                [
-                    'name' => 'consentPosture',
-                    'kind' => 'enum',
-                    'required' => false,
-                    'options' => ['block', 'signal-gate'],
-                ],
-                ['name' => 'serviceId', 'kind' => 'text', 'required' => false],
-            ],
-            default => [],
-        };
+        // Shape lives in TrackerFieldSpec so the CLI validates against
+        // exactly what this form renders; labels stay here because they
+        // are a BE-presentation concern.
+        $shape = $this->fieldSpec->shapeFor($type);
 
         $out = [];
         foreach ($shape as $field) {

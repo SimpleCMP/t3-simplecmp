@@ -192,6 +192,11 @@ final readonly class ServiceRepository
         if ($fromLibrary && (int) $existing['library_adopted_at'] === 0) {
             $row['library_adopted_at'] = time();
         }
+        // Keep the row where it lives. TrackerMaterializer re-upserts on
+        // every frontend render, so carrying the pid here would drag a
+        // record an editor moved back to the resolved folder on the next
+        // page view — and look like the move never saved.
+        unset($row['pid']);
         $conn->update(self::TABLE, $row, ['uid' => (int) $existing['uid']]);
     }
 

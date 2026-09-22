@@ -78,3 +78,51 @@ services:
   # Middleware, Controller).
   SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver:
     public: true
+
+  # --- Setup CLI ---------------------------------------------------------
+  # The backend module is the only way to configure SimpleCMP, which makes
+  # a rollout a sequence of clicks that cannot be reviewed, repeated or
+  # scripted. These commands cover the same ground, so an environment can
+  # be set up from a deployment script and a curated registry can travel
+  # between installs as a reviewable JSON document.
+  SimpleCMP\T3SimpleCmp\Command\StatusCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:status'
+        description: 'Report SimpleCMP setup state per site: settings bootstrap, drift, managed trackers, registry size and draft/lock state. Read-only; --json for deployment gates.'
+
+  SimpleCMP\T3SimpleCmp\Command\AdoptSettingsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:adopt-settings'
+        description: 'Adopt a site''s YAML banner settings as the editor-confirmed active values. Run after any deploy that changes simplecmp.* — until adopted, new values sit as drift and the old ones keep rendering.'
+
+  SimpleCMP\T3SimpleCmp\Command\SetupTrackerCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:setup-tracker'
+        description: 'Create or update a managed tracker (GTM, GA4, Matomo, Meta, Microsoft UET) so it loads behind consent. --from-settings adopts what simplecmp.trackers proposes.'
+
+  SimpleCMP\T3SimpleCmp\Command\AdoptServiceCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:adopt-service'
+        description: 'Adopt bundled-library services into the consent registry. --search finds a slug by vendor name.'
+
+  SimpleCMP\T3SimpleCmp\Command\PublishCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:publish'
+        description: 'Publish a site''s staged draft and release the editing lock. Needed after commands run with --no-publish.'
+
+  SimpleCMP\T3SimpleCmp\Command\ExportRegistryCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:export-registry'
+        description: 'Export the registry (services, managed trackers, theme, translation overrides, adopted settings) as reviewable JSON.'
+
+  SimpleCMP\T3SimpleCmp\Command\ImportRegistryCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:import-registry'
+        description: 'Apply an exported registry document. Idempotent; adds and updates but never removes.'

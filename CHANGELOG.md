@@ -10,6 +10,60 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Setup commands.** Everything the backend module does to set up a site is
+  now available on the console, so an environment can be configured from a
+  deployment script and a curated registry can travel between installs as a
+  reviewable JSON document. The registry lives in database tables, not in
+  `config/`, so until now a curated setup had no way to travel at all: you
+  clicked through the backend on staging, clicked through it again on
+  production, and hoped the results matched.
+
+  - `simplecmp:status` — read-only report per site. Surfaces the two states
+    that are invisible from the frontend and easy to misread as "the extension
+    is broken": settings never bootstrapped (the site runs on raw YAML), and
+    trackers declared in `simplecmp.trackers` but never adopted (they are
+    proposals — they do not load). `--json` for deployment gates.
+  - `simplecmp:adopt-settings` — confirm a site's YAML settings as the active
+    values. Run it after any deploy that changes `simplecmp.*`, otherwise the
+    new values sit as drift and the old ones keep rendering.
+  - `simplecmp:setup-tracker` — create or update a managed tracker, idempotent
+    by `(site, serviceId)`. `--from-settings` adopts what `simplecmp.trackers`
+    proposes, so a tracker declared in the deployment reaches the registry
+    without anyone retyping its IDs.
+  - `simplecmp:adopt-service` — adopt bundled-library services; `--search`
+    finds a slug by vendor name.
+  - `simplecmp:publish` — publish a staged draft, for `--no-publish` runs.
+  - `simplecmp:export-registry` / `simplecmp:import-registry` — move a curated
+    setup between installs as stably-ordered JSON. Import is idempotent and
+    **adds and updates but never removes**: withdrawing a service revokes the
+    consent UI for something that may still be loading, so it stays a
+    deliberate act rather than a side effect of importing a trimmed file.
+    Detections, consent logs and audit snapshots are deliberately not
+    exported — they are observations of one environment's visitors.
+
+  Writing commands require `--be-user=<uid|username>` (an enabled admin): the
+  draft lock is keyed on `owner_be_user`, where uid 0 reads as "nobody", and a
+  publish is an audit event that needs a name against it. A human editor's
+  lock is never stolen — the command stops and says whose it is.
+
+  Provider config fields moved from a private method on
+  `TrackerSetupController` into `Tracker\TrackerFieldSpec`, so the form and the
+  CLI validate against the same shape and a new provider field reaches both in
+  one edit.
+
+### Fixed
+
+- **Services created from a managed tracker ignored `simplecmp.storagePid`.**
+  `TrackerMaterializer` upserts the service row on every frontend render and
+  passed no pid, so a tracker's service landed in the page-tree root instead of
+  the configured SysFolder — the same oversight fixed for the adopt paths, in
+  the one place that reaches it from the frontend. `ServiceRepository::upsert()`
+  additionally no longer writes `pid` on UPDATE: since the materializer
+  re-upserts on every render, carrying it would have dragged a record an editor
+  moved right back on the next page view, and looked like the move never saved.
+
 ### Fixed
 
 - **A fresh install locked itself out of its own backend module.** Every
