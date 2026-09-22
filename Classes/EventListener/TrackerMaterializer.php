@@ -8,6 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
+use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
@@ -62,6 +63,7 @@ final readonly class TrackerMaterializer
         private ManagedTrackerRepository $managedTrackerRepository,
         private TrackerRegistry $trackerRegistry,
         private TrackerRuntimeState $runtimeState,
+        private StoragePidResolver $storagePidResolver,
         private LoggerInterface $logger,
     ) {
     }
@@ -93,8 +95,12 @@ final readonly class TrackerMaterializer
         // tx_t3simplecmp_managed_tracker.
         $dbEntries = $this->collectManagedTrackerEntries($site->getIdentifier());
 
+        // The service row this creates is an ordinary registry record an
+        // editor will look for in Web->Liste, so it belongs in the
+        // configured SysFolder like every other one.
+        $pid = $this->storagePidResolver->resolveForRequest($request);
         foreach ($dbEntries as $entry) {
-            $this->materializeOne($entry);
+            $this->materializeOne($entry, $pid);
         }
     }
 
@@ -121,7 +127,7 @@ final readonly class TrackerMaterializer
     /**
      * @param array<string, mixed> $config
      */
-    private function materializeOne(array $config): void
+    private function materializeOne(array $config, int $pid = 0): void
     {
         $type = $config['type'] ?? null;
         if (!is_string($type) || $type === '') {
@@ -161,7 +167,7 @@ final readonly class TrackerMaterializer
         //   (b) the CSP bridge whitelist its origins, and
         //   (c) RegisterAssets include it in the `services[]` array
         //       passed to `cmp.init({services: ...})`.
-        $this->serviceRepository->upsert($serviceData);
+        $this->serviceRepository->upsert($serviceData, $pid);
 
         $loaderUrl = $provider->getLoaderUrl($config);
         if ($loaderUrl !== null) {
