@@ -210,9 +210,40 @@ is consulted at classifier-lookup time directly (no DB mirror), so
 common third-party cookies classify as `known` from day one without
 any setup. To put a specific service on the visitor's banner the
 admin **adopts** it — either via the BE *Bibliothek* tab (browse the
-library, click Übernehmen on any entry) or by waiting until the
-recorder catches its cookie on the FE and clicking *Übernehmen /
-Anpassen* in the *Detektionen* tab.
+library, click Übernehmen on any entry), by waiting until the recorder
+catches its cookie on the FE and clicking *Übernehmen / Anpassen* in the
+*Detektionen* tab, or from the console.
+
+## Setting a site up
+
+Installing the extension is not the same as setting it up: a fresh site
+has an empty registry, so the banner renders but manages consent for
+nothing and no tracker loads. Two states are easy to miss because
+nothing in the frontend reports them — settings that were never adopted
+(the site runs on raw YAML) and trackers declared in
+`simplecmp.trackers` that were never adopted (they are proposals and do
+**not** load).
+
+`simplecmp:status` answers both, and the rest of the setup is scriptable:
+
+```bash
+vendor/bin/typo3 simplecmp:status                                                     # what state is this install in?
+vendor/bin/typo3 simplecmp:adopt-settings --site=main --be-user=admin                 # confirm the deployed settings
+vendor/bin/typo3 simplecmp:setup-tracker  --site=main --be-user=admin --from-settings # adopt declared trackers
+vendor/bin/typo3 simplecmp:adopt-service  --site=main --be-user=admin google-analytics
+```
+
+Curate once, then move the result between environments instead of
+repeating the clicks — the export is stably ordered, so it can live in
+Git and be reviewed like any other config change:
+
+```bash
+vendor/bin/typo3 simplecmp:export-registry --file=config/simplecmp-registry.json
+vendor/bin/typo3 simplecmp:import-registry --file=config/simplecmp-registry.json --be-user=deploy
+```
+
+Import is idempotent and never removes a service. Full reference:
+[Documentation/CommandLine](Documentation/CommandLine/Index.rst).
 
 ## Configuring the bridge webhook
 

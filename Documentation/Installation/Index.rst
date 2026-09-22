@@ -80,12 +80,29 @@ both ends.
 Database schema
 ===============
 
-Two tables ship with the extension and are created automatically by
-TYPO3's database compare on first install:
+Seventeen tables ship with the extension. TYPO3's database compare
+creates them on first install; in a deployment, run:
 
-*   :sql:`tx_t3simplecmp_service` — the service registry.
-*   :sql:`tx_t3simplecmp_detection` — the webhook receiver's
-    landing table.
+..  code-block:: bash
+
+    vendor/bin/typo3 extension:setup --extension=simplecmp
+
+The ones worth knowing by name:
+
+*   :sql:`tx_t3simplecmp_service` — the service registry: what the
+    banner manages consent for.
+*   :sql:`tx_t3simplecmp_managed_tracker` — trackers you run on
+    purpose (GTM, GA4, Matomo, …).
+*   :sql:`tx_t3simplecmp_detection` — the webhook receiver's landing
+    table for trackers the recorder spotted.
+*   :sql:`tx_t3simplecmp_active_settings` — the values an editor has
+    confirmed (see :ref:`settings-are-proposals`).
+*   :sql:`tx_t3simplecmp_consent_log` and
+    :sql:`tx_t3simplecmp_config_snapshot` — the audit trail.
+
+Most of the rest are the :sql:`*_draft` counterparts of the editable
+tables plus the publish lock, which together make up the draft
+workspace, and two caches.
 
 The bundled services library
 ============================
@@ -109,7 +126,7 @@ by the library classify as :code:`known` from day one without any
 admin action.
 
 The registry (:code:`tx_t3simplecmp_service`) starts empty and
-only ever holds admin-curated services. Two ways for the admin to
+only ever holds admin-curated services. Three ways for the admin to
 adopt a library entry into the registry — required so visitors see
 the consent toggle in the banner:
 
@@ -120,14 +137,44 @@ the consent toggle in the banner:
     FE, the resulting detection row offers *Übernehmen* (silent adopt
     with confirmation modal) or *Anpassen* (TCA edit with library
     pre-fill).
+-   **Console**: :code:`simplecmp:adopt-service <id>…`, with
+    :code:`--search` to find a slug by vendor name. See
+    :ref:`command-line`.
+
+First setup
+===========
+
+A freshly installed site has an **empty registry**: the banner renders,
+but it manages consent for nothing and no tracker loads. Installing the
+extension is not the same as setting it up.
+
+Either walk the backend wizard — *Site Management → SimpleCMP* offers
+*Assistent starten* on a new install and covers tracker, design and
+publish — or do the same from the console:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:adopt-settings --site=main --be-user=admin
+    vendor/bin/typo3 simplecmp:setup-tracker  --site=main --be-user=admin --from-settings
+    vendor/bin/typo3 simplecmp:adopt-service  --site=main --be-user=admin google-analytics
+    vendor/bin/typo3 simplecmp:status         --site=main
+
+On a second environment, import the configuration you already curated on
+the first instead of repeating the clicks — see :ref:`command-line`.
 
 Verifying the installation
 ==========================
 
-1.  Load any frontend page on the configured site.
-2.  Open the browser DevTools console — no SimpleCMP errors should
+1.  Run :code:`vendor/bin/typo3 simplecmp:status`. Every site that
+    should run the CMP wants *Bootstrapped: yes*, no drift, and no
+    pending tracker proposals; the registry should hold more than zero
+    services.
+2.  Load any frontend page on the configured site.
+3.  Open the browser DevTools console — no SimpleCMP errors should
     appear.
-3.  Verify the consent banner appears (clear localStorage if a
-    previous decision is cached).
-4.  Visit :file:`/api/simplecmp/v1/health` — should return
+4.  Verify the consent banner appears (clear localStorage if a
+    previous decision is cached) **and that it lists the services you
+    adopted**. A banner with no services means an empty registry, not a
+    working installation.
+5.  Visit :file:`/api/simplecmp/v1/health` — should return
     :code:`{"ok":true,...}`.

@@ -10,6 +10,28 @@ development.
 
 ## Unreleased
 
+### Documentation
+
+- **The "a deployed setting is a proposal" model is documented at last.** It is
+  the single most confusing thing about this extension and it was nowhere in the
+  manual: a value in `settings.yaml` does nothing until an editor adopts it, and
+  a deploy that changes `simplecmp.*` leaves the old value rendering with no
+  error and no warning. Configuration now opens with the three states
+  (not bootstrapped / drift / custom), how to adopt each, and which keys are
+  exempt because they are operations rather than banner content.
+- **`simplecmp.trackers` has a reference entry.** The key was undocumented while
+  being exactly the trap worth warning about — a declared tracker is a proposal
+  and loads nothing until adopted, silently.
+- **Installation gained a "First setup" step and a verification that verifies.**
+  "The banner appears" was the old check; a banner with an empty registry
+  appears too, and manages consent for nothing. The database-schema section said
+  two tables ship — there are seventeen.
+- The module tab list covered four of the eight tabs; Design, Einstellungen,
+  Revision & Nachweis and Auskunft were missing, as was any mention that every
+  editing action happens in a draft that must be published.
+- `storagePid` now states that adoption and tracker materialisation use it, and
+  that a record an editor moves stays moved.
+
 ### Added
 
 - **Setup commands.** Everything the backend module does to set up a site is

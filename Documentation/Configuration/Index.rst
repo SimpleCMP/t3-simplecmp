@@ -11,6 +11,56 @@ you add **SimpleCMP — consent manager** as a Site Set dependency.
 Open the BE at *Site Management → Settings*, select the site, and
 the settings appear under the *simplecmp* heading.
 
+..  contents::
+    :local:
+    :depth: 2
+
+..  _settings-are-proposals:
+
+A deployed setting is a proposal
+================================
+
+**Read this before wondering why a value you deployed has no effect.**
+
+Banner-content settings ship in :file:`config/sites/<id>/settings.yaml`,
+which belongs to the deployment. But what a visitor is shown has to be
+something a person confirmed, not whatever the last deploy happened to
+carry — so a deployed value is a *proposal* until an editor adopts it:
+
+..  code-block:: text
+
+    settings.yaml  ──deploy──▶  proposal  ──adopt──▶  active  ──▶  banner
+
+Three states follow from that, and all three are silent:
+
+*   **Not bootstrapped.** No value has ever been adopted for this site.
+    The banner falls back to the raw YAML, so it looks like it is
+    working — until the first adoption changes which values count.
+*   **Drift.** A deploy changed :code:`simplecmp.*`, but nobody adopted
+    the change. **The old value keeps rendering.** No error, no warning
+    in the frontend.
+*   **Custom.** An editor set a value in the backend that the YAML does
+    not carry. The next deploy will not overwrite it.
+
+Adopt in the backend under *Site Management → SimpleCMP →
+Einstellungen*, which lists every drifting key with both values and an
+*Übernehmen* button, or from the console:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:status --site=main            # what state is it in?
+    vendor/bin/typo3 simplecmp:adopt-settings --site=main --be-user=admin
+
+Make the adopt step part of your deployment routine for any release that
+touches :code:`simplecmp.*` — see :ref:`command-line`.
+
+Two kinds of keys are exempt and take effect straight from YAML, because
+they are operations rather than banner content: the URL and rate-limit
+keys (:confval:`simplecmp.serviceDbUrl`, :confval:`simplecmp.cmsBridgeUrl`,
+:confval:`simplecmp.bridgeRateLimit`, :confval:`simplecmp.libraryUpstreamUrl`,
+:confval:`simplecmp.libraryUpstreamDailyBudget`) and
+:confval:`simplecmp.storagePid`.
+
 Site Settings reference
 =======================
 
@@ -164,15 +214,63 @@ Site Settings reference
     own infrastructure, or known-safe hosts you don't want surfaced as
     consent decisions.
 
+..  confval:: simplecmp.trackers
+
+    :type: list of maps
+    :Default: empty
+
+    Managed trackers the deployment declares, each a map of
+    :code:`type` plus that provider's fields:
+
+    ..  code-block:: yaml
+
+        simplecmp:
+          trackers:
+            - type: gtm
+              containerId: GTM-XXXXXXX
+            - type: ga4
+              measurementId: G-XXXXXXX
+
+    **These are proposals and load nothing on their own.** Like every
+    other banner-content setting (see :ref:`settings-are-proposals`), a
+    declared tracker has to be adopted before it exists as a managed
+    tracker — until then the frontend has no loader for it, no service
+    record, and no consent toggle, and nothing anywhere says so.
+
+    Adopt them in *SimpleCMP → Einstellungen* (the pending ones are
+    listed with an *Als managed_tracker anlegen* button) or with:
+
+    ..  code-block:: bash
+
+        vendor/bin/typo3 simplecmp:setup-tracker --site=main --be-user=admin --from-settings
+
+    :code:`simplecmp:status` counts the unadopted ones per site, which
+    is the quickest way to catch a tracker that was declared but never
+    went live.
+
+    Unlike the scalar settings, this key is deliberately **not** declared
+    in :file:`settings.definitions.yaml`: TYPO3 site settings have no
+    nested-array type, so it cannot appear in the backend settings form
+    and is maintained in the YAML file only.
+
 ..  confval:: simplecmp.storagePid
 
     :type: integer
     :Default: 0
 
     TYPO3 page UID under which new :sql:`tx_t3simplecmp_service`
-    and :sql:`tx_t3simplecmp_detection` records are created.
-    Typically a dedicated SysFolder. Records created before this
-    setting was changed are **not** moved.
+    and :sql:`tx_t3simplecmp_detection` records are created —
+    adoption from the library, curation from a detection, and the
+    service row a managed tracker materialises all land here.
+    Typically a dedicated SysFolder.
+
+    Records created before this setting was changed are **not** moved,
+    and a record an editor moves by hand stays where they put it: a
+    re-adopt or a tracker refresh updates its content, never its
+    location.
+
+    On a multi-site install the registry is global but the setting is
+    per site; the first site that carries a value decides.
 
 Service registry
 ================
