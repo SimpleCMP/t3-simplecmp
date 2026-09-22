@@ -167,6 +167,115 @@ final class DetectionRepositoryTest extends FunctionalTestCase
 
     // --- helpers -----------------------------------------------------------
 
+
+    // --- triage: dismiss / undismiss / purge -------------------------------
+    //
+    // Extracted out of DetectionReviewController so the BE tab and the
+    // `simplecmp:detections` command cannot drift on the rule that
+    // matters here: a row is dismissed before it can ever be deleted.
+
+    #[Test]
+    public function dismissFlagsTheRowWithoutDeletingIt(): void
+    {
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_dismiss_me')]));
+        $uid = (int) $this->fetchRow('default', 'cookie', '_dismiss_me')['uid'];
+
+        self::assertSame(1, $this->repository->dismiss($uid));
+
+        $row = $this->fetchRow('default', 'cookie', '_dismiss_me');
+        self::assertNotNull($row, 'dismiss must not delete the row');
+        self::assertGreaterThan(0, (int) $row['dismissed_at']);
+    }
+
+    #[Test]
+    public function dismissingTwiceKeepsTheOriginalTimestamp(): void
+    {
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_twice')]));
+        $uid = (int) $this->fetchRow('default', 'cookie', '_twice')['uid'];
+
+        $this->repository->dismiss($uid);
+        $first = (int) $this->fetchRow('default', 'cookie', '_twice')['dismissed_at'];
+
+        self::assertSame(0, $this->repository->dismiss($uid), 'second dismiss is a no-op');
+        self::assertSame($first, (int) $this->fetchRow('default', 'cookie', '_twice')['dismissed_at']);
+    }
+
+    #[Test]
+    public function undismissBringsTheRowBack(): void
+    {
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_back')]));
+        $uid = (int) $this->fetchRow('default', 'cookie', '_back')['uid'];
+        $this->repository->dismiss($uid);
+
+        self::assertSame(1, $this->repository->undismiss($uid));
+        self::assertSame(0, (int) $this->fetchRow('default', 'cookie', '_back')['dismissed_at']);
+        self::assertSame(0, $this->repository->undismiss($uid), 'undismissing twice is a no-op');
+    }
+
+    /**
+     * The audit-trail rule: purge is the second of two steps and must
+     * never be reachable as the first one, whatever uid it is handed.
+     */
+    #[Test]
+    public function purgeRefusesRowsThatWereNeverDismissed(): void
+    {
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_not_dismissed')]));
+        $uid = (int) $this->fetchRow('default', 'cookie', '_not_dismissed')['uid'];
+
+        $result = $this->repository->purgeDismissed([$uid]);
+
+        self::assertSame(0, $result['deleted']);
+        self::assertSame([], $result['sources']);
+        self::assertNotNull($this->fetchRow('default', 'cookie', '_not_dismissed'));
+    }
+
+    #[Test]
+    public function purgeDeletesDismissedRowsAndReportsTheirSources(): void
+    {
+        $this->repository->ingest($this->payload([
+            'source' => 'site-a',
+            'detection' => $this->detection('_gone'),
+        ]));
+        $uid = (int) $this->fetchRow('site-a', 'cookie', '_gone')['uid'];
+        $this->repository->dismiss($uid);
+
+        $result = $this->repository->purgeDismissed([$uid]);
+
+        self::assertSame(1, $result['deleted']);
+        // The caller needs these to re-arm re-detection; without the
+        // bump, reporting browsers suppress the tracker for the whole TTL.
+        self::assertSame(['site-a'], $result['sources']);
+        self::assertNull($this->fetchRow('site-a', 'cookie', '_gone'));
+    }
+
+    #[Test]
+    public function purgeOnlyTouchesTheDismissedRowsOfAMixedBatch(): void
+    {
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_keep')]));
+        $this->repository->ingest($this->payload(['detection' => $this->detection('_drop')]));
+        $keep = (int) $this->fetchRow('default', 'cookie', '_keep')['uid'];
+        $drop = (int) $this->fetchRow('default', 'cookie', '_drop')['uid'];
+        $this->repository->dismiss($drop);
+
+        $result = $this->repository->purgeDismissed([$keep, $drop]);
+
+        self::assertSame(1, $result['deleted']);
+        self::assertNotNull($this->fetchRow('default', 'cookie', '_keep'));
+        self::assertNull($this->fetchRow('default', 'cookie', '_drop'));
+    }
+
+    #[Test]
+    public function purgeOfNothingIsANoOp(): void
+    {
+        self::assertSame(['deleted' => 0, 'sources' => []], $this->repository->purgeDismissed([]));
+    }
+
+    #[Test]
+    public function findOneReturnsNullForAnUnknownUid(): void
+    {
+        self::assertNull($this->repository->findOne(987654));
+    }
+
     /**
      * @param array<string, mixed> $overrides
      * @return array<string, mixed>

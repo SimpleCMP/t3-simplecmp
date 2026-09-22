@@ -60,9 +60,12 @@ Publishing also writes a configuration snapshot, which is what makes a
 later consent decision provably attributable to a specific banner
 configuration.
 
-The same ground can be covered from the console, which is the better
+Every action on these tabs has a console equivalent, which is the better
 route for a rollout or for reproducing a setup on a second environment —
-see :ref:`command-line`.
+see :ref:`command-line`. The one exception is *Tracker entdecken*: the
+sweep needs a real browser to see what JavaScript injects, so it stays a
+backend action (its results are triageable from the console like any
+other detection).
 
 The detections list
 -------------------

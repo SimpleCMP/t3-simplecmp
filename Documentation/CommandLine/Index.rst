@@ -4,10 +4,18 @@
 Command line
 ============
 
-Everything the backend module does to *set up* a site is also available
-as a console command, so an environment can be configured from a
-deployment script and a curated registry can travel between installs as
-a reviewable JSON document.
+Everything the backend module can change is also available as a console
+command, so an environment can be configured from a deployment script
+and a curated registry can travel between installs as a reviewable JSON
+document.
+
+One capability has no console equivalent, by its nature rather than by
+omission: **Tracker entdecken** (:ref:`Discover sweeps <discover-trackers>`)
+drives a real browser through the site's sitemap so it sees the page the
+way a visitor does, including trackers injected by JavaScript. A
+server-side process cannot observe that, so the sweep stays a backend
+action. Everything it *produces* — the detections — is triageable from
+the console.
 
 ..  contents::
     :local:
@@ -108,6 +116,15 @@ keep rendering, silently.
     vendor/bin/typo3 simplecmp:adopt-settings --site=main --be-user=admin
     vendor/bin/typo3 simplecmp:adopt-settings --site=main --be-user=admin --key=simplecmp.floatingTriggerLabel
 
+:code:`--set <key>=<value>` stores a custom active value the deployment
+does not carry, and :code:`--reset <key>` hands the key back to the YAML
+— the per-key *Speichern* / *Zurücksetzen* of the Einstellungen tab.
+Values are parsed as JSON where possible, so
+:code:`--set simplecmp.respectGPC=false` stores a boolean rather than the
+string ``"false"``. A custom value survives the next deploy, which is the
+point and also why it is worth being deliberate about: nobody reading
+:file:`settings.yaml` alone will see it.
+
 simplecmp:setup-tracker
 -----------------------
 
@@ -133,6 +150,13 @@ Unknown field names and values outside an enum are refused with the list
 of what the provider accepts, so a typo fails loudly instead of being
 stored and ignored.
 
+:code:`--list` shows the site's managed trackers, :code:`--remove=<serviceId>`
+deletes one. Removing a tracker leaves its service record in the
+registry: by then it is an ordinary curated service, and silently
+withdrawing a consent toggle because a loader went away would be the
+wrong default. Drop it with
+:code:`simplecmp:curate-service <id> --remove` if that is what you mean.
+
 simplecmp:adopt-service
 -----------------------
 
@@ -148,6 +172,117 @@ curates.
 
     vendor/bin/typo3 simplecmp:adopt-service --search=linkedin
     vendor/bin/typo3 simplecmp:adopt-service google-analytics linkedin --site=main --be-user=admin
+
+simplecmp:curate-service
+------------------------
+
+Create, update or delete a registry service by hand — the TCA form
+behind *Kuratieren* / *Anpassen*, and the Dienste tab's delete.
+
+This is the path for a vendor the bundled library does not know, which is
+the common case for regional embeds and small SaaS widgets. It matters
+more than it sounds: with Universal Blocking on, such a host is gated and
+the visitor gets a placeholder that **no consent choice can unlock**,
+because there is no service to consent to. Curating one turns the block
+into a decision the visitor can actually make.
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:curate-service --list
+
+    vendor/bin/typo3 simplecmp:curate-service flipsnack --site=main --be-user=admin \
+        --set name=Flipsnack --set vendor='Flipsnack SRL' \
+        --set purposes=functional,marketing \
+        --set origins=player.flipsnack.com,cdn.flipsnack.com \
+        --set privacyPolicyUrl=https://www.flipsnack.com/privacy-policy
+
+    vendor/bin/typo3 simplecmp:curate-service flipsnack --remove --site=main --be-user=admin
+
+Editing starts from the stored record, so one :code:`--set` changes one
+field instead of blanking the rest. :code:`--from-json` reads the whole
+service in the library/export shape, which is how a service curated on
+one install moves to another. A service is refused without at least one
+purpose and at least one cookie or origin matcher — without those it
+matches nothing and gates nothing, which is a silent way to think a
+vendor is handled when it is not.
+
+simplecmp:detections
+--------------------
+
+List and triage what the recorder reported — the Detektionen tab. The
+four states are derived by the same presenter the module uses, so the
+console and the tab never disagree about what still needs a decision.
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:detections                       # what needs action
+    vendor/bin/typo3 simplecmp:detections --state=unbekannt
+    vendor/bin/typo3 simplecmp:detections --uid=12 --adopt --site=main --be-user=admin
+    vendor/bin/typo3 simplecmp:detections --uid=12 --dismiss --site=main --be-user=admin
+    vendor/bin/typo3 simplecmp:detections --uid=12 --purge --site=main --be-user=admin
+
+Removal is two steps here as it is in the module: :code:`--dismiss` flags
+a row and keeps it as an audit trail, :code:`--purge` deletes it and only
+ever touches rows that were dismissed first — a uid that was never
+dismissed is refused, not silently destroyed. A purge re-arms
+re-detection for the affected sources, so a tracker that is still on the
+site comes back instead of staying invisible for the dedup TTL.
+
+simplecmp:set-theme
+-------------------
+
+Banner appearance — the Design tab, minus the live preview. Tokens are
+stored as a diff from the bundle defaults, so a site that never set a
+token follows a future default automatically.
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:set-theme --site=main --show
+    vendor/bin/typo3 simplecmp:set-theme --site=main --be-user=admin --set position=middle-center
+    vendor/bin/typo3 simplecmp:set-theme --site=main --reset --be-user=admin
+    vendor/bin/typo3 simplecmp:set-theme --site=main --check
+
+:code:`--check` runs the same compliance audit the designer shows inline
+and exits non-zero on a critical finding — the one part of the banner
+that can be wrong in a way nobody notices until it matters, which makes
+it worth a CI step. Setting a token to an empty value stops overriding
+it, which is not the same as setting it to an empty string.
+
+simplecmp:set-texts
+-------------------
+
+Banner wording per language. :code:`--tone` picks the formal/informal
+overlay for languages that ship one (German Sie/Du), which is usually all
+a site needs; :code:`--set <key>=<text>` rewrites an individual bundle
+string.
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:set-texts --site=main --show
+    vendor/bin/typo3 simplecmp:set-texts --site=main --language=de --tone=informal --be-user=admin
+    vendor/bin/typo3 simplecmp:set-texts --site=main --language=de --be-user=admin --set banner.accept='Alles klar'
+
+An empty text clears that one override instead of storing an empty
+string, so a string can be handed back to the bundle default without
+losing the rest of the language.
+
+simplecmp:draft
+---------------
+
+Draft-session control — the module's draft banner. Writing commands open
+and publish on their own, so this is for when the session itself is the
+subject:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 simplecmp:draft --site=main                          # who holds it, is anything staged
+    vendor/bin/typo3 simplecmp:draft --site=main --open    --be-user=admin
+    vendor/bin/typo3 simplecmp:draft --site=main --discard --be-user=admin
+    vendor/bin/typo3 simplecmp:draft --site=main --takeover --force --be-user=admin
+
+Discarding someone else's draft is refused, and a takeover additionally
+needs :code:`--force`: both destroy work a person may still be in the
+middle of, and neither should be reachable by a typo.
 
 simplecmp:publish
 -----------------
