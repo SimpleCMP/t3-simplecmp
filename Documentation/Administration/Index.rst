@@ -34,9 +34,35 @@ The main module is organised into tabs:
 *   **Tracker-Einrichtung** — set up well-known managed trackers
     (Matomo, GA4, GTM) so they load behind consent without manual
     curation. See `Tracker setup`_.
+*   **Design** — the banner designer: framework, layout, placement,
+    colours and per-language texts. See `The banner design module`_.
+*   **Einstellungen** — adopt the site's deployed settings as the
+    active ones, and adopt the trackers :confval:`simplecmp.trackers`
+    proposes. A deployed value does nothing until it is adopted here;
+    see :ref:`settings-are-proposals` for why, and what the states
+    mean.
+*   **Revision & Nachweis** and **Auskunft** — the audit trail:
+    configuration snapshots, consent decisions, and per-visitor
+    disclosure bundles.
 
 A *Tracker entdecken* action and the bridge-secret controls sit on the
 Detektionen tab.
+
+Editing happens in a draft
+--------------------------
+
+Every writing action on these tabs is gated on an open draft, which one
+editor holds at a time: *Entwurf anlegen* opens it, *Veröffentlichen*
+promotes the staged changes and releases it, *Entwurf verwerfen* throws
+them away. Until a publish, nothing you change here reaches a visitor.
+
+Publishing also writes a configuration snapshot, which is what makes a
+later consent decision provably attributable to a specific banner
+configuration.
+
+The same ground can be covered from the console, which is the better
+route for a rollout or for reproducing a setup on a second environment —
+see :ref:`command-line`.
 
 The detections list
 -------------------
@@ -337,10 +363,16 @@ it to run two instances of the same provider on one site (e.g. two
 Matomo sites) under distinct consent keys.
 
 Trackers are stored per site in :sql:`tx_t3simplecmp_managed_tracker`
-and edited here with the usual new / edit / delete actions. Trackers
-declared in Site Settings via a :code:`simplecmp.trackers` list are
-also shown (they use the same provider definitions); manage those in
-the settings, not here.
+and edited here with the usual new / edit / delete actions.
+
+Trackers declared in Site Settings via :confval:`simplecmp.trackers`
+are **proposals**: they use the same provider definitions, but they are
+not managed trackers and **load nothing** until adopted. The tab shows
+how many are still waiting; adopt them on the *Einstellungen* tab, or
+with :code:`simplecmp:setup-tracker --from-settings`. A tracker that
+was declared in a deploy and never adopted is a common and entirely
+silent way for analytics to go missing — :code:`simplecmp:status`
+counts them per site.
 
 What gets wired up
 ------------------
