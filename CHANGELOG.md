@@ -10,6 +10,52 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **A fresh install locked itself out of its own backend module.** Every
+  editor action sits behind the `.simplecmp-draft-locked` gate, and the gate
+  asked `DraftWorkspaceService::hasDraft()` — true only when a `*_draft` table
+  holds at least one row. Those rows come from `initializeDraft()`'s
+  copy-on-write, which on a virgin install has no live state to copy. So
+  "Entwurf anlegen" reported success, produced nothing, and the module stayed
+  locked: a precondition its own escape hatch could not satisfy. The only way
+  in was the setup wizard, which is not gated.
+
+  A draft *session* is now defined by the lock (`isDraftOpen()` /
+  `isDraftOpenForSite()`), which `acquireLock()` writes on the first init and
+  publish/discard release — exactly the session's lifetime. `hasDraft()` keeps
+  its old meaning (draft *content* exists) and still drives copy-on-write,
+  publish and draft reads. Draft rows without a lock still count, so rows left
+  by a crashed session stay reachable.
+
+  The same knot returned after every publish, because publishing clears the
+  draft rows. `DraftPublishService::publish()` now releases the lock on its
+  no-op path too, so a session never outlives the publish that ended it.
+
+- **Library adoption bypassed the draft workflow.** `LibraryBrowserController`
+  wrote through `ServiceRepository::upsert()` — straight into the live table,
+  past the publish step and the config snapshot — so an adopted service was on
+  the visitor's banner before anyone clicked *Veröffentlichen*, and the audit
+  trail never saw it. Adopt / bulk-adopt / unadopt / bulk-unadopt now take the
+  draft route (`upsertDraft()` / `deleteDraft()`) behind the same
+  `ensureGlobalDraft()` guard the Detektionen tab already used. Both tabs write
+  the same table pair and now agree on the precondition.
+
+- **Adopted services ignored `simplecmp.storagePid`.** The adopt paths passed
+  `pid = 0` (and `upsertDraft()` hard-coded it), so records landed in the
+  page-tree root instead of the configured SysFolder and were not findable via
+  *Web → Liste* — even though `LibraryBrowserController` already had
+  `StoragePidResolver` injected. `upsertDraft()` takes a `$pid` now, both adopt
+  paths pass the resolved value, and an update no longer moves a record an
+  editor has relocated.
+
+- **`StoragePidResolver::resolveDefault()` picked the first site, not a
+  configured one.** `SiteFinder` yields sites in identifier order, so on a
+  multi-site install the alphabetically-first site answered — typically not the
+  one running the CMP — and its absent setting returned 0. It now returns the
+  first site that actually carries `simplecmp.storagePid`; the registry is
+  global, so any configured value is the right one.
+
 ## 14.0.1 — 2026-09-19
 
 ### Fixed

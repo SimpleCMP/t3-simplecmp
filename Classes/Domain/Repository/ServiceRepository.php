@@ -345,10 +345,15 @@ final readonly class ServiceRepository
      * table. Idempotent: re-upserting an existing service_id in the
      * draft updates that row.
      */
-    public function upsertDraft(string $scope, array $serviceData, int $beUserId, bool $fromLibrary = false): void
-    {
+    public function upsertDraft(
+        string $scope,
+        array $serviceData,
+        int $beUserId,
+        bool $fromLibrary = false,
+        int $pid = 0,
+    ): void {
         $row = [
-            'pid' => 0,
+            'pid' => $pid,
             'service_id' => $serviceData['id'],
             'name' => $serviceData['name'],
             'vendor' => $serviceData['vendor'] ?? null,
@@ -392,6 +397,10 @@ final readonly class ServiceRepository
         if ($fromLibrary && (int) ($existing['library_adopted_at'] ?? 0) === 0) {
             $row['library_adopted_at'] = time();
         }
+        // Keep the row where it lives: an editor may have moved the
+        // record to another SysFolder, and a re-adopt is a content
+        // refresh, not a relocation.
+        unset($row['pid']);
         $this->updateDraftRow($scope, ['uid' => (int) $existing['uid']], $row, $beUserId);
     }
 

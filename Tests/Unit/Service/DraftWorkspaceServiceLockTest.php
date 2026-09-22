@@ -167,6 +167,57 @@ final class DraftWorkspaceServiceLockTest extends TestCase
     // `DraftWorkspaceServiceCopyTest` — needs an actual DB to exercise
     // the live→draft INSERT path.
 
+    /**
+     * Regression: on a fresh install `initializeDraft()` has nothing to
+     * copy, so the draft tables stay empty — yet the editing session is
+     * open and every BE gate must say so. Before this, the gates asked
+     * `hasDraft()` (a row count), which stayed false forever and left
+     * "Entwurf anlegen" as a button that could never satisfy its own
+     * precondition.
+     *
+     * The ConnectionPool mock is deliberately strict: a lock-held scope
+     * must answer without ever counting rows.
+     */
+    #[Test]
+    public function isDraftOpenIsTrueWhileLockIsHeldEvenWithoutDraftRows(): void
+    {
+        $repo = $this->createMock(PublishLockRepository::class);
+        $repo->method('find')->with(self::SCOPE)->willReturn(new LockState(
+            scope: self::SCOPE,
+            ownerBeUserId: 42,
+            acquiredAt: self::FROZEN_NOW,
+            lastActivityAt: self::FROZEN_NOW,
+            conflict: false,
+        ));
+        $pool = $this->createMock(\TYPO3\CMS\Core\Database\ConnectionPool::class);
+        $pool->expects(self::never())->method('getConnectionForTable');
+        $service = new DraftWorkspaceService($repo, $pool, $this->frozenClock());
+
+        self::assertTrue($service->isDraftOpen(self::SCOPE));
+    }
+
+    #[Test]
+    public function isDraftOpenForSiteIsTrueWhenOnlyTheGlobalScopeIsLocked(): void
+    {
+        $repo = $this->createMock(PublishLockRepository::class);
+        $repo->method('find')->willReturnCallback(
+            fn (string $scope): LockState => $scope === LockState::SCOPE_GLOBAL
+                ? new LockState(
+                    scope: $scope,
+                    ownerBeUserId: 7,
+                    acquiredAt: self::FROZEN_NOW,
+                    lastActivityAt: self::FROZEN_NOW,
+                    conflict: false,
+                )
+                : LockState::unlocked($scope),
+        );
+        $pool = $this->createMock(\TYPO3\CMS\Core\Database\ConnectionPool::class);
+        $pool->expects(self::never())->method('getConnectionForTable');
+        $service = new DraftWorkspaceService($repo, $pool, $this->frozenClock());
+
+        self::assertTrue($service->isDraftOpenForSite('mysite'));
+    }
+
     private function frozenClock(): ClockInterface
     {
         return new class implements ClockInterface {

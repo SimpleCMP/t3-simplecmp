@@ -47,6 +47,12 @@ final readonly class DraftPublishService
     public function publish(string $scope, int $beUserId): PublishResult
     {
         if (!$this->workspace->hasDraft($scope)) {
+            // Nothing to promote — but an editing session may still be
+            // open (a draft opened on an empty registry copies no rows).
+            // Release it, otherwise the lock outlives the publish the
+            // editor just performed and the BE keeps reporting an open
+            // draft for a scope that has none.
+            $this->workspace->releaseLock($scope);
             return new PublishResult(scope: $scope, perTable: [], snapshotHash: null, noOp: true);
         }
 
