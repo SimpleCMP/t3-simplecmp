@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Command;
 
+use SimpleCMP\T3SimpleCmp\Controller\ThemeDesignerController;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Service\ComplianceCheckService;
 use Symfony\Component\Console\Command\Command;
@@ -139,8 +140,34 @@ final class SetThemeCommand extends Command
                 }
                 $tokens[$key] = $value;
             }
-            $this->themeRepository->upsertDraft($site, $tokens, $beUserId);
-            $io->writeln(json_encode($tokens, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) ?: '');
+            // Same gate the Design tab applies on save. It is not
+            // cosmetic: `color-*` tokens are concatenated raw into
+            // shadow-DOM CSS by RegisterAssets, so an unchecked value is
+            // a stored-CSS-injection primitive — and the enum tokens
+            // would otherwise store a typo that the frontend silently
+            // ignores, leaving someone to wonder why nothing moved.
+            $clean = ThemeDesignerController::sanitizeTokens($tokens);
+            $rejected = [];
+            foreach ($tokens as $key => $value) {
+                // A value equal to the token's default is dropped by
+                // design — the theme is stored as a diff — so that is
+                // not a rejection.
+                $isDefault = (ThemeDesignerController::DEFAULT_TOKENS[$key] ?? null) === $value;
+                if (!array_key_exists($key, $clean) && !$isDefault) {
+                    $rejected[$key] = $value;
+                }
+            }
+            if ($rejected !== []) {
+                $messages = [];
+                foreach ($rejected as $key => $value) {
+                    $messages[] = sprintf('%s = "%s"%s', $key, (string) $value, $this->allowedHint($key));
+                }
+                $io->error(array_merge(['Rejected — not written:'], $messages));
+                return Command::INVALID;
+            }
+
+            $this->themeRepository->upsertDraft($site, $clean, $beUserId);
+            $io->writeln(json_encode($clean, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) ?: '');
             $io->success(sprintf('"%s": theme updated.', $site));
         }
 
@@ -148,6 +175,33 @@ final class SetThemeCommand extends Command
             $this->session->publish($site, $beUserId);
         }
         return Command::SUCCESS;
+    }
+
+    /**
+     * Name the accepted values for the tokens that have a closed set, so
+     * a rejected `--set` says what would have worked instead of only
+     * that it failed.
+     */
+    private function allowedHint(string $key): string
+    {
+        $options = match ($key) {
+            'triggerPosition' => array_keys(ThemeDesignerController::TRIGGER_POSITIONS),
+            'position' => array_keys(ThemeDesignerController::POSITIONS),
+            'theme' => array_keys(ThemeDesignerController::THEMES),
+            'layout' => array_keys(ThemeDesignerController::LAYOUTS),
+            'colorPaletteLocked' => ['0', '1'],
+            default => [],
+        };
+        if ($options !== []) {
+            return ' — allowed: ' . implode(', ', $options);
+        }
+        if (str_starts_with($key, 'color-')) {
+            // The safelist of bare names is deliberately short (the BE
+            // picker emits hex), so point at the forms that always work
+            // rather than implying every CSS colour name is accepted.
+            return ' — must be #hex, rgb()/rgba(), hsl()/hsla(), or one of the audited colour keywords';
+        }
+        return ' — not a known theme token';
     }
 
     private function audit(SymfonyStyle $io, \TYPO3\CMS\Core\Site\Entity\Site $site): int
