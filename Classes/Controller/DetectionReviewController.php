@@ -70,6 +70,7 @@ final class DetectionReviewController extends ActionController
         private readonly UriBuilder $backendUriBuilder,
         private readonly PageRenderer $pageRenderer,
         private readonly ServiceRepository $serviceRepository,
+        private readonly \SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository $detectionRepository,
         private readonly DetectionListPresenter $listPresenter,
         private readonly DetectionListFilter $listFilter,
         private readonly ServiceCurator $serviceCurator,
@@ -905,12 +906,7 @@ final class DetectionReviewController extends ActionController
             $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
             return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
         }
-        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->executeStatement(
-                'UPDATE ' . self::DETECTION_TABLE
-                . ' SET dismissed_at = ?, tstamp = ? WHERE uid = ? AND dismissed_at = 0',
-                [time(), time(), $uid],
-            );
+        $this->detectionRepository->dismiss($uid);
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
@@ -933,12 +929,7 @@ final class DetectionReviewController extends ActionController
             $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
             return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
         }
-        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->executeStatement(
-                'UPDATE ' . self::DETECTION_TABLE
-                . ' SET dismissed_at = 0, tstamp = ? WHERE uid = ? AND dismissed_at > 0',
-                [time(), $uid],
-            );
+        $this->detectionRepository->undismiss($uid);
         return $this->redirectToList($this->normalizeFilters($status, $source, $kind, $confidence));
     }
 
@@ -976,16 +967,9 @@ final class DetectionReviewController extends ActionController
         // single-row purge leaves already-reporting browsers holding a stale
         // cross-session dedup marker that suppresses re-detection for the whole
         // TTL. Same gap the bulk path already closes. (See DetectionResetGeneration.)
-        $sourcesToReset = $this->purgeableSources([$uid]);
+        $purge = $this->detectionRepository->purgeDismissed([$uid]);
 
-        $this->connectionPool->getConnectionForTable(self::DETECTION_TABLE)
-            ->executeStatement(
-                'DELETE FROM ' . self::DETECTION_TABLE
-                . ' WHERE uid = ? AND dismissed_at > 0',
-                [$uid],
-            );
-
-        foreach ($sourcesToReset as $resetSource) {
+        foreach ($purge['sources'] as $resetSource) {
             $this->resetGeneration->bump($resetSource);
         }
         return $this->redirectToList($filters);
@@ -1102,68 +1086,18 @@ final class DetectionReviewController extends ActionController
         // hold a cross-session dedup marker that would otherwise suppress
         // it for the whole TTL — bumping the generation invalidates those
         // markers on the next page load. (See DetectionResetGeneration.)
-        $sourcesToReset = $this->purgeableSources($ints);
-
         // Purge only deletes rows that are actually dismissed — the
         // dismiss-first audit-trail rule must hold even if a forged
-        // URL points the bulk action at non-Verworfen UIDs.
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
-        $qb->getRestrictions()->removeAll();
-        $qb->delete(self::DETECTION_TABLE)
-            ->where($qb->expr()->in(
-                'uid',
-                $qb->createNamedParameter($ints, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
-            ))
-            ->andWhere($qb->expr()->gt(
-                'dismissed_at',
-                $qb->createNamedParameter(0, ParameterType::INTEGER),
-            ))
-            ->executeStatement();
+        // URL points the bulk action at non-Verworfen UIDs. The
+        // repository owns that rule so the CLI cannot diverge from it.
+        $purge = $this->detectionRepository->purgeDismissed($ints);
 
-        foreach ($sourcesToReset as $source) {
+        foreach ($purge['sources'] as $source) {
             $this->resetGeneration->bump($source);
         }
         return $this->redirectToList($filters);
     }
 
-    /**
-     * Distinct, non-empty `source` values among the given UIDs that are
-     * actually dismissed — i.e. the rows the purge will delete. Used to
-     * bump only the affected sources' report generation.
-     *
-     * @param list<int> $uids
-     * @return list<string>
-     */
-    private function purgeableSources(array $uids): array
-    {
-        if ($uids === []) {
-            return [];
-        }
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::DETECTION_TABLE);
-        $qb->getRestrictions()->removeAll();
-        $rows = $qb->select('source')
-            ->distinct()
-            ->from(self::DETECTION_TABLE)
-            ->where($qb->expr()->in(
-                'uid',
-                $qb->createNamedParameter($uids, \TYPO3\CMS\Core\Database\Connection::PARAM_INT_ARRAY),
-            ))
-            ->andWhere($qb->expr()->gt(
-                'dismissed_at',
-                $qb->createNamedParameter(0, ParameterType::INTEGER),
-            ))
-            ->executeQuery()
-            ->fetchFirstColumn();
-
-        $sources = [];
-        foreach ($rows as $source) {
-            $source = (string) $source;
-            if ($source !== '') {
-                $sources[] = $source;
-            }
-        }
-        return array_values(array_unique($sources));
-    }
 
     /**
      * Bulk-dismiss ($newValue > 0) or bulk-undismiss ($newValue = 0).

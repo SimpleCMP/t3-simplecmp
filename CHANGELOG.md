@@ -10,6 +10,55 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Backend parity for the console.** The setup commands covered a rollout; these
+  close the gap to everything else the module can change, so nothing is
+  backend-only except the one thing that cannot be: *Tracker entdecken* drives a
+  real browser through the site and a server-side process cannot observe what
+  JavaScript injects. Everything that sweep produces is triageable from the
+  console.
+
+  - `simplecmp:curate-service` — create, update or delete a registry service by
+    hand, for vendors the bundled library does not know. This is not a
+    convenience: with Universal Blocking on, an uncurated host is gated and the
+    visitor gets a placeholder that **no consent choice can unlock**, because
+    there is no service to consent to. `--from-json` takes the library/export
+    shape, so a service curated on one install moves to another. Refuses a
+    service without a purpose or without a cookie/origin matcher — either way it
+    would match nothing and gate nothing while looking handled.
+  - `simplecmp:detections` — list and triage what the recorder reported, with
+    the same four states the module derives. Removal stays two steps: `--dismiss`
+    keeps the row as an audit trail, `--purge` deletes it and only ever touches
+    rows that were dismissed first. A purge re-arms re-detection for the affected
+    sources.
+  - `simplecmp:set-theme` — banner appearance, plus `--check`, which runs the
+    designer's compliance audit and exits non-zero on a critical finding. That
+    one belongs in CI: it is the part of the banner that can be wrong in a way
+    nobody notices until it matters.
+  - `simplecmp:set-texts` — per-language banner wording and the formal/informal
+    tone overlay.
+  - `simplecmp:draft` — open, discard or take over a draft session. Discarding
+    someone else's is refused and a takeover needs `--force`; both destroy work a
+    person may still be in the middle of.
+  - `simplecmp:adopt-settings` gained `--set key=value` (a custom active value
+    the deployment does not carry, JSON-parsed so booleans stay booleans) and
+    `--reset key`.
+  - `simplecmp:setup-tracker` gained `--list` and `--remove`. Removing a tracker
+    leaves its service record: by then it is an ordinary curated service, and
+    silently withdrawing a consent toggle because a loader went away would be the
+    wrong default.
+  - `simplecmp:adopt-service` gained `--remove` (unadopt) alongside `--search`.
+
+### Changed
+
+- `dismiss` / `undismiss` / `purge` moved out of `DetectionReviewController` into
+  `DetectionRepository`, where the dismiss-before-purge rule now lives once
+  instead of being restated in the controller and again in the CLI. Behaviour is
+  unchanged; the bulk purge now goes through the same method as the single-row
+  one. Six functional tests pin the rule, including that a uid which was never
+  dismissed is refused rather than deleted.
+
 ### Documentation
 
 - **The "a deployed setting is a proposal" model is documented at last.** It is

@@ -52,6 +52,13 @@ final class AdoptSettingsCommand extends Command
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Adopt only this key (repeatable), e.g. simplecmp.floatingTriggerLabel. Default: every drifting key.',
             )
+            ->addOption(
+                'set',
+                null,
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Set a custom active value the YAML does not carry, as key=value (repeatable). JSON is decoded, so --set simplecmp.respectGPC=false stores a boolean.',
+            )
+            ->addOption('reset', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Drop the custom value for this key and fall back to the YAML (repeatable).')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show what would be adopted and exit.');
     }
 
@@ -72,6 +79,14 @@ final class AdoptSettingsCommand extends Command
         } catch (\Throwable $e) {
             $io->error($e->getMessage());
             return Command::INVALID;
+        }
+
+        /** @var list<string> $customs */
+        $customs = $input->getOption('set');
+        /** @var list<string> $resets */
+        $resets = $input->getOption('reset');
+        if ($customs !== [] || $resets !== []) {
+            return $this->setCustoms($io, $input, $site, $customs, $resets);
         }
 
         // drift() reports every editor-content key, in-sync ones
@@ -143,6 +158,68 @@ final class AdoptSettingsCommand extends Command
         $this->session->publish($site, $beUserId);
 
         $io->success(sprintf('"%s": adopted %d setting(s).', $site, count($todo)));
+        return Command::SUCCESS;
+    }
+
+    /**
+     * The Einstellungen tab's per-key *Speichern* and *Zurücksetzen*:
+     * an active value the deployment does not carry, and the way back.
+     *
+     * A custom value survives the next deploy — that is the point, and
+     * also the reason it is worth being explicit about: nobody reading
+     * `settings.yaml` alone will see it. `--reset` hands the key back to
+     * the YAML.
+     *
+     * @param list<string> $customs
+     * @param list<string> $resets
+     */
+    private function setCustoms(SymfonyStyle $io, InputInterface $input, string $site, array $customs, array $resets): int
+    {
+        $parsed = [];
+        foreach ($customs as $pair) {
+            if (!is_string($pair) || !str_contains($pair, '=')) {
+                $io->error(sprintf('--set expects key=value, got "%s".', (string) $pair));
+                return Command::INVALID;
+            }
+            [$key, $raw] = explode('=', $pair, 2);
+            // JSON first so booleans, numbers and lists survive; a bare
+            // string falls through as itself.
+            $decoded = json_decode($raw, true);
+            $parsed[trim($key)] = json_last_error() === JSON_ERROR_NONE ? $decoded : $raw;
+        }
+
+        foreach ($parsed as $key => $value) {
+            $io->writeln(sprintf(' set <info>%s</info> = %s', $key, $this->render($value)));
+        }
+        foreach ($resets as $key) {
+            $io->writeln(sprintf(' reset <info>%s</info> back to the site configuration', (string) $key));
+        }
+        if ($input->getOption('dry-run')) {
+            $io->note('--dry-run: nothing written.');
+            return Command::SUCCESS;
+        }
+
+        try {
+            $beUserId = $this->session->resolveBeUser((string) ($input->getOption('be-user') ?? ''));
+            $this->session->open($site, $beUserId);
+        } catch (\RuntimeException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        foreach ($parsed as $key => $value) {
+            $this->effectiveSettings->setCustom($site, $key, $value, $beUserId);
+        }
+        foreach ($resets as $key) {
+            $this->effectiveSettings->resetToYaml($site, (string) $key, $beUserId);
+        }
+        $this->session->publish($site, $beUserId);
+
+        $io->success(sprintf(
+            '"%s": %d custom value(s) set, %d reset.',
+            $site,
+            count($parsed),
+            count($resets),
+        ));
         return Command::SUCCESS;
     }
 

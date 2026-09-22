@@ -59,6 +59,8 @@ final class SetupTrackerCommand extends Command
                 'Provider config as key=value (repeatable), e.g. --set containerId=GTM-XXXXXXX.',
             )
             ->addOption('from-settings', null, InputOption::VALUE_NONE, 'Adopt every not-yet-adopted tracker proposed by simplecmp.trackers in settings.yaml.')
+            ->addOption('list', null, InputOption::VALUE_NONE, 'List the site\'s managed trackers and exit.')
+            ->addOption('remove', null, InputOption::VALUE_REQUIRED, 'Delete the managed tracker with this service id.')
             ->addOption('no-publish', null, InputOption::VALUE_NONE, 'Stage into the draft and leave it open, to publish together with other commands.')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show what would be written and exit.');
     }
@@ -81,6 +83,28 @@ final class SetupTrackerCommand extends Command
             $io->error($e->getMessage());
             return Command::INVALID;
         }
+        if ($input->getOption('list')) {
+            $rows = [];
+            foreach ($this->trackerRepository->findBySite($site) as $row) {
+                $rows[] = [
+                    (string) $row['service_id'],
+                    (string) $row['tracker_type'],
+                    json_encode($row['config'], JSON_UNESCAPED_SLASHES) ?: '{}',
+                ];
+            }
+            if ($rows === []) {
+                $io->warning(sprintf('"%s" has no managed trackers — nothing loads behind consent.', $site));
+                return Command::SUCCESS;
+            }
+            $io->table(['Service id', 'Type', 'Config'], $rows);
+            return Command::SUCCESS;
+        }
+
+        $removeServiceId = $input->getOption('remove');
+        if ($removeServiceId !== null) {
+            return $this->remove($io, $input, $site, (string) $removeServiceId);
+        }
+
         if ($fromSettings && $type !== '') {
             $io->error('--from-settings and --type are mutually exclusive.');
             return Command::INVALID;
@@ -203,6 +227,46 @@ final class SetupTrackerCommand extends Command
 
         $this->session->publish($site, $beUserId);
         $io->success(sprintf('"%s": %d tracker(s) set up and published.', $site, count($wanted)));
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Delete a managed tracker. The service record it materialised stays
+     * in the registry — it is an ordinary curated service by then, and
+     * silently withdrawing a consent toggle because a loader went away
+     * would be the wrong default. Remove it with
+     * `simplecmp:curate-service <id> --remove` if that is what you want.
+     */
+    private function remove(SymfonyStyle $io, InputInterface $input, string $site, string $serviceId): int
+    {
+        $target = null;
+        foreach ($this->trackerRepository->findBySite($site) as $row) {
+            if ((string) $row['service_id'] === $serviceId) {
+                $target = $row;
+                break;
+            }
+        }
+        if ($target === null) {
+            $io->error(sprintf('"%s" has no managed tracker with service id "%s".', $site, $serviceId));
+            return Command::FAILURE;
+        }
+        $io->writeln(sprintf(' will remove <info>%s</info> (%s)', $serviceId, (string) $target['tracker_type']));
+        if ($input->getOption('dry-run')) {
+            $io->note('--dry-run: nothing written.');
+            return Command::SUCCESS;
+        }
+        try {
+            $beUserId = $this->session->resolveBeUser((string) ($input->getOption('be-user') ?? ''));
+            $this->session->open($site, $beUserId);
+        } catch (\RuntimeException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        $this->trackerRepository->deleteDraft($site, (int) $target['uid']);
+        if (!$input->getOption('no-publish')) {
+            $this->session->publish($site, $beUserId);
+        }
+        $io->success(sprintf('Removed tracker "%s". Its service record stays in the registry.', $serviceId));
         return Command::SUCCESS;
     }
 

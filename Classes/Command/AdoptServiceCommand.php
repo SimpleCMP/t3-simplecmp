@@ -48,6 +48,7 @@ final class AdoptServiceCommand extends Command
             ->addOption('site', 's', InputOption::VALUE_REQUIRED, 'Site whose draft carries the change (the registry itself is global).')
             ->addOption('be-user', 'u', InputOption::VALUE_REQUIRED, 'BE admin uid or username the change is attributed to.')
             ->addOption('search', null, InputOption::VALUE_REQUIRED, 'List library entries matching this text and exit — use it to find a slug.')
+            ->addOption('remove', null, InputOption::VALUE_NONE, 'Unadopt instead: drop these services from the registry.')
             ->addOption('no-publish', null, InputOption::VALUE_NONE, 'Stage into the draft and leave it open, to publish together with other commands.')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show what would be adopted and exit.');
     }
@@ -64,6 +65,7 @@ final class AdoptServiceCommand extends Command
         /** @var list<string> $serviceIds */
         $serviceIds = $input->getArgument('serviceIds');
         $site = (string) ($input->getOption('site') ?? '');
+        $remove = (bool) $input->getOption('remove');
 
         if ($serviceIds === []) {
             $io->error('Pass at least one library service id, or --search=<text> to find one.');
@@ -78,6 +80,10 @@ final class AdoptServiceCommand extends Command
         } catch (\Throwable $e) {
             $io->error($e->getMessage());
             return Command::INVALID;
+        }
+
+        if ($remove) {
+            return $this->unadopt($io, $input, $serviceIds, $site);
         }
 
         $entries = [];
@@ -141,6 +147,43 @@ final class AdoptServiceCommand extends Command
 
         $this->session->publish($site, $beUserId);
         $io->success(sprintf('%d service(s) adopted and published.', count($entries)));
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Unadopt: the Bibliothek tab's counterpart to Übernehmen.
+     *
+     * Removing a service withdraws the consent toggle for something that
+     * may still be loading on the site — with Universal Blocking on, its
+     * host goes back to being an unconsentable placeholder. Deliberate
+     * act, never a side effect, which is why it needs its own flag.
+     *
+     * @param list<string> $serviceIds
+     */
+    private function unadopt(SymfonyStyle $io, InputInterface $input, array $serviceIds, string $site): int
+    {
+        foreach ($serviceIds as $serviceId) {
+            $io->writeln(sprintf(' will remove <info>%s</info>', $serviceId));
+        }
+        if ($input->getOption('dry-run')) {
+            $io->note(sprintf('--dry-run: %d service(s) would be removed.', count($serviceIds)));
+            return Command::SUCCESS;
+        }
+        try {
+            $beUserId = $this->session->resolveBeUser((string) ($input->getOption('be-user') ?? ''));
+            $this->session->open($site, $beUserId);
+        } catch (\RuntimeException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        $removed = 0;
+        foreach ($serviceIds as $serviceId) {
+            $removed += $this->serviceRepository->deleteDraft($this->session->globalScope(), $serviceId) > 0 ? 1 : 0;
+        }
+        if (!$input->getOption('no-publish')) {
+            $this->session->publish($site, $beUserId);
+        }
+        $io->success(sprintf('Removed %d service(s) from the registry.', $removed));
         return Command::SUCCESS;
     }
 

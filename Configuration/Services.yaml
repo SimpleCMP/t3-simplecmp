@@ -126,3 +126,36 @@ services:
       - name: 'console.command'
         command: 'simplecmp:import-registry'
         description: 'Apply an exported registry document. Idempotent; adds and updates but never removes.'
+
+  # Backend parity: the four tabs the setup commands did not yet reach —
+  # detections triage, hand-curated services, banner design and wording —
+  # plus explicit draft-session control.
+  SimpleCMP\T3SimpleCmp\Command\DetectionsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:detections'
+        description: 'List and triage tracker detections: adopt, dismiss, undismiss, purge, or allow a stylesheet host.'
+
+  SimpleCMP\T3SimpleCmp\Command\CurateServiceCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:curate-service'
+        description: 'Create, update or delete a registry service by hand — for vendors the bundled library does not cover. Without one, Universal Blocking gates the host and no consent choice can unlock it.'
+
+  SimpleCMP\T3SimpleCmp\Command\SetThemeCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:set-theme'
+        description: 'Set, show, reset or audit a site''s banner theme. --check runs the compliance audit and exits non-zero on a critical finding.'
+
+  SimpleCMP\T3SimpleCmp\Command\SetTextsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:set-texts'
+        description: 'Override banner texts and pick the formal/informal tone for one language.'
+
+  SimpleCMP\T3SimpleCmp\Command\DraftCommand:
+    tags:
+      - name: 'console.command'
+        command: 'simplecmp:draft'
+        description: 'Inspect, open, discard or take over the draft session for a site.'

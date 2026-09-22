@@ -192,4 +192,122 @@ final readonly class DetectionRepository
             )
             ->fetchOne();
     }
+
+    /**
+     * Fetch one detection row verbatim, deleted-restrictions off.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findOne(int $uid): ?array
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        $row = $qb->select('*')
+            ->from(self::TABLE)
+            ->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid, Connection::PARAM_INT)))
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+        return $row === false ? null : $row;
+    }
+
+    /**
+     * Verwerfen — flag the row and timestamp it. Not a delete: the row
+     * stays as an audit trail, it only leaves the actionable view.
+     *
+     * Only touches rows that are not already dismissed, so the
+     * idempotent case is a no-op and the original timestamp survives.
+     *
+     * @return int rows affected
+     */
+    public function dismiss(int $uid): int
+    {
+        $now = time();
+        return (int) $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->executeStatement(
+                'UPDATE ' . self::TABLE
+                . ' SET dismissed_at = ?, tstamp = ? WHERE uid = ? AND dismissed_at = 0',
+                [$now, $now, $uid],
+            );
+    }
+
+    /**
+     * Wieder aufgreifen — clear the flag so the row falls back to its
+     * derived state and reappears in the actionable list. Symmetric to
+     * {@see dismiss()}: only touches dismissed rows.
+     *
+     * @return int rows affected
+     */
+    public function undismiss(int $uid): int
+    {
+        return (int) $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->executeStatement(
+                'UPDATE ' . self::TABLE
+                . ' SET dismissed_at = 0, tstamp = ? WHERE uid = ? AND dismissed_at > 0',
+                [time(), $uid],
+            );
+    }
+
+    /**
+     * Endgültig löschen — a true delete of dismissed rows.
+     *
+     * Deletes only rows that are actually dismissed, even when the
+     * caller passes something else: dismiss-first is the audit-trail
+     * rule, and a forged uid should be a no-op rather than a quiet
+     * bypass of it.
+     *
+     * Returns the sources of the rows it removed so the caller can bump
+     * their report generation — without that, browsers already
+     * reporting hold a stale cross-session dedup marker and the tracker
+     * stays undetected for the whole TTL.
+     *
+     * @param list<int> $uids
+     * @return array{deleted: int, sources: list<string>}
+     */
+    public function purgeDismissed(array $uids): array
+    {
+        if ($uids === []) {
+            return ['deleted' => 0, 'sources' => []];
+        }
+        $sources = $this->dismissedSourcesFor($uids);
+        $deleted = (int) $this->connectionPool->getConnectionForTable(self::TABLE)
+            ->executeStatement(
+                'DELETE FROM ' . self::TABLE . ' WHERE uid IN (?) AND dismissed_at > 0',
+                [$uids],
+                [Connection::PARAM_INT_ARRAY],
+            );
+        return ['deleted' => $deleted, 'sources' => $sources];
+    }
+
+    /**
+     * Distinct sources of the dismissed rows among `$uids` — captured
+     * before a delete, with the same dismissed-only filter.
+     *
+     * @param list<int> $uids
+     * @return list<string>
+     */
+    public function dismissedSourcesFor(array $uids): array
+    {
+        if ($uids === []) {
+            return [];
+        }
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $qb->getRestrictions()->removeAll();
+        $rows = $qb->select('source')
+            ->distinct()
+            ->from(self::TABLE)
+            ->where($qb->expr()->in('uid', $qb->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)))
+            ->andWhere($qb->expr()->gt('dismissed_at', $qb->createNamedParameter(0, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        $sources = [];
+        foreach ($rows as $source) {
+            $source = (string) $source;
+            if ($source !== '') {
+                $sources[] = $source;
+            }
+        }
+        return array_values(array_unique($sources));
+    }
 }
