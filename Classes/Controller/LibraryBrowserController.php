@@ -17,6 +17,8 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\LibraryCacheRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\BundledLibraryInfo;
+use SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService;
+use SimpleCMP\T3SimpleCmp\Service\LockState;
 use SimpleCMP\T3SimpleCmp\Service\LibraryRecommendationService;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamHealth;
 use SimpleCMP\T3SimpleCmp\Service\LibraryUpstreamStats;
@@ -33,9 +35,10 @@ use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
  *
  * The library is a read-only reference: this controller never modifies
  * the JSON files. The only write path is `adoptAction`, which copies
- * one library entry into `tx_t3simplecmp_service` via the existing
- * upsert flow. After adoption the service appears on the visitor's
- * banner (every registry row is on the banner post-fe_visible
+ * one library entry into the DRAFT registry
+ * (`tx_t3simplecmp_service_draft`) — same route as the Detektionen
+ * tab's adopt. The service reaches the visitor's banner when the
+ * editor publishes (every registry row is on the banner post-fe_visible
  * architecture).
  */
 final class LibraryBrowserController extends ActionController
@@ -82,6 +85,7 @@ final class LibraryBrowserController extends ActionController
         private readonly DetectionRepository $detectionRepository,
         private readonly LibraryRecommendationService $recommendationService,
         private readonly \SimpleCMP\T3SimpleCmp\Service\WizardBannerContext $wizardBannerContext,
+        private readonly DraftWorkspaceService $draftWorkspace,
     ) {
     }
 
@@ -259,10 +263,22 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
+        try {
+            $beUserId = $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
         $entry = $this->loadLibraryEntry($serviceId);
         if ($entry !== null) {
             // fromLibrary: true → stamps `library_adopted_at`
-            $this->serviceRepository->upsert($entry, 0, true);
+            $this->serviceRepository->upsertDraft(
+                LockState::SCOPE_GLOBAL,
+                $entry,
+                $beUserId,
+                true,
+                $this->storagePidResolver->resolveDefault(),
+            );
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
@@ -288,16 +304,55 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
+        try {
+            $beUserId = $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
+        $pid = $this->storagePidResolver->resolveDefault();
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
             $entry = $this->loadLibraryEntry($serviceId);
             if ($entry !== null) {
-                $this->serviceRepository->upsert($entry, 0, true);
+                $this->serviceRepository->upsertDraft(
+                    LockState::SCOPE_GLOBAL,
+                    $entry,
+                    $beUserId,
+                    true,
+                    $pid,
+                );
             }
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
+    }
+
+    /**
+     * Guard for every registry write on this tab: the global service
+     * registry is edited in the draft workspace, so an open, uncontested
+     * session is required. Mirrors
+     * `DetectionReviewController::ensureGlobalDraft()` — both tabs write
+     * the same table pair and must agree on the precondition.
+     */
+    private function ensureGlobalDraft(): int
+    {
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        if ($beUserId <= 0) {
+            throw new \RuntimeException('Editor draft requires a logged-in BE user.');
+        }
+        if (!$this->draftWorkspace->isDraftOpen(LockState::SCOPE_GLOBAL)) {
+            throw new \RuntimeException('Kein Entwurf für die globale Service-Registry aktiv.');
+        }
+        $lock = $this->draftWorkspace->currentLock(LockState::SCOPE_GLOBAL);
+        if ($lock->conflict) {
+            throw new \RuntimeException(sprintf(
+                'Lock für die globale Service-Registry gehört BE-User uid=%d.',
+                $lock->ownerBeUserId,
+            ));
+        }
+        return $beUserId;
     }
 
     public function unadoptAction(
@@ -305,13 +360,19 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
-        $this->serviceRepository->delete($serviceId);
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
+        $this->serviceRepository->deleteDraft(LockState::SCOPE_GLOBAL, $serviceId);
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }
 
     /**
      * Symmetric counterpart to bulkAdoptAction. Loops
-     * ServiceRepository::delete per id. Same lack of confirm dialog —
+     * ServiceRepository::deleteDraft per id. Same lack of confirm dialog —
      * unadoption is reversible via the per-row [Übernehmen] button.
      * Idempotent: deleting an already-deleted id is a silent no-op.
      *
@@ -322,11 +383,17 @@ final class LibraryBrowserController extends ActionController
         string $status = self::DEFAULT_STATUS,
         string $search = '',
     ): ResponseInterface {
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $this->filterArg($status, $search));
+        }
         foreach ($serviceIds as $serviceId) {
             if (!is_string($serviceId) || $serviceId === '') {
                 continue;
             }
-            $this->serviceRepository->delete($serviceId);
+            $this->serviceRepository->deleteDraft(LockState::SCOPE_GLOBAL, $serviceId);
         }
         return $this->redirect('list', null, null, $this->filterArg($status, $search));
     }

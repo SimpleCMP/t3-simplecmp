@@ -22,9 +22,9 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  *   field is typically `simplecmp-<siteIdentifier>` (the storage
  *   name), so we strip the prefix and look up the matching site.
  *   Falls back to the first site if no match.
- * - `resolveDefault()` — CLI / seed path. Picks the first
- *   configured site's setting. There is typically only one
- *   storage-pid value across an installation anyway, since the
+ * - `resolveDefault()` — CLI / seed / global-registry path. Picks the
+ *   first site that has the setting configured. There is typically only
+ *   one storage-pid value across an installation anyway, since the
  *   registry is global.
  *
  * All three return 0 if no site matches or the setting isn't
@@ -73,8 +73,19 @@ final readonly class StoragePidResolver
 
     public function resolveDefault(): int
     {
+        // First site that actually CARRIES the setting — not simply the
+        // first site. SiteFinder yields sites in identifier order, so on
+        // a multi-site install the alphabetically-first site decides, and
+        // it is usually not the one running the CMP: any site without
+        // `simplecmp.storagePid` would then silently answer 0 and the
+        // registry records land in the page-tree root instead of the
+        // configured SysFolder. The registry is global, so any
+        // configured value is the right one.
         foreach ($this->siteFinder->getAllSites() as $site) {
-            return $this->pidFromSite($site);
+            $pid = $this->pidFromSite($site);
+            if ($pid > 0) {
+                return $pid;
+            }
         }
         return 0;
     }

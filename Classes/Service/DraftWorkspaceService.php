@@ -140,6 +140,12 @@ final readonly class DraftWorkspaceService
      * Does this scope have any draft data? Returns true if at least
      * one row exists in any of the scope-relevant draft tables.
      */
+    /**
+     * True when the scope's draft tables hold CONTENT — i.e. there is
+     * something to read from the draft, or something to promote on
+     * publish. This is deliberately NOT the same question as "may the
+     * editor edit?"; see {@see isDraftOpen()}.
+     */
     public function hasDraft(string $scope): bool
     {
         foreach ($this->tablePairsForScope($scope) as $pair) {
@@ -149,6 +155,30 @@ final readonly class DraftWorkspaceService
             }
         }
         return false;
+    }
+
+    /**
+     * True when an editing SESSION is open for the scope — the question
+     * every draft gate in the BE actually asks.
+     *
+     * The session is defined by the LOCK, not by a row count. On a fresh
+     * install there is no live state, so `initializeDraft()`'s
+     * copy-on-write legitimately produces zero rows; a row-count test
+     * then reports "no draft" forever and every editor action stays
+     * behind a `.simplecmp-draft-locked` gate whose only escape hatch —
+     * "Entwurf anlegen" — can never satisfy it. The lock, by contrast,
+     * is written by `acquireLock()` on the very first init and released
+     * by publish / discard, which is exactly the session's lifetime.
+     *
+     * Draft rows without a lock still count, so rows left behind by a
+     * crashed session remain reachable instead of becoming invisible.
+     */
+    public function isDraftOpen(string $scope): bool
+    {
+        if (!$this->currentLock($scope)->isUnlocked()) {
+            return true;
+        }
+        return $this->hasDraft($scope);
     }
 
     /**
@@ -247,6 +277,21 @@ final readonly class DraftWorkspaceService
     {
         foreach ($this->relatedScopes($site) as $scope) {
             if ($this->hasDraft($scope)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Umbrella variant of {@see isDraftOpen()}: an editing session on
+     * either the global registry or the site scope opens the site's
+     * unified draft.
+     */
+    public function isDraftOpenForSite(string $site): bool
+    {
+        foreach ($this->relatedScopes($site) as $scope) {
+            if ($this->isDraftOpen($scope)) {
                 return true;
             }
         }

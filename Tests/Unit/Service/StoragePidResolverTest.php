@@ -33,6 +33,23 @@ final class StoragePidResolverTest extends TestCase
         self::assertSame(42, $resolver->resolveDefault());
     }
 
+    /**
+     * Regression: SiteFinder yields sites in identifier order, so on a
+     * multi-site install the alphabetically-first site answers — and it
+     * is usually not the one running the CMP. Taking its (absent)
+     * setting returned 0, and every record seeded through this path
+     * landed in the page-tree root instead of the configured SysFolder.
+     */
+    #[Test]
+    public function resolveDefaultSkipsSitesWithoutTheSetting(): void
+    {
+        $resolver = new StoragePidResolver($this->siteFinderWithSites([
+            $this->site('aaa-other-site', 'https://other.example.com/', []),
+            $this->site('zzz-cmp-site', 'https://cmp.example.com/', ['simplecmp.storagePid' => 4711]),
+        ]));
+        self::assertSame(4711, $resolver->resolveDefault());
+    }
+
     #[Test]
     public function resolveDefaultReturnsZeroWhenSettingMissing(): void
     {

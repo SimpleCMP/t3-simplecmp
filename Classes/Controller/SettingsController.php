@@ -301,7 +301,7 @@ final class SettingsController extends ActionController
 
     private function ensureSiteDraftOrRedirect(string $site): ?ResponseInterface
     {
-        if (!$this->draftWorkspace->hasDraft($site)) {
+        if (!$this->draftWorkspace->isDraftOpen($site)) {
             $this->addFlashMessage('Kein Entwurf aktiv. Bitte erst einen Entwurf anlegen.', '', ContextualFeedbackSeverity::ERROR);
             return $this->redirect('index', null, null, ['site' => $site]);
         }

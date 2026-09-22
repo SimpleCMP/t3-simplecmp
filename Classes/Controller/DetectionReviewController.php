@@ -98,7 +98,7 @@ final class DetectionReviewController extends ActionController
         if ($beUserId <= 0) {
             throw new \RuntimeException('Editor draft requires a logged-in BE user.');
         }
-        if (!$this->draftWorkspace->hasDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)) {
+        if (!$this->draftWorkspace->isDraftOpen(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)) {
             throw new \RuntimeException('Kein Entwurf für die globale Service-Registry aktiv.');
         }
         $lock = $this->draftWorkspace->currentLock(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL);
@@ -117,7 +117,7 @@ final class DetectionReviewController extends ActionController
         if ($beUserId <= 0) {
             throw new \RuntimeException('Editor draft requires a logged-in BE user.');
         }
-        if (!$this->draftWorkspace->hasDraft($site)) {
+        if (!$this->draftWorkspace->isDraftOpen($site)) {
             throw new \RuntimeException(sprintf('Kein Entwurf für Site "%s" aktiv.', $site));
         }
         $lock = $this->draftWorkspace->currentLock($site);
@@ -775,6 +775,10 @@ final class DetectionReviewController extends ActionController
             $match,
             $beUserId,
             true,
+            // Same SysFolder the manual curation path uses (see
+            // curateAction), so silently-adopted and hand-curated
+            // services end up side by side in Web→Liste.
+            $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? '')),
         );
         return $this->redirectToList($filters);
     }

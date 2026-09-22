@@ -43,7 +43,7 @@ final readonly class DraftBannerContext
         return $this->build(
             $scope,
             $this->workspace->currentLock($scope),
-            $this->workspace->hasDraft($scope),
+            $this->workspace->isDraftOpen($scope),
             $this->workspace->draftRevision($scope),
             $request,
         );
@@ -63,7 +63,7 @@ final readonly class DraftBannerContext
         return $this->build(
             $site,
             $this->workspace->lockForSite($site),
-            $this->workspace->hasDraftForSite($site),
+            $this->workspace->isDraftOpenForSite($site),
             $this->workspace->draftRevisionForSite($site),
             $request,
         );

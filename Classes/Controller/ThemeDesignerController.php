@@ -467,7 +467,7 @@ final class ThemeDesignerController extends ActionController
      */
     private function ensureSiteDraftOrRedirect(string $site, string $language = ''): ?\TYPO3\CMS\Core\Http\RedirectResponse
     {
-        if (!$this->draftWorkspace->hasDraft($site)) {
+        if (!$this->draftWorkspace->isDraftOpen($site)) {
             $this->addFlashMessage('Kein Entwurf aktiv. Bitte erst einen Entwurf anlegen.', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
             return $this->redirect('index', null, null, ['site' => $site, 'language' => $language]);
         }
@@ -1011,7 +1011,7 @@ final class ThemeDesignerController extends ActionController
         $body = $GLOBALS['TYPO3_REQUEST']?->getParsedBody();
         $isAutosave = is_array($body) && (($body['autosave'] ?? '') !== '');
         if ($isAutosave) {
-            if (!$this->draftWorkspace->hasDraftForSite($site) || $this->draftWorkspace->lockForSite($site)->conflict) {
+            if (!$this->draftWorkspace->isDraftOpenForSite($site) || $this->draftWorkspace->lockForSite($site)->conflict) {
                 return new JsonResponse(['ok' => false, 'error' => 'no-editable-draft'], 409);
             }
             // Theme/overrides live in the per-site scope. If the umbrella
