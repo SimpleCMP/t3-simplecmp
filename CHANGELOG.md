@@ -10,6 +10,31 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **`simplecmp:set-theme` wrote theme tokens without the Design tab's gate.** The
+  command stored whatever `--set` was handed. Two consequences, one cosmetic and
+  one not:
+
+  - `color-*` tokens are concatenated raw into shadow-DOM CSS by
+    `RegisterAssets::injectTheme()`. The backend has always run them through a
+    strict colour grammar for exactly that reason; the command bypassed it, which
+    made `--set color-trigger-bg='red;} :host{display:none'` a stored-CSS-injection
+    primitive for anyone who could run a console command.
+  - Enum tokens (`triggerPosition`, `position`, `theme`, `layout`) were stored
+    unvalidated, and the frontend silently falls back to its default for a value
+    it does not know — so a typo looked like it had worked and nothing moved.
+
+  Both writers now go through `ThemeDesignerController::sanitizeTokens()`. The
+  command additionally *reports* what it rejected, with the accepted values,
+  rather than silently dropping it the way a tampered form POST is dropped — on a
+  console a discarded value is a typo to fix, not an attack to absorb. A value
+  equal to the token's default is still dropped without complaint, since the
+  theme is stored as a diff.
+
+  Seven unit tests pin the sanitiser, including that a CSS colour name outside
+  the audited safelist is dropped by design.
+
 ### Added
 
 - **Backend parity for the console.** The setup commands covered a rollout; these
