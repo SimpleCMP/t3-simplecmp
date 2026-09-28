@@ -10,30 +10,7 @@ development.
 
 ## Unreleased
 
-### Fixed
-
-- **`simplecmp:set-theme` wrote theme tokens without the Design tab's gate.** The
-  command stored whatever `--set` was handed. Two consequences, one cosmetic and
-  one not:
-
-  - `color-*` tokens are concatenated raw into shadow-DOM CSS by
-    `RegisterAssets::injectTheme()`. The backend has always run them through a
-    strict colour grammar for exactly that reason; the command bypassed it, which
-    made `--set color-trigger-bg='red;} :host{display:none'` a stored-CSS-injection
-    primitive for anyone who could run a console command.
-  - Enum tokens (`triggerPosition`, `position`, `theme`, `layout`) were stored
-    unvalidated, and the frontend silently falls back to its default for a value
-    it does not know — so a typo looked like it had worked and nothing moved.
-
-  Both writers now go through `ThemeDesignerController::sanitizeTokens()`. The
-  command additionally *reports* what it rejected, with the accepted values,
-  rather than silently dropping it the way a tampered form POST is dropped — on a
-  console a discarded value is a typo to fix, not an attack to absorb. A value
-  equal to the token's default is still dropped without complaint, since the
-  theme is stored as a diff.
-
-  Seven unit tests pin the sanitiser, including that a CSS colour name outside
-  the audited safelist is dropped by design.
+## 14.0.2 — 2026-09-28
 
 ### Added
 
@@ -74,39 +51,6 @@ development.
     silently withdrawing a consent toggle because a loader went away would be the
     wrong default.
   - `simplecmp:adopt-service` gained `--remove` (unadopt) alongside `--search`.
-
-### Changed
-
-- `dismiss` / `undismiss` / `purge` moved out of `DetectionReviewController` into
-  `DetectionRepository`, where the dismiss-before-purge rule now lives once
-  instead of being restated in the controller and again in the CLI. Behaviour is
-  unchanged; the bulk purge now goes through the same method as the single-row
-  one. Six functional tests pin the rule, including that a uid which was never
-  dismissed is refused rather than deleted.
-
-### Documentation
-
-- **The "a deployed setting is a proposal" model is documented at last.** It is
-  the single most confusing thing about this extension and it was nowhere in the
-  manual: a value in `settings.yaml` does nothing until an editor adopts it, and
-  a deploy that changes `simplecmp.*` leaves the old value rendering with no
-  error and no warning. Configuration now opens with the three states
-  (not bootstrapped / drift / custom), how to adopt each, and which keys are
-  exempt because they are operations rather than banner content.
-- **`simplecmp.trackers` has a reference entry.** The key was undocumented while
-  being exactly the trap worth warning about — a declared tracker is a proposal
-  and loads nothing until adopted, silently.
-- **Installation gained a "First setup" step and a verification that verifies.**
-  "The banner appears" was the old check; a banner with an empty registry
-  appears too, and manages consent for nothing. The database-schema section said
-  two tables ship — there are seventeen.
-- The module tab list covered four of the eight tabs; Design, Einstellungen,
-  Revision & Nachweis and Auskunft were missing, as was any mention that every
-  editing action happens in a draft that must be published.
-- `storagePid` now states that adoption and tracker materialisation use it, and
-  that a record an editor moves stays moved.
-
-### Added
 
 - **Setup commands.** Everything the backend module does to set up a site is
   now available on the console, so an environment can be configured from a
@@ -149,7 +93,39 @@ development.
   CLI validate against the same shape and a new provider field reaches both in
   one edit.
 
+### Changed
+
+- `dismiss` / `undismiss` / `purge` moved out of `DetectionReviewController` into
+  `DetectionRepository`, where the dismiss-before-purge rule now lives once
+  instead of being restated in the controller and again in the CLI. Behaviour is
+  unchanged; the bulk purge now goes through the same method as the single-row
+  one. Six functional tests pin the rule, including that a uid which was never
+  dismissed is refused rather than deleted.
+
 ### Fixed
+
+- **`simplecmp:set-theme` wrote theme tokens without the Design tab's gate.** The
+  command stored whatever `--set` was handed. Two consequences, one cosmetic and
+  one not:
+
+  - `color-*` tokens are concatenated raw into shadow-DOM CSS by
+    `RegisterAssets::injectTheme()`. The backend has always run them through a
+    strict colour grammar for exactly that reason; the command bypassed it, which
+    made `--set color-trigger-bg='red;} :host{display:none'` a stored-CSS-injection
+    primitive for anyone who could run a console command.
+  - Enum tokens (`triggerPosition`, `position`, `theme`, `layout`) were stored
+    unvalidated, and the frontend silently falls back to its default for a value
+    it does not know — so a typo looked like it had worked and nothing moved.
+
+  Both writers now go through `ThemeDesignerController::sanitizeTokens()`. The
+  command additionally *reports* what it rejected, with the accepted values,
+  rather than silently dropping it the way a tampered form POST is dropped — on a
+  console a discarded value is a typo to fix, not an attack to absorb. A value
+  equal to the token's default is still dropped without complaint, since the
+  theme is stored as a diff.
+
+  Seven unit tests pin the sanitiser, including that a CSS colour name outside
+  the audited safelist is dropped by design.
 
 - **Services created from a managed tracker ignored `simplecmp.storagePid`.**
   `TrackerMaterializer` upserts the service row on every frontend render and
@@ -159,8 +135,6 @@ development.
   additionally no longer writes `pid` on UPDATE: since the materializer
   re-upserts on every render, carrying it would have dragged a record an editor
   moved right back on the next page view, and looked like the move never saved.
-
-### Fixed
 
 - **A fresh install locked itself out of its own backend module.** Every
   editor action sits behind the `.simplecmp-draft-locked` gate, and the gate
@@ -205,6 +179,28 @@ development.
   one running the CMP — and its absent setting returned 0. It now returns the
   first site that actually carries `simplecmp.storagePid`; the registry is
   global, so any configured value is the right one.
+
+### Documentation
+
+- **The "a deployed setting is a proposal" model is documented at last.** It is
+  the single most confusing thing about this extension and it was nowhere in the
+  manual: a value in `settings.yaml` does nothing until an editor adopts it, and
+  a deploy that changes `simplecmp.*` leaves the old value rendering with no
+  error and no warning. Configuration now opens with the three states
+  (not bootstrapped / drift / custom), how to adopt each, and which keys are
+  exempt because they are operations rather than banner content.
+- **`simplecmp.trackers` has a reference entry.** The key was undocumented while
+  being exactly the trap worth warning about — a declared tracker is a proposal
+  and loads nothing until adopted, silently.
+- **Installation gained a "First setup" step and a verification that verifies.**
+  "The banner appears" was the old check; a banner with an empty registry
+  appears too, and manages consent for nothing. The database-schema section said
+  two tables ship — there are seventeen.
+- The module tab list covered four of the eight tabs; Design, Einstellungen,
+  Revision & Nachweis and Auskunft were missing, as was any mention that every
+  editing action happens in a draft that must be published.
+- `storagePid` now states that adoption and tracker materialisation use it, and
+  that a record an editor moves stays moved.
 
 ## 14.0.1 — 2026-09-19
 
