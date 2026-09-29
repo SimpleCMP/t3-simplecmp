@@ -180,14 +180,27 @@ final class ThemeDesignerController extends ActionController
         // Optional per-banner-button background overrides. When empty,
         // all three banner buttons share --simplecmp-color-bg-alt — the
         // BGH "Cookie II" equal-prominence baseline. Setting any of
-        // these to a hex value emits a scoped rule that overrides ONLY
-        // that button's background. This intentionally BREAKS the
+        // these to a hex value emits a scoped rule that overrides that
+        // button's background. The paired text tokens below can be used
+        // to override the text color as well, because a dark background
+        // alone would leave the default dark text unreadable (contrast
+        // far below WCAG AA 4.5:1). This intentionally BREAKS the
         // equal-prominence baseline; ComplianceCheckService surfaces a
         // warning so editors see the compliance cost of what they've
         // configured.
         'color-accept-bg' => '',
         'color-decline-bg' => '',
         'color-configure-bg' => '',
+        // Optional per-banner-button text color overrides. The bundle's
+        // static button style sets `color: var(--simplecmp-color-text)`
+        // (#1a232c). When an editor darkens a button's background using
+        // the corresponding `-bg` token, the text remains dark and the
+        // contrast collapses (e.g. 1.36:1 instead of 14.81:1, below
+        // WCAG AA 4.5:1). These tokens let the editor set a readable
+        // text color alongside the background.
+        'color-accept-text' => '',
+        'color-decline-text' => '',
+        'color-configure-text' => '',
         // Second-layer (settings modal, "großes Fenster") action buttons.
         // The bundle default makes "Decline" a red outline while
         // Accept/Save are filled — an equal-prominence problem (EDPB
@@ -362,6 +375,9 @@ final class ThemeDesignerController extends ActionController
             'color-accept-bg',
             'color-decline-bg',
             'color-configure-bg',
+            'color-accept-text',
+            'color-decline-text',
+            'color-configure-text',
         ],
         'modal-buttons' => [
             'color-modal-button-bg',
@@ -754,6 +770,21 @@ final class ThemeDesignerController extends ActionController
                     'key' => 'color-configure-bg',
                     'value' => ($tokens['color-configure-bg'] ?? '') !== '' ? $tokens['color-configure-bg'] : ($tokens['color-bg-alt'] ?? '#f5f7f9'),
                     'isSet' => ($tokens['color-configure-bg'] ?? '') !== '',
+                ],
+                'acceptText' => [
+                    'key' => 'color-accept-text',
+                    'value' => ($tokens['color-accept-text'] ?? '') !== '' ? $tokens['color-accept-text'] : ($tokens['color-text'] ?? '#1a232c'),
+                    'isSet' => ($tokens['color-accept-text'] ?? '') !== '',
+                ],
+                'declineText' => [
+                    'key' => 'color-decline-text',
+                    'value' => ($tokens['color-decline-text'] ?? '') !== '' ? $tokens['color-decline-text'] : ($tokens['color-text'] ?? '#1a232c'),
+                    'isSet' => ($tokens['color-decline-text'] ?? '') !== '',
+                ],
+                'configureText' => [
+                    'key' => 'color-configure-text',
+                    'value' => ($tokens['color-configure-text'] ?? '') !== '' ? $tokens['color-configure-text'] : ($tokens['color-text'] ?? '#1a232c'),
+                    'isSet' => ($tokens['color-configure-text'] ?? '') !== '',
                 ],
                 'modalButtonBg' => [
                     'key' => 'color-modal-button-bg',

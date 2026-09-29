@@ -108,6 +108,27 @@ final class ThemeDesignerControllerTest extends TestCase
         self::assertSame(['color-configure-bg' => '#abc'], $clean);
     }
 
+    /**
+     * The `color-accept-text`, `color-decline-text` and
+     * `color-configure-text` tokens were added with empty-string defaults
+     * and share the `color-` prefix, so they pass through the same strict
+     * CSS-color sanitisation as the existing `color-*-bg` tokens. A valid
+     * hex value must survive; a CSS breakout payload must be dropped.
+     */
+    #[Test]
+    public function sanitizeDropsTextColorTokenWithCssBreakout(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-accept-text' => '#ffffff',
+            'color-decline-text' => 'red !important; } :host { display: none } /*',
+            'color-configure-text' => '#abc',           // legit — must survive
+        ]);
+        self::assertSame([
+            'color-accept-text' => '#ffffff',
+            'color-configure-text' => '#abc',
+        ], $clean);
+    }
+
     #[Test]
     public function sanitizeDropsCorePaletteColorWithCssBreakout(): void
     {

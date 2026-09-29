@@ -485,7 +485,7 @@ final readonly class RegisterAssets
             // Banner-button background overrides + the uniform modal-button
             // style tokens — all handled by scoped rules below, not as
             // generic :host custom properties.
-            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-modal-button-bg', 'color-modal-button-text'], true)) {
+            if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-accept-text', 'color-decline-text', 'color-configure-text', 'color-modal-button-bg', 'color-modal-button-text'], true)) {
                 continue;
             }
             // Map our storage keys (`color-primary`, `radius`, …) to the
@@ -520,24 +520,51 @@ final readonly class RegisterAssets
             $rules[] = ':host(simplecmp-trigger) button:hover { background: ' . $triggerBg . ' !important; filter: brightness(0.92); }';
         }
 
-        // Banner-button background overrides. Each is opt-in and scoped
-        // via `:host(simplecmp-banner) .cn-<button>`. Setting any of
-        // these breaks the BGH "Cookie II" equal-prominence baseline —
-        // ComplianceCheckService surfaces the warning. `!important` so
-        // these rules win over the bundle's `button { background: var(
-        // --simplecmp-color-bg-alt) }` static style.
+        // Banner-button color overrides. Each button is opt-in and scoped
+        // via `:host(simplecmp-banner) .cn-<button>`. Setting any
+        // background token breaks the BGH "Cookie II" equal-prominence
+        // baseline — ComplianceCheckService surfaces the warning. Since
+        // the bundle's static button style sets `color: var(
+        // --simplecmp-color-text)` (dark #1a232c), a dark background
+        // override alone leaves the text unreadable (contrast drops far
+        // below WCAG AA 4.5:1). The paired text tokens allow editors to
+        // optionally override the text color together with the
+        // background. `!important` so these rules win over the bundle's
+        // static button styles.
         $buttonOverrides = [
-            'color-accept-bg' => '.cn-accept',
-            'color-decline-bg' => '.cn-decline',
-            'color-configure-bg' => '.cn-configure',
+            '.cn-accept' => [
+                'background' => 'color-accept-bg',
+                'color' => 'color-accept-text',
+            ],
+            '.cn-decline' => [
+                'background' => 'color-decline-bg',
+                'color' => 'color-decline-text',
+            ],
+            '.cn-configure' => [
+                'background' => 'color-configure-bg',
+                'color' => 'color-configure-text',
+            ],
         ];
-        foreach ($buttonOverrides as $tokenKey => $selector) {
-            $value = $tokens[$tokenKey] ?? '';
-            if (!is_string($value) || $value === '') {
+        foreach ($buttonOverrides as $selector => $tokenMap) {
+            // Own variable name — `$declarations` above carries the
+            // `:host` custom properties and is still needed there.
+            // Each entry keeps its own trailing `;` so the rule stays
+            // valid once background and color appear together, and so
+            // the hover rule can append `filter:` after it.
+            $buttonDeclarations = [];
+            foreach ($tokenMap as $property => $tokenKey) {
+                $value = $tokens[$tokenKey] ?? '';
+                if (!is_string($value) || $value === '') {
+                    continue;
+                }
+                $buttonDeclarations[] = $property . ': ' . $value . ' !important;';
+            }
+            if ($buttonDeclarations === []) {
                 continue;
             }
-            $rules[] = ':host(simplecmp-banner) ' . $selector . ' { background: ' . $value . ' !important; }';
-            $rules[] = ':host(simplecmp-banner) ' . $selector . ':hover { background: ' . $value . ' !important; filter: brightness(0.92); }';
+            $declared = implode(' ', $buttonDeclarations);
+            $rules[] = ':host(simplecmp-banner) ' . $selector . ' { ' . $declared . ' }';
+            $rules[] = ':host(simplecmp-banner) ' . $selector . ':hover { ' . $declared . ' filter: brightness(0.92); }';
         }
 
         // Modal (second-layer "großes Fenster") action buttons — rendered
