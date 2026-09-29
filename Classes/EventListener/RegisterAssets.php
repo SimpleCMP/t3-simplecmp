@@ -506,6 +506,19 @@ final readonly class RegisterAssets
             $rules[] = ':host { ' . implode(' ', $declarations) . ' }';
         }
 
+        // Banner host width for centered positions. The bundle
+        // positions top-center / middle-center / bottom-center with
+        // left: 50% plus transform: translateX(-50%). For fixed
+        // elements with left set and right: auto the available width is
+        // only the remaining 50% to the right edge, so max-width never
+        // kicks in. At 390px viewport the banner is 195px instead of
+        // 366px (98px wasted each side); at 1280px the 640px available
+        // exceed the 480px max-width, making the issue invisible there.
+        // Give the host an explicit width from the same variable. The
+        // auto fallback keeps the rule valid when the variable is not
+        // emitted (corner/edge positions, maxWidth null).
+        $rules[] = ':host(simplecmp-banner) { width: var(--simplecmp-banner-max-width, auto) !important; }';
+
         // Trigger-button background override. `:host(simplecmp-trigger)`
         // is scoped — when this rule is adopted into the banner's or
         // modal's shadow root it won't match. Only inside the trigger
@@ -598,6 +611,32 @@ final readonly class RegisterAssets
         // rule is inert when the same sheet is adopted into other
         // simplecmp-* shadow roots.
         $rules[] = ':host(simplecmp-purpose-group) .toggle-services { margin-left: 28px; }';
+
+        // Standard layout: force the three buttons into one row above
+        // 30rem. The bundle sets `.cn-buttons` to `display: flex;
+        // flex-wrap: wrap`, so the row breaks as soon as the labels are
+        // wider than the banner — which makes it depend on the site
+        // language. German at 1280px needs 456px with 438px available,
+        // dropping the accept button onto a second row. `flex: 1 1 0`
+        // plus `min-width: 0` makes all buttons equal and shrinkable, so
+        // the text wraps INSIDE the button instead of wrapping the row;
+        // that is language-independent (measured de/en/nl/tr/ru/pl plus a
+        // constructed worst case). `overflow-wrap` handles long single
+        // words like "Datenschutzeinstellungen", which would otherwise
+        // overflow the button box. The 30rem lower bound is deliberate:
+        // below it three equal buttons get absurdly tall (measured
+        // 155-246px row height at 201px row width), so there the
+        // bundle's wrapping stays and narrow viewports can use
+        // `layout: stacked`. `compact` has only two buttons and does not
+        // need the rule; `stacked` is the deliberately vertical variant.
+        if (($tokens['layout'] ?? 'standard') === 'standard') {
+            $rules[] = '@media (min-width: 30rem) {'
+                . ' :host(simplecmp-banner) .cn-buttons { flex-wrap: nowrap !important; }'
+                . ' :host(simplecmp-banner) .cn-buttons > button { flex: 1 1 0 !important;'
+                . ' min-width: 0 !important; overflow-wrap: break-word !important;'
+                . ' hyphens: auto !important; }'
+                . ' }';
+        }
 
         if ($rules === []) {
             return;
