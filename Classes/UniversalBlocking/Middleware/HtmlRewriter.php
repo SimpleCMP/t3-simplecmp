@@ -51,7 +51,10 @@ use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
  *   icon are left untouched to avoid breaking CSS/SEO. source/video/
  *   audio added if a real site needs them.
  * - Inline scripts (#5): skipped — runtime monkey-patches handle JS-
- *   injected calls.
+ *   injected calls. Their bodies are masked before parsing and restored
+ *   verbatim afterwards (see maskInlineScripts()): libxml's HTML4 parser
+ *   (< 2.14) drops every "</tag" inside <script>, which corrupts JSON
+ *   configs and HTML templates embedded in inline scripts.
  * - Module scripts (#6): rewritten same as regular `<script src>`.
  * - Per-element override (#11): `data-no-rewrite` opts an element out
  *   (escape hatch for integrator-marked exceptions).
@@ -346,11 +349,13 @@ final class HtmlRewriter implements MiddlewareInterface
      */
     private function rewriteHtml(string $html, HostMatcher $matcher, array &$stats, array &$detections = []): string
     {
+        [$maskedHtml, $inlineScripts] = $this->maskInlineScripts($html);
+
         $dom = new \DOMDocument();
         // Real-world HTML is messy; suppress the libxml warning noise
         // and let `LIBXML_NOERROR` swallow non-fatal issues.
         $loaded = @$dom->loadHTML(
-            '<?xml encoding="utf-8"?>' . $html,
+            '<?xml encoding="utf-8"?>' . $maskedHtml,
             LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_COMPACT,
         );
         if (!$loaded) {
@@ -470,7 +475,49 @@ final class HtmlRewriter implements MiddlewareInterface
         // marker would leak into the visitor's response body for any
         // input that had its own xml-PI.
         $result = (string) $dom->saveHTML();
-        return preg_replace('/<\?xml encoding="utf-8"\?>\s*/', '', $result, 1) ?? $result;
+        $result = preg_replace('/<\?xml encoding="utf-8"\?>\s*/', '', $result, 1) ?? $result;
+        return strtr($result, $inlineScripts);
+    }
+
+    /**
+     * Replace the body of every inline `<script>` with a placeholder token.
+     *
+     * libxml's HTML4 parser (the default before libxml 2.14, e.g. Debian
+     * bookworm's 2.9.14) treats any "</" + letter inside <script> as a
+     * stray end tag and silently drops it. `<script type="application/json">`
+     * blocks carrying HTML templates, JS templates and JSON-LD with markup
+     * then reach the browser without their closing tags. The rewriter never
+     * touches inline script bodies, so they are taken out of the parser's
+     * reach and put back verbatim by rewriteHtml(). Attributes stay in
+     * place, so `<script src>` gating is unaffected.
+     *
+     * HTML comments are matched first and left alone, so a commented-out
+     * `<script>` cannot pair with the end tag of a real one.
+     *
+     * @return array{0: string, 1: array<string, string>} masked HTML and token => original body
+     */
+    private function maskInlineScripts(string $html): array
+    {
+        $bodies = [];
+        $prefix = 'simplecmp-inline-script-' . bin2hex(random_bytes(8)) . '-';
+        $masked = preg_replace_callback(
+            '#<!--.*?-->|(<script\b[^>]*>)(.*?)(</script\s*>)#is',
+            static function (array $m) use (&$bodies, $prefix): string {
+                if (!isset($m[2]) || $m[2] === '') {
+                    return $m[0];
+                }
+                $token = $prefix . count($bodies);
+                $bodies[$token] = $m[2];
+                return $m[1] . $token . $m[3];
+            },
+            $html,
+        );
+        if ($masked === null) {
+            // PCRE limit hit on a huge page — fall back to the unmasked
+            // input rather than failing the request.
+            return [$html, []];
+        }
+        return [$masked, $bodies];
     }
 
     /**
