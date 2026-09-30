@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.3 — 2026-09-30
+
 ### Fixed
 
 - **Universal Blocking no longer corrupts inline scripts.** The HTML rewriter
