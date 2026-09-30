@@ -637,9 +637,11 @@ final readonly class ComplianceCheckService
      * 2020) requires that Accept and Decline (and Configure) on the
      * first banner layer not differ in visual weight. Out of the box
      * the bundle gives all three buttons the same neutral background
-     * (`--simplecmp-color-bg-alt`). Editors can break that baseline
-     * by setting `color-accept-bg`, `color-decline-bg`, or
-     * `color-configure-bg` independently — when they do, surface a
+     * (`--simplecmp-color-bg-alt`) and the same default text color.
+     * Editors can break that baseline by setting any of
+     * `color-accept-bg`, `color-decline-bg`, `color-configure-bg`,
+     * `color-accept-text`, `color-decline-text`, or
+     * `color-configure-text` independently — when they do, surface a
      * warning so the compliance trade-off is visible.
      *
      * @param array<string, scalar> $stored
@@ -647,26 +649,35 @@ final readonly class ComplianceCheckService
      */
     private function checkButtonEqualProminence(array $stored): array
     {
-        // Color-lock active → SAFE_PALETTE wins on the live site and
-        // any per-button overrides are inert. No equal-prominence risk.
-        if (($stored['colorPaletteLocked'] ?? '1') === '1') {
-            return $this->pass('heuristic-button-equal-prominence', '2.1');
-        }
+        // No color-lock shortcut here: the lock only substitutes the
+        // keys listed in ThemeDesignerController::SAFE_PALETTE, and that
+        // list does NOT contain the per-button tokens. The per-button
+        // overrides are therefore emitted even while the lock is active.
+        // An earlier version returned `pass` when colorPaletteLocked was
+        // '1', which made this check blind under the default lock.
         $overrides = [];
         // Only the banner (first-layer) buttons are per-button
         // configurable, so only they can be made unequal. The modal
         // buttons share ONE uniform style (color-modal-button-bg/-text
         // applied to all three), so they stay equally prominent by
         // construction — no per-button audit needed there.
+        //
+        // The three text-color tokens are audited under the same button
+        // label keys as the background tokens: a deviating text color
+        // shifts the visual weight of a button just like a deviating
+        // background, so the check must not ignore it.
         $labels = [
             'color-accept-bg' => 'audit.button.accept',
             'color-decline-bg' => 'audit.button.decline',
             'color-configure-bg' => 'audit.button.configure',
+            'color-accept-text' => 'audit.button.accept',
+            'color-decline-text' => 'audit.button.decline',
+            'color-configure-text' => 'audit.button.configure',
         ];
         foreach ($labels as $key => $labelKey) {
             $value = $stored[$key] ?? '';
             if (is_string($value) && $value !== '') {
-                $overrides[] = $this->translate($labelKey) . ': ' . $value;
+                $overrides[] = $this->translate($labelKey) . ' (' . $key . '): ' . $value;
             }
         }
         if ($overrides === []) {
