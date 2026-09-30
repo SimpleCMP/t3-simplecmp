@@ -10,6 +10,17 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **Universal Blocking no longer corrupts inline scripts.** The HTML rewriter
+  parses every page with `DOMDocument::loadHTML()`. Before libxml 2.14 (Debian
+  bookworm ships 2.9.14) that parser drops every `</tag` inside `<script>`, so
+  `<script type="application/json">` configs, JS templates and JSON-LD with
+  markup reached the browser without their closing tags — valid JSON, no
+  console error, broken UI (e.g. t3bootstrap's GLightbox modal). Inline script
+  bodies are now masked before parsing and restored verbatim; `<script src>`
+  gating is unchanged.
+
 ## 14.0.2 — 2026-09-28
 
 ### Added
