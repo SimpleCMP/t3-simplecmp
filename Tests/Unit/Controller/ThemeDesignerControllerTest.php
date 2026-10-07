@@ -173,4 +173,27 @@ final class ThemeDesignerControllerTest extends TestCase
         self::assertFalse(ThemeDesignerController::isCssColor('#12345'));        // odd length
         self::assertFalse(ThemeDesignerController::isCssColor('#gggggg'));       // non-hex chars
     }
+
+    #[Test]
+    public function sanitizeKeepsBackdropColorAndAllowedOpacity(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-backdrop' => '#ffffff',
+            'backdrop-opacity' => '50',
+        ]);
+        self::assertSame(['color-backdrop' => '#ffffff', 'backdrop-opacity' => '50'], $clean);
+    }
+
+    #[Test]
+    public function sanitizeDropsBackdropOpacityOutsideTheEnum(): void
+    {
+        $clean = ThemeDesignerController::sanitizeTokens([
+            'color-backdrop' => '#ffffff',
+            'backdrop-opacity' => '55',
+        ]);
+        self::assertSame(['color-backdrop' => '#ffffff'], $clean);
+
+        $clean = ThemeDesignerController::sanitizeTokens(['backdrop-opacity' => '50%; } x {']);
+        self::assertSame([], $clean);
+    }
 }

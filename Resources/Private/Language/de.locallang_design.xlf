@@ -208,6 +208,11 @@
       <trans-unit id="designer.field.color-configure-text"><source>"Configure" button text color (optional)</source><target>Schriftfarbe „Konfigurieren"-Button (optional)</target></trans-unit>
       <trans-unit id="designer.field.color-modal-button-bg"><source>Settings-dialog button background (optional, applies to all three equally)</source><target>Hintergrund der Dialog-Buttons (optional, gilt für alle drei gleich)</target></trans-unit>
       <trans-unit id="designer.field.color-modal-button-text"><source>Settings-dialog button text color (optional, applies to all three equally)</source><target>Schriftfarbe der Dialog-Buttons (optional, gilt für alle drei gleich)</target></trans-unit>
+      <trans-unit id="designer.group.backdrop"><source>Backdrop</source><target>Hintergrundfläche</target></trans-unit>
+      <trans-unit id="designer.field.color-backdrop"><source>Backdrop color (optional, behind banner and settings dialog)</source><target>Farbe der Hintergrundfläche (optional, hinter Banner und Einstellungsdialog)</target></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity"><source>Backdrop opacity</source><target>Deckkraft der Hintergrundfläche</target></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity.default"><source>Default (50 %)</source><target>Standard (50 %)</target></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity.hint"><source>Only applies when a backdrop color is set. The veil does not block the page: visitors can still scroll and click, it only draws attention to the consent banner.</source><target>Wirkt nur, wenn eine Farbe gesetzt ist. Die Fläche sperrt die Seite nicht: Besucher können weiter scrollen und klicken, sie lenkt nur den Blick auf das Banner.</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.reset"><source>Reset to default</source><target>Auf Standard zurücksetzen</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.setCustom"><source>Custom color</source><target>Eigene Farbe</target></trans-unit>
       <trans-unit id="designer.field.optionalColor.unset"><source>(default)</source><target>(Standard)</target></trans-unit>

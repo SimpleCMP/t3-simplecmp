@@ -16,6 +16,7 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
+use SimpleCMP\T3SimpleCmp\Service\BackdropStyle;
 use SimpleCMP\T3SimpleCmp\Service\BridgeNonceService;
 use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 use SimpleCMP\T3SimpleCmp\Service\DetectionResetGeneration;
@@ -488,6 +489,11 @@ final readonly class RegisterAssets
             if (in_array($token, ['color-accept-bg', 'color-decline-bg', 'color-configure-bg', 'color-accept-text', 'color-decline-text', 'color-configure-text', 'color-modal-button-bg', 'color-modal-button-text'], true)) {
                 continue;
             }
+            // Backdrop color + opacity become dedicated rules (see
+            // BackdropStyle), not a custom property the bundle ignores.
+            if ($token === 'color-backdrop' || $token === 'backdrop-opacity') {
+                continue;
+            }
             // Map our storage keys (`color-primary`, `radius`, …) to the
             // upstream CSS custom property names (`--simplecmp-color-primary`).
             // `!important` is required because the framework adapters
@@ -599,6 +605,11 @@ final readonly class RegisterAssets
         $modalButtonsHover = ':host(simplecmp-modal) .action.accept-all:hover, :host(simplecmp-modal) .action.save:hover, :host(simplecmp-modal) .action.decline:hover';
         $rules[] = $modalButtons . ' { background: ' . $modalBg . ' !important; color: ' . $modalText . ' !important; border-color: transparent !important; }';
         $rules[] = $modalButtonsHover . ' { background: ' . $modalBg . ' !important; color: ' . $modalText . ' !important; filter: brightness(0.92); }';
+
+        // Optional backdrop behind banner and settings dialog.
+        foreach (BackdropStyle::rules($tokens) as $rule) {
+            $rules[] = $rule;
+        }
 
         // Purpose-group: indent the "▾ N Dienst" toggle button so it
         // sits flush under the `.meta` block in the row above. The

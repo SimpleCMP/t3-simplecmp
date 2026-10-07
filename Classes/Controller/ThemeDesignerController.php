@@ -212,6 +212,30 @@ final class ThemeDesignerController extends ActionController
         // equality can't be broken.
         'color-modal-button-bg' => '',
         'color-modal-button-text' => '',
+        // Optional backdrop behind the banner and the settings dialog
+        // (e.g. a translucent white veil). Empty = none, the bundle
+        // default. The opacity is a separate enum because the BE color
+        // picker cannot express alpha; see Service\BackdropStyle.
+        'color-backdrop' => '',
+        'backdrop-opacity' => '',
+    ];
+
+    /**
+     * Allowed values for `backdrop-opacity` (percent). Empty falls back
+     * to BackdropStyle::DEFAULT_OPACITY.
+     *
+     * @var array<string, string>
+     */
+    public const array BACKDROP_OPACITIES = [
+        '10' => '10 %',
+        '20' => '20 %',
+        '30' => '30 %',
+        '40' => '40 %',
+        '50' => '50 %',
+        '60' => '60 %',
+        '70' => '70 %',
+        '80' => '80 %',
+        '90' => '90 %',
     ];
 
     /**
@@ -387,6 +411,7 @@ final class ThemeDesignerController extends ActionController
         'framework' => ['theme'],
         'template' => ['layout'],
         'trigger' => ['triggerPosition', 'color-trigger-bg'],
+        'backdrop' => ['color-backdrop', 'backdrop-opacity'],
     ];
 
     /**
@@ -595,6 +620,12 @@ final class ThemeDesignerController extends ActionController
             $triggerOptions[] = ['key' => $key, 'label' => $label];
         }
 
+        // Backdrop-opacity picker — same shape.
+        $backdropOpacityOptions = [];
+        foreach (self::BACKDROP_OPACITIES as $key => $label) {
+            $backdropOpacityOptions[] = ['key' => $key, 'label' => $label];
+        }
+
         // Compliance audit — runs the legal-requirement checks against
         // the draft-or-live banner config (settings + service registry).
         // Results mirror the upstream `simplecmp.audit()` JS surface so a
@@ -690,6 +721,9 @@ final class ThemeDesignerController extends ActionController
             'themeOptions' => $themeOptions,
             'layoutOptions' => $layoutOptions,
             'triggerOptions' => $triggerOptions,
+            'backdropOpacityOptions' => $backdropOpacityOptions,
+            // Dot-safe alias: Fluid cannot read `tokens.backdrop-opacity`.
+            'backdropOpacity' => (string) ($tokens['backdrop-opacity'] ?? ''),
             'auditResults' => $auditResults,
             'auditFailed' => $auditFailed,
             'auditPassed' => $auditPassed,
@@ -735,7 +769,7 @@ final class ThemeDesignerController extends ActionController
             // because the default compliance-locked mode means editors
             // don't need to see them at all. Splitting the groups here
             // keeps the template free of dynamic-key gymnastics.
-            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced', 'banner-buttons', 'modal-buttons'])),
+            'colorFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['brand', 'surface', 'advanced', 'banner-buttons', 'modal-buttons', 'backdrop'])),
             'otherFieldGroups' => array_intersect_key(self::FIELD_GROUPS, array_flip(['placement', 'framework', 'template', 'trigger'])),
             'colorPaletteLocked' => ($tokens['colorPaletteLocked'] ?? '1') === '1',
             // Pre-computed access helpers for fields that Fluid can't
@@ -795,6 +829,11 @@ final class ThemeDesignerController extends ActionController
                     'key' => 'color-modal-button-text',
                     'value' => ($tokens['color-modal-button-text'] ?? '') !== '' ? $tokens['color-modal-button-text'] : '#ffffff',
                     'isSet' => ($tokens['color-modal-button-text'] ?? '') !== '',
+                ],
+                'backdrop' => [
+                    'key' => 'color-backdrop',
+                    'value' => ($tokens['color-backdrop'] ?? '') !== '' ? $tokens['color-backdrop'] : '#ffffff',
+                    'isSet' => ($tokens['color-backdrop'] ?? '') !== '',
                 ],
             ],
             // Legacy single-field helpers — kept until the template
@@ -1328,6 +1367,11 @@ final class ThemeDesignerController extends ActionController
             // Same enum guard for `triggerPosition` — only allow the
             // four corner enums the bundle implements rules for.
             if ($key === 'triggerPosition' && !isset(self::TRIGGER_POSITIONS[$value])) {
+                continue;
+            }
+            // Enum guard for `backdrop-opacity` — the value is
+            // concatenated into CSS by BackdropStyle.
+            if ($key === 'backdrop-opacity' && !isset(self::BACKDROP_OPACITIES[$value])) {
                 continue;
             }
             // Strict CSS-color grammar guard for every `color-*` token.
