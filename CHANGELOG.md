@@ -10,6 +10,36 @@ development.
 
 ## Unreleased
 
+## 14.0.4 — 2026-10-07
+
+### Added
+
+- **Optional backdrop behind the consent UI.** Two new theme tokens,
+  `color-backdrop` and `backdrop-opacity` (10–90 %, default 50 %), put a
+  translucent veil behind the banner and the settings dialog — e.g. the white
+  half-transparent backdrop sites know from cookieman's Bootstrap modal theme.
+  The veil does not capture clicks: it focuses attention on the banner without
+  turning it into a consent wall. Both tokens are empty by default and
+  editable in the theme designer (group *Backdrop*) and via
+  `simplecmp:set-theme`.
+- **Text colors for the banner buttons.** `color-accept-text`,
+  `color-decline-text` and `color-configure-text` pair with the existing
+  background tokens. Until now a dark button background kept the default dark
+  text (contrast down to 1.36:1, far below WCAG AA).
+
+### Fixed
+
+- **Centered banner keeps its full width on narrow viewports.** The
+  `top-center` / `middle-center` / `bottom-center` positions left the banner
+  at half the available width on phones (195 px instead of 366 px at 390 px).
+- **`layout: standard` keeps its three buttons in one row.** Long or
+  translated labels no longer wrap the button row; the buttons share the width
+  and the text wraps inside them. Below 30rem the stacked mobile layout stays.
+- **The equal-prominence audit fires again.** Under the default color lock it
+  reported every banner as compliant, although the per-button color tokens are
+  not covered by the lock and do break the BGH "Cookie II" baseline.
+  `simplecmp:set-theme --check` and the theme designer now flag them.
+
 ## 14.0.3 — 2026-09-30
 
 ### Fixed
