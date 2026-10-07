@@ -208,6 +208,11 @@
       <trans-unit id="designer.field.color-configure-text"><source>"Configure" button text color (optional)</source></trans-unit>
       <trans-unit id="designer.field.color-modal-button-bg"><source>Settings-dialog button background (optional, applies to all three equally)</source></trans-unit>
       <trans-unit id="designer.field.color-modal-button-text"><source>Settings-dialog button text color (optional, applies to all three equally)</source></trans-unit>
+      <trans-unit id="designer.group.backdrop"><source>Backdrop</source></trans-unit>
+      <trans-unit id="designer.field.color-backdrop"><source>Backdrop color (optional, behind banner and settings dialog)</source></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity"><source>Backdrop opacity</source></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity.default"><source>Default (50 %)</source></trans-unit>
+      <trans-unit id="designer.field.backdrop-opacity.hint"><source>Only applies when a backdrop color is set. The veil does not block the page: visitors can still scroll and click, it only draws attention to the consent banner.</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.reset"><source>Reset to default</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.setCustom"><source>Custom color</source></trans-unit>
       <trans-unit id="designer.field.optionalColor.unset"><source>(default)</source></trans-unit>

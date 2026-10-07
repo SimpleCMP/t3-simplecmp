@@ -467,7 +467,7 @@
                         <legend class="h5">
                             <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                         </legend>
-                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
+                        <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors, backdropOpacityOptions: backdropOpacityOptions, backdropOpacity: backdropOpacity}" />
                     </fieldset>
                 </f:for>
 
@@ -516,7 +516,7 @@
                                     <legend class="h6">
                                         <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.group.{group}" />
                                     </legend>
-                                    <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors}" />
+                                    <f:render section="Fields" arguments="{fields: fields, tokens: tokens, positionOptions: positionOptions, themeOptions: themeOptions, layoutOptions: layoutOptions, triggerOptions: triggerOptions, triggerBgValue: triggerBgValue, triggerBgIsSet: triggerBgIsSet, optionalColors: optionalColors, backdropOpacityOptions: backdropOpacityOptions, backdropOpacity: backdropOpacity}" />
                                 </fieldset>
                             </f:for>
                         </fieldset>
@@ -818,6 +818,24 @@
                 </f:case>
                 <f:case value="color-modal-button-text">
                     <f:render section="OptionalColorField" arguments="{field: optionalColors.modalButtonText}" />
+                </f:case>
+                <f:case value="color-backdrop">
+                    <f:render section="OptionalColorField" arguments="{field: optionalColors.backdrop}" />
+                </f:case>
+                <f:case value="backdrop-opacity">
+                    <select id="token-{key}"
+                            name="tokens[{key}]"
+                            class="form-select form-select-sm"
+                            data-token="{key}"
+                            style="max-width:18rem">
+                        <option value=""><f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.backdrop-opacity.default" /></option>
+                        <f:for each="{backdropOpacityOptions}" as="opt">
+                            <option value="{opt.key}" {f:if(condition: '{backdropOpacity} == {opt.key}', then: 'selected')}>{opt.label}</option>
+                        </f:for>
+                    </select>
+                    <small class="d-block text-body-secondary mt-1">
+                        <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_design.xlf:designer.field.backdrop-opacity.hint" />
+                    </small>
                 </f:case>
                 <f:defaultCase>
                     <div class="d-flex align-items-center gap-2">
