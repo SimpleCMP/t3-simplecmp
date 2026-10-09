@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.5 — 2026-10-09
+
 ### Fixed
 
 - **Managed trackers in `block` posture no longer load before consent.** The
@@ -44,6 +46,12 @@ development.
   under new uids — nothing was deleted and the command still reported
   success. The draft copy is now looked up by service id, and a removal that
   matches no row fails instead of claiming success.
+- **Wildcards in the Universal Blocking allowlist also work in the browser.**
+  The bundled runtime compared `simplecmp.universalBlocking.allowlist`
+  entries verbatim, so `*.example.com` — honoured by the server-side
+  rewriter — never matched at runtime: a widget whose script tag passed was
+  then cut off from its own API host. Bundle synced from upstream
+  SimpleCMP/simplecmp#7.
 
 ## 14.0.4 — 2026-10-07
 
