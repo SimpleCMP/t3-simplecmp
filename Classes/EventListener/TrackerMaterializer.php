@@ -25,10 +25,12 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  *      tracker so the banner lists it as a managed service and the
  *      {@see \SimpleCMP\T3SimpleCmp\EventListener\CspPolicyMutator}
  *      can extend the CSP with its origins.
- *   2. Registers the remote loader script with the asset collector
- *      and stamps it with `data-name="<service_id>"` — the bundle's
- *      runtime patch reads that attribute and gates the actual src
- *      assignment on consent.
+ *   2. Registers the remote loader script with the asset collector.
+ *      Under `block` posture it is emitted in the engine's gate shape
+ *      (`type="text/plain"`, URL in `data-src`, no `src`) with
+ *      `data-name="<service_id>"`; the engine swaps in a live script on
+ *      consent. A plain `<script src>` would run on parse — the bundle's
+ *      src-setter patches only see scripts inserted from JavaScript.
  *   3. Registers the per-site bootstrap inline JS (`_paq.push(...)`,
  *      `gtag('config', ...)`, dataLayer push) with `csp => true` so
  *      it receives the CSP nonce and doesn't trigger a violation.
@@ -170,36 +172,46 @@ final readonly class TrackerMaterializer
         $this->serviceRepository->upsert($serviceData, $pid);
 
         $loaderUrl = $provider->getLoaderUrl($config);
-        if ($loaderUrl !== null) {
-            // `data-name="<service_id>"` is the load-gate attribute the
-            // bundle's runtime patch looks for: present → defer until
-            // consent, absent → load immediately. The provider picks
-            // the posture per-config (see `consentPosture` on Ga4 /
-            // GTM): `block` keeps the gate; `signal-gate` drops it so
-            // the tag can run pre-consent and the engine's Consent
-            // Mode v2 hook owns the gating instead.
-            $attributes = ['async' => 'async'];
-            if ($provider->wantsLoadGate($config)) {
-                $attributes['data-name'] = $serviceId;
-                // Managed trackers are invisible background scripts
-                // (analytics/pixels), never visual embeds — so the bundle
-                // must NOT auto-insert a "load external content?" contextual
-                // notice next to the gated <script>. Without this, a blocked
-                // tracker renders an empty ~180px notice card in the body
-                // that lengthens the page while showing nothing useful
-                // pre-consent. `data-no-placeholder` is the bundle's
-                // per-element opt-out (see engine `_toggleAutoPlaceholder`).
-                // The banner still lists the tracker for consent as usual.
-                $attributes['data-no-placeholder'] = '1';
-            }
+        if ($loaderUrl !== null && $provider->wantsLoadGate($config)) {
+            // `block` posture: the loader must not run before consent.
+            // A server-rendered `<script src>` is fetched and executed by
+            // the parser — the bundle's src-setter patches never see it —
+            // so it is emitted in the engine's gate shape instead: no
+            // `src`, `type="text/plain"`, URL in `data-src`. On consent the
+            // engine replaces the element with a copy whose `type` comes
+            // from `data-type` (absent = JavaScript) and `src` from
+            // `data-src`, which then loads.
+            $this->assetCollector->addInlineJavaScript(
+                'simplecmp-tracker-loader-' . $serviceId,
+                '',
+                [
+                    'type' => 'text/plain',
+                    'data-name' => $serviceId,
+                    'data-src' => $loaderUrl,
+                    'async' => 'async',
+                    // Managed trackers are invisible background scripts
+                    // (analytics/pixels), never visual embeds — so the bundle
+                    // must NOT auto-insert a "load external content?" contextual
+                    // notice next to the gated <script>. Without this, a blocked
+                    // tracker renders an empty ~180px notice card in the body
+                    // that lengthens the page while showing nothing useful
+                    // pre-consent. `data-no-placeholder` is the bundle's
+                    // per-element opt-out (see engine `_toggleAutoPlaceholder`).
+                    // The banner still lists the tracker for consent as usual.
+                    'data-no-placeholder' => '1',
+                ],
+                // No `priority` — body bucket, after the bundle (head
+                // priority). `csp => true` so the tag receives the nonce,
+                // which the engine copies onto the live script.
+                ['csp' => true],
+            );
+        } elseif ($loaderUrl !== null) {
+            // `signal-gate` posture: the tag runs pre-consent and the
+            // engine's Consent Mode v2 hook owns the gating instead.
             $this->assetCollector->addJavaScript(
                 'simplecmp-tracker-loader-' . $serviceId,
                 $loaderUrl,
-                $attributes,
-                // No `priority` — must land in the body so the bundle
-                // (head priority) has already installed its src-setter
-                // monkey patches. `csp => true` so the rendered <script>
-                // tag receives the nonce.
+                ['async' => 'async'],
                 ['csp' => true],
             );
         }

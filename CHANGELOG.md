@@ -10,6 +10,21 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **Managed trackers in `block` posture no longer load before consent.** The
+  loader was rendered as a plain `<script src data-name>`; the comment assumed
+  the bundle's src-setter patches would hold it back, but those only see
+  scripts inserted from JavaScript — the parser fetched and ran it on page
+  load (GTM set `_gcl_au` without consent). Loaders are now emitted in the
+  engine's gate shape (`type="text/plain"`, URL in `data-src`) and swapped in
+  on consent. Affects GTM, GA4, Matomo, Meta and Microsoft UET, with or
+  without Universal Blocking. `signal-gate` posture is unchanged.
+- **Integrator-marked `<script src data-name>` is gated by the rewriter.**
+  Universal Blocking skipped every element with `data-name`; a live script
+  tag marked that way still ran on parse. It is now moved into the gate shape
+  (original `type` kept in `data-type`).
+
 ## 14.0.4 — 2026-10-07
 
 ### Added

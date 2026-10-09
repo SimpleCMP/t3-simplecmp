@@ -371,7 +371,23 @@ final class HtmlRewriter implements MiddlewareInterface
                     continue;
                 }
                 if ($node->hasAttribute('data-name')) {
-                    // Already integrator-marked; engine handles it.
+                    // Integrator-marked: the engine handles it — but only in
+                    // the gate shape. A `<script src data-name>` without
+                    // `type="text/plain"` is fetched and run by the parser
+                    // before the engine can intervene, so it is moved into
+                    // the gate shape here (original type kept in data-type).
+                    if ($tagName === 'script'
+                        && $node->getAttribute('src') !== ''
+                        && strtolower($node->getAttribute('type')) !== 'text/plain'
+                    ) {
+                        if ($node->getAttribute('type') !== '' && !$node->hasAttribute('data-type')) {
+                            $node->setAttribute('data-type', $node->getAttribute('type'));
+                        }
+                        $node->setAttribute('data-src', $node->getAttribute('src'));
+                        $node->removeAttribute('src');
+                        $node->setAttribute('type', 'text/plain');
+                        $stats['rewritten']++;
+                    }
                     continue;
                 }
                 // <link> is rewritten only for resource-hint rels (see
