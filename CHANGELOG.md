@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+## 14.0.6 — 2026-10-09
+
+### Fixed
+
+- **`SimpleCMP.getManager()` works on initialised pages.** The bundled
+  library never registered its config as the default, so the documented
+  no-argument call threw "called without config and no default config set".
+  Integrations can now read and grant consent from outside — e.g. a video
+  opt-in overlay that should skip itself when the visitor already consented
+  to YouTube, or store its own "Show video" click as consent. Bundle synced
+  from upstream SimpleCMP/simplecmp#8.
+
 ## 14.0.5 — 2026-10-09
 
 ### Fixed
