@@ -39,6 +39,11 @@ development.
   `simplecmp.enabled: false` explicitly — a site without the Site Set has no
   `simplecmp.enabled` at all, and only `false` was checked. Sites without the
   Set (and without an explicit `simplecmp.enabled: true`) are skipped now.
+- **`simplecmp:setup-tracker --remove` removes the tracker.** It passed the
+  live row's uid to the draft delete, but opening the draft copies the rows
+  under new uids — nothing was deleted and the command still reported
+  success. The draft copy is now looked up by service id, and a removal that
+  matches no row fails instead of claiming success.
 
 ## 14.0.4 — 2026-10-07
 

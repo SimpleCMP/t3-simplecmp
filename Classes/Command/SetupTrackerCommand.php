@@ -262,7 +262,20 @@ final class SetupTrackerCommand extends Command
             $io->error($e->getMessage());
             return Command::FAILURE;
         }
-        $this->trackerRepository->deleteDraft($site, (int) $target['uid']);
+        // `open()` copied the live rows into the draft table under new
+        // uids; the live uid from findBySite() matches no draft row, so
+        // the draft copy has to be looked up by service id.
+        $draft = null;
+        foreach ($this->trackerRepository->findBySiteDraft($site) as $row) {
+            if ((string) $row['service_id'] === $serviceId) {
+                $draft = $row;
+                break;
+            }
+        }
+        if ($draft === null || $this->trackerRepository->deleteDraft($site, (int) $draft['uid']) === 0) {
+            $io->error(sprintf('Tracker "%s" was not found in the draft of "%s" — nothing removed.', $serviceId, $site));
+            return Command::FAILURE;
+        }
         if (!$input->getOption('no-publish')) {
             $this->session->publish($site, $beUserId);
         }

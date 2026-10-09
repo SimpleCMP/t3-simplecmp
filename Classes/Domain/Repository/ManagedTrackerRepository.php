@@ -186,9 +186,13 @@ final class ManagedTrackerRepository implements SingletonInterface
         return $uid;
     }
 
-    public function deleteDraft(string $scope, int $uid): void
+    /**
+     * Soft-delete a draft row. Returns the affected row count, so callers
+     * can tell a removal from a uid that matched nothing.
+     */
+    public function deleteDraft(string $scope, int $uid): int
     {
-        $this->updateDraftRow($scope, ['uid' => $uid], ['deleted' => 1], 0);
+        return $this->updateDraftRow($scope, ['uid' => $uid], ['deleted' => 1], 0);
     }
 
     private function hydrate(array $row): array
