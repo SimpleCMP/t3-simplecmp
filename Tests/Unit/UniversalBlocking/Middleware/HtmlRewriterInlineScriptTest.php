@@ -21,7 +21,7 @@ use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
  * HTML template (t3bootstrap's GLightbox config) reached the browser without
  * a single closing tag and the lightbox rendered as a broken, nested modal.
  * These tests fail on such libxml versions without the masking in
- * HtmlRewriter::maskInlineScripts().
+ * HtmlRewriter::maskRawTextElements().
  */
 final class HtmlRewriterInlineScriptTest extends TestCase
 {
