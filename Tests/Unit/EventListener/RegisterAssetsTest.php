@@ -99,6 +99,38 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function noAssetEmittedOnSiteWithoutTheSiteSet(): void
+    {
+        // Multi-site installation: only some sites depend on the SimpleCMP
+        // Set. A site without it has no `simplecmp.enabled` at all and must
+        // not get the banner, even if the extension is installed and
+        // another site configures a privacy URL.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: ['simplecmp.privacyPolicyUrl' => 'https://example.com/privacy'],
+            hasSimpleCmpSet: false,
+        );
+        $this->assetCollector->expects(self::never())->method('addJavaScript');
+        $this->assetCollector->expects(self::never())->method('addInlineJavaScript');
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+    }
+
+    #[Test]
+    public function siteWithoutTheSetButExplicitlyEnabledStillGetsTheBanner(): void
+    {
+        // Settings without a definition still reach SiteSettings: a site
+        // that opts in via settings.yaml alone keeps working.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(
+            settings: [
+                'simplecmp.enabled' => true,
+                'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            ],
+            hasSimpleCmpSet: false,
+        );
+        $this->assetCollector->expects(self::atLeastOnce())->method('addJavaScript');
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+    }
+
+    #[Test]
     public function noAssetEmittedWhenNeitherPrivacyNorServicesConfigured(): void
     {
         $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: []);
@@ -1054,12 +1086,13 @@ final class RegisterAssetsTest extends TestCase
         string $siteIdentifier = 'default',
         bool $site = true,
         array $queryParams = [],
+        bool $hasSimpleCmpSet = true,
     ): ServerRequestInterface {
         $req = $this->createMock(ServerRequestInterface::class);
 
         $resolvedSite = null;
         if ($settings !== null && $site) {
-            $resolvedSite = $this->siteWithSettings($siteIdentifier, $settings);
+            $resolvedSite = $this->siteWithSettings($siteIdentifier, $settings, $hasSimpleCmpSet);
         }
 
         $req->method('getAttribute')->willReturnCallback(
@@ -1076,11 +1109,17 @@ final class RegisterAssetsTest extends TestCase
     }
 
     /** @param array<string, mixed> $values */
-    private function siteWithSettings(string $identifier, array $values): Site
+    private function siteWithSettings(string $identifier, array $values, bool $hasSimpleCmpSet = true): Site
     {
         $settings = $this->createMock(SiteSettings::class);
         $settings->method('get')->willReturnCallback(
             static fn (string $key) => $values[$key] ?? null
+        );
+        // With the Site Set the definitions supply every `simplecmp.*` key
+        // (default or configured); without it, only explicitly set keys exist.
+        $settings->method('has')->willReturnCallback(
+            static fn (string $key): bool => array_key_exists($key, $values)
+                || ($hasSimpleCmpSet && str_starts_with($key, 'simplecmp.'))
         );
         $site = $this->createMock(Site::class);
         $site->method('getSettings')->willReturn($settings);

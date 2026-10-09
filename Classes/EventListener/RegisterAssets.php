@@ -116,6 +116,14 @@ final readonly class RegisterAssets
         }
 
         $settings = $site->getSettings();
+        // A site that does not depend on the SimpleCMP Site Set has no
+        // `simplecmp.enabled` at all (the Set's definitions supply the
+        // default). Checking only `=== false` let the null through, so
+        // every site of an installation got the banner unless it set
+        // `simplecmp.enabled: false` explicitly.
+        if (!$settings->has('simplecmp.enabled')) {
+            return;
+        }
         if ($this->effectiveSettings->get($site->getIdentifier(), 'simplecmp.enabled') === false) {
             return;
         }

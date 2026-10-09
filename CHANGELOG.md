@@ -34,6 +34,11 @@ development.
 - **No `<!--?xml encoding="utf-8"?-->` in the response on libxml ≥ 2.14.**
   Newer libxml serializes the rewriter's encoding hint as a bogus comment,
   which the strip missed; both forms are removed now.
+- **No banner on sites that do not use SimpleCMP.** In a multi-site
+  installation every site got the bundle and banner unless it set
+  `simplecmp.enabled: false` explicitly — a site without the Site Set has no
+  `simplecmp.enabled` at all, and only `false` was checked. Sites without the
+  Set (and without an explicit `simplecmp.enabled: true`) are skipped now.
 
 ## 14.0.4 — 2026-10-07
 
