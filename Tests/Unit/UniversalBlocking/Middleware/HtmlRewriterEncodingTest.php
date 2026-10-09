@@ -71,21 +71,14 @@ final class HtmlRewriterEncodingTest extends TestCase
     }
 
     #[Test]
-    public function multibyteUtf8RoundTripsViaHtmlEntities(): void
+    public function multibyteUtf8TextRoundTrips(): void
     {
-        // DOMDocument's `saveHTML()` converts non-ASCII characters to
-        // HTML entities (numeric for chars without a named entity,
-        // named otherwise). This is `saveHTML()`'s documented default
-        // and we don't try to undo it — visitor browsers decode the
-        // entities back to the original characters, so the rendered
-        // output is identical to the input even though the byte
-        // stream is different.
-        //
-        // Locking in the current behavior so future readers know
-        // what to expect:
-        //   - `Ü` → `&Uuml;` (named entity)
-        //   - `你` → `&#20320;` (numeric entity)
-        //   - emoji `🎉` → `&#127881;` (numeric entity)
+        // In text content saveHTML() writes non-ASCII characters as
+        // entities with libxml < 2.14 (`Ü` → `&Uuml;`, `你` → `&#20320;`)
+        // and verbatim with libxml >= 2.14. Browsers decode both to the
+        // same text, so only the decoded result is pinned here.
+        // Raw-text elements (<script>, <style>) are a different matter —
+        // see HtmlRewriterInlineStyleTest.
         $payload = 'Über Café 你好 🎉';
         $html = '<!DOCTYPE html><html><head><title>' . $payload . '</title></head>'
             . '<body><p>Inhalt: ' . $payload . '</p>'
@@ -95,14 +88,10 @@ final class HtmlRewriterEncodingTest extends TestCase
         $result = $this->rewrite($html);
 
         self::assertStringContainsString('data-name=', $result);
-
-        // Named entity for Ü (ASCII 220).
-        self::assertStringContainsString('&Uuml;', $result);
-        // Numeric entity for the CJK characters.
-        self::assertStringContainsString('&#20320;', $result);  // 你
-        self::assertStringContainsString('&#22909;', $result);  // 好
-        // Numeric entity for the emoji.
-        self::assertStringContainsString('&#127881;', $result);  // 🎉
+        self::assertStringContainsString(
+            '<p>Inhalt: ' . $payload . '</p>',
+            html_entity_decode($result, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        );
     }
 
     #[Test]

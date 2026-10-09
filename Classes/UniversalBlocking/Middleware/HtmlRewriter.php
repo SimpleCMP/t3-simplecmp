@@ -51,10 +51,11 @@ use SimpleCMP\T3SimpleCmp\UniversalBlocking\Service\HostMatcher;
  *   icon are left untouched to avoid breaking CSS/SEO. source/video/
  *   audio added if a real site needs them.
  * - Inline scripts (#5): skipped — runtime monkey-patches handle JS-
- *   injected calls. Their bodies are masked before parsing and restored
- *   verbatim afterwards (see maskInlineScripts()): libxml's HTML4 parser
- *   (< 2.14) drops every "</tag" inside <script>, which corrupts JSON
- *   configs and HTML templates embedded in inline scripts.
+ *   injected calls. Inline <script> and <style> bodies are masked before
+ *   parsing and restored verbatim afterwards (see maskRawTextElements()):
+ *   libxml's HTML4 parser (< 2.14) drops every "</tag" inside <script>,
+ *   and saveHTML() turns non-ASCII characters into entities, which a
+ *   browser does not decode inside raw-text elements.
  * - Module scripts (#6): rewritten same as regular `<script src>`.
  * - Per-element override (#11): `data-no-rewrite` opts an element out
  *   (escape hatch for integrator-marked exceptions).
@@ -349,7 +350,7 @@ final class HtmlRewriter implements MiddlewareInterface
      */
     private function rewriteHtml(string $html, HostMatcher $matcher, array &$stats, array &$detections = []): string
     {
-        [$maskedHtml, $inlineScripts] = $this->maskInlineScripts($html);
+        [$maskedHtml, $rawTextBodies] = $this->maskRawTextElements($html);
 
         $dom = new \DOMDocument();
         // Real-world HTML is messy; suppress the libxml warning noise
@@ -489,42 +490,51 @@ final class HtmlRewriter implements MiddlewareInterface
         // ever one because we inject exactly one. Without the
         // limit-1 + non-anchored regex, our `encoding="utf-8"`
         // marker would leak into the visitor's response body for any
-        // input that had its own xml-PI.
+        // input that had its own xml-PI. libxml >= 2.14 parses the PI
+        // as a bogus comment and serializes it as `<!--?xml …?-->`,
+        // so both forms are matched.
         $result = (string) $dom->saveHTML();
-        $result = preg_replace('/<\?xml encoding="utf-8"\?>\s*/', '', $result, 1) ?? $result;
-        return strtr($result, $inlineScripts);
+        $result = preg_replace('/<(?:\?xml encoding="utf-8"\?|!--\?xml encoding="utf-8"\?--)>\s*/', '', $result, 1) ?? $result;
+        return strtr($result, $rawTextBodies);
     }
 
     /**
-     * Replace the body of every inline `<script>` with a placeholder token.
+     * Replace the body of every inline `<script>` and `<style>` with a
+     * placeholder token.
      *
      * libxml's HTML4 parser (the default before libxml 2.14, e.g. Debian
      * bookworm's 2.9.14) treats any "</" + letter inside <script> as a
      * stray end tag and silently drops it. `<script type="application/json">`
      * blocks carrying HTML templates, JS templates and JSON-LD with markup
-     * then reach the browser without their closing tags. The rewriter never
-     * touches inline script bodies, so they are taken out of the parser's
-     * reach and put back verbatim by rewriteHtml(). Attributes stay in
-     * place, so `<script src>` gating is unaffected.
+     * then reach the browser without their closing tags.
+     *
+     * saveHTML() serializes every non-ASCII character as an entity
+     * (`&#61709;`), also inside <style>. A browser does not decode entities
+     * in raw-text elements, so icon-font glyphs (`content:"\f10d"`) reached
+     * the page as literal text and a BOM in front of a rule invalidated it.
+     *
+     * The rewriter never touches either body, so both are taken out of the
+     * parser's reach and put back verbatim by rewriteHtml(). Attributes stay
+     * in place, so `<script src>` gating is unaffected.
      *
      * HTML comments are matched first and left alone, so a commented-out
      * `<script>` cannot pair with the end tag of a real one.
      *
      * @return array{0: string, 1: array<string, string>} masked HTML and token => original body
      */
-    private function maskInlineScripts(string $html): array
+    private function maskRawTextElements(string $html): array
     {
         $bodies = [];
-        $prefix = 'simplecmp-inline-script-' . bin2hex(random_bytes(8)) . '-';
+        $prefix = 'simplecmp-raw-text-' . bin2hex(random_bytes(8)) . '-';
         $masked = preg_replace_callback(
-            '#<!--.*?-->|(<script\b[^>]*>)(.*?)(</script\s*>)#is',
+            '#<!--.*?-->|(<(script|style)\b[^>]*>)(.*?)(</\2\s*>)#is',
             static function (array $m) use (&$bodies, $prefix): string {
-                if (!isset($m[2]) || $m[2] === '') {
+                if (!isset($m[3]) || $m[3] === '') {
                     return $m[0];
                 }
                 $token = $prefix . count($bodies);
-                $bodies[$token] = $m[2];
-                return $m[1] . $token . $m[3];
+                $bodies[$token] = $m[3];
+                return $m[1] . $token . $m[4];
             },
             $html,
         );

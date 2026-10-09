@@ -24,6 +24,16 @@ development.
   Universal Blocking skipped every element with `data-name`; a live script
   tag marked that way still ran on parse. It is now moved into the gate shape
   (original `type` kept in `data-type`).
+- **Universal Blocking no longer corrupts inline styles.** Below libxml 2.14
+  the rewriter's `saveHTML()` wrote every non-ASCII character as an entity,
+  also inside `<style>` — where browsers do not decode entities. Icon-font
+  glyphs (`content:"\f10d"`) showed up on the page as the text `&#61709;`,
+  and a BOM in front of `:root` invalidated the rule with all of Bootstrap's
+  custom properties. Inline `<style>` bodies are now masked and restored
+  verbatim, like inline scripts since 14.0.3.
+- **No `<!--?xml encoding="utf-8"?-->` in the response on libxml ≥ 2.14.**
+  Newer libxml serializes the rewriter's encoding hint as a bogus comment,
+  which the strip missed; both forms are removed now.
 
 ## 14.0.4 — 2026-10-07
 
