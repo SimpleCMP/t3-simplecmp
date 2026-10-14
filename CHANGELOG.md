@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.7 — 2026-10-14
+
 ### Added
 
 - **`simplecmp.showNotice` site setting.** Set it to `false` to drop the
