@@ -10,6 +10,16 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **`simplecmp.showNotice` site setting.** Set it to `false` to drop the
+  automatic banner while keeping the regime's defaults: under `opt-in`
+  every non-required service stays off until the visitor enables it at its
+  placeholder or via the floating trigger. `regimeDefault: none` also hides
+  the banner, but makes the bundle default services to *on*, so the settings
+  dialog opened with pre-ticked boxes and "Save selected" granted consent
+  nobody gave. Emits the bundle's existing `noNotice` option.
+
 ## 14.0.6 — 2026-10-09
 
 ### Fixed

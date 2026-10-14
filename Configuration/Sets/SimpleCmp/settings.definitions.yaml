@@ -41,6 +41,12 @@ settings:
     type: string
     default: 'opt-in'
 
+  simplecmp.showNotice:
+    label: 'Show the consent banner automatically'
+    description: 'When off, no banner opens on the first visit — regardless of the regime. Consent is then given in place: every blocked embed shows its click-to-enable placeholder, and the floating trigger opens the settings. Unlike regimeDefault "none", the regime''s defaults stay in force, so under opt-in every non-required service stays off until the visitor enables it (no pre-ticked boxes in the settings dialog). Use this for sites that only embed third-party media and want a notice at each embed instead of a banner.'
+    type: bool
+    default: true
+
   simplecmp.regionHeader:
     label: 'Region HTTP header (optional)'
     description: 'Name of the request header carrying the visitor''s country/region code (e.g. "CF-IPCountry" from Cloudflare, or an edge/GeoIP header). When set, EU codes resolve to opt-in and US to opt-out automatically, overriding the default regime per visitor. Leave empty to apply the default regime to everyone. SimpleCMP never geo-locates client-side.'

@@ -733,6 +733,53 @@ final class RegisterAssetsTest extends TestCase
         self::assertTrue($config['interceptRuntime']['universalBlock']);
     }
 
+    #[Test]
+    public function noNoticeEmittedWhenShowNoticeIsOff(): void
+    {
+        // showNotice=false drops the auto-banner but keeps opt-in defaults,
+        // unlike regimeDefault "none" (which defaults services on). The regime
+        // must therefore stay at the opt-in default, i.e. absent from the payload.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.showNotice' => false,
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertTrue($config['noNotice'] ?? null);
+        self::assertArrayNotHasKey('regimeDefault', $config);
+    }
+
+    #[Test]
+    public function noNoticeOmittedByDefault(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $config = $this->extractConfig($captured);
+        self::assertArrayNotHasKey('noNotice', $config);
+    }
+
     // --- libraryFallback provider fields (REQ-19) -------------------------
 
     #[Test]

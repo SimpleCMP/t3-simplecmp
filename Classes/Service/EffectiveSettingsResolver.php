@@ -45,6 +45,7 @@ final class EffectiveSettingsResolver
         'simplecmp.floatingTriggerLabel',
         'simplecmp.respectGPC',
         'simplecmp.regimeDefault',
+        'simplecmp.showNotice',
         'simplecmp.hideDeclineAll',
         'simplecmp.universalBlocking.enabled',
         'simplecmp.universalBlocking.blockStylesheets',

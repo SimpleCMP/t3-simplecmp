@@ -762,12 +762,12 @@ Zentrale Komponenten:
 ### Editor-vs-Ops-Scope
 
 Hardcoded in `EffectiveSettingsResolver::EDITOR_CONTENT_KEYS` —
-12 Keys, alle Banner-Inhalt mit DSGVO-Relevanz. Beispiele:
+13 Keys, alle Banner-Inhalt mit DSGVO-Relevanz. Beispiele:
 
 ```
 ✓ Editor-content (durchläuft Vorschlag/Übernehmen):
   simplecmp.enabled, .storageName, .privacyPolicyUrl, .imprintUrl,
-  .floatingTriggerLabel, .respectGPC, .regimeDefault,
+  .floatingTriggerLabel, .respectGPC, .regimeDefault, .showNotice,
   .hideDeclineAll, .universalBlocking.enabled, .blockStylesheets,
   .allowlist, .trackers (Sonderfall — als Tracker-Vorschläge)
 
