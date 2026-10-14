@@ -432,6 +432,32 @@ final readonly class RegisterAssets
     }
 
     /**
+     * Resolves a `t3://page?uid=<n>` value of `privacyPolicyUrl` / `imprintUrl`
+     * to that page's URL in the language of the current request, so a German
+     * page links the German policy. Any other value is passed through as is.
+     * Returns an empty string when the page cannot be routed (deleted, hidden,
+     * not in this site), which makes the bundle omit the link instead of
+     * linking a dead URL — the compliance check then flags it.
+     */
+    private function resolvePolicyLink(string $value, Site $site, ServerRequestInterface $request): string
+    {
+        if (!preg_match('#^t3://page\?(?:[^\#]*&)?uid=(\d+)#', $value, $matches)) {
+            return $value;
+        }
+        $language = $request->getAttribute('language');
+        $parameters = $language instanceof \TYPO3\CMS\Core\Site\Entity\SiteLanguage ? ['_language' => $language] : [];
+        try {
+            return (string) $site->getRouter()->generateUri((int) $matches[1], $parameters);
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'SimpleCMP: cannot resolve policy link "{link}" on site "{site}": {message}',
+                ['link' => $value, 'site' => $site->getIdentifier(), 'message' => $e->getMessage()]
+            );
+            return '';
+        }
+    }
+
+    /**
      * Emit the per-site banner theme as an inline `<script>` that
      * injects the overrides into every SimpleCMP component's shadow
      * root via `adoptedStyleSheets`. A `<style>` block in light DOM
@@ -631,6 +657,8 @@ final readonly class RegisterAssets
         // simplecmp-* shadow roots.
         $rules[] = ':host(simplecmp-purpose-group) .toggle-services { margin-left: 28px; }';
 
+        $rules = array_merge($rules, $this->contextualNoticeRules());
+
         // Standard layout: force the three buttons into one row above
         // 30rem. The bundle sets `.cn-buttons` to `display: flex;
         // flex-wrap: wrap`, so the row breaks as soon as the labels are
@@ -657,6 +685,58 @@ final readonly class RegisterAssets
                 . ' }';
         }
 
+        $this->emitShadowSheet($site, $rules);
+    }
+
+    /**
+     * Layout rules for `simplecmp-contextual-notice` on small embed boxes.
+     * Part of the theme sheet, so only sites with a stored theme get them;
+     * the lasting fix belongs into the bundle's own component styles.
+     *
+     * @return list<string>
+     */
+    private function contextualNoticeRules(): array
+    {
+        $rules = [];
+        // Contextual notice on small areas. Embeds usually sit in a fixed
+        // 16:9 box (Bootstrap `.ratio`, `aspect-ratio`), and the bundle
+        // centres the notice content vertically. At 330x186px a German
+        // placeholder needs ~290px, so text and buttons spilled out above
+        // and below the box over the surrounding page. Width is the only
+        // safe signal (`container-type: size` would collapse notices that
+        // take their height from the content), and narrow boxes are short
+        // ones. Below 28rem the description is clamped to three lines
+        // (two below 18rem) and the purposes line is dropped; both remain
+        // available behind "More information". `safe center` plus
+        // `overflow: auto` keep any remaining excess inside the box and
+        // scrollable instead of overlapping the page. Percentage padding
+        // shrinks with the box width, within the spacing tokens.
+        $rules[] = ':host(simplecmp-contextual-notice) { container-type: inline-size;'
+            . ' justify-content: safe center; overflow: auto;'
+            . ' padding: clamp(var(--simplecmp-spacing-sm), 4%, var(--simplecmp-spacing-lg)); }';
+        $description = ':host(simplecmp-contextual-notice) p:not(.purposes):not(.provider-info-link)';
+        $rules[] = '@container (max-width: 28rem) {'
+            . ' ' . $description . ' { display: -webkit-box; -webkit-box-orient: vertical;'
+            . ' -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; font-size: 0.875em;'
+            . ' line-height: 1.4; margin-bottom: var(--simplecmp-spacing-sm); }'
+            . ' :host(simplecmp-contextual-notice) p.purposes { display: none; }'
+            . ' :host(simplecmp-contextual-notice) .provider-info-link { margin-bottom: var(--simplecmp-spacing-sm); }'
+            . ' :host(simplecmp-contextual-notice) button { padding: 0.375rem 0.75rem; font-size: 0.875em; }'
+            . ' }';
+        $rules[] = '@container (max-width: 18rem) {'
+            . ' ' . $description . ' { -webkit-line-clamp: 2; line-clamp: 2; }'
+            . ' }';
+        return $rules;
+    }
+
+    /**
+     * Adopts the given CSS rules into every SimpleCMP component's shadow
+     * root (see THEME_SELECTORS for why a light-DOM <style> can't).
+     *
+     * @param list<string> $rules
+     */
+    private function emitShadowSheet(Site $site, array $rules): void
+    {
         if ($rules === []) {
             return;
         }
@@ -964,12 +1044,12 @@ final readonly class RegisterAssets
             $config['translations'] = $translations;
         }
 
-        $privacy = (string) $get('simplecmp.privacyPolicyUrl', '');
+        $privacy = $this->resolvePolicyLink((string) $get('simplecmp.privacyPolicyUrl', ''), $site, $request);
         if ($privacy !== '') {
             $config['privacyPolicy'] = $privacy;
         }
 
-        $imprint = (string) $get('simplecmp.imprintUrl', '');
+        $imprint = $this->resolvePolicyLink((string) $get('simplecmp.imprintUrl', ''), $site, $request);
         if ($imprint !== '') {
             $config['imprint'] = $imprint;
         }

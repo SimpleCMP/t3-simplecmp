@@ -90,6 +90,11 @@ Site Settings reference
     URL of your privacy policy. Linked in the banner and modal as
     *Datenschutz / Privacy*. **Required by DSGVO / GDPR.**
 
+    On a multi-language site, set a page link such as
+    :code:`t3://page?uid=123`. It resolves to that page in the language of
+    the page being viewed, so a German page links the German policy. A plain
+    URL is linked unchanged in every language.
+
 ..  confval:: simplecmp.imprintUrl
 
     :type: string
@@ -97,6 +102,9 @@ Site Settings reference
 
     URL of your imprint / "Impressum". Linked next to the privacy
     policy. **Required in Germany (TMG/MStV).**
+
+    Accepts a page link (:code:`t3://page?uid=123`) like
+    :confval:`simplecmp.privacyPolicyUrl`.
 
 ..  confval:: simplecmp.floatingTriggerLabel
 

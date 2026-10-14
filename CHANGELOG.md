@@ -10,6 +10,28 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Page links for `privacyPolicyUrl` and `imprintUrl`.** A value such as
+  `t3://page?uid=123` resolves to that page in the language of the current
+  request. Before, the setting was a fixed string, so a multi-language site
+  linked the same (usually English) policy from every language. Plain URLs
+  behave as before. An unroutable page drops the link and logs a warning.
+
+### Fixed
+
+- **Contextual notices no longer overflow small embed boxes.** In a fixed
+  16:9 box (e.g. Bootstrap `.ratio`) of about 330x186px the centred notice
+  needed ~290px and spilled text and buttons over the surrounding page.
+  Below 28rem width the description is now clamped to three lines (two below
+  18rem) and the purposes line is hidden; both stay reachable via "More
+  information". Any remaining excess scrolls inside the box. The rules ship
+  with the theme stylesheet, so they apply to sites with a stored theme.
+- **`simplecmp:curate-service --from-json` no longer aborts** on services
+  whose cookie matchers carry `requireOrigin` (e.g. the library's YouTube
+  entry). The summary line imploded the matcher objects and failed with
+  "Array to string conversion".
+
 ## 14.0.7 — 2026-10-14
 
 ### Added

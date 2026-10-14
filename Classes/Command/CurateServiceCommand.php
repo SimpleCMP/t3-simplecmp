@@ -178,7 +178,12 @@ final class CurateServiceCommand extends Command
 
             $io->writeln(sprintf(' <info>%s</info> — %s', $serviceId, (string) $data['name']));
             $io->writeln(sprintf('   purposes: %s', implode(', ', $data['purposes'])));
-            $io->writeln(sprintf('   cookies:  %s', implode(', ', $data['matches']['cookies'] ?? []) ?: '–'));
+            // A cookie matcher is a name or {name, requireOrigin}.
+            $cookieNames = array_map(
+                static fn (mixed $cookie): string => is_array($cookie) ? (string) ($cookie['name'] ?? '?') : (string) $cookie,
+                $data['matches']['cookies'] ?? [],
+            );
+            $io->writeln(sprintf('   cookies:  %s', implode(', ', $cookieNames) ?: '–'));
             $io->writeln(sprintf('   origins:  %s', implode(', ', $data['matches']['origins'] ?? []) ?: '–'));
         }
 
