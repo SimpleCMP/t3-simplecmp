@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.8 — 2026-10-14
+
 ### Added
 
 - **Page links for `privacyPolicyUrl` and `imprintUrl`.** A value such as
