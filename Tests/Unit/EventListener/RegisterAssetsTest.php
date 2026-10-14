@@ -780,6 +780,44 @@ final class RegisterAssetsTest extends TestCase
         self::assertArrayNotHasKey('noNotice', $config);
     }
 
+    #[Test]
+    public function pageLinkPolicyUrlsResolveInRequestLanguage(): void
+    {
+        $german = new \TYPO3\CMS\Core\Site\Entity\SiteLanguage(2, 'de_DE.UTF-8', new \TYPO3\CMS\Core\Http\Uri('/de/'), []);
+        $router = $this->createMock(\TYPO3\CMS\Core\Routing\RouterInterface::class);
+        $router->method('generateUri')->willReturnCallback(
+            static function (int $uid, array $parameters) use ($german): \TYPO3\CMS\Core\Http\Uri {
+                self::assertSame($german, $parameters['_language'] ?? null);
+                return new \TYPO3\CMS\Core\Http\Uri($uid === 12 ? '/de/datenschutz' : '/de/impressum');
+            }
+        );
+        $GLOBALS['TYPO3_REQUEST'] = $this->requestWithLanguage([
+            'simplecmp.privacyPolicyUrl' => 't3://page?uid=12',
+            'simplecmp.imprintUrl' => 't3://page?uid=13&_language=0',
+        ], $router, $german);
+
+        $config = $this->captureInitConfig();
+
+        self::assertSame('/de/datenschutz', $config['privacyPolicy'] ?? null);
+        self::assertSame('/de/impressum', $config['imprint'] ?? null);
+    }
+
+    #[Test]
+    public function unroutablePageLinkDropsTheLink(): void
+    {
+        $router = $this->createMock(\TYPO3\CMS\Core\Routing\RouterInterface::class);
+        $router->method('generateUri')->willThrowException(new \TYPO3\CMS\Core\Routing\InvalidRouteArgumentsException('gone', 1));
+        $GLOBALS['TYPO3_REQUEST'] = $this->requestWithLanguage([
+            'simplecmp.privacyPolicyUrl' => '/privacy',
+            'simplecmp.imprintUrl' => 't3://page?uid=99',
+        ], $router, null);
+
+        $config = $this->captureInitConfig();
+
+        self::assertSame('/privacy', $config['privacyPolicy'] ?? null);
+        self::assertArrayNotHasKey('imprint', $config);
+    }
+
     // --- libraryFallback provider fields (REQ-19) -------------------------
 
     #[Test]
@@ -1152,6 +1190,27 @@ final class RegisterAssetsTest extends TestCase
             }
         );
         $req->method('getQueryParams')->willReturn($queryParams);
+        return $req;
+    }
+
+    /** @param array<string, mixed> $settings */
+    private function requestWithLanguage(
+        array $settings,
+        \TYPO3\CMS\Core\Routing\RouterInterface $router,
+        ?\TYPO3\CMS\Core\Site\Entity\SiteLanguage $language,
+    ): ServerRequestInterface {
+        $site = $this->siteWithSettings('default', $settings);
+        $site->method('getRouter')->willReturn($router);
+        $req = $this->createMock(ServerRequestInterface::class);
+        $req->method('getAttribute')->willReturnCallback(
+            static fn (string $name, mixed $default = null): mixed => match ($name) {
+                'applicationType' => SystemEnvironmentBuilder::REQUESTTYPE_FE,
+                'site' => $site,
+                'language' => $language,
+                default => $default,
+            }
+        );
+        $req->method('getQueryParams')->willReturn([]);
         return $req;
     }
 

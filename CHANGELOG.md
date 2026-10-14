@@ -10,6 +10,21 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Page links for `privacyPolicyUrl` and `imprintUrl`.** A value such as
+  `t3://page?uid=123` resolves to that page in the language of the current
+  request. Before, the setting was a fixed string, so a multi-language site
+  linked the same (usually English) policy from every language. Plain URLs
+  behave as before. An unroutable page drops the link and logs a warning.
+
+### Fixed
+
+- **`simplecmp:curate-service --from-json` no longer aborts** on services
+  whose cookie matchers carry `requireOrigin` (e.g. the library's YouTube
+  entry). The summary line imploded the matcher objects and failed with
+  "Array to string conversion".
+
 ## 14.0.7 — 2026-10-14
 
 ### Added

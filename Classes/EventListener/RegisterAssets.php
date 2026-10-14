@@ -432,6 +432,32 @@ final readonly class RegisterAssets
     }
 
     /**
+     * Resolves a `t3://page?uid=<n>` value of `privacyPolicyUrl` / `imprintUrl`
+     * to that page's URL in the language of the current request, so a German
+     * page links the German policy. Any other value is passed through as is.
+     * Returns an empty string when the page cannot be routed (deleted, hidden,
+     * not in this site), which makes the bundle omit the link instead of
+     * linking a dead URL — the compliance check then flags it.
+     */
+    private function resolvePolicyLink(string $value, Site $site, ServerRequestInterface $request): string
+    {
+        if (!preg_match('#^t3://page\?(?:[^\#]*&)?uid=(\d+)#', $value, $matches)) {
+            return $value;
+        }
+        $language = $request->getAttribute('language');
+        $parameters = $language instanceof \TYPO3\CMS\Core\Site\Entity\SiteLanguage ? ['_language' => $language] : [];
+        try {
+            return (string) $site->getRouter()->generateUri((int) $matches[1], $parameters);
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'SimpleCMP: cannot resolve policy link "{link}" on site "{site}": {message}',
+                ['link' => $value, 'site' => $site->getIdentifier(), 'message' => $e->getMessage()]
+            );
+            return '';
+        }
+    }
+
+    /**
      * Emit the per-site banner theme as an inline `<script>` that
      * injects the overrides into every SimpleCMP component's shadow
      * root via `adoptedStyleSheets`. A `<style>` block in light DOM
@@ -964,12 +990,12 @@ final readonly class RegisterAssets
             $config['translations'] = $translations;
         }
 
-        $privacy = (string) $get('simplecmp.privacyPolicyUrl', '');
+        $privacy = $this->resolvePolicyLink((string) $get('simplecmp.privacyPolicyUrl', ''), $site, $request);
         if ($privacy !== '') {
             $config['privacyPolicy'] = $privacy;
         }
 
-        $imprint = (string) $get('simplecmp.imprintUrl', '');
+        $imprint = $this->resolvePolicyLink((string) $get('simplecmp.imprintUrl', ''), $site, $request);
         if ($imprint !== '') {
             $config['imprint'] = $imprint;
         }

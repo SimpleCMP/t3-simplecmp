@@ -13,13 +13,13 @@ settings:
 
   simplecmp.privacyPolicyUrl:
     label: 'Privacy policy URL'
-    description: 'Required by GDPR / DSGVO. Linked in the banner and modal.'
+    description: 'Required by GDPR / DSGVO. Linked in the banner and modal. A page link (t3://page?uid=123) resolves to the page in the visitor''s language.'
     type: string
     default: ''
 
   simplecmp.imprintUrl:
     label: 'Imprint URL (Impressum)'
-    description: 'Required in Germany (TMG/MStV). Rendered as a separate link next to the privacy policy.'
+    description: 'Required in Germany (TMG/MStV). Rendered as a separate link next to the privacy policy. A page link (t3://page?uid=123) resolves to the page in the visitor''s language.'
     type: string
     default: ''
 
