@@ -119,6 +119,23 @@ Site Settings reference
     The banner is still shown — only the default switch state
     changes.
 
+..  confval:: simplecmp.showNotice
+
+    :type: boolean
+    :Default: true
+
+    When off, no consent banner opens on the first visit. Consent is
+    given in place instead: each blocked embed shows its
+    click-to-enable placeholder, and the floating trigger opens the
+    settings dialog. The regime's defaults stay in force — under
+    :code:`opt-in` every non-required service remains off until the
+    visitor enables it.
+
+    Prefer this over :code:`regimeDefault: none` for EU sites that
+    only embed third-party media: :code:`none` also hides the banner,
+    but defaults every service to *on*, so the settings dialog opens
+    with pre-ticked boxes.
+
 ..  confval:: simplecmp.serviceDbUrl
 
     :type: string

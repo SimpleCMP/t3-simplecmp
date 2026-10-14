@@ -910,6 +910,15 @@ final readonly class RegisterAssets
         if (in_array($regime, ['opt-out', 'none'], true)) {
             $config['regimeDefault'] = $regime;
         }
+        // No auto-banner, but the regime's defaults stay: under opt-in every
+        // non-required service stays off until enabled at its placeholder or
+        // via the trigger. regimeDefault "none" also hides the banner, but the
+        // bundle then defaults services ON (getDefaultConsent: regime !==
+        // "opt-in"), which pre-ticks the settings dialog — not valid consent
+        // under the GDPR. Only emitted when off to keep the payload minimal.
+        if (!(bool) $get('simplecmp.showNotice', true)) {
+            $config['noNotice'] = true;
+        }
         $region = $this->resolveRegion($site->getIdentifier(), $request);
         if ($region !== '') {
             $config['region'] = $region;
