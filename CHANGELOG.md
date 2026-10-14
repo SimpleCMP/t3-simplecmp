@@ -20,6 +20,13 @@ development.
 
 ### Fixed
 
+- **Contextual notices no longer overflow small embed boxes.** In a fixed
+  16:9 box (e.g. Bootstrap `.ratio`) of about 330x186px the centred notice
+  needed ~290px and spilled text and buttons over the surrounding page.
+  Below 28rem width the description is now clamped to three lines (two below
+  18rem) and the purposes line is hidden; both stay reachable via "More
+  information". Any remaining excess scrolls inside the box. The rules ship
+  with the theme stylesheet, so they apply to sites with a stored theme.
 - **`simplecmp:curate-service --from-json` no longer aborts** on services
   whose cookie matchers carry `requireOrigin` (e.g. the library's YouTube
   entry). The summary line imploded the matcher objects and failed with

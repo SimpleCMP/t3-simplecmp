@@ -1002,6 +1002,29 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function themeScriptCarriesContextualNoticeLayout(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->themes = $this->createMock(ThemeRepository::class);
+        $this->themes->method('findBySite')->willReturn(['colorPaletteLocked' => '0', 'color-primary' => '#cc0066']);
+        $captured = [];
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $script) use (&$captured): AssetCollector {
+                $captured[$id] = $script;
+                return $this->assetCollector;
+            });
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $script = $captured['simplecmp-theme-default'] ?? '';
+        self::assertStringContainsString('--simplecmp-color-primary: #cc0066 !important;', $script);
+        self::assertStringContainsString('justify-content: safe center', $script);
+        self::assertStringContainsString('container-type: inline-size', $script);
+        self::assertStringContainsString('@container (max-width: 28rem)', $script);
+    }
+
+    #[Test]
     public function nonScalarTokenValuesAreFiltered(): void
     {
         // Defensive: a corrupt JSON blob in the DB shouldn't cause type
