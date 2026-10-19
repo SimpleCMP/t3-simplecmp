@@ -115,6 +115,37 @@ final class DetectionRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function ingestStripsVisitorIdentifiersBeforeStoring(): void
+    {
+        $this->repository->ingest($this->payload([
+            'page' => [
+                'url' => 'https://example.com/de/?utm_source=x',
+                'referrer' => 'https://example.com/landing/?gclid=g',
+                'userAgent' => 'Mozilla/5.0',
+            ],
+            'detections' => [
+                $this->detection('https://bat.bing.com/actionp/0?mid=a', kind: 'request', origin: 'bat.bing.com'),
+                // Same row after stripping; the later detection's fields win.
+                $this->detection('https://bat.bing.com/actionp/0?mid=b', kind: 'request', origin: 'bat.bing.com', firstSeenOn: '/de/?gclid=g'),
+                $this->detection('moz-extension://d4518658-2afa/content.js', kind: 'script'),
+                $this->detection('https://gc.kes.v2.scr.kaspersky-labs.com/0BE8F50F/main.js', kind: 'script', origin: 'gc.kes.v2.scr.kaspersky-labs.com'),
+            ],
+        ]));
+
+        self::assertSame(1, $this->repository->count());
+        $row = $this->fetchRow('default', 'request', 'https://bat.bing.com/actionp/0');
+        self::assertNotNull($row);
+        self::assertSame(2, (int) $row['occurrences']);
+        self::assertSame('https://example.com/de/', $row['page_url']);
+        self::assertSame('https://example.com/landing/', $row['referrer']);
+        self::assertSame('/de/', $row['first_seen_on']);
+        self::assertStringNotContainsString('?', (string) $row['payload']);
+        self::assertStringNotContainsString('moz-extension', (string) $row['payload']);
+        $payload = json_decode((string) $row['payload'], true, 32, JSON_THROW_ON_ERROR);
+        self::assertArrayNotHasKey('detections', $payload['envelope']);
+    }
+
+    #[Test]
     public function ingestSilentlyDropsMalformedDetection(): void
     {
         $this->repository->ingest(['source' => 'site-a']);  // no detection
