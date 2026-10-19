@@ -90,8 +90,25 @@ final class TrackerMaterializerTest extends TestCase
         self::assertArrayNotHasKey('data-name', $loaders['simplecmp-tracker-loader-gtm']['attributes']);
     }
 
+    #[Test]
+    public function signalGateMarksTheGtmServiceRequired(): void
+    {
+        $state = $this->materialize(['containerId' => 'GTM-ABC123', 'consentPosture' => 'signal-gate']);
+
+        self::assertTrue($state->isServiceRequired('gtm'));
+        self::assertSame(['google'], $state->getConsentVendors());
+    }
+
+    #[Test]
+    public function blockPostureLeavesTheGtmServiceOptional(): void
+    {
+        $state = $this->materialize(['containerId' => 'GTM-ABC123', 'consentPosture' => 'block']);
+
+        self::assertFalse($state->isServiceRequired('gtm'));
+    }
+
     /** @param array<string, mixed> $config */
-    private function materialize(array $config): void
+    private function materialize(array $config): TrackerRuntimeState
     {
         $GLOBALS['TYPO3_REQUEST'] = $this->frontendRequest();
 
@@ -105,11 +122,12 @@ final class TrackerMaterializerTest extends TestCase
             $this->createMock(ServiceRepository::class),
             $managedTrackers,
             new TrackerRegistry([new GtmProvider()]),
-            new TrackerRuntimeState(),
+            $state = new TrackerRuntimeState(),
             $this->createMock(StoragePidResolver::class),
             new NullLogger(),
         );
         $listener(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+        return $state;
     }
 
     private function frontendRequest(): ServerRequestInterface

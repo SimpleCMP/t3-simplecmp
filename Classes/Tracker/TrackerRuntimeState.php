@@ -44,6 +44,9 @@ final class TrackerRuntimeState implements SingletonInterface
     /** @var array<string, true> Set-of-vendor keys, kept stable-ordered via insertion. */
     private array $consentVendors = [];
 
+    /** @var array<string, true> Service ids a provider declared technically necessary. */
+    private array $requiredServices = [];
+
     public function requestConsentMode(): void
     {
         $this->consentModeRequested = true;
@@ -80,5 +83,20 @@ final class TrackerRuntimeState implements SingletonInterface
     public function getConsentVendors(): array
     {
         return array_keys($this->consentVendors);
+    }
+
+    /**
+     * Mark a materialized tracker's service as required (always
+     * consented, locked in the banner) for this request — see
+     * {@see RequiredServiceAware}.
+     */
+    public function markServiceRequired(string $serviceId): void
+    {
+        $this->requiredServices[$serviceId] = true;
+    }
+
+    public function isServiceRequired(string $serviceId): bool
+    {
+        return isset($this->requiredServices[$serviceId]);
     }
 }
