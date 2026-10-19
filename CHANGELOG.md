@@ -21,6 +21,12 @@ development.
   extensions (`chrome-extension://`, `moz-extension://` with its
   per-install UUID, …) and Kaspersky (`*.kaspersky-labs.com`, per-install
   GUID in the path). Bundle synced from SimpleCMP/simplecmp@b65953b.
+- **The webhook receiver strips the same data on its own.** Older bundles
+  from cached pages or other integrations still send it. Resource URLs,
+  page URL, referrer and `firstSeenOn` are stored without query string and
+  fragment; non-web identifiers and Kaspersky resources are not stored at
+  all. The `payload` column no longer keeps the whole batch (up to 25 other
+  detections plus user agent), only this detection and the page metadata.
 
 ## 14.0.10 — 2026-10-19
 
