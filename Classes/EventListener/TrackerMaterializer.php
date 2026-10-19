@@ -234,6 +234,16 @@ final readonly class TrackerMaterializer
             }
         }
 
+        // A loader that runs regardless of consent (GTM in signal-gate)
+        // is technically necessary: RegisterAssets ships its service as
+        // `required`, so the banner locks it and the runtime patches
+        // let its same-host sub-scripts through.
+        if ($provider instanceof \SimpleCMP\T3SimpleCmp\Tracker\RequiredServiceAware
+            && $provider->isRequiredService($config)
+        ) {
+            $this->runtimeState->markServiceRequired($serviceId);
+        }
+
         $bootstrap = $provider->getBootstrapInlineScript($config);
         if ($bootstrap !== '') {
             $this->assetCollector->addInlineJavaScript(

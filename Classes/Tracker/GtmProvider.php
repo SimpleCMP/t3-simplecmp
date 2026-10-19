@@ -32,8 +32,11 @@ namespace SimpleCMP\T3SimpleCmp\Tracker;
  *         - type: gtm
  *           containerId: GTM-XXXX
  *           purposes: ['analytics']    # honored via the YAML override
+ *
+ * In `signal-gate` posture the override is ignored: the service is then a
+ * required loader with purpose `functional` (see {@see isRequiredService()}).
  */
-final readonly class GtmProvider implements TrackerProviderInterface, ConsentVendorAware
+final readonly class GtmProvider implements TrackerProviderInterface, ConsentVendorAware, RequiredServiceAware
 {
     public function getConsentVendor(array $config): string
     {
@@ -64,10 +67,15 @@ final readonly class GtmProvider implements TrackerProviderInterface, ConsentVen
             'vendorCountry' => 'US',
             'purposes' => $purposes,
             'privacyPolicyUrl' => 'https://policies.google.com/privacy',
-            'description' => sprintf(
-                'Google Tag Manager (container %s). Loads further tags configured in the GTM console — each of those needs its own consent gate inside GTM.',
-                $containerId,
-            ),
+            'description' => $this->resolvePosture($config) === 'signal-gate'
+                ? sprintf(
+                    'Google Tag Manager (container %s). Technically necessary loader for the tags configured in the GTM console; which of them run is decided by the consent given to the other services (Google Consent Mode).',
+                    $containerId,
+                )
+                : sprintf(
+                    'Google Tag Manager (container %s). Loads further tags configured in the GTM console — each of those needs its own consent gate inside GTM.',
+                    $containerId,
+                ),
             'matches' => [
                 'origins' => ['www.googletagmanager.com'],
                 // GTM itself doesn't write cookies — its tags do.
@@ -122,6 +130,19 @@ final readonly class GtmProvider implements TrackerProviderInterface, ConsentVen
     }
 
     /**
+     * In `signal-gate` the container loads before any decision and loads
+     * its sub-scripts (`gtag/js?id=AW-…`) from the same host. The GTM
+     * service is then a technically necessary loader: required, so the
+     * runtime patches let those sub-scripts through, and carrying only
+     * `functional`, so it grants no Consent Mode signal itself — see
+     * {@see resolvePurposes()}.
+     */
+    public function isRequiredService(array $config): bool
+    {
+        return $this->resolvePosture($config) === 'signal-gate';
+    }
+
+    /**
      * Resolve the configured posture, defaulting to `block` (the safe
      * DACH default) for any missing / unknown / legacy value. The legacy
      * `consentDefault` boolean is intentionally NOT honored as a posture
@@ -159,6 +180,14 @@ final readonly class GtmProvider implements TrackerProviderInterface, ConsentVen
      */
     private function resolvePurposes(array $config): array
     {
+        // In signal-gate the service is required (always consented). A
+        // signal-mapped purpose (analytics, marketing) would then grant
+        // `analytics_storage` / `ad_storage` to every visitor and open
+        // every tag in the container; `functional` maps to no signal.
+        // A `purposes` override is ignored for that reason.
+        if ($this->resolvePosture($config) === 'signal-gate') {
+            return ['functional'];
+        }
         $raw = $config['purposes'] ?? null;
         if (is_array($raw) && $raw !== []) {
             $clean = [];

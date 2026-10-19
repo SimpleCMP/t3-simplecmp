@@ -86,4 +86,14 @@ final class TrackerRuntimeStateTest extends TestCase
         self::assertTrue($state->isConsentModeRequested());
         self::assertSame([], $state->getConsentVendors());
     }
+
+    #[Test]
+    public function requiredServicesAreTrackedById(): void
+    {
+        $state = new TrackerRuntimeState();
+        self::assertFalse($state->isServiceRequired('gtm'));
+        $state->markServiceRequired('gtm');
+        self::assertTrue($state->isServiceRequired('gtm'));
+        self::assertFalse($state->isServiceRequired('ga4'));
+    }
 }

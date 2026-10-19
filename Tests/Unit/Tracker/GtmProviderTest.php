@@ -117,4 +117,33 @@ final class GtmProviderTest extends TestCase
         ]);
         self::assertSame(['analytics'], $data['purposes']);
     }
+
+    #[Test]
+    public function blockPostureIsNotARequiredService(): void
+    {
+        self::assertFalse($this->provider->isRequiredService(['containerId' => 'GTM-XYZ123']));
+    }
+
+    #[Test]
+    public function signalGateMakesTheLoaderARequiredFunctionalService(): void
+    {
+        $config = ['containerId' => 'GTM-XYZ123', 'consentPosture' => 'signal-gate'];
+
+        self::assertTrue($this->provider->isRequiredService($config));
+        self::assertSame(['functional'], $this->provider->buildServiceData($config)['purposes']);
+    }
+
+    #[Test]
+    public function signalGateIgnoresAPurposeOverride(): void
+    {
+        // A required service with a signal-mapped purpose would grant
+        // ad_storage / analytics_storage to every visitor.
+        $config = [
+            'containerId' => 'GTM-XYZ123',
+            'consentPosture' => 'signal-gate',
+            'purposes' => ['marketing'],
+        ];
+
+        self::assertSame(['functional'], $this->provider->buildServiceData($config)['purposes']);
+    }
 }

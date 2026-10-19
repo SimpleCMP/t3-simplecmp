@@ -1451,6 +1451,9 @@ final readonly class RegisterAssets
                 'name' => $id,
                 'purposes' => $row['purposes'] ?? [],
             ];
+            if ($this->trackerRuntimeState->isServiceRequired($id)) {
+                $service['required'] = true;
+            }
             $cookies = $row['matches']['cookies'] ?? [];
             if ($cookies !== []) {
                 $service['cookies'] = $cookies;

@@ -462,6 +462,37 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function serviceMarkedRequiredByATrackerIsEmittedAsRequired(): void
+    {
+        // GTM in signal-gate posture: TrackerMaterializer marks its service
+        // required, so the engine treats it as always consented (locked in
+        // the banner, its same-host sub-scripts not blocked).
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'gtm', 'name' => 'Google Tag Manager', 'purposes' => ['functional']],
+            ['id' => 'ga4', 'name' => 'Google Analytics', 'purposes' => ['analytics']],
+        ]);
+        $runtimeState = new \SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState();
+        $runtimeState->markServiceRequired('gtm');
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener($runtimeState)(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        $services = array_column($this->extractConfig($captured)['services'], null, 'name');
+        self::assertTrue($services['gtm']['required'] ?? null);
+        self::assertArrayNotHasKey('required', $services['ga4']);
+    }
+
+    #[Test]
     public function initPayloadEscapesScriptClosingTagInStringValues(): void
     {
         // A string config value carrying "</script>" must not break out of the
