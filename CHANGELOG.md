@@ -10,6 +10,27 @@ development.
 
 ## Unreleased
 
+## 14.0.12 — 2026-10-20
+
+### Fixed
+
+- **Google Tag Manager in `signal-gate` posture is a technically necessary
+  loader.** The banner listed it as a normal optional service with purpose
+  `marketing`. Consenting to it alone granted all advertising signals of
+  Google Consent Mode and opened every marketing tag in the container;
+  without that consent the blocking patch stopped the scripts the container
+  loads itself from `www.googletagmanager.com`. In `signal-gate` the service
+  is now required (always on, locked in the banner) with purpose
+  `functional`, which grants no signal. `block` posture is unchanged.
+
+### Added
+
+- **Consent per service in the GTM event.** `simplecmp_consent_update`
+  carries `simplecmp: {services: {…}, purposes: {…}}`. A GTM Data Layer
+  Variable on `simplecmp.services.<name>` gates a tag per vendor, e.g.
+  LinkedIn off while Google Ads is on, which Consent Mode signals alone
+  cannot express. Bundle synced from SimpleCMP/simplecmp@9ffa0f5.
+
 ## 14.0.11 — 2026-10-19
 
 ### Fixed
