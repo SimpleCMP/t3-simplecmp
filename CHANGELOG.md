@@ -10,6 +10,19 @@ development.
 
 ## Unreleased
 
+## 14.0.9 — 2026-10-19
+
+### Fixed
+
+- **CMS bridge no longer gets 400 responses after consent.** The bundled
+  library reported third-party requests with their full URL as identifier.
+  Collect URLs (Bing UET, GA4, Clarity) exceed the 256-character limit of
+  the webhook, which then rejected the whole batch, including every other
+  detection in it. Request identifiers are now sent without query string
+  and fragment and capped at 256 characters. As a side effect, per-visitor
+  tracking ids from those query strings no longer reach the detection log.
+  Bundle synced from SimpleCMP/simplecmp@07dfe16.
+
 ## 14.0.8 — 2026-10-14
 
 ### Added
