@@ -10,6 +10,19 @@ development.
 
 ## Unreleased
 
+## 14.0.10 — 2026-10-19
+
+### Fixed
+
+- **No more `r.indexOf is not a function` warning after consent.** Google
+  Tag Manager assigns `script.src` a Trusted Types object instead of a
+  string. Since 14.0.9 the CMS bridge strips the query from identifiers,
+  and that object made the recorder throw (logged as "settled listener
+  threw"), so the blocked script was never reported to the CMS. The
+  blocking patch now reports the URL as a string and still hands the
+  original value to the browser. Bundle synced from
+  SimpleCMP/simplecmp@a225c39.
+
 ## 14.0.9 — 2026-10-19
 
 ### Fixed
