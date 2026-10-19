@@ -6,6 +6,7 @@ namespace SimpleCMP\T3SimpleCmp\Domain\Repository;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use TYPO3\CMS\Core\Database\Connection;
+use SimpleCMP\T3SimpleCmp\Service\DetectionSanitizer;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
@@ -66,7 +67,13 @@ final readonly class DetectionRepository
             ? $envelope['source']
             : 'default';
         $kind = (string) $detection['kind'];
-        $identifier = (string) $detection['identifier'];
+        $origin = isset($detection['origin']) && is_string($detection['origin'])
+            ? $detection['origin']
+            : null;
+        $identifier = DetectionSanitizer::identifier($kind, (string) $detection['identifier'], $origin);
+        if ($identifier === null) {
+            return;
+        }
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
         $existing = $this->fetchExisting($conn, $source, $kind, $identifier);
@@ -80,25 +87,32 @@ final readonly class DetectionRepository
             'sent_at' => isset($envelope['sentAt']) && is_string($envelope['sentAt'])
                 ? $envelope['sentAt']
                 : null,
-            'origin' => isset($detection['origin']) && is_string($detection['origin'])
-                ? $detection['origin']
-                : null,
-            'page_url' => isset($envelope['page']['url']) && is_string($envelope['page']['url'])
-                ? $envelope['page']['url']
-                : null,
-            'first_seen_on' => isset($detection['firstSeenOn']) && is_string($detection['firstSeenOn'])
-                ? $detection['firstSeenOn']
-                : null,
-            'referrer' => isset($envelope['page']['referrer']) && is_string($envelope['page']['referrer'])
-                ? $envelope['page']['referrer']
-                : null,
+            'origin' => $origin,
+            'page_url' => DetectionSanitizer::stripQuery(
+                isset($envelope['page']['url']) && is_string($envelope['page']['url'])
+                    ? $envelope['page']['url']
+                    : null,
+            ),
+            'first_seen_on' => DetectionSanitizer::stripQuery(
+                isset($detection['firstSeenOn']) && is_string($detection['firstSeenOn'])
+                    ? $detection['firstSeenOn']
+                    : null,
+            ),
+            'referrer' => DetectionSanitizer::stripQuery(
+                isset($envelope['page']['referrer']) && is_string($envelope['page']['referrer'])
+                    ? $envelope['page']['referrer']
+                    : null,
+            ),
             'user_agent' => isset($envelope['page']['userAgent']) && is_string($envelope['page']['userAgent'])
                 ? $envelope['page']['userAgent']
                 : null,
             'library_version' => isset($envelope['library']['version']) && is_string($envelope['library']['version'])
                 ? $envelope['library']['version']
                 : null,
-            'payload' => json_encode(['envelope' => $envelope, 'detection' => $detection], JSON_THROW_ON_ERROR),
+            'payload' => json_encode(
+                DetectionSanitizer::payload($envelope, $detection, $identifier),
+                JSON_THROW_ON_ERROR,
+            ),
         ];
 
         if ($existing === false) {
