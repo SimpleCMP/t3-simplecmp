@@ -322,6 +322,16 @@ Each service represents one third-party service and carries:
     in a future library release shows up in the BE form without a
     TCA edit). Stored in the DB as a JSON array — the form's CSV
     value is encoded on save and decoded on load.
+*   **Technically necessary** — the service is always active and shown
+    locked in the banner; visitors cannot switch it off. Only for
+    services the site cannot work without (session, security, a help
+    feature the visitor asked for). Such a service must not carry
+    ``analytics``, ``marketing``, ``advertising`` or ``personalization``:
+    it counts as consented for every visitor, so those purposes would
+    grant their Consent Mode signals without asking.
+    :code:`simplecmp:curate-service <id> --set required=1` refuses that
+    combination, and the compliance audit flags it. The purpose
+    ``functional`` alone does not lock a service.
 *   **Privacy policy URL** — vendor's own privacy policy.
 *   **Description** — short paragraph explaining what the service
     does. Surfaced in the modal.

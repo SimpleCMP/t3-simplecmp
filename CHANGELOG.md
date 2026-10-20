@@ -10,6 +10,22 @@ development.
 
 ## Unreleased
 
+## 14.0.14 — 2026-10-20
+
+### Added
+
+- **Mark a curated service as technically necessary.** New field
+  *Technically necessary* on service records (List module, and
+  `simplecmp:curate-service --set required=1`). Such a service is always
+  active and shown locked in the banner. Until now only the Tag Manager in
+  `signal-gate` posture could be required, so a first-party cookie such as
+  a help-feature router appeared as an optional switch; the purpose
+  `functional` alone does not lock a service. A required service must not
+  carry a tracking purpose: the CLI refuses it, and the new compliance check
+  *Technically necessary services carry no tracking purpose* flags it.
+  Run *Analyze Database Structure* (or `extension:setup`) after updating —
+  it adds the column `required`.
+
 ## 14.0.13 — 2026-10-20
 
 ### Fixed
