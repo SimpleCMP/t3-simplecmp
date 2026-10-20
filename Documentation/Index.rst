@@ -50,6 +50,7 @@ between minor versions.
     Introduction/Index
     Installation/Index
     Configuration/Index
+    ConsentMode/Index
     Administration/Index
     CommandLine/Index
     Recorder/Index
