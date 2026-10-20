@@ -208,10 +208,15 @@ final readonly class TrackerMaterializer
         } elseif ($loaderUrl !== null) {
             // `signal-gate` posture: the tag runs pre-consent and the
             // engine's Consent Mode v2 hook owns the gating instead.
+            // `data-no-rewrite` keeps Universal Blocking's HtmlRewriter off
+            // it: the rewriter would match the host against the library
+            // (e.g. `google-tag-manager`, a service no visitor can consent
+            // to), turn the loader into the gate shape and the container
+            // would never load — Consent Mode then has nothing to gate.
             $this->assetCollector->addJavaScript(
                 'simplecmp-tracker-loader-' . $serviceId,
                 $loaderUrl,
-                ['async' => 'async'],
+                ['async' => 'async', 'data-no-rewrite' => '1'],
                 ['csp' => true],
             );
         }

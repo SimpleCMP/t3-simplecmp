@@ -88,6 +88,8 @@ final class TrackerMaterializerTest extends TestCase
             $loaders['simplecmp-tracker-loader-gtm']['source'] ?? null,
         );
         self::assertArrayNotHasKey('data-name', $loaders['simplecmp-tracker-loader-gtm']['attributes']);
+        // Universal Blocking must leave the live loader alone.
+        self::assertSame('1', $loaders['simplecmp-tracker-loader-gtm']['attributes']['data-no-rewrite'] ?? null);
     }
 
     #[Test]
