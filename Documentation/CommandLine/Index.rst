@@ -146,6 +146,11 @@ deployment reaches the registry without anyone retyping its IDs.
 
     vendor/bin/typo3 simplecmp:setup-tracker --site=main --be-user=admin --from-settings
 
+:code:`consentPosture` is ``block`` (load after consent) or ``signal-gate``
+(load at once, gate the tags inside via Google Consent Mode). Read
+:ref:`consent-mode` before switching a Tag Manager container to
+``signal-gate``.
+
 Unknown field names and values outside an enum are refused with the list
 of what the provider accepts, so a typo fails loudly instead of being
 stored and ignored.

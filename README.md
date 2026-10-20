@@ -124,8 +124,13 @@ filter and excluded from this default actionable view.*
   `uetq.push('consent', …)` for Microsoft UET) plus a CSP policy
   contribution. Meta Pixel is signal-only — the customer's own pixel
   template keeps loading `fbevents.js`; this extension only dispatches
-  the consent transitions. The consent-*update* wiring on returning-
-  visitor replay is in progress (tracked upstream).
+  the consent transitions. Returning visitors get their stored decision
+  as an `update` right after the `default`. In GTM `signal-gate`
+  posture the container loads at once (kept out of Universal Blocking),
+  the GTM service is a required `functional` loader, one `update` is
+  sent per saved decision, and the `simplecmp_consent_update` event
+  carries the decision per service for per-vendor GTM triggers — see
+  the manual chapter *Google Tag Manager and Consent Mode*.
 
 - **Region-aware behaviour (REQ-N4)** — Site Set settings
   `simplecmp.region` / `simplecmp.regionHeader` select an opt-in (GDPR),
