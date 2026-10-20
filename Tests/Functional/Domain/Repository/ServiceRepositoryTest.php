@@ -170,6 +170,32 @@ final class ServiceRepositoryTest extends FunctionalTestCase
         self::assertSame(1, $this->repository->count());
     }
 
+    #[Test]
+    public function requiredFlagRoundTrips(): void
+    {
+        $this->seedService(['id' => 'kb-router', 'purposes' => ['functional'], 'cookies' => ['kb_f1'], 'required' => true]);
+        self::assertTrue($this->repository->findOne('kb-router')['required'] ?? null);
+
+        // Not set = not required; the key is omitted like other empty fields.
+        $this->seedService(['id' => 'kb-router', 'purposes' => ['functional'], 'cookies' => ['kb_f1']]);
+        self::assertArrayNotHasKey('required', $this->repository->findOne('kb-router') ?? []);
+    }
+
+    #[Test]
+    public function requiredFlagRoundTripsThroughTheDraft(): void
+    {
+        $this->repository->upsertDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, [
+            'id' => 'kb-router',
+            'name' => 'KB-Router',
+            'purposes' => ['functional'],
+            'matches' => ['cookies' => ['kb_f1']],
+            'required' => true,
+        ], 1);
+        self::assertTrue(
+            $this->repository->findOneDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, 'kb-router')['required'] ?? null,
+        );
+    }
+
     // --- helpers -----------------------------------------------------------
 
     /** @param array<string, mixed> $data */

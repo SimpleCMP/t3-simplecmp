@@ -166,6 +166,7 @@ final readonly class ServiceRepository
             'placeholder_description' => $this->stringOrNull(
                 $serviceData['placeholderDescription'] ?? null,
             ),
+            'required' => ($serviceData['required'] ?? false) === true ? 1 : 0,
         ];
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
@@ -389,6 +390,7 @@ final readonly class ServiceRepository
             'placeholder_description' => $this->stringOrNull(
                 $serviceData['placeholderDescription'] ?? null,
             ),
+            'required' => ($serviceData['required'] ?? false) === true ? 1 : 0,
         ];
 
         $existing = $this->findDraftRowByServiceId($scope, (string) $serviceData['id']);
@@ -494,6 +496,9 @@ final readonly class ServiceRepository
         }
         if (isset($row['placeholder_description']) && $row['placeholder_description'] !== null && $row['placeholder_description'] !== '') {
             $out['placeholderDescription'] = (string) $row['placeholder_description'];
+        }
+        if ((int) ($row['required'] ?? 0) === 1) {
+            $out['required'] = true;
         }
         return $out;
     }

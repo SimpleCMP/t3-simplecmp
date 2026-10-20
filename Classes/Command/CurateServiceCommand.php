@@ -42,6 +42,18 @@ final class CurateServiceCommand extends Command
     /** Comma-separated list fields settable with `--set`. */
     private const array LIST_FIELDS = ['purposes', 'cookies', 'origins'];
 
+    /** Boolean fields settable with `--set` (1/0, true/false, yes/no). */
+    private const array BOOL_FIELDS = ['required'];
+
+    /**
+     * Purposes a required (always consented) service must not carry: they
+     * map to Consent Mode signals or mean tracking, so a required service
+     * with one of them would grant it to every visitor.
+     */
+    private const array PURPOSES_NOT_ALLOWED_WHEN_REQUIRED = [
+        'analytics', 'marketing', 'advertising', 'personalization',
+    ];
+
     public function __construct(
         private readonly ServiceRepository $serviceRepository,
         private readonly StoragePidResolver $storagePidResolver,
@@ -63,7 +75,8 @@ final class CurateServiceCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Field as key=value (repeatable). Scalars: ' . implode(', ', self::SCALAR_FIELDS)
-                . '. Comma-separated lists: ' . implode(', ', self::LIST_FIELDS) . '.',
+                . '. Comma-separated lists: ' . implode(', ', self::LIST_FIELDS)
+                . '. Booleans: ' . implode(', ', self::BOOL_FIELDS) . '.',
             )
             ->addOption('from-json', null, InputOption::VALUE_REQUIRED, 'Read the service from a JSON file (library/export shape). --set wins over it.')
             ->addOption('remove', null, InputOption::VALUE_NONE, 'Delete this service from the registry.')
@@ -144,12 +157,26 @@ final class CurateServiceCommand extends Command
                     }
                     continue;
                 }
+                if (in_array($key, self::BOOL_FIELDS, true)) {
+                    $bool = filter_var(trim($value), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+                    if ($bool === null) {
+                        $io->error(sprintf('--set %s expects 1/0, true/false or yes/no, got "%s".', $key, $value));
+                        return Command::INVALID;
+                    }
+                    if ($bool) {
+                        $data[$key] = true;
+                    } else {
+                        unset($data[$key]);
+                    }
+                    continue;
+                }
                 if (!in_array($key, self::SCALAR_FIELDS, true)) {
                     $io->error(sprintf(
-                        'Unknown field "%s". Scalars: %s. Lists: %s.',
+                        'Unknown field "%s". Scalars: %s. Lists: %s. Booleans: %s.',
                         $key,
                         implode(', ', self::SCALAR_FIELDS),
                         implode(', ', self::LIST_FIELDS),
+                        implode(', ', self::BOOL_FIELDS),
                     ));
                     return Command::INVALID;
                 }
@@ -168,6 +195,20 @@ final class CurateServiceCommand extends Command
                 );
                 return Command::INVALID;
             }
+            if (($data['required'] ?? false) === true) {
+                $conflicting = array_values(array_intersect(
+                    $data['purposes'],
+                    self::PURPOSES_NOT_ALLOWED_WHEN_REQUIRED,
+                ));
+                if ($conflicting !== []) {
+                    $io->error(sprintf(
+                        'A required service is always consented, so it must not carry %s — that would grant '
+                        . 'it to every visitor. Use e.g. --set purposes=functional, or drop --set required=1.',
+                        implode(', ', $conflicting),
+                    ));
+                    return Command::INVALID;
+                }
+            }
             if (($data['matches']['cookies'] ?? []) === [] && ($data['matches']['origins'] ?? []) === []) {
                 $io->error(
                     'A service needs at least one cookie or origin matcher, otherwise it matches nothing '
@@ -178,6 +219,9 @@ final class CurateServiceCommand extends Command
 
             $io->writeln(sprintf(' <info>%s</info> — %s', $serviceId, (string) $data['name']));
             $io->writeln(sprintf('   purposes: %s', implode(', ', $data['purposes'])));
+            if (($data['required'] ?? false) === true) {
+                $io->writeln('   required: yes (always active, locked in the banner)');
+            }
             // A cookie matcher is a name or {name, requireOrigin}.
             $cookieNames = array_map(
                 static fn (mixed $cookie): string => is_array($cookie) ? (string) ($cookie['name'] ?? '?') : (string) $cookie,

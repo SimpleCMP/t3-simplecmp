@@ -231,6 +231,7 @@ final readonly class ComplianceCheckService
         $results[] = $this->checkPersistentRevocationTrigger($site);
         $results[] = $this->checkImprintUrlDach($site);
         $results[] = $this->checkServicesHavePurposes($services);
+        $results[] = $this->checkRequiredServicesAreEssential($services);
         $results[] = $this->checkDeclineLabelClarity($overrides);
         $results[] = $this->checkNoMarketingNudgeInDescription($overrides);
         $results[] = $this->checkDescriptionLength($overrides);
@@ -387,6 +388,38 @@ final readonly class ComplianceCheckService
             return $this->pass('services-have-purposes', '1.4');
         }
         return $this->fail('services-have-purposes', '1.4', 'warning', [
+            'count' => count($offenders),
+            'sample' => implode(', ', array_slice($offenders, 0, 5)),
+            'more' => count($offenders) > 5 ? count($offenders) - 5 : 0,
+        ]);
+    }
+
+    /**
+     * A required service is always consented and locked in the banner. If it
+     * carries a tracking purpose, that purpose — and the Consent Mode signal
+     * mapped to it — counts as granted for every visitor without asking.
+     * `simplecmp:curate-service` refuses that combination; this catches it
+     * when the record was edited in the List module.
+     *
+     * @param list<array<string, mixed>> $services
+     * @return Result
+     */
+    private function checkRequiredServicesAreEssential(array $services): array
+    {
+        $offenders = [];
+        foreach ($services as $service) {
+            if (($service['required'] ?? false) !== true) {
+                continue;
+            }
+            $purposes = is_array($service['purposes'] ?? null) ? $service['purposes'] : [];
+            if (array_intersect($purposes, ['analytics', 'marketing', 'advertising', 'personalization']) !== []) {
+                $offenders[] = (string) ($service['id'] ?? $service['name'] ?? '?');
+            }
+        }
+        if ($offenders === []) {
+            return $this->pass('required-services-essential', '1.1');
+        }
+        return $this->fail('required-services-essential', '1.1', 'critical', [
             'count' => count($offenders),
             'sample' => implode(', ', array_slice($offenders, 0, 5)),
             'more' => count($offenders) > 5 ? count($offenders) - 5 : 0,

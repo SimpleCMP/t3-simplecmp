@@ -123,6 +123,15 @@ return [
             'description' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.vendor_description.description',
             'config' => ['type' => 'text', 'rows' => 4, 'cols' => 40],
         ],
+        'required' => [
+            'label' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.required',
+            'description' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.required.description',
+            'config' => [
+                'type' => 'check',
+                'renderType' => 'checkboxToggle',
+                'default' => 0,
+            ],
+        ],
         'purposes' => [
             'label' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes',
             'description' => 'LLL:EXT:simplecmp/Resources/Private/Language/locallang_db.xlf:tx_t3simplecmp_service.purposes.description',
@@ -195,7 +204,7 @@ return [
             // `purposes` on its own row so the side-by-side dual-listbox
             // gets the full palette width; the other fields share the
             // row below it.
-            'showitem' => 'purposes, --linebreak--, privacy_policy_url, retention, i18n, extensions',
+            'showitem' => 'purposes, required, --linebreak--, privacy_policy_url, retention, i18n, extensions',
         ],
     ],
     'types' => [

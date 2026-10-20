@@ -1451,7 +1451,9 @@ final readonly class RegisterAssets
                 'name' => $id,
                 'purposes' => $row['purposes'] ?? [],
             ];
-            if ($this->trackerRuntimeState->isServiceRequired($id)) {
+            // Required: curated as technically necessary in the registry,
+            // or a tracker loader that runs regardless of consent.
+            if (($row['required'] ?? false) === true || $this->trackerRuntimeState->isServiceRequired($id)) {
                 $service['required'] = true;
             }
             $cookies = $row['matches']['cookies'] ?? [];

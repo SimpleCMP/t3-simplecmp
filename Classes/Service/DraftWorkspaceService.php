@@ -50,7 +50,7 @@ final readonly class DraftWorkspaceService
                 'vendor_description', 'purposes', 'privacy_policy_url',
                 'description', 'retention', 'i18n', 'cookies', 'origins',
                 'extensions', 'placeholder_title', 'placeholder_description',
-                'library_adopted_at',
+                'required', 'library_adopted_at',
             ],
         ],
     ];

@@ -22,6 +22,7 @@ CREATE TABLE tx_t3simplecmp_service (
     extensions text,
     placeholder_title varchar(255) DEFAULT NULL,
     placeholder_description text,
+    required tinyint(1) unsigned DEFAULT '0' NOT NULL,
     library_adopted_at int(11) unsigned DEFAULT '0' NOT NULL,
 
     PRIMARY KEY (uid),
@@ -183,6 +184,7 @@ CREATE TABLE tx_t3simplecmp_service_draft (
     extensions text,
     placeholder_title varchar(255) DEFAULT NULL,
     placeholder_description text,
+    required tinyint(1) unsigned DEFAULT '0' NOT NULL,
     library_adopted_at int(11) unsigned DEFAULT '0' NOT NULL,
 
     draft_site varchar(64) NOT NULL DEFAULT '',

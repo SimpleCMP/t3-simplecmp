@@ -493,6 +493,22 @@ final class RegisterAssetsTest extends TestCase
     }
 
     #[Test]
+    public function serviceCuratedAsRequiredIsEmittedAsRequired(): void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ]);
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'kb-router', 'name' => 'KB-Router', 'purposes' => ['functional'], 'required' => true],
+            ['id' => 'ga4', 'name' => 'Google Analytics', 'purposes' => ['analytics']],
+        ]);
+
+        $services = array_column($this->captureInitConfig()['services'], null, 'name');
+        self::assertTrue($services['kb-router']['required'] ?? null);
+        self::assertArrayNotHasKey('required', $services['ga4']);
+    }
+
+    #[Test]
     public function initPayloadEscapesScriptClosingTagInStringValues(): void
     {
         // A string config value carrying "</script>" must not break out of the
