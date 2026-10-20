@@ -18,6 +18,8 @@
       <trans-unit id="tx_t3simplecmp_service.vendor_partner.description"><source>Free-text disclosure of joint controllers, parent companies, or data-sharing partners (Fashion ID / Art. 26 GDPR), plus transfer-basis text (DPF / SCCs / Art. 49).</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.vendor_description"><source>Vendor description</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.vendor_description.description"><source>Short description of the legal entity / company itself. Distinct from the service description (which describes the service).</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.required"><source>Technically necessary</source></trans-unit>
+      <trans-unit id="tx_t3simplecmp_service.required.description"><source>Always active and shown locked in the banner; visitors cannot switch it off. Only for services the site cannot work without (session, security, a help feature the visitor asked for). Such a service must not carry analytics, marketing, advertising or personalization as purpose.</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes"><source>Purposes</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes.description"><source>What this service is used for. Choices come from the bundled tracker library and grow as new categories appear in it.</source></trans-unit>
       <trans-unit id="tx_t3simplecmp_service.purposes.item.advertising"><source>Advertising</source></trans-unit>
