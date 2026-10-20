@@ -10,6 +10,27 @@ development.
 
 ## Unreleased
 
+## 14.0.13 — 2026-10-20
+
+### Fixed
+
+- **The Tag Manager loads in `signal-gate` posture.** With Universal
+  Blocking on, the server-side rewriter matched the container's host against
+  the bundled library and turned the loader into the blocked shape, so the
+  container never loaded — not even after accept-all. The `signal-gate`
+  loader (GTM, GA4) is now kept out of the rewriter.
+- **One Consent Mode update per decision.** Accept-all pushed one
+  `consent update` and one `simplecmp_consent_update` event per service,
+  each with an intermediate state, and unsaved toggles in the preferences
+  dialog granted signals. Now one update when the visitor saves, and one on
+  withdrawal. Bundle synced from SimpleCMP/simplecmp@01336f9.
+
+### Documentation
+
+- New chapter *Google Tag Manager and Consent Mode*: the two postures, how
+  to switch, what SimpleCMP sends in `signal-gate`, a checklist for
+  preparing the container, verification and rollback.
+
 ## 14.0.12 — 2026-10-20
 
 ### Fixed
