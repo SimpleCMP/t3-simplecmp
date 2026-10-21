@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+## 14.0.15 — 2026-10-21
+
+### Fixed
+
+- **Withdrawing consent removes what the service stored.** Bundle sync of
+  SimpleCMP/simplecmp#15. Cookies on the parent domain (`_ga`, `_gcl_au`,
+  `_uet*` are written on `example.com` while the page is
+  `www.example.com`) are now deleted, services-library patterns such as
+  `'/^_ga_/'` and `{name: …}` are understood, and `localStorage` keys
+  matching a service's cookie patterns are removed too. Before, a
+  withdrawal stopped the trackers but left their identifiers behind.
+
 ## 14.0.14 — 2026-10-20
 
 ### Added
