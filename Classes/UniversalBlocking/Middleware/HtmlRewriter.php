@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\UniversalBlocking\Middleware;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -161,7 +162,7 @@ final class HtmlRewriter implements MiddlewareInterface
         if (!$site instanceof Site) {
             return $handler->handle($request);
         }
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         if (!$settings->get('simplecmp.universalBlocking.enabled')) {
             // Coverage note: this short-circuit also means the discover
             // server-write below never fires for sites that rely solely on

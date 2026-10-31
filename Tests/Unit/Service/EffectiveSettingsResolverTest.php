@@ -393,7 +393,11 @@ final class EffectiveSettingsResolverTest extends TestCase
         $settings->method('get')->willReturnCallback(
             static fn (string $k) => $allValues[$k] ?? null
         );
-        $settings->method('getIdentifiers')->willReturn($identifiers);
+        // TYPO3 12 has no SiteSettings::getIdentifiers(); SiteSetCompat
+        // derives the identifiers from the flat settings instead.
+        $settings->method('getAllFlat')->willReturn(
+            array_intersect_key($allValues, array_flip($identifiers))
+        );
         $site = $this->createMock(Site::class);
         $site->method('getSettings')->willReturn($settings);
         $finder = $this->createMock(SiteFinder::class);

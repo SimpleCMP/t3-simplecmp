@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
@@ -193,7 +194,7 @@ final readonly class BridgeRateLimiter
 
     private function limitFromSite(Site $site, string $settingKey, int $default): int
     {
-        $value = $site->getSettings()->get($settingKey);
+        $value = SiteSetCompat::settings($site)->get($settingKey);
         if (is_int($value)) {
             return max(0, $value);
         }

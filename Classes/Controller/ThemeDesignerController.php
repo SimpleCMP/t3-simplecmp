@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -915,7 +916,7 @@ final class ThemeDesignerController extends ActionController
         } catch (\Throwable) {
             return ['privacy' => '', 'imprint' => '', 'hasPrivacy' => false, 'hasImprint' => false];
         }
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         $privacy = (string) $settings->get('simplecmp.privacyPolicyUrl', '');
         $imprint = (string) $settings->get('simplecmp.imprintUrl', '');
         return [
@@ -1457,7 +1458,7 @@ final class ThemeDesignerController extends ActionController
     {
         $ids = [];
         foreach ($this->siteFinder->getAllSites() as $identifier => $site) {
-            if (in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (SiteSetCompat::isActive($site)) {
                 $ids[] = $identifier;
             }
         }

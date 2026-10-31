@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ActiveSettingsRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -108,7 +109,7 @@ final class EffectiveSettingsResolver
         } catch (\TYPO3\CMS\Core\Exception\SiteNotFoundException) {
             return $default;
         }
-        return $site->getSettings()->get($key) ?? $default;
+        return SiteSetCompat::settings($site)->get($key) ?? $default;
     }
 
     /**
@@ -371,7 +372,7 @@ final class EffectiveSettingsResolver
         } catch (\TYPO3\CMS\Core\Exception\SiteNotFoundException) {
             return [];
         }
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         $out = [];
         foreach (self::EDITOR_CONTENT_KEYS as $key) {
             $value = $settings->get($key);
@@ -392,10 +393,10 @@ final class EffectiveSettingsResolver
         } catch (\TYPO3\CMS\Core\Exception\SiteNotFoundException) {
             return [];
         }
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         $prefix = self::TRACKERS_KEY_PREFIX;
         $flat = [];
-        foreach ($settings->getIdentifiers() as $identifier) {
+        foreach (SiteSetCompat::identifiers($settings) as $identifier) {
             if (str_starts_with($identifier, $prefix)) {
                 $flat[$identifier] = $settings->get($identifier);
             }

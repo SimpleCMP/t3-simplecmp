@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ConsentLogRepository;
@@ -32,7 +33,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class AuditSnapshotController extends ActionController
 {
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
     private const PER_PAGE_OPTIONS = [25, 50, 100, 200];
     private const DEFAULT_PER_PAGE = 25;
 
@@ -232,7 +232,7 @@ final class AuditSnapshotController extends ActionController
     {
         $out = [];
         foreach ($this->siteFinder->getAllSites() as $site) {
-            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $title = (string) ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());

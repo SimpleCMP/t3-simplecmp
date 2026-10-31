@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
@@ -95,7 +96,7 @@ final readonly class StoragePidResolver
         if (!$site instanceof Site) {
             return 0;
         }
-        $value = $site->getSettings()->get(self::SETTING_KEY);
+        $value = SiteSetCompat::settings($site)->get(self::SETTING_KEY);
         if (!is_int($value) && !(is_string($value) && ctype_digit($value))) {
             return 0;
         }

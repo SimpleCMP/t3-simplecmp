@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
@@ -20,9 +21,6 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final class ActiveSiteResolver
 {
-    /** Site set that marks a site as SimpleCMP-enabled. */
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
-
     /** BE-user module-data key holding the persisted active site. */
     private const MODULE_DATA_KEY = 'simplecmp/activeSite';
 
@@ -40,7 +38,7 @@ final class ActiveSiteResolver
     {
         $ids = [];
         foreach ($this->siteFinder->getAllSites() as $identifier => $site) {
-            if (in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (SiteSetCompat::isActive($site)) {
                 $ids[] = $identifier;
             }
         }

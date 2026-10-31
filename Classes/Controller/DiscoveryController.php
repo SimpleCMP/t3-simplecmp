@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -292,7 +293,7 @@ final class DiscoveryController extends ActionController
     {
         $ids = [];
         foreach ($this->siteFinder->getAllSites() as $identifier => $site) {
-            if (in_array('simplecmp/t3-simplecmp', $site->getSets(), true)) {
+            if (SiteSetCompat::isActive($site)) {
                 $ids[] = $identifier;
             }
         }

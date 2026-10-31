@@ -538,7 +538,7 @@
       <trans-unit id="module.wizard.title"><source>SimpleCMP Setup</source><target>SimpleCMP-Einrichtung</target></trans-unit>
       <trans-unit id="module.wizard.site"><source>Site</source><target>Site</target></trans-unit>
       <trans-unit id="module.wizard.back"><source>Back</source><target>Zurück</target></trans-unit>
-      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found.</source><target>Keine Site mit SimpleCMP-Set gefunden. Bitte zuerst das Site Set „simplecmp/t3-simplecmp" einer Site zuweisen.</target></trans-unit>
+      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found.</source><target>Keine Site mit aktivem SimpleCMP gefunden. Bitte zuerst in der settings.yaml einer Site einen Block „simplecmp:“ anlegen.</target></trans-unit>
       <trans-unit id="module.wizard.error.notLoggedIn"><source>The setup wizard requires a logged-in BE user.</source><target>Der Einrichtungsassistent benötigt einen angemeldeten BE-User.</target></trans-unit>
       <trans-unit id="module.wizard.error.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d.</source><target>Der Entwurf für Site „%s" wird gerade vom BE-User uid=%d bearbeitet.</target></trans-unit>
       <trans-unit id="module.wizard.banner.heading"><source>SimpleCMP — initial setup is still pending</source><target>SimpleCMP — die Erst-Einrichtung steht noch aus</target></trans-unit>

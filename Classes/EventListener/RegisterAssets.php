@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\EventListener;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
@@ -35,10 +35,6 @@ use SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState;
  * `Configuration/Sets/SimpleCmp/settings.definitions.yaml`) into the
  * `SimpleCMP.init(...)` call as a JSON-encoded object.
  */
-#[AsEventListener(
-    identifier: 'simplecmp-typo3/register-assets',
-    event: BeforeJavaScriptsRenderingEvent::class,
-)]
 final readonly class RegisterAssets
 {
     /**
@@ -115,7 +111,7 @@ final readonly class RegisterAssets
             return;
         }
 
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         // A site that does not depend on the SimpleCMP Site Set has no
         // `simplecmp.enabled` at all (the Set's definitions supply the
         // default). Checking only `=== false` let the null through, so
@@ -362,7 +358,7 @@ final readonly class RegisterAssets
         $fullBundle = 'EXT:simplecmp/Resources/Public/JavaScript/simplecmp.global.js';
         // Ops-key: direct read to keep parity with the SiteSettings
         // mock used by RegisterAssetsTest.
-        if (!(bool) $site->getSettings()->get('simplecmp.useSlimBundle', false)) {
+        if (!(bool) SiteSetCompat::settings($site)->get('simplecmp.useSlimBundle', false)) {
             return [$fullBundle, []];
         }
         $slimBundle = 'EXT:simplecmp/Resources/Public/JavaScript/simplecmp.core.global.js';

@@ -546,7 +546,7 @@
       <trans-unit id="module.wizard.title"><source>SimpleCMP Setup</source></trans-unit>
       <trans-unit id="module.wizard.site"><source>Site</source></trans-unit>
       <trans-unit id="module.wizard.back"><source>Back</source></trans-unit>
-      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found. Add the "simplecmp/t3-simplecmp" Site Set to a site first.</source></trans-unit>
+      <trans-unit id="module.wizard.noSites"><source>No SimpleCMP-enabled sites found. Add a &quot;simplecmp:&quot; block to the settings.yaml of a site first.</source></trans-unit>
       <trans-unit id="module.wizard.error.notLoggedIn"><source>The setup wizard requires a logged-in BE user.</source></trans-unit>
       <trans-unit id="module.wizard.error.lockConflict"><source>The draft for site "%s" is locked by BE user uid=%d. Wait for them to publish, or use the publish toolbar to take over the lock.</source></trans-unit>
       <trans-unit id="module.wizard.banner.heading"><source>SimpleCMP — initial setup is still pending</source></trans-unit>

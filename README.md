@@ -205,8 +205,22 @@ predate the current controls.)*
 composer require simplecmp/t3-simplecmp
 ```
 
-In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
-dependency. Configure under Site → Settings.
+This is the **TYPO3 12** branch (`release/v12`). TYPO3 13 and 14 have
+their own branches; the version table is in the `release/v14` README.
+
+TYPO3 12 has no Site Sets. A site switches SimpleCMP on by carrying a
+`simplecmp:` block in its `config/sites/<id>/settings.yaml`:
+
+```yaml
+simplecmp:
+  enabled: true
+```
+
+Every other setting falls back to the defaults in
+`Configuration/Sets/SimpleCmp/settings.definitions.yaml`, exactly as a
+Site Set would provide them on TYPO3 13+. There is no Site Settings
+editor in TYPO3 12: change values in `settings.yaml`, then adopt them
+with `simplecmp:adopt-settings` (or the *Settings* tab).
 
 The registry (`tx_t3simplecmp_service`) starts empty and only ever
 holds admin-curated entries. The bundled

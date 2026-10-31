@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\EventListener;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
@@ -11,7 +12,6 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRegistry;
 use SimpleCMP\T3SimpleCmp\Tracker\TrackerRuntimeState;
-use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
@@ -52,11 +52,6 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  * `serviceId` than the default and adopt that variant via the
  * library browser instead.
  */
-#[AsEventListener(
-    identifier: 'simplecmp/tracker-materializer',
-    event: BeforeJavaScriptsRenderingEvent::class,
-    before: 'SimpleCMP\\T3SimpleCmp\\EventListener\\RegisterAssets',
-)]
 final readonly class TrackerMaterializer
 {
     public function __construct(
@@ -84,7 +79,7 @@ final readonly class TrackerMaterializer
             return;
         }
 
-        $settings = $site->getSettings();
+        $settings = SiteSetCompat::settings($site);
         if ($settings->has('simplecmp.enabled') && $settings->get('simplecmp.enabled') === false) {
             return;
         }

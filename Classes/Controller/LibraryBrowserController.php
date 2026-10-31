@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -426,7 +427,7 @@ final class LibraryBrowserController extends ActionController
     private function firstConfiguredUpstreamUrl(): ?string
     {
         foreach ($this->siteFinder->getAllSites() as $site) {
-            $url = $site->getSettings()->get('simplecmp.libraryUpstreamUrl');
+            $url = SiteSetCompat::settings($site)->get('simplecmp.libraryUpstreamUrl');
             if (is_string($url) && $url !== '') {
                 return $url;
             }
@@ -486,7 +487,7 @@ final class LibraryBrowserController extends ActionController
         $maxBudget = 0;
         $firstUpstreamUrl = null;
         foreach ($this->siteFinder->getAllSites() as $site) {
-            $settings = $site->getSettings();
+            $settings = SiteSetCompat::settings($site);
             $url = $settings->get('simplecmp.libraryUpstreamUrl');
             if (!is_string($url) || $url === '') {
                 continue;

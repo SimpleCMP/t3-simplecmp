@@ -102,11 +102,21 @@
                 </p>
                 <div class="d-flex flex-wrap gap-2 mt-2">
                     <f:for each="{stylesheetNudgeSites}" as="nudgeSite">
-                        <a href="{nudgeSite.uri_enable}" class="btn btn-primary btn-sm">
-                            <core:icon identifier="actions-cog" size="small" />
-                            <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.enable" />
-                            <code class="ms-1">{nudgeSite.identifier}</code>
-                        </a>
+                        <f:if condition="{nudgeSite.uri_enable}">
+                            <f:then>
+                                <a href="{nudgeSite.uri_enable}" class="btn btn-primary btn-sm">
+                                    <core:icon identifier="actions-cog" size="small" />
+                                    <f:translate key="LLL:EXT:simplecmp/Resources/Private/Language/locallang_mod.xlf:stylesheetNudge.enable" />
+                                    <code class="ms-1">{nudgeSite.identifier}</code>
+                                </a>
+                            </f:then>
+                            <f:else>
+                                <span class="badge text-bg-light text-start">
+                                    <code>config/sites/{nudgeSite.identifier}/settings.yaml</code>:
+                                    <code>simplecmp.universalBlocking.blockStylesheets: true</code>
+                                </span>
+                            </f:else>
+                        </f:if>
                     </f:for>
                     <a href="{uri_discover}" class="btn btn-outline-primary btn-sm">
                         <core:icon identifier="actions-search" size="small" />

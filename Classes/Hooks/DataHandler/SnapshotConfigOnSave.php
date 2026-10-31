@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Hooks\DataHandler;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ConfigSnapshotRepository;
 use SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -40,16 +41,6 @@ final class SnapshotConfigOnSave implements SingletonInterface
     private const TABLE_SERVICE = 'tx_t3simplecmp_service';
     private const TABLE_THEME = 'tx_t3simplecmp_theme';
     private const TABLE_OVERRIDE = 'tx_t3simplecmp_translation_override';
-
-    /**
-     * Composer/Site-Set identifier of this extension. Sites without
-     * this set in their resolved dependencies don't run SimpleCMP on
-     * the FE — snapshotting them on a service-save would write dead
-     * rows the BE never surfaces (the audit-tab filters to sites
-     * with the set). Same filter as
-     * {@see \SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController::collectSites()}.
-     */
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     /**
      * Sites that already got a snapshot during the current request,
@@ -169,7 +160,7 @@ final class SnapshotConfigOnSave implements SingletonInterface
         $finder = GeneralUtility::makeInstance(SiteFinder::class);
         $out = [];
         foreach ($finder->getAllSites() as $site) {
-            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $out[] = $site->getIdentifier();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Middleware;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -94,7 +95,7 @@ final readonly class ServiceDbApi implements MiddlewareInterface
             if (!is_string($baseHost) || strcasecmp($baseHost, $host) !== 0) {
                 continue;
             }
-            $settings = $site->getSettings();
+            $settings = SiteSetCompat::settings($site);
             $url = $settings->get('simplecmp.libraryUpstreamUrl');
             if (!is_string($url) || $url === '') {
                 continue;

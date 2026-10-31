@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ManagedTrackerRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
@@ -36,8 +37,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class SetupWizardController extends ActionController
 {
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
-
     /**
      * Curated theme presets — each preset = a token map applied to
      * the draft theme in step 2. Keep these in lockstep with the
@@ -451,7 +450,7 @@ final class SetupWizardController extends ActionController
     {
         $out = [];
         foreach ($this->siteFinder->getAllSites() as $site) {
-            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $title = (string) ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());

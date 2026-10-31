@@ -159,3 +159,24 @@ services:
       - name: 'console.command'
         command: 'simplecmp:draft'
         description: 'Inspect, open, discard or take over the draft session for a site.'
+
+  # TYPO3 12 has no #[AsEventListener] attribute: register the listeners
+  # explicitly. Identifiers and ordering match the v13/v14 attributes.
+  SimpleCMP\T3SimpleCmp\EventListener\CspPolicyMutator:
+    tags:
+      - name: event.listener
+        identifier: 'simplecmp/csp-policy-mutator'
+        event: TYPO3\CMS\Core\Security\ContentSecurityPolicy\Event\PolicyMutatedEvent
+
+  SimpleCMP\T3SimpleCmp\EventListener\TrackerMaterializer:
+    tags:
+      - name: event.listener
+        identifier: 'simplecmp/tracker-materializer'
+        event: TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent
+        before: 'simplecmp-typo3/register-assets'
+
+  SimpleCMP\T3SimpleCmp\EventListener\RegisterAssets:
+    tags:
+      - name: event.listener
+        identifier: 'simplecmp-typo3/register-assets'
+        event: TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent

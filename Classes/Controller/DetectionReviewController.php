@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -442,10 +443,9 @@ final class DetectionReviewController extends ActionController
      */
     private function stylesheetNudgeSites(): array
     {
-        $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
         $sites = [];
         foreach ($this->siteFinder->getAllSites() as $site) {
-            $settings = $site->getSettings();
+            $settings = SiteSetCompat::settings($site);
             if (!$settings->get('simplecmp.universalBlocking.enabled')) {
                 continue;
             }
@@ -454,10 +454,9 @@ final class DetectionReviewController extends ActionController
             }
             $sites[] = [
                 'identifier' => $site->getIdentifier(),
-                'uri_enable' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                    'site_settings.edit',
-                    ['site' => $site->getIdentifier(), 'returnUrl' => $returnUrl],
-                ),
+                // TYPO3 12 has no site settings editor: the template shows
+                // the settings.yaml key to set instead of a link.
+                'uri_enable' => '',
             ];
         }
         return $sites;
@@ -627,7 +626,7 @@ final class DetectionReviewController extends ActionController
     private function resolveLibraryUpstream(): array
     {
         foreach ($this->siteFinder->getAllSites() as $site) {
-            $settings = $site->getSettings();
+            $settings = SiteSetCompat::settings($site);
             $url = $settings->get('simplecmp.libraryUpstreamUrl');
             if (!is_string($url) || $url === '') {
                 continue;

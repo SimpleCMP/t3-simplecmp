@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
@@ -20,8 +21,6 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class WizardBannerContext
 {
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
-
     public function __construct(
         private WizardStateService $wizardState,
         private BackendUriBuilder $backendUriBuilder,
@@ -57,7 +56,7 @@ final readonly class WizardBannerContext
     public function forAnyPendingSite(): array
     {
         foreach ($this->siteFinder->getAllSites() as $site) {
-            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $identifier = $site->getIdentifier();

@@ -10,6 +10,22 @@ development.
 
 ## Unreleased
 
+## 12.0.0 — TYPO3 12 backport
+
+Branch `release/v12`, functionally on par with 14.0.16.
+
+- Requires TYPO3 12.4 and PHP 8.2+.
+- **No Site Sets on TYPO3 12:** a site enables SimpleCMP with a
+  `simplecmp:` block in its `settings.yaml`. `SiteSetCompat` lays the
+  defaults from `settings.definitions.yaml` under the site's own values
+  and answers the "is SimpleCMP active here" question the set used to.
+- Event listeners are registered in `Services.yaml` (no
+  `#[AsEventListener]` in TYPO3 12).
+- Assets use the `useNonce` option, the theme preview builds its URL
+  without the v13 cache-buster query, and the stylesheet nudge points to
+  `settings.yaml` instead of the Site Settings editor TYPO3 12 lacks.
+- Test suite runs on typo3/testing-framework 8.
+
 ## 14.0.16 — 2026-10-31
 
 ### Fixed

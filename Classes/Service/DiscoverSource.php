@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
 /**
@@ -24,7 +25,7 @@ final class DiscoverSource
 {
     public static function forSite(Site $site): string
     {
-        $source = (string) ($site->getSettings()->get('simplecmp.storageName') ?: '');
+        $source = (string) (SiteSetCompat::settings($site)->get('simplecmp.storageName') ?: '');
         return $source !== '' ? $source : 'simplecmp-' . $site->getIdentifier();
     }
 }

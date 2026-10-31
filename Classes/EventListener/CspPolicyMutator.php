@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimpleCMP\T3SimpleCmp\EventListener;
 
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
-use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Security\ContentSecurityPolicy\Directive;
 use TYPO3\CMS\Core\Security\ContentSecurityPolicy\Event\PolicyMutatedEvent;
@@ -47,7 +46,6 @@ use TYPO3\CMS\Core\Security\ContentSecurityPolicy\UriValue;
  * the frontend and adding tracker origins to the BE policy would only
  * weaken it.
  */
-#[AsEventListener('simplecmp/csp-policy-mutator')]
 final readonly class CspPolicyMutator
 {
     /**

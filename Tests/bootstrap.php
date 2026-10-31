@@ -22,6 +22,12 @@ require __DIR__ . '/../vendor/autoload.php';
 
 \DG\BypassFinals::enable();
 
+// TYPO3 12's PageRenderer concatenates with the global LF constant, which
+// only SystemEnvironmentBuilder defines; unit tests never boot it.
+defined('LF') || define('LF', "\n");
+defined('CR') || define('CR', "\r");
+defined('CRLF') || define('CRLF', "\r\n");
+
 $functionalDbDefaults = [
     'typo3DatabaseDriver' => 'mysqli',
     'typo3DatabaseHost' => 'db',

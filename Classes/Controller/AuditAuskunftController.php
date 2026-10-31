@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Controller;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Http\Message\ResponseInterface;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\AuditRetentionLogRepository;
 use SimpleCMP\T3SimpleCmp\Service\AuskunftCsvExporter;
@@ -39,8 +40,6 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class AuditAuskunftController extends ActionController
 {
-    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
-
     protected ModuleTemplate $moduleTemplate;
 
     public function __construct(
@@ -197,7 +196,7 @@ final class AuditAuskunftController extends ActionController
     {
         $out = [];
         foreach ($this->siteFinder->getAllSites() as $site) {
-            if (!in_array(self::SET_IDENTIFIER, $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $title = (string) ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());

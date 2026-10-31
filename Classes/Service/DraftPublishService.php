@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Service;
 
+use SimpleCMP\T3SimpleCmp\Compatibility\SiteSetCompat;
 use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -193,7 +194,7 @@ final readonly class DraftPublishService
         }
         $lastHash = null;
         foreach ($this->siteFinder->getAllSites() as $site) {
-            if (!in_array('simplecmp/t3-simplecmp', $site->getSets(), true)) {
+            if (!SiteSetCompat::isActive($site)) {
                 continue;
             }
             $h = $this->snapshotListener->snapshotIfChanged($site->getIdentifier(), 'publish', $beUserId);
