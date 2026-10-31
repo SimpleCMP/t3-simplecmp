@@ -39,7 +39,9 @@
         ],
         "origins": [
             "*.google-analytics.com",
-            "analytics.google.com"
+            "analytics.google.com",
+            "*.analytics.google.com",
+            "stats.g.doubleclick.net"
         ]
     }
 }
