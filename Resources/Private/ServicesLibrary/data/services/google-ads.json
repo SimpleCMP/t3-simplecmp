@@ -37,7 +37,9 @@
         ],
         "origins": [
             "www.googleadservices.com",
-            "google.com"
+            "google.com",
+            "www.google.com",
+            "*.doubleclick.net"
         ]
     }
 }
