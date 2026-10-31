@@ -193,7 +193,7 @@ final readonly class RegisterAssets
             'simplecmp-bundle',
             $bundlePath,
             [],
-            ['priority' => true, 'csp' => true],
+            ['priority' => true, 'useNonce' => true],
         );
 
         // Inline init right after — AssetCollector preserves insertion order
@@ -214,7 +214,7 @@ final readonly class RegisterAssets
                 ),
             ),
             [],
-            ['priority' => true, 'csp' => true],
+            ['priority' => true, 'useNonce' => true],
         );
 
         // Theme injection stays at the default (end of body) — its
@@ -293,7 +293,7 @@ final readonly class RegisterAssets
             'simplecmp-preview-meta',
             'try{window.parent.postMessage(' . $payload . ',"*");}catch(e){}',
             [],
-            ['priority' => false, 'csp' => true],
+            ['priority' => false, 'useNonce' => true],
         );
     }
 
@@ -777,7 +777,7 @@ final readonly class RegisterAssets
             'simplecmp-theme-' . $site->getIdentifier(),
             $script,
             [],
-            ['csp' => true],
+            ['useNonce' => true],
         );
     }
 

@@ -455,7 +455,7 @@ final class DetectionReviewController extends ActionController
             $sites[] = [
                 'identifier' => $site->getIdentifier(),
                 'uri_enable' => (string) $this->backendUriBuilder->buildUriFromRoute(
-                    'site_configuration.editSettings',
+                    'site_settings.edit',
                     ['site' => $site->getIdentifier(), 'returnUrl' => $returnUrl],
                 ),
             ];

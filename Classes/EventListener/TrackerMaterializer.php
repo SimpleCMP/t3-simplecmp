@@ -203,7 +203,7 @@ final readonly class TrackerMaterializer
                 // No `priority` — body bucket, after the bundle (head
                 // priority). `csp => true` so the tag receives the nonce,
                 // which the engine copies onto the live script.
-                ['csp' => true],
+                ['useNonce' => true],
             );
         } elseif ($loaderUrl !== null) {
             // `signal-gate` posture: the tag runs pre-consent and the
@@ -217,7 +217,7 @@ final readonly class TrackerMaterializer
                 'simplecmp-tracker-loader-' . $serviceId,
                 $loaderUrl,
                 ['async' => 'async', 'data-no-rewrite' => '1'],
-                ['csp' => true],
+                ['useNonce' => true],
             );
         }
 
@@ -255,7 +255,7 @@ final readonly class TrackerMaterializer
                 'simplecmp-tracker-bootstrap-' . $serviceId,
                 $bootstrap,
                 [],
-                ['csp' => true],
+                ['useNonce' => true],
             );
         }
     }
