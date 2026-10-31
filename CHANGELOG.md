@@ -10,6 +10,23 @@ development.
 
 ## Unreleased
 
+## 14.0.16 — 2026-10-31
+
+### Fixed
+
+- **Google Analytics and Google Ads hits are no longer blocked after
+  consent.** The bundled library listed `analytics.google.com` and
+  `google.com`, but origin matchers are exact unless they start with `*.`.
+  GA4 collects on `region1.analytics.google.com`, the Google tag pings
+  `www.google.com/ccm` and `*.doubleclick.net`, so Universal Blocking
+  kept all of them as unknown hosts and dropped every Google hit even
+  after "accept all". `google-analytics` now also matches
+  `*.analytics.google.com` and `stats.g.doubleclick.net`, `google-ads`
+  also `www.google.com` and `*.doubleclick.net` (#43). **Sites that
+  already adopted these services keep the old origins** until they
+  re-adopt: `simplecmp:adopt-service google-analytics google-ads
+  --site=<site> --be-user=<admin>`.
+
 ## 14.0.15 — 2026-10-21
 
 ### Fixed
