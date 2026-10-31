@@ -52,13 +52,12 @@ final class BeDateViewHelper extends AbstractViewHelper
     {
         $beUser = $GLOBALS['BE_USER'] ?? null;
         $lang = $beUser?->user['lang'] ?? null;
-        if (is_string($lang) && $lang !== '') {
-            // BE user lang is a two-letter code (`de`, `en`, …); the
-            // IntlDateFormatter accepts that directly.
+        // BE user lang is a two-letter code (`de`, `fr`, …); the
+        // IntlDateFormatter accepts that directly. English is stored as
+        // `default` up to TYPO3 13, which IntlDateFormatter rejects.
+        if (is_string($lang) && $lang !== '' && $lang !== 'default') {
             return $lang;
         }
-        // Fall back to the BE default language configured in
-        // sys_language; ultimately to 'en'.
-        return $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultUserTSconfig'] ?? 'en';
+        return 'en';
     }
 }

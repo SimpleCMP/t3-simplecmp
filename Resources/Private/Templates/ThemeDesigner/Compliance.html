@@ -394,7 +394,7 @@
     </div>
 
     <f:if condition="{activeSection}">
-        <script>
+        <script nonce="{f:security.nonce()}">
             // Smooth-scroll to the requested section on landing. The
             // browser already honors the `#section-…` fragment but
             // when the link comes from another window/tab the focus
