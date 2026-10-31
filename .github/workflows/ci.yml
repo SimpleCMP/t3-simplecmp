@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [release/v14]
+    branches: [release/v13]
   pull_request:
-    branches: [release/v14]
+    branches: [release/v13]
 
 jobs:
   unit:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3', '8.4']
+        php-version: ['8.2', '8.3', '8.4']
     steps:
       - uses: actions/checkout@v6
 
@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3', '8.4']
+        php-version: ['8.2', '8.3', '8.4']
     services:
       mariadb:
         image: mariadb:11

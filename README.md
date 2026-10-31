@@ -208,6 +208,9 @@ composer require simplecmp/t3-simplecmp
 In Site → Site Sets, add the **SimpleCMP — consent manager** set as a
 dependency. Configure under Site → Settings.
 
+This is the **TYPO3 13** branch (`release/v13`). TYPO3 12 and 14 have
+their own branches.
+
 The registry (`tx_t3simplecmp_service`) starts empty and only ever
 holds admin-curated entries. The bundled
 [`simplecmp/services-library`](https://github.com/SimpleCMP/services-library)

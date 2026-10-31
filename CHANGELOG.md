@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+## 13.0.0 — TYPO3 13 backport
+
+Branch `release/v13`, functionally on par with 14.0.16.
+
+- Requires TYPO3 13.4 and PHP 8.2+ (typed class constants removed).
+- Assets use the `useNonce` option the v13 AssetRenderer reads (v14:
+  `csp`), so the bundle and the inline init keep their CSP nonce.
+- The stylesheet nudge links the v13 `site_settings.edit` route.
+- Fixed on all branches: backend dates for English BE users (`default`
+  is not a locale), and the CSP nonce on the compliance view's inline
+  script.
+
 ## 14.0.16 — 2026-10-31
 
 ### Fixed
