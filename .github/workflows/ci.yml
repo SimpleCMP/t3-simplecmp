@@ -2,9 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [release/v14]
+    branches: [release/v12]
   pull_request:
-    branches: [release/v14]
+    branches: [release/v12]
+
+# Every public TYPO3 12.4 release carries a Packagist security advisory
+# (12 continues as ELTS only), so Composer refuses to resolve it by
+# default. The CI installs it anyway to test against.
+env:
+  COMPOSER_NO_SECURITY_BLOCKING: '1'
 
 jobs:
   unit:
@@ -13,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3', '8.4']
+        php-version: ['8.2', '8.3']
     steps:
       - uses: actions/checkout@v6
 
@@ -44,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.3', '8.4']
+        php-version: ['8.2', '8.3']
     services:
       mariadb:
         image: mariadb:11
