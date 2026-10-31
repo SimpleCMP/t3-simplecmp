@@ -20,9 +20,9 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ThemeRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_theme';
-    protected const string LIVE_TABLE = 'tx_t3simplecmp_theme';
-    protected const string DRAFT_TABLE = 'tx_t3simplecmp_theme_draft';
+    private const TABLE = 'tx_t3simplecmp_theme';
+    protected const LIVE_TABLE = 'tx_t3simplecmp_theme';
+    protected const DRAFT_TABLE = 'tx_t3simplecmp_theme_draft';
 
     use DraftRepositoryTrait;
 

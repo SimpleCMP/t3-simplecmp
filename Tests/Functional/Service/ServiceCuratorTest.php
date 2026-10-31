@@ -18,7 +18,7 @@ use SimpleCMP\T3SimpleCmp\Service\ServiceCurator;
  */
 final class ServiceCuratorTest extends FunctionalTestCase
 {
-    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
+    private const SERVICE_TABLE = 'tx_t3simplecmp_service';
 
     protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 

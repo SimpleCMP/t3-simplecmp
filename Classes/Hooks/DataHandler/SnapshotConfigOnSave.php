@@ -37,9 +37,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class SnapshotConfigOnSave implements SingletonInterface
 {
-    private const string TABLE_SERVICE = 'tx_t3simplecmp_service';
-    private const string TABLE_THEME = 'tx_t3simplecmp_theme';
-    private const string TABLE_OVERRIDE = 'tx_t3simplecmp_translation_override';
+    private const TABLE_SERVICE = 'tx_t3simplecmp_service';
+    private const TABLE_THEME = 'tx_t3simplecmp_theme';
+    private const TABLE_OVERRIDE = 'tx_t3simplecmp_translation_override';
 
     /**
      * Composer/Site-Set identifier of this extension. Sites without
@@ -49,7 +49,7 @@ final class SnapshotConfigOnSave implements SingletonInterface
      * with the set). Same filter as
      * {@see \SimpleCMP\T3SimpleCmp\Controller\AuditSnapshotController::collectSites()}.
      */
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     /**
      * Sites that already got a snapshot during the current request,

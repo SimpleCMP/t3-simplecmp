@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class PublishLockRepository
 {
-    public const string TABLE = 'tx_t3simplecmp_publish_lock';
+    public const TABLE = 'tx_t3simplecmp_publish_lock';
 
     public function __construct(
         private ConnectionPool $connectionPool,

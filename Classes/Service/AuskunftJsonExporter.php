@@ -51,7 +51,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class AuskunftJsonExporter
 {
-    public const int SCHEMA_VERSION = 1;
+    public const SCHEMA_VERSION = 1;
 
     public function encode(AuskunftBundle $bundle, string $exportedBy, ?int $exportedAt = null): string
     {

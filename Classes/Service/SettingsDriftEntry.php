@@ -18,10 +18,10 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class SettingsDriftEntry
 {
-    public const string STATE_BOOTSTRAP_PENDING = 'bootstrap-pending';
-    public const string STATE_DRIFT_YAML_NEWER = 'drift-yaml-newer';
-    public const string STATE_DRIFT_CUSTOM = 'drift-custom';
-    public const string STATE_IN_SYNC = 'in-sync';
+    public const STATE_BOOTSTRAP_PENDING = 'bootstrap-pending';
+    public const STATE_DRIFT_YAML_NEWER = 'drift-yaml-newer';
+    public const STATE_DRIFT_CUSTOM = 'drift-custom';
+    public const STATE_IN_SYNC = 'in-sync';
 
     public function __construct(
         public string $key,

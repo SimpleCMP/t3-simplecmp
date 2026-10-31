@@ -28,8 +28,8 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class BridgeNonceService
 {
-    public const int DEFAULT_TTL_SECONDS = 3600;
-    private const int RANDOM_BYTES = 16;
+    public const DEFAULT_TTL_SECONDS = 3600;
+    private const RANDOM_BYTES = 16;
 
     public function __construct(
         private BridgeSecretProvider $secretProvider,

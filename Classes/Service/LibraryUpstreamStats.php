@@ -41,8 +41,8 @@ use TYPO3\CMS\Core\SingletonInterface;
  */
 final class LibraryUpstreamStats implements SingletonInterface
 {
-    private const string REGISTRY_NAMESPACE = 'tx_t3simplecmp';
-    private const string REGISTRY_KEY = 'library_upstream_stats';
+    private const REGISTRY_NAMESPACE = 'tx_t3simplecmp';
+    private const REGISTRY_KEY = 'library_upstream_stats';
 
     public function __construct(
         private readonly Registry $registry,

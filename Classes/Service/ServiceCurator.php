@@ -41,7 +41,7 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
  */
 final readonly class ServiceCurator
 {
-    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
+    private const SERVICE_TABLE = 'tx_t3simplecmp_service';
 
     public function __construct(
         private ServiceRepository $serviceRepository,

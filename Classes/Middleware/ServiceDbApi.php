@@ -40,16 +40,16 @@ use SimpleCMP\T3SimpleCmp\Service\WebhookRequestGuard;
  */
 final readonly class ServiceDbApi implements MiddlewareInterface
 {
-    private const string API_PREFIX = '/api/simplecmp';
-    private const string V1_PREFIX = '/api/simplecmp/v1';
-    private const string WEBHOOK_PATH = '/api/simplecmp/webhook';
-    private const int SCHEMA_VERSION = 1;
-    private const int DEFAULT_LIMIT = 100;
-    private const int MAX_LIMIT = 500;
+    private const API_PREFIX = '/api/simplecmp';
+    private const V1_PREFIX = '/api/simplecmp/v1';
+    private const WEBHOOK_PATH = '/api/simplecmp/webhook';
+    private const SCHEMA_VERSION = 1;
+    private const DEFAULT_LIMIT = 100;
+    private const MAX_LIMIT = 500;
     /** Max query items accepted per /v1/lookup POST (this is a public, unauthenticated endpoint). */
-    private const int MAX_LOOKUP_ITEMS = 100;
+    private const MAX_LOOKUP_ITEMS = 100;
     /** Max length of an attacker-controlled cookie/origin string fed to the regex matchers (ReDoS guard). */
-    private const int MAX_QUERY_LENGTH = 512;
+    private const MAX_QUERY_LENGTH = 512;
 
     public function __construct(
         private ServiceRepository $services,

@@ -36,7 +36,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class SetupWizardController extends ActionController
 {
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     /**
      * Curated theme presets — each preset = a token map applied to
@@ -46,7 +46,7 @@ final class SetupWizardController extends ActionController
      *
      * @var array<string, array{label: string, description: string, tokens: array<string, string>}>
      */
-    private const array PRESETS = [
+    private const PRESETS = [
         'card-bottom-right' => [
             'label' => 'Karte unten rechts',
             'description' => 'Klassisch — eine Card in der unteren rechten Ecke. Funktioniert für die meisten Sites.',

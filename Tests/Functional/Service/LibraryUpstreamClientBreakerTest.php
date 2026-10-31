@@ -29,11 +29,11 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 final class LibraryUpstreamClientBreakerTest extends FunctionalTestCase
 {
-    private const string UPSTREAM = 'https://lib.example/v1';
+    private const UPSTREAM = 'https://lib.example/v1';
 
     // Mirrors LibraryUpstreamClient::BREAKER_TYPE / ::BREAKER_KEY (private).
-    private const string BREAKER_TYPE = '__health__';
-    private const string BREAKER_KEY = 'lookup-backoff';
+    private const BREAKER_TYPE = '__health__';
+    private const BREAKER_KEY = 'lookup-backoff';
 
     protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 

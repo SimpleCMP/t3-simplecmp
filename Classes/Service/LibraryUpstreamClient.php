@@ -53,8 +53,8 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  */
 final readonly class LibraryUpstreamClient
 {
-    private const int TIMEOUT_SECONDS = 3;
-    private const int CACHE_TTL_SECONDS = 86400; // 24h, positive + genuine no-match
+    private const TIMEOUT_SECONDS = 3;
+    private const CACHE_TTL_SECONDS = 86400; // 24h, positive + genuine no-match
 
     /**
      * Circuit-breaker window after a failed upstream call. While a
@@ -63,14 +63,14 @@ final readonly class LibraryUpstreamClient
      * cookie for the full request timeout. Short, so the breaker
      * self-heals quickly once upstream recovers.
      */
-    private const int FAILURE_BACKOFF_SECONDS = 60;
+    private const FAILURE_BACKOFF_SECONDS = 60;
 
     /**
      * Sentinel cache key for the circuit breaker. `__health__` can't
      * collide with a real query (those use type `cookie` / `origin`).
      */
-    private const string BREAKER_TYPE = '__health__';
-    private const string BREAKER_KEY = 'lookup-backoff';
+    private const BREAKER_TYPE = '__health__';
+    private const BREAKER_KEY = 'lookup-backoff';
 
     /**
      * Resolved once at construction from the ext-config field

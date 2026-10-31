@@ -38,10 +38,10 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class AuditRetentionService
 {
-    public const string TARGET_CONFIG_SNAPSHOT = 'config-snapshot';
-    public const string TARGET_CONSENT_LOG = 'consent-log';
+    public const TARGET_CONFIG_SNAPSHOT = 'config-snapshot';
+    public const TARGET_CONSENT_LOG = 'consent-log';
 
-    private const array TARGET_TABLES = [
+    private const TARGET_TABLES = [
         self::TARGET_CONFIG_SNAPSHOT => 'tx_t3simplecmp_config_snapshot',
         self::TARGET_CONSENT_LOG => 'tx_t3simplecmp_consent_log',
     ];

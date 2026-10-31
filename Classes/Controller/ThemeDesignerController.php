@@ -41,7 +41,7 @@ final class ThemeDesignerController extends ActionController
      * include this in its dependencies for SimpleCMP to load — and
      * therefore for theming it to make sense.
      */
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     /**
      * Curated list of banner / modal translation keys editors are
@@ -57,7 +57,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var list<array{key: string, kind: string}>
      */
-    public const array OVERRIDABLE_KEYS = [
+    public const OVERRIDABLE_KEYS = [
         ['key' => 'consentNotice.title', 'kind' => 'line'],
         ['key' => 'consentNotice.description', 'kind' => 'text'],
         ['key' => 'consentNotice.changeDescription', 'kind' => 'text'],
@@ -96,10 +96,10 @@ final class ThemeDesignerController extends ActionController
      *
      * @var list<string>
      */
-    public const array LANGUAGES_WITH_INFORMAL_TONE = ['de', 'es', 'fr', 'it', 'nl'];
+    public const LANGUAGES_WITH_INFORMAL_TONE = ['de', 'es', 'fr', 'it', 'nl'];
 
-    private const string TONE_FORMAL = 'formal';
-    private const string TONE_INFORMAL = 'informal';
+    private const TONE_FORMAL = 'formal';
+    private const TONE_INFORMAL = 'informal';
 
     /**
      * Defaults straight from upstream tokens.ts. Stays here as a const
@@ -108,7 +108,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array DEFAULT_TOKENS = [
+    public const DEFAULT_TOKENS = [
         // Brand-relevant colors stay editable — operators want their
         // accept button on their actual brand color even when the
         // chosen `theme` framework would otherwise bind it to the
@@ -226,7 +226,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array BACKDROP_OPACITIES = [
+    public const BACKDROP_OPACITIES = [
         '10' => '10 %',
         '20' => '20 %',
         '30' => '30 %',
@@ -246,7 +246,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array TRIGGER_POSITIONS = [
+    public const TRIGGER_POSITIONS = [
         'bottom-right' => 'Bottom right',
         'bottom-left' => 'Bottom left',
         'top-right' => 'Top right',
@@ -269,7 +269,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array SAFE_PALETTE = [
+    public const SAFE_PALETTE = [
         'color-primary' => '#1f4f8f',
         'color-primary-hover' => '#16386b',
         'color-text' => '#1a232c',
@@ -296,7 +296,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, array{label: string, inset: string, transform: string, maxWidth: ?string}>
      */
-    public const array POSITIONS = [
+    public const POSITIONS = [
         'top-left' => [
             'label' => 'Top left',
             'inset' => 'var(--simplecmp-spacing) auto auto var(--simplecmp-spacing)',
@@ -380,7 +380,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, list<string>>
      */
-    private const array FIELD_GROUPS = [
+    private const FIELD_GROUPS = [
         'brand' => [
             'color-primary',
             'color-danger',
@@ -424,7 +424,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array THEMES = [
+    public const THEMES = [
         'default' => 'Eigenständiges SimpleCMP-Design',
         'bootstrap5' => 'Bootstrap 5 (übernimmt die Bootstrap-Farben der Site)',
         'tailwind4' => 'Tailwind 4 (übernimmt die Tailwind-Farben der Site)',
@@ -442,7 +442,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, string>
      */
-    public const array LAYOUTS = [
+    public const LAYOUTS = [
         'standard' => 'Drei Buttons nebeneinander (Konfigurieren, Ablehnen, Akzeptieren)',
         'compact' => 'Zwei Buttons (Ablehnen, Akzeptieren — kein Konfigurieren auf Ebene 1)',
         'stacked' => 'Drei Buttons untereinander (für schmale Viewports / Mobile)',
@@ -461,7 +461,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var array<string, array{label: string, description: string, tokens: array<string, string>}>
      */
-    public const array STYLE_PRESETS = [
+    public const STYLE_PRESETS = [
         'card-bottom-right' => [
             'label' => 'Karte unten rechts',
             'description' => 'Klassische Card in der unteren rechten Ecke. Bewährt für die meisten Sites.',
@@ -1433,7 +1433,7 @@ final class ThemeDesignerController extends ActionController
      *
      * @var list<string>
      */
-    private const array CSS_COLOR_KEYWORDS = [
+    private const CSS_COLOR_KEYWORDS = [
         'transparent', 'currentcolor',
         'black', 'white', 'red', 'green', 'blue', 'yellow', 'cyan',
         'magenta', 'gray', 'grey', 'orange', 'purple', 'pink', 'brown',

@@ -30,8 +30,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 final class ExportAuditCommand extends Command
 {
-    private const string FORMAT_JSON = 'json';
-    private const string FORMAT_CSV = 'csv';
+    private const FORMAT_JSON = 'json';
+    private const FORMAT_CSV = 'csv';
 
     public function __construct(
         private readonly VisitorAuskunftService $auskunft,

@@ -43,22 +43,22 @@ use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
  */
 final class LibraryBrowserController extends ActionController
 {
-    private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
-    private const int DEFAULT_PER_PAGE = 25;
+    private const PER_PAGE_OPTIONS = [25, 50, 100, 500];
+    private const DEFAULT_PER_PAGE = 25;
     /**
      * `recommended` filters to entries whose adoption would resolve at
      * least one actionable detection on this site. Listed in dropdown
      * order: Verfügbar → Empfohlen → Übernommen → Alle.
      */
-    private const array STATUS_OPTIONS = ['available', 'recommended', 'adopted', 'all'];
-    private const string DEFAULT_STATUS = 'available';
+    private const STATUS_OPTIONS = ['available', 'recommended', 'adopted', 'all'];
+    private const DEFAULT_STATUS = 'available';
 
     /**
      * How many recommendations to render inline in the "💡 Empfohlen"
      * top section before the "Alle X ansehen →" overflow link. Five
      * keeps the top area tight without hiding the long tail.
      */
-    private const int TOP_RECOMMENDATIONS_INLINE = 5;
+    private const TOP_RECOMMENDATIONS_INLINE = 5;
 
     /**
      * Cap on detections fetched per render. Recommendation matching is
@@ -68,7 +68,7 @@ final class LibraryBrowserController extends ActionController
      * session — anything beyond that is a triage problem on the
      * Detektionen tab, not a library-discovery problem.
      */
-    private const int DETECTIONS_FETCH_LIMIT = 1000;
+    private const DETECTIONS_FETCH_LIMIT = 1000;
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,

@@ -25,12 +25,12 @@ final readonly class DetectionListPresenter
      * The floor avoids day-one false positives on a fresh install
      * where "any" detection is a relative spike.
      */
-    private const int SPIKE_MIN_ABSOLUTE = 50;
-    private const int SPIKE_MULTIPLIER = 10;
+    private const SPIKE_MIN_ABSOLUTE = 50;
+    private const SPIKE_MULTIPLIER = 10;
 
-    public const string STATE_CURATED = 'kuratiert';
-    public const string STATE_RECOGNIZED = 'erkannt';
-    public const string STATE_UNKNOWN = 'unbekannt';
+    public const STATE_CURATED = 'kuratiert';
+    public const STATE_RECOGNIZED = 'erkannt';
+    public const STATE_UNKNOWN = 'unbekannt';
     /**
      * Verworfen — admin clicked *Verwerfen* on the row. The dismissal is
      * persisted server-side via `dismissed_at` so it sticks across
@@ -40,7 +40,7 @@ final readonly class DetectionListPresenter
      * via *Wieder aufgreifen*; only true-delete from this state is
      * destructive.
      */
-    public const string STATE_DISMISSED = 'verworfen';
+    public const STATE_DISMISSED = 'verworfen';
 
     public function __construct(
         private DetectionRepository $detectionRepository,

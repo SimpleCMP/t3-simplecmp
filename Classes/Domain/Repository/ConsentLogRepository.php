@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ConsentLogRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_consent_log';
+    private const TABLE = 'tx_t3simplecmp_consent_log';
 
     public function __construct(
         private ConnectionPool $connectionPool,

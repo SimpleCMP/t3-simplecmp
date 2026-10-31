@@ -21,10 +21,10 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 final class ActiveSiteResolver
 {
     /** Site set that marks a site as SimpleCMP-enabled. */
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     /** BE-user module-data key holding the persisted active site. */
-    private const string MODULE_DATA_KEY = 'simplecmp/activeSite';
+    private const MODULE_DATA_KEY = 'simplecmp/activeSite';
 
     public function __construct(
         private readonly SiteFinder $siteFinder,

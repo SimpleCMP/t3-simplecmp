@@ -38,7 +38,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class GenerateBridgeSecretCommand extends Command
 {
-    private const int BYTES = 32;
+    private const BYTES = 32;
 
     protected function configure(): void
     {

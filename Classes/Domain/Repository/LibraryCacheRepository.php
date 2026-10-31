@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class LibraryCacheRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_library_cache';
+    private const TABLE = 'tx_t3simplecmp_library_cache';
 
     public function __construct(
         private ConnectionPool $connectionPool,

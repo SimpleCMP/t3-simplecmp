@@ -12,7 +12,7 @@ use SimpleCMP\T3SimpleCmp\Service\BridgeSecretProvider;
 
 final class BridgeNonceServiceTest extends TestCase
 {
-    private const string SOURCE = 'simplecmp-default';
+    private const SOURCE = 'simplecmp-default';
 
     private BridgeNonceService $service;
 

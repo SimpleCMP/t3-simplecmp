@@ -38,7 +38,7 @@ final readonly class DraftWorkspaceService
      * managed_tracker.site / allowed_stylesheet_host.source). NULL for
      * service (global — entire live table is copied).
      */
-    public const array SCOPE_TABLES_GLOBAL = [
+    public const SCOPE_TABLES_GLOBAL = [
         [
             'live' => 'tx_t3simplecmp_service',
             'draft' => 'tx_t3simplecmp_service_draft',
@@ -55,7 +55,7 @@ final readonly class DraftWorkspaceService
         ],
     ];
 
-    public const array SCOPE_TABLES_PER_SITE = [
+    public const SCOPE_TABLES_PER_SITE = [
         [
             'live' => 'tx_t3simplecmp_theme',
             'draft' => 'tx_t3simplecmp_theme_draft',

@@ -32,9 +32,9 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
  */
 final readonly class RegistryListPresenter
 {
-    public const string SOURCE_CUSTOM = 'custom';
-    public const string SOURCE_LIBRARY = 'library';
-    public const string SOURCE_ORPHANED = 'orphaned';
+    public const SOURCE_CUSTOM = 'custom';
+    public const SOURCE_LIBRARY = 'library';
+    public const SOURCE_ORPHANED = 'orphaned';
 
     public function __construct(
         private ServiceRepository $serviceRepository,

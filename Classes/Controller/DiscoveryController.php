@@ -59,7 +59,7 @@ final class DiscoveryController extends ActionController
      * a sweep paused beyond this stops recording (embeds are still blocked,
      * just not logged) — re-open the module to mint a fresh token.
      */
-    private const int DISCOVER_TOKEN_TTL_SECONDS = 7200; // 2 hours
+    private const DISCOVER_TOKEN_TTL_SECONDS = 7200; // 2 hours
 
     public function indexAction(string $site = '', string $sitemapUrl = ''): ResponseInterface
     {

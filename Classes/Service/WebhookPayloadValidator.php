@@ -25,22 +25,22 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final class WebhookPayloadValidator
 {
-    public const int MAX_BODY_BYTES = 16384;
-    private const int MAX_DETECTIONS_PER_BATCH = 50;
-    private const int MAX_IDENTIFIER = 256;
-    private const int MAX_SOURCE = 64;
-    private const int MAX_URL = 2048;
-    private const int MAX_USER_AGENT = 512;
-    private const int MAX_ORIGIN = 253;
-    private const int MAX_LIBRARY_VERSION = 32;
-    private const int MAX_SENT_AT = 40;
-    private const int MAX_COUNT = 10_000;
-    private const int MAX_MATCHED_SERVICE = 100;
-    private const int CLOCK_SKEW_FUTURE_MS = 60_000;
-    private const int LOOKBACK_MS = 24 * 3600 * 1000;
-    private const string SOURCE_REGEX = '/^[a-z0-9_-]{1,64}$/';
-    private const array ALLOWED_KINDS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
-    private const array ALLOWED_STATUSES = ['known', 'unknown'];
+    public const MAX_BODY_BYTES = 16384;
+    private const MAX_DETECTIONS_PER_BATCH = 50;
+    private const MAX_IDENTIFIER = 256;
+    private const MAX_SOURCE = 64;
+    private const MAX_URL = 2048;
+    private const MAX_USER_AGENT = 512;
+    private const MAX_ORIGIN = 253;
+    private const MAX_LIBRARY_VERSION = 32;
+    private const MAX_SENT_AT = 40;
+    private const MAX_COUNT = 10_000;
+    private const MAX_MATCHED_SERVICE = 100;
+    private const CLOCK_SKEW_FUTURE_MS = 60_000;
+    private const LOOKBACK_MS = 24 * 3600 * 1000;
+    private const SOURCE_REGEX = '/^[a-z0-9_-]{1,64}$/';
+    private const ALLOWED_KINDS = ['cookie', 'script', 'iframe', 'image', 'link', 'request'];
+    private const ALLOWED_STATUSES = ['known', 'unknown'];
 
     public function validate(string $body, ?int $nowMs = null): WebhookValidationResult
     {

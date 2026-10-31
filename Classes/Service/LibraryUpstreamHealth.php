@@ -34,8 +34,8 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  */
 final readonly class LibraryUpstreamHealth
 {
-    public const string CACHE_IDENTIFIER = 'simplecmp_library_upstream_health';
-    private const int TIMEOUT_SECONDS = 3;
+    public const CACHE_IDENTIFIER = 'simplecmp_library_upstream_health';
+    private const TIMEOUT_SECONDS = 3;
     // Success cache is long-lived: what it gates (bundle-vs-upstream drift)
     // changes only when the library is re-published — rarer than daily — and
     // a bundle upgrade invalidates the row immediately via the dataHash bind
@@ -44,8 +44,8 @@ final readonly class LibraryUpstreamHealth
     // the cache is cold, a long TTL means at most one background refresh per
     // day rather than churning probes for near-static data. Mirrors the
     // runtime LibraryUpstreamClient's 24h lookup cache.
-    private const int CACHE_TTL_SECONDS = 86400; // 24 hours
-    private const int FAILURE_TTL_SECONDS = 300; // 5 min — negative-cache failed probes
+    private const CACHE_TTL_SECONDS = 86400; // 24 hours
+    private const FAILURE_TTL_SECONDS = 300; // 5 min — negative-cache failed probes
 
     public function __construct(
         private RequestFactory $requestFactory,

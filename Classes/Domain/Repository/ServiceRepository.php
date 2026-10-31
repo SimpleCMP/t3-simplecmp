@@ -21,9 +21,9 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ServiceRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_service';
-    protected const string LIVE_TABLE = 'tx_t3simplecmp_service';
-    protected const string DRAFT_TABLE = 'tx_t3simplecmp_service_draft';
+    private const TABLE = 'tx_t3simplecmp_service';
+    protected const LIVE_TABLE = 'tx_t3simplecmp_service';
+    protected const DRAFT_TABLE = 'tx_t3simplecmp_service_draft';
 
     use DraftRepositoryTrait;
 

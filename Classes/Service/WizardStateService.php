@@ -17,8 +17,8 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class WizardStateService
 {
-    public const string KEY_COMPLETED_AT = 'simplecmp.internal.wizardCompletedAt';
-    public const string KEY_SKIPPED_AT = 'simplecmp.internal.wizardSkippedAt';
+    public const KEY_COMPLETED_AT = 'simplecmp.internal.wizardCompletedAt';
+    public const KEY_SKIPPED_AT = 'simplecmp.internal.wizardSkippedAt';
 
     public function __construct(
         private EffectiveSettingsResolver $effectiveSettings,

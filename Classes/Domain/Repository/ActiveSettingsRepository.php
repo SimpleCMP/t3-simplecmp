@@ -18,7 +18,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ActiveSettingsRepository
 {
-    public const string TABLE = 'tx_t3simplecmp_active_settings';
+    public const TABLE = 'tx_t3simplecmp_active_settings';
 
     public function __construct(
         private ConnectionPool $connectionPool,

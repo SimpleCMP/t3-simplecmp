@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class ConfigSnapshotRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_config_snapshot';
+    private const TABLE = 'tx_t3simplecmp_config_snapshot';
 
     public function __construct(
         private ConnectionPool $connectionPool,

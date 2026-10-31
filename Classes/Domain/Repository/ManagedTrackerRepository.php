@@ -34,8 +34,8 @@ use TYPO3\CMS\Core\SingletonInterface;
 final class ManagedTrackerRepository implements SingletonInterface
 {
     private const TABLE = 'tx_t3simplecmp_managed_tracker';
-    protected const string LIVE_TABLE = 'tx_t3simplecmp_managed_tracker';
-    protected const string DRAFT_TABLE = 'tx_t3simplecmp_managed_tracker_draft';
+    protected const LIVE_TABLE = 'tx_t3simplecmp_managed_tracker';
+    protected const DRAFT_TABLE = 'tx_t3simplecmp_managed_tracker_draft';
 
     use DraftRepositoryTrait;
 

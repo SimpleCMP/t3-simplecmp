@@ -25,7 +25,7 @@ final class DetectionSanitizer
      * device, not by the site. Matched as a hostname suffix. Mirrors
      * `VISITOR_INJECTED_HOST_SUFFIXES` in the browser library.
      */
-    private const array VISITOR_INJECTED_HOST_SUFFIXES = ['.kaspersky-labs.com'];
+    private const VISITOR_INJECTED_HOST_SUFFIXES = ['.kaspersky-labs.com'];
 
     /**
      * Normalised identifier, or null when the detection must not be stored.

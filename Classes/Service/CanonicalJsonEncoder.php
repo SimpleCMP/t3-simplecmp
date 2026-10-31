@@ -39,7 +39,7 @@ final readonly class CanonicalJsonEncoder
      *
      * @var list<string>
      */
-    private const array VOLATILE_FIELDS = ['uid', 'tstamp', 'crdate', 'library_adopted_at'];
+    private const VOLATILE_FIELDS = ['uid', 'tstamp', 'crdate', 'library_adopted_at'];
 
     /**
      * @param array<mixed> $data

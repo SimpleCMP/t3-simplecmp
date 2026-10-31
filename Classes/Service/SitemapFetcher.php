@@ -30,9 +30,9 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  */
 final readonly class SitemapFetcher
 {
-    private const int DEFAULT_TIMEOUT_SECONDS = 10;
-    private const int MAX_INDEX_DEPTH = 3;
-    private const int MAX_URLS = 5000;
+    private const DEFAULT_TIMEOUT_SECONDS = 10;
+    private const MAX_INDEX_DEPTH = 3;
+    private const MAX_URLS = 5000;
 
     public function __construct(
         private RequestFactory $requestFactory,

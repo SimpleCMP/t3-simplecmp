@@ -27,8 +27,8 @@ use TYPO3\CMS\Core\SingletonInterface;
 final class AllowedStylesheetHostRepository implements SingletonInterface
 {
     private const TABLE = 'tx_t3simplecmp_allowed_stylesheet_host';
-    protected const string LIVE_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host';
-    protected const string DRAFT_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host_draft';
+    protected const LIVE_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host';
+    protected const DRAFT_TABLE = 'tx_t3simplecmp_allowed_stylesheet_host_draft';
 
     use DraftRepositoryTrait;
 

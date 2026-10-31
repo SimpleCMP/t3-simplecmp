@@ -29,7 +29,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class EnforceLiveBannerConfigReadOnly implements SingletonInterface
 {
-    private const array TABLES = [
+    private const TABLES = [
         'tx_t3simplecmp_service',
         'tx_t3simplecmp_theme',
         'tx_t3simplecmp_translation_override',

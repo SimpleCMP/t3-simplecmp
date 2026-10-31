@@ -26,8 +26,8 @@ use TYPO3\CMS\Core\Registry;
  */
 final readonly class DetectionResetGeneration
 {
-    private const string NAMESPACE = 'tx_t3simplecmp';
-    private const string KEY_PREFIX = 'reportGeneration.';
+    private const NAMESPACE = 'tx_t3simplecmp';
+    private const KEY_PREFIX = 'reportGeneration.';
 
     public function __construct(
         private Registry $registry,

@@ -42,10 +42,10 @@ use TYPO3\CMS\Core\Configuration\ConfigurationManager;
  */
 final readonly class BridgeSecretProvider
 {
-    private const string CONFIG_KEY = 'bridgeSecret';
-    private const string EXTENSION_KEY = 'simplecmp';
-    private const int MIN_SECRET_BYTES = 32;
-    private const int GENERATED_BYTES = 32;
+    private const CONFIG_KEY = 'bridgeSecret';
+    private const EXTENSION_KEY = 'simplecmp';
+    private const MIN_SECRET_BYTES = 32;
+    private const GENERATED_BYTES = 32;
 
     public function __construct(
         private ?ConfigurationManager $configurationManager = null,

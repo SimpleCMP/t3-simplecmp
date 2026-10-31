@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  */
 final class HtmlRewriterDiscoverAuthTest extends TestCase
 {
-    private const string SOURCE = 'mysite';
+    private const SOURCE = 'mysite';
 
     protected function setUp(): void
     {

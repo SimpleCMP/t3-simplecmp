@@ -33,8 +33,8 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class StoragePidResolver
 {
-    private const string SETTING_KEY = 'simplecmp.storagePid';
-    private const string SOURCE_PREFIX = 'simplecmp-';
+    private const SETTING_KEY = 'simplecmp.storagePid';
+    private const SOURCE_PREFIX = 'simplecmp-';
 
     public function __construct(
         private SiteFinder $siteFinder,

@@ -18,7 +18,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class LockState
 {
-    public const string SCOPE_GLOBAL = '__global__';
+    public const SCOPE_GLOBAL = '__global__';
 
     public function __construct(
         public string $scope,

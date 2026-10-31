@@ -12,8 +12,8 @@ use SimpleCMP\T3SimpleCmp\Service\WizardStateService;
 
 final class WizardStateServiceTest extends TestCase
 {
-    private const string SITE = 'default';
-    private const int BE_USER = 42;
+    private const SITE = 'default';
+    private const BE_USER = 42;
 
     #[Test]
     public function bannerVisibleWhenNeitherKeySet(): void

@@ -11,7 +11,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class LibraryCacheRepositoryTest extends FunctionalTestCase
 {
-    private const string TABLE = 'tx_t3simplecmp_library_cache';
+    private const TABLE = 'tx_t3simplecmp_library_cache';
 
     protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 

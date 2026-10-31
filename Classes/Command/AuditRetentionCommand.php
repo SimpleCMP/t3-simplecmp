@@ -31,9 +31,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 final class AuditRetentionCommand extends Command
 {
-    private const int MIN_REASON_LENGTH = 30;
-    private const int CONSERVATIVE_MIN_DAYS = 90;
-    private const string TARGET_ALL = 'all';
+    private const MIN_REASON_LENGTH = 30;
+    private const CONSERVATIVE_MIN_DAYS = 90;
+    private const TARGET_ALL = 'all';
 
     public function __construct(
         private readonly AuditRetentionService $service,

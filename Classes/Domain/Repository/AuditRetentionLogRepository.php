@@ -18,7 +18,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class AuditRetentionLogRepository
 {
-    public const string TABLE = 'tx_t3simplecmp_audit_retention_log';
+    public const TABLE = 'tx_t3simplecmp_audit_retention_log';
 
     public function __construct(
         private ConnectionPool $connectionPool,

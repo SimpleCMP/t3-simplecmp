@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class EnforceConfigSnapshotAppendOnly implements SingletonInterface
 {
-    private const string TABLE = 'tx_t3simplecmp_config_snapshot';
+    private const TABLE = 'tx_t3simplecmp_config_snapshot';
 
     /**
      * Refuse the data write before it touches the DB. `$fieldArray =

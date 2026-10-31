@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class WebhookRequestGuard
 {
-    private const array ALLOWED_FETCH_SITES = ['same-origin', 'same-site'];
+    private const ALLOWED_FETCH_SITES = ['same-origin', 'same-site'];
 
     public function __construct(
         private SiteFinder $siteFinder,

@@ -12,7 +12,7 @@ use SimpleCMP\T3SimpleCmp\Domain\Repository\DetectionRepository;
 
 final class DetectionRepositoryTest extends FunctionalTestCase
 {
-    private const string TABLE = 'tx_t3simplecmp_detection';
+    private const TABLE = 'tx_t3simplecmp_detection';
 
     protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 

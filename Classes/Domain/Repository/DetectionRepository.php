@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class DetectionRepository
 {
-    private const string TABLE = 'tx_t3simplecmp_detection';
+    private const TABLE = 'tx_t3simplecmp_detection';
 
     public function __construct(
         private ConnectionPool $connectionPool,

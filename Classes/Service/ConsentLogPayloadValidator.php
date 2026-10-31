@@ -28,15 +28,15 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final class ConsentLogPayloadValidator
 {
-    public const int MAX_BODY_BYTES = 4096;
-    public const int MAX_DECISIONS_COUNT = 200;
-    private const string SOURCE_REGEX = '/^[a-z0-9_-]{1,64}$/';
-    private const string HASH_REGEX = '/^[0-9a-f]{64}$/';
-    private const string UUID_REGEX = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
-    private const string SERVICE_ID_REGEX = '/^[a-zA-Z0-9_.-]{1,100}$/';
-    private const string PAGE_HOST_REGEX = '/^[a-z0-9.-]{1,253}$/';
-    private const array ALLOWED_DECISION_TYPES = ['accept', 'decline', 'script', 'partial'];
-    private const array ALLOWED_UA_FAMILIES = ['chrome', 'firefox', 'safari', 'edge', 'opera', 'other'];
+    public const MAX_BODY_BYTES = 4096;
+    public const MAX_DECISIONS_COUNT = 200;
+    private const SOURCE_REGEX = '/^[a-z0-9_-]{1,64}$/';
+    private const HASH_REGEX = '/^[0-9a-f]{64}$/';
+    private const UUID_REGEX = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
+    private const SERVICE_ID_REGEX = '/^[a-zA-Z0-9_.-]{1,100}$/';
+    private const PAGE_HOST_REGEX = '/^[a-z0-9.-]{1,253}$/';
+    private const ALLOWED_DECISION_TYPES = ['accept', 'decline', 'script', 'partial'];
+    private const ALLOWED_UA_FAMILIES = ['chrome', 'firefox', 'safari', 'edge', 'opera', 'other'];
 
     public function validate(string $body): WebhookValidationResult
     {

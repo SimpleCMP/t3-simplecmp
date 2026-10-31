@@ -29,10 +29,10 @@ use SimpleCMP\T3SimpleCmp\Service\RegistryListPresenter;
  */
 final class RegistryListController extends ActionController
 {
-    private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
-    private const int DEFAULT_PER_PAGE = 25;
-    private const array SOURCE_OPTIONS = ['all', 'custom', 'library', 'orphaned'];
-    private const string DEFAULT_SOURCE = 'all';
+    private const PER_PAGE_OPTIONS = [25, 50, 100, 500];
+    private const DEFAULT_PER_PAGE = 25;
+    private const SOURCE_OPTIONS = ['all', 'custom', 'library', 'orphaned'];
+    private const DEFAULT_SOURCE = 'all';
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,

@@ -32,9 +32,9 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class AuditSnapshotController extends ActionController
 {
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
-    private const array PER_PAGE_OPTIONS = [25, 50, 100, 200];
-    private const int DEFAULT_PER_PAGE = 25;
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const PER_PAGE_OPTIONS = [25, 50, 100, 200];
+    private const DEFAULT_PER_PAGE = 25;
 
     protected ModuleTemplate $moduleTemplate;
 

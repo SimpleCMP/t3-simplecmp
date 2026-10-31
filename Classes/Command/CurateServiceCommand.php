@@ -33,24 +33,24 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 final class CurateServiceCommand extends Command
 {
     /** Scalar fields settable with `--set`. */
-    private const array SCALAR_FIELDS = [
+    private const SCALAR_FIELDS = [
         'name', 'vendor', 'vendorCountry', 'vendorAddress', 'vendorOptOutUrl',
         'vendorPartner', 'vendorDescription', 'privacyPolicyUrl', 'description',
         'placeholderTitle', 'placeholderDescription',
     ];
 
     /** Comma-separated list fields settable with `--set`. */
-    private const array LIST_FIELDS = ['purposes', 'cookies', 'origins'];
+    private const LIST_FIELDS = ['purposes', 'cookies', 'origins'];
 
     /** Boolean fields settable with `--set` (1/0, true/false, yes/no). */
-    private const array BOOL_FIELDS = ['required'];
+    private const BOOL_FIELDS = ['required'];
 
     /**
      * Purposes a required (always consented) service must not carry: they
      * map to Consent Mode signals or mean tracking, so a required service
      * with one of them would grant it to every visitor.
      */
-    private const array PURPOSES_NOT_ALLOWED_WHEN_REQUIRED = [
+    private const PURPOSES_NOT_ALLOWED_WHEN_REQUIRED = [
         'analytics', 'marketing', 'advertising', 'personalization',
     ];
 

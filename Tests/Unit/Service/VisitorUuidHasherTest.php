@@ -18,9 +18,9 @@ use SimpleCMP\T3SimpleCmp\Service\VisitorUuidHasher;
  */
 final class VisitorUuidHasherTest extends TestCase
 {
-    private const string UUID = 'e8400000-1234-4abc-9def-1234567890ab';
-    private const string SOURCE = 'simplecmp-default';
-    private const string SECRET = 'unit-test-secret-do-not-rotate-this-string-please';
+    private const UUID = 'e8400000-1234-4abc-9def-1234567890ab';
+    private const SOURCE = 'simplecmp-default';
+    private const SECRET = 'unit-test-secret-do-not-rotate-this-string-please';
 
     #[Test]
     public function deterministicForSameInputs(): void

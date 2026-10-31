@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class EnforceConsentLogAppendOnly implements SingletonInterface
 {
-    private const string TABLE = 'tx_t3simplecmp_consent_log';
+    private const TABLE = 'tx_t3simplecmp_consent_log';
 
     /**
      * @param array<string, mixed> $fieldArray

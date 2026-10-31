@@ -37,7 +37,7 @@ final class TrackerSetupController extends ActionController
      * SimpleCMP on the FE — picking trackers for them would be a
      * no-op, so they're filtered out of the site selector.
      */
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     protected ModuleTemplate $moduleTemplate;
 

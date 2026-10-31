@@ -37,7 +37,7 @@ final class EffectiveSettingsResolver
      *
      * @var list<string>
      */
-    public const array EDITOR_CONTENT_KEYS = [
+    public const EDITOR_CONTENT_KEYS = [
         'simplecmp.enabled',
         'simplecmp.storageName',
         'simplecmp.privacyPolicyUrl',
@@ -61,12 +61,12 @@ final class EffectiveSettingsResolver
      *
      * @var list<string>
      */
-    public const array INTERNAL_KEYS = [
+    public const INTERNAL_KEYS = [
         'simplecmp.internal.wizardCompletedAt',
         'simplecmp.internal.wizardSkippedAt',
     ];
 
-    private const string TRACKERS_KEY_PREFIX = 'simplecmp.trackers.';
+    private const TRACKERS_KEY_PREFIX = 'simplecmp.trackers.';
 
     /**
      * Per-site cache: ['active' => array, 'yaml' => array].

@@ -59,7 +59,7 @@ final readonly class RegisterAssets
      *
      * @var list<string>
      */
-    private const array THEME_SELECTORS = [
+    private const THEME_SELECTORS = [
         'simplecmp-banner',
         'simplecmp-modal',
         'simplecmp-purpose-group',
@@ -80,7 +80,7 @@ final readonly class RegisterAssets
      * per-site source binding stops a token minted for site A from
      * unlocking site B's draft.
      */
-    public const string PREVIEW_NONCE_SOURCE_PREFIX = 'simplecmp-preview-';
+    public const PREVIEW_NONCE_SOURCE_PREFIX = 'simplecmp-preview-';
 
     public function __construct(
         private AssetCollector $assetCollector,
@@ -1292,9 +1292,9 @@ final readonly class RegisterAssets
      *     privacyPolicyUrl?: string,
      * }>
      */
-    private const int LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 100000;
+    private const LIBRARY_FALLBACK_RAW_BUDGET_BYTES = 100000;
 
-    private const array LIBRARY_FALLBACK_VENDOR_FIELDS = [
+    private const LIBRARY_FALLBACK_VENDOR_FIELDS = [
         'vendor',
         'vendorCountry',
         'vendorAddress',

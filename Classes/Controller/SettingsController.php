@@ -22,7 +22,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 final class SettingsController extends ActionController
 {
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     protected ModuleTemplate $moduleTemplate;
 

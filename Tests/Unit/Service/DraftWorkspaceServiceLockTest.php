@@ -21,8 +21,8 @@ use SimpleCMP\T3SimpleCmp\Service\LockState;
  */
 final class DraftWorkspaceServiceLockTest extends TestCase
 {
-    public const int FROZEN_NOW = 1_700_000_000;
-    public const string SCOPE = 'default';
+    public const FROZEN_NOW = 1_700_000_000;
+    public const SCOPE = 'default';
 
     #[Test]
     public function acquireLockOnEmptyScopeReturnsOwnedLock(): void

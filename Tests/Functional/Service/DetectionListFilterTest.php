@@ -25,7 +25,7 @@ use SimpleCMP\T3SimpleCmp\Service\DetectionListFilter;
  */
 final class DetectionListFilterTest extends FunctionalTestCase
 {
-    private const string DETECTION_TABLE = 'tx_t3simplecmp_detection';
+    private const DETECTION_TABLE = 'tx_t3simplecmp_detection';
 
     protected array $testExtensionsToLoad = ['simplecmp/t3-simplecmp'];
 

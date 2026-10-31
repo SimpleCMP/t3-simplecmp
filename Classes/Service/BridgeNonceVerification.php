@@ -14,11 +14,11 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class BridgeNonceVerification
 {
-    public const string OK = 'ok';
-    public const string MALFORMED = 'malformed';
-    public const string INVALID = 'invalid';
-    public const string SOURCE_MISMATCH = 'source_mismatch';
-    public const string EXPIRED = 'expired';
+    public const OK = 'ok';
+    public const MALFORMED = 'malformed';
+    public const INVALID = 'invalid';
+    public const SOURCE_MISMATCH = 'source_mismatch';
+    public const EXPIRED = 'expired';
 
     private function __construct(public string $status) {}
 

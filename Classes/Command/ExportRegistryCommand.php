@@ -43,7 +43,7 @@ final class ExportRegistryCommand extends Command
      * notice. The importer refuses a version it does not understand
      * rather than guessing at a half-matching structure.
      */
-    public const int FORMAT_VERSION = 1;
+    public const FORMAT_VERSION = 1;
 
     public function __construct(
         private readonly ServiceRepository $serviceRepository,

@@ -82,7 +82,7 @@ final readonly class ComplianceCheckService
      * resolves at audit time against locallang so the editor sees the
      * label in their BE language.
      */
-    private const array PAIRED_TOKENS = [
+    private const PAIRED_TOKENS = [
         ['tokens' => ['color-primary', 'color-primary-hover'], 'labelKey' => 'audit.pairedToken.primary'],
         ['tokens' => ['color-bg', 'color-bg-alt'], 'labelKey' => 'audit.pairedToken.background'],
         ['tokens' => ['color-text', 'color-text-muted'], 'labelKey' => 'audit.pairedToken.text'],
@@ -94,7 +94,7 @@ final readonly class ComplianceCheckService
      *
      * @var array<string, list<array{phrase: string, reason: string}>>
      */
-    private const array WEAK_DECLINE_PATTERNS = [
+    private const WEAK_DECLINE_PATTERNS = [
         'de' => [
             ['phrase' => 'vielleicht später', 'reason' => 'verschiebt die Entscheidung statt sie zu treffen'],
             ['phrase' => 'nicht jetzt', 'reason' => 'klingt aufschiebend, nicht ablehnend'],
@@ -139,7 +139,7 @@ final readonly class ComplianceCheckService
      *
      * @var array<string, list<array{phrase: string, reason: string}>>
      */
-    private const array MARKETING_NUDGE_PATTERNS = [
+    private const MARKETING_NUDGE_PATTERNS = [
         'de' => [
             ['phrase' => 'erlebnis verbessern', 'reason' => '„Erlebnis" ist Marketing-Sprache'],
             ['phrase' => 'verbessere dein erlebnis', 'reason' => 'manipulativer Nudge zur Zustimmung'],
@@ -249,8 +249,8 @@ final readonly class ComplianceCheckService
      * in lockstep — a value change upstream is a re-sync trigger
      * here.
      */
-    private const int DESCRIPTION_MIN_CHARS = 80;
-    private const int DESCRIPTION_MAX_CHARS = 600;
+    private const DESCRIPTION_MIN_CHARS = 80;
+    private const DESCRIPTION_MAX_CHARS = 600;
 
     /**
      * Worst severity across a result set. Mirrors upstream
@@ -799,7 +799,7 @@ final readonly class ComplianceCheckService
      *
      * @var list<string>
      */
-    private const array ACCESSIBLE_NAME_OVERRIDE_KEYS = [
+    private const ACCESSIBLE_NAME_OVERRIDE_KEYS = [
         // Main banner action buttons — their text is the accessible name.
         'acceptAll',
         'decline',

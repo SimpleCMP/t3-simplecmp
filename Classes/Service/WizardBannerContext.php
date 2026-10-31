@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class WizardBannerContext
 {
-    private const string SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
+    private const SET_IDENTIFIER = 'simplecmp/t3-simplecmp';
 
     public function __construct(
         private WizardStateService $wizardState,

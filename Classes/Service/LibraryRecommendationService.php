@@ -39,7 +39,7 @@ final readonly class LibraryRecommendationService
      * matches ≤5 detections; 20+ would be a regex matcher gone
      * adversarial).
      */
-    private const int IDENTIFIERS_CAP = 20;
+    private const IDENTIFIERS_CAP = 20;
 
 
     /**

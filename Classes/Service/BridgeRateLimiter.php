@@ -40,14 +40,14 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final readonly class BridgeRateLimiter
 {
-    public const string CACHE_IDENTIFIER = 'simplecmp_bridge_ratelimit';
-    private const string SETTING_KEY = 'simplecmp.bridgeRateLimit';
-    private const int DEFAULT_LIMIT = 500;
-    private const string LOOKUP_SETTING_KEY = 'simplecmp.serviceDbRateLimit';
-    private const int LOOKUP_DEFAULT_LIMIT = 5000;
-    private const string CONSENT_LOG_SETTING_KEY = 'simplecmp.consentLogRateLimit';
-    private const int CONSENT_LOG_DEFAULT_LIMIT = 100;
-    private const int BUCKET_SECONDS = 3600;
+    public const CACHE_IDENTIFIER = 'simplecmp_bridge_ratelimit';
+    private const SETTING_KEY = 'simplecmp.bridgeRateLimit';
+    private const DEFAULT_LIMIT = 500;
+    private const LOOKUP_SETTING_KEY = 'simplecmp.serviceDbRateLimit';
+    private const LOOKUP_DEFAULT_LIMIT = 5000;
+    private const CONSENT_LOG_SETTING_KEY = 'simplecmp.consentLogRateLimit';
+    private const CONSENT_LOG_DEFAULT_LIMIT = 100;
+    private const BUCKET_SECONDS = 3600;
 
     public function __construct(
         private CacheManager $cacheManager,

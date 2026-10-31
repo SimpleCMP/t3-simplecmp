@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 final class EffectiveSettingsResolverTest extends TestCase
 {
-    private const string SITE = 'default';
+    private const SITE = 'default';
 
     #[Test]
     public function returnsYamlForEditorKeyWhenNoActiveRow(): void

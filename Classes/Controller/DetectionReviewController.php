@@ -48,11 +48,11 @@ use SimpleCMP\T3SimpleCmp\Service\StoragePidResolver;
  */
 final class DetectionReviewController extends ActionController
 {
-    private const string DETECTION_TABLE = 'tx_t3simplecmp_detection';
-    private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
-    private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
-    private const int DEFAULT_PER_PAGE = 25;
-    private const array STATUS_OPTIONS = [
+    private const DETECTION_TABLE = 'tx_t3simplecmp_detection';
+    private const SERVICE_TABLE = 'tx_t3simplecmp_service';
+    private const PER_PAGE_OPTIONS = [25, 50, 100, 500];
+    private const DEFAULT_PER_PAGE = 25;
+    private const STATUS_OPTIONS = [
         'pending',
         'erkannt',
         'unbekannt',
@@ -60,9 +60,9 @@ final class DetectionReviewController extends ActionController
         'verworfen',
         'all',
     ];
-    private const string DEFAULT_STATUS = 'pending';
-    private const array KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'stylesheet', 'request'];
-    private const array CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
+    private const DEFAULT_STATUS = 'pending';
+    private const KIND_OPTIONS = ['cookie', 'script', 'iframe', 'image', 'link', 'stylesheet', 'request'];
+    private const CONFIDENCE_OPTIONS = ['low', 'medium', 'high'];
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,

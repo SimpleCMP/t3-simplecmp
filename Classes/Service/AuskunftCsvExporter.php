@@ -32,7 +32,7 @@ namespace SimpleCMP\T3SimpleCmp\Service;
  */
 final readonly class AuskunftCsvExporter
 {
-    private const string UTF8_BOM = "\xEF\xBB\xBF";
+    private const UTF8_BOM = "\xEF\xBB\xBF";
 
     public function encode(AuskunftBundle $bundle, string $exportedBy, ?int $exportedAt = null): string
     {
