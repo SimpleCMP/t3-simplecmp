@@ -10,7 +10,9 @@ development.
 
 ## Unreleased
 
-## 12.0.0 — TYPO3 12 backport
+## 12.0.0 — 2026-11-01
+
+TYPO3 12 backport.
 
 Branch `release/v12`, functionally on par with 14.0.16.
 
