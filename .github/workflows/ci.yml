@@ -28,9 +28,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: vendor
-          key: composer-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+          key: composer-v13-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
           restore-keys: |
-            composer-${{ matrix.php-version }}-
+            composer-v13-${{ matrix.php-version }}-
 
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
@@ -79,9 +79,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: vendor
-          key: composer-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+          key: composer-v13-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
           restore-keys: |
-            composer-${{ matrix.php-version }}-
+            composer-v13-${{ matrix.php-version }}-
 
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
