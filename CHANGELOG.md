@@ -10,6 +10,23 @@ development.
 
 ## Unreleased
 
+## 14.0.17 — 2026-11-01
+
+### Fixed
+
+- **Backend dates no longer crash for English users or the fallback
+  path.** `BeDateViewHelper` passed the BE user's `lang` to
+  `IntlDateFormatter` unchecked, and its fallback returned the
+  `defaultUserTSconfig` string instead of a locale. `default` and an
+  empty value now resolve to `en` (#46).
+- **The compliance view's scroll script carries a CSP nonce**, so the
+  backend policy no longer blocks it (#46).
+
+### Also released
+
+- **12.0.0** (TYPO3 12) and **13.0.0** (TYPO3 13) from the new
+  `release/v12` and `release/v13` branches.
+
 ## 14.0.16 — 2026-10-31
 
 ### Fixed
