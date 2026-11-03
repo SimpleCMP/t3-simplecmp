@@ -10,6 +10,16 @@ development.
 
 ## Unreleased
 
+## 14.0.18 — 2026-11-03
+
+### Fixed
+
+- **Pages with blocked videos no longer jump down on load.** Every
+  automatically inserted consent placeholder focused its own "Yes" button;
+  with several blocked embeds the last one kept focus and the browser
+  scrolled to it. The placeholders no longer take focus (upstream
+  SimpleCMP/simplecmp#18, bundle sync b1d6497).
+
 ## 14.0.17 — 2026-11-01
 
 ### Fixed
