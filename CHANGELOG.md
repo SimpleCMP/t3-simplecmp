@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+## 14.0.19 — 2026-11-18
+
+### Fixed
+
+- **Managed trackers can be deleted and edited again in the backend.** The
+  tracker setup list passed the live uid to edit, save and delete. Opening
+  the draft copies the rows under new uids, so deleting reported success
+  while the tracker stayed in place. Trackers are now addressed by their
+  service id, the list shows the draft while an editing session is open,
+  and a service id already used by another tracker of the site is refused
+  (#52).
+
 ## 14.0.18 — 2026-11-03
 
 ### Fixed
