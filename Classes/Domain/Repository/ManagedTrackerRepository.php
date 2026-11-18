@@ -162,6 +162,24 @@ final class ManagedTrackerRepository implements SingletonInterface
     }
 
     /**
+     * Draft row of a site's tracker by its service id. The service id is the
+     * stable key across live and draft — {@see \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService::initializeDraft()} copies the
+     * live rows into the draft table under NEW uids, so a live uid matches
+     * no draft row.
+     *
+     * @return array{uid: int, site: string, tracker_type: string, service_id: string, config: array<string, mixed>, tstamp: int, crdate: int}|null
+     */
+    public function findOneDraftByServiceId(string $scope, string $serviceId): ?array
+    {
+        foreach ($this->findBySiteDraft($scope) as $row) {
+            if ($row['service_id'] === $serviceId) {
+                return $row;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @param array<string, mixed> $config
      */
     public function saveDraft(

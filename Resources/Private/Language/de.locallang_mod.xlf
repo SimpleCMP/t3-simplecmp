@@ -482,6 +482,7 @@
       <trans-unit id="module.trackerSetup.updated"><source>Tracker updated.</source><target>Tracker aktualisiert.</target></trans-unit>
       <trans-unit id="module.trackerSetup.deleted"><source>Tracker deleted.</source><target>Tracker gelöscht.</target></trans-unit>
       <trans-unit id="module.trackerSetup.notFound"><source>Tracker not found.</source><target>Tracker nicht gefunden.</target></trans-unit>
+      <trans-unit id="module.trackerSetup.duplicateServiceId"><source>A tracker with the service id "%s" already exists for this site.</source><target>Für diese Site gibt es bereits einen Tracker mit der Service-ID „%s“.</target></trans-unit>
       <trans-unit id="module.trackerSetup.unknownType"><source>Unknown tracker type: %s</source><target>Unbekannter Tracker-Typ: %s</target></trans-unit>
       <trans-unit id="module.trackerSetup.unknownSite"><source>Unknown site: %s</source><target>Unbekannte Site: %s</target></trans-unit>
       <trans-unit id="module.trackerSetup.validationFailed"><source>Validation failed</source><target>Validierung fehlgeschlagen</target></trans-unit>

@@ -92,7 +92,7 @@ final class TrackerSetupController extends ActionController
         // other tabs' unified draft banner.
         $selected = $this->activeSiteResolver->resolve($site);
 
-        $dbTrackers = $this->managedTrackerRepository->findBySite($selected);
+        $dbTrackers = $this->trackersFor($selected);
 
         // Phase-5: YAML trackers are proposals shown in the Settings
         // tab. Here we just count how many are not yet adopted so we
@@ -192,23 +192,29 @@ final class TrackerSetupController extends ActionController
         return $this->moduleTemplate->renderResponse('TrackerSetup/Edit');
     }
 
-    public function editAction(int $uid): ResponseInterface
+    public function editAction(string $site, string $serviceId): ResponseInterface
     {
-        $row = $this->managedTrackerRepository->findOne($uid);
+        $row = null;
+        foreach ($this->trackersFor($site) as $candidate) {
+            if ($candidate['service_id'] === $serviceId) {
+                $row = $candidate;
+                break;
+            }
+        }
         if ($row === null) {
             $this->addFlashMessage(
                 $this->translate('module.trackerSetup.notFound'),
                 '',
                 ContextualFeedbackSeverity::ERROR,
             );
-            return $this->redirect('list');
+            return $this->redirect('list', null, null, ['site' => $site]);
         }
 
         $values = $row['config'];
         $values['serviceId'] = $row['service_id'];
 
         $this->moduleTemplate->assignMultiple([
-            'uid' => $uid,
+            'originalServiceId' => $row['service_id'],
             'site' => $row['site'],
             'type' => $row['tracker_type'],
             'providerLabel' => $this->translate('module.trackerSetup.providerLabel.' . $row['tracker_type']) ?: ucfirst($row['tracker_type']),
@@ -222,8 +228,9 @@ final class TrackerSetupController extends ActionController
     /**
      * @param array<string, mixed> $values
      */
-    public function saveAction(int $uid, string $site, string $type, array $values): ResponseInterface
+    public function saveAction(string $site, string $type, array $values, string $originalServiceId = ''): ResponseInterface
     {
+        $isNew = $originalServiceId === '';
         // The bare `site` param comes straight off the BE form/URL; refuse to
         // persist a managed-tracker row against a site that isn't a real
         // SimpleCMP-enabled site (data integrity — these rows are keyed by site).
@@ -261,11 +268,9 @@ final class TrackerSetupController extends ActionController
                 $this->translate('module.trackerSetup.validationFailed'),
                 ContextualFeedbackSeverity::ERROR,
             );
-            return $this->redirect($uid === 0 ? 'new' : 'edit', null, null, [
-                'uid' => $uid,
-                'site' => $site,
-                'type' => $type,
-            ]);
+            return $isNew
+                ? $this->redirect('new', null, null, ['site' => $site, 'type' => $type])
+                : $this->redirect('edit', null, null, ['site' => $site, 'serviceId' => $originalServiceId]);
         }
 
         try {
@@ -274,9 +279,37 @@ final class TrackerSetupController extends ActionController
             $this->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
             return $this->redirect('list', null, null, ['site' => $site]);
         }
+
+        // Resolve the row inside the draft by service id: opening the draft
+        // copies the live rows under new uids, so a uid from the list view
+        // would hit nothing — or another tracker.
+        $draftUid = null;
+        if (!$isNew) {
+            $draftRow = $this->managedTrackerRepository->findOneDraftByServiceId($site, $originalServiceId);
+            if ($draftRow === null) {
+                $this->addFlashMessage(
+                    $this->translate('module.trackerSetup.notFound'),
+                    '',
+                    ContextualFeedbackSeverity::ERROR,
+                );
+                return $this->redirect('list', null, null, ['site' => $site]);
+            }
+            $draftUid = $draftRow['uid'];
+        }
+        if ($serviceId !== $originalServiceId
+            && $this->managedTrackerRepository->findOneDraftByServiceId($site, $serviceId) !== null
+        ) {
+            $this->addFlashMessage(
+                sprintf($this->translate('module.trackerSetup.duplicateServiceId'), $serviceId),
+                $this->translate('module.trackerSetup.validationFailed'),
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
+
         $this->managedTrackerRepository->saveDraft(
             $site,
-            $uid === 0 ? null : $uid,
+            $draftUid,
             $site,
             $type,
             $serviceId,
@@ -285,14 +318,14 @@ final class TrackerSetupController extends ActionController
         );
 
         $this->addFlashMessage(
-            $this->translate($uid === 0 ? 'module.trackerSetup.created' : 'module.trackerSetup.updated'),
+            $this->translate($isNew ? 'module.trackerSetup.created' : 'module.trackerSetup.updated'),
             '',
             ContextualFeedbackSeverity::OK,
         );
         return $this->redirect('list', null, null, ['site' => $site]);
     }
 
-    public function deleteAction(int $uid, string $site): ResponseInterface
+    public function deleteAction(string $site, string $serviceId): ResponseInterface
     {
         try {
             $this->ensureSiteDraft($site);
@@ -300,7 +333,15 @@ final class TrackerSetupController extends ActionController
             $this->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
             return $this->redirect('list', null, null, ['site' => $site]);
         }
-        $this->managedTrackerRepository->deleteDraft($site, $uid);
+        $draftRow = $this->managedTrackerRepository->findOneDraftByServiceId($site, $serviceId);
+        if ($draftRow === null || $this->managedTrackerRepository->deleteDraft($site, $draftRow['uid']) === 0) {
+            $this->addFlashMessage(
+                $this->translate('module.trackerSetup.notFound'),
+                '',
+                ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list', null, null, ['site' => $site]);
+        }
         $this->addFlashMessage(
             $this->translate('module.trackerSetup.deleted'),
             '',
@@ -310,6 +351,20 @@ final class TrackerSetupController extends ActionController
     }
 
     // ----- helpers -----
+
+    /**
+     * Trackers as the editor currently sees them: the draft while an editing
+     * session is open, the live rows otherwise. Reading live during an open
+     * draft hid every added or deleted tracker until publish.
+     *
+     * @return list<array{uid: int, site: string, tracker_type: string, service_id: string, config: array<string, mixed>, tstamp: int, crdate: int}>
+     */
+    private function trackersFor(string $site): array
+    {
+        return $this->draftWorkspace->isDraftOpen($site)
+            ? $this->managedTrackerRepository->findBySiteDraft($site)
+            : $this->managedTrackerRepository->findBySite($site);
+    }
 
     /**
      * Sites where SimpleCMP actually runs — i.e. have
