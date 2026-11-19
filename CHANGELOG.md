@@ -10,6 +10,17 @@ development.
 
 ## Unreleased
 
+## 14.0.20 — 2026-11-19
+
+### Fixed
+
+- **The banner no longer calls optional functional services undisableable.**
+  The "Service provision" (functional) purpose text said its services
+  cannot be switched off, but only services marked as required are locked.
+  A group that contains an optional service now shows a text saying the
+  services not marked as always required can be disabled (upstream bundle
+  9b5ba26).
+
 ## 14.0.19 — 2026-11-18
 
 ### Fixed
