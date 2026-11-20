@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+## 14.0.21 — 2026-11-20
+
+### Fixed
+
+- **Editing a service in the backend saves again.** Every "edit service"
+  link (services list, library, detections) opened the write-protected
+  live record, so changes such as "required" or the description were
+  dropped silently and publishing restored the old values. The links now
+  open the service in the draft (creating the draft if needed), the
+  services list shows the draft while one is open, and "Veröffentlichen"
+  pushes the changes live.
+
 ## 14.0.20 — 2026-11-19
 
 ### Fixed
