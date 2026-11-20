@@ -35,7 +35,7 @@ final class EncodePurposesJson
         DataHandler $dataHandler,
     ): void {
         unset($status, $id, $dataHandler);
-        if ($table !== 'tx_t3simplecmp_service') {
+        if ($table !== 'tx_t3simplecmp_service' && $table !== 'tx_t3simplecmp_service_draft') {
             return;
         }
         if (!array_key_exists('purposes', $fieldArray)) {

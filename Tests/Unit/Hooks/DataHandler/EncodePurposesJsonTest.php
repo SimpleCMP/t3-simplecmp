@@ -75,4 +75,13 @@ final class EncodePurposesJsonTest extends TestCase
         $this->invoke('tx_t3simplecmp_service', $fields);
         self::assertSame('["analytics","marketing"]', $fields['purposes']);
     }
+
+    #[Test]
+    public function encodesTheDraftTableToo(): void
+    {
+        // The BE edit form writes services into the draft table.
+        $fields = ['purposes' => 'analytics,marketing'];
+        $this->invoke('tx_t3simplecmp_service_draft', $fields);
+        self::assertSame('["analytics","marketing"]', $fields['purposes']);
+    }
 }

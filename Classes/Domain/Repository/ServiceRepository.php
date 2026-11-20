@@ -257,6 +257,38 @@ final readonly class ServiceRepository
     }
 
     /**
+     * Draft counterpart of {@see findAllForRegistryView()}: while a
+     * draft is open the registry tab has to show what "Veröffentlichen"
+     * will push live, not the stale live rows.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function findAllDraftForRegistryView(string $scope): array
+    {
+        $rows = $this->selectDraftRows($scope);
+        usort(
+            $rows,
+            static fn (array $a, array $b) => strcmp((string) $a['service_id'], (string) $b['service_id']),
+        );
+        return array_map(function (array $row): array {
+            $protocol = $this->rowToProtocol($row);
+            $protocol['_uid'] = (int) $row['uid'];
+            $protocol['_libraryAdoptedAt'] = (int) ($row['library_adopted_at'] ?? 0);
+            return $protocol;
+        }, $rows);
+    }
+
+    /**
+     * uid of the draft row for `$serviceId`, the record the BE edit
+     * form has to open (the live table is write-protected).
+     */
+    public function findDraftUid(string $scope, string $serviceId): ?int
+    {
+        $row = $this->findDraftRowByServiceId($scope, $serviceId);
+        return $row === null ? null : (int) $row['uid'];
+    }
+
+    /**
      * Backfill `library_adopted_at` for rows whose `service_id`
      * appears in the currently-bundled library but which pre-date the
      * column. Called once by the upgrade wizard. Returns the number

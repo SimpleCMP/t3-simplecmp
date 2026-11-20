@@ -35,7 +35,7 @@ final class DecodePurposesJson implements FormDataProviderInterface
      */
     public function addData(array $result): array
     {
-        if (($result['tableName'] ?? '') !== 'tx_t3simplecmp_service') {
+        if (!in_array($result['tableName'] ?? '', ['tx_t3simplecmp_service', 'tx_t3simplecmp_service_draft'], true)) {
             return $result;
         }
         if (!array_key_exists('purposes', $result['databaseRow'] ?? [])) {

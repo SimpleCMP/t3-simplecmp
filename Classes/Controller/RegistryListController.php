@@ -10,6 +10,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use SimpleCMP\T3SimpleCmp\Library\ServicesLibrary;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
@@ -33,6 +34,7 @@ final class RegistryListController extends ActionController
     private const int DEFAULT_PER_PAGE = 25;
     private const array SOURCE_OPTIONS = ['all', 'custom', 'library', 'orphaned'];
     private const string DEFAULT_SOURCE = 'all';
+    private const string DRAFT_TABLE = 'tx_t3simplecmp_service_draft';
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -85,7 +87,11 @@ final class RegistryListController extends ActionController
         $page = max(1, $page);
 
         $libraryIds = RegistryListPresenter::libraryIdSet();
-        $rawRows = $this->serviceRepository->findAllForRegistryView();
+        // While a draft is open, show the draft — that is what the
+        // edit form writes and what "Veröffentlichen" will push live.
+        $rawRows = $this->draftWorkspace->isDraftOpen(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)
+            ? $this->serviceRepository->findAllDraftForRegistryView(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL)
+            : $this->serviceRepository->findAllForRegistryView();
         $coverage = $this->registryListPresenter->coverageCountByServiceId();
 
         $custom = 0;
@@ -125,7 +131,9 @@ final class RegistryListController extends ActionController
         $lang = $this->resolveBackendLanguageCode();
         $libraryIndex = $this->indexBundledLibraryById();
         $rows = array_map(function (array $r) use ($filterArg, $lang, $libraryIndex): array {
-            $r['uri_edit'] = $this->editServiceUri((int) ($r['_uid'] ?? 0));
+            $r['uri_edit'] = ($r['id'] ?? '') === ''
+                ? null
+                : $this->uri('edit', ['serviceId' => (string) $r['id']] + $filterArg);
             $r['uri_delete'] = $r['source'] === RegistryListPresenter::SOURCE_LIBRARY
                 ? null
                 : $this->uri('delete', ['serviceId' => (string) ($r['id'] ?? '')] + $filterArg);
@@ -205,6 +213,44 @@ final class RegistryListController extends ActionController
             ),
         ]);
         return $moduleTemplate->renderResponse('RegistryList/List');
+    }
+
+    /**
+     * Open the BE edit form for a service. The live table is
+     * write-protected (EnforceLiveBannerConfigReadOnly drops every
+     * save), so this opens — and if necessary creates — the global
+     * draft and hands FormEngine the draft row. Every "edit service"
+     * link in the module (Dienste, Bibliothek, Detektionen) routes
+     * through here.
+     */
+    public function editAction(
+        string $serviceId,
+        string $source = self::DEFAULT_SOURCE,
+        string $purpose = '',
+        string $search = '',
+        string $returnUrl = '',
+    ): ResponseInterface {
+        $filterArg = $this->filterArg($source, $purpose, $search);
+        try {
+            $this->ensureGlobalDraft();
+        } catch (\RuntimeException $e) {
+            $this->addFlashMessage($e->getMessage(), '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('list', null, null, $filterArg);
+        }
+        $draftUid = $this->serviceRepository->findDraftUid(
+            \SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL,
+            $serviceId,
+        );
+        if ($draftUid === null) {
+            return $this->redirect('list', null, null, $filterArg);
+        }
+        $this->draftWorkspace->touchLock(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL);
+        $returnUrl = GeneralUtility::sanitizeLocalUrl($returnUrl);
+        $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
+            'edit' => [self::DRAFT_TABLE => [$draftUid => 'edit']],
+            'returnUrl' => $returnUrl !== '' ? $returnUrl : $this->uri('list', $filterArg),
+        ]);
+        return $this->responseFactory->createResponse(303)->withHeader('Location', $editUrl);
     }
 
     /**
@@ -318,18 +364,6 @@ final class RegistryListController extends ActionController
             $args['search'] = $search;
         }
         return $args;
-    }
-
-    private function editServiceUri(int $uid): ?string
-    {
-        if ($uid <= 0) {
-            return null;
-        }
-        $returnUrl = $this->uri('list');
-        return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => ['tx_t3simplecmp_service' => [$uid => 'edit']],
-            'returnUrl' => $returnUrl,
-        ]);
     }
 
     /**

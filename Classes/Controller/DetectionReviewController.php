@@ -50,6 +50,7 @@ final class DetectionReviewController extends ActionController
 {
     private const string DETECTION_TABLE = 'tx_t3simplecmp_detection';
     private const string SERVICE_TABLE = 'tx_t3simplecmp_service';
+    private const string SERVICE_DRAFT_TABLE = 'tx_t3simplecmp_service_draft';
     private const array PER_PAGE_OPTIONS = [25, 50, 100, 500];
     private const int DEFAULT_PER_PAGE = 25;
     private const array STATUS_OPTIONS = [
@@ -718,21 +719,15 @@ final class DetectionReviewController extends ActionController
 
     private function editServiceUri(string $serviceId): ?string
     {
-        $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
-        $qb->getRestrictions()->removeAll();
-        $uid = $qb->select('uid')
-            ->from(self::SERVICE_TABLE)
-            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
-            ->setMaxResults(1)
-            ->executeQuery()
-            ->fetchOne();
-        if ($uid === false) {
+        $exists = $this->serviceRepository->findOne($serviceId) !== null
+            || $this->serviceRepository->findDraftUid(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $serviceId) !== null;
+        if (!$exists) {
             return null;
         }
-        $returnUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections');
-        return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => [self::SERVICE_TABLE => [(int) $uid => 'edit']],
-            'returnUrl' => $returnUrl,
+        // Edits go through the draft workspace — see RegistryListController::editAction().
+        return (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.RegistryList_edit', [
+            'serviceId' => $serviceId,
+            'returnUrl' => (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections'),
         ]);
     }
 
@@ -1176,24 +1171,54 @@ final class DetectionReviewController extends ActionController
 
         $existingUid = $this->serviceCurator->findExistingServiceUid($row);
         if ($existingUid !== null) {
-            $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-                'edit' => [self::SERVICE_TABLE => [$existingUid => 'edit']],
-                'returnUrl' => $returnUrl,
-            ]);
-            return $this->responseFactory->createResponse(302)
-                ->withHeader('Location', $editUrl);
+            $existingServiceId = $this->serviceIdForLiveUid($existingUid);
+            if ($existingServiceId !== null) {
+                $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.RegistryList_edit', [
+                    'serviceId' => $existingServiceId,
+                    'returnUrl' => $returnUrl,
+                ]);
+                return $this->responseFactory->createResponse(302)
+                    ->withHeader('Location', $editUrl);
+            }
+        }
+
+        // The new record goes into the draft (the live table is
+        // write-protected). Open the draft first: it copies live →
+        // draft, otherwise publishing a draft that only holds this one
+        // row would replace the whole live registry with it.
+        $beUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        $lock = $this->draftWorkspace->initializeDraft(\SimpleCMP\T3SimpleCmp\Service\LockState::SCOPE_GLOBAL, $beUserId);
+        if ($beUserId <= 0 || $lock->conflict) {
+            $this->addFlashMessage(
+                sprintf('Lock für die globale Service-Registry gehört BE-User uid=%d.', $lock->ownerBeUserId),
+                '',
+                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
+            );
+            return $this->redirect('list');
         }
 
         $defaults = $this->serviceCurator->buildDefaults($row);
         $pid = $this->storagePidResolver->resolveForSource((string) ($row['source'] ?? ''));
         $editUrl = (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => [self::SERVICE_TABLE => [$pid => 'new']],
-            'defVals' => [self::SERVICE_TABLE => $defaults],
+            'edit' => [self::SERVICE_DRAFT_TABLE => [$pid => 'new']],
+            'defVals' => [self::SERVICE_DRAFT_TABLE => $defaults],
             'returnUrl' => $returnUrl,
         ]);
 
         return $this->responseFactory->createResponse(302)
             ->withHeader('Location', $editUrl);
+    }
+
+    private function serviceIdForLiveUid(int $uid): ?string
+    {
+        $qb = $this->connectionPool->getQueryBuilderForTable(self::SERVICE_TABLE);
+        $qb->getRestrictions()->removeAll();
+        $serviceId = $qb->select('service_id')
+            ->from(self::SERVICE_TABLE)
+            ->where($qb->expr()->eq('uid', $qb->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchOne();
+        return $serviceId === false || $serviceId === '' ? null : (string) $serviceId;
     }
 
     /** @return array<string, mixed>|null */

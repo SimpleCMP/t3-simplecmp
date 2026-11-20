@@ -62,6 +62,7 @@ return [
             RegistryListController::class => [
                 'list',
                 'delete',
+                'edit',
             ],
             DiscoveryController::class => [
                 'index',
