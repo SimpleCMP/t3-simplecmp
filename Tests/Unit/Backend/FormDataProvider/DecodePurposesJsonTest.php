@@ -62,4 +62,16 @@ final class DecodePurposesJsonTest extends TestCase
         ]);
         self::assertSame('analytics,marketing', $result['databaseRow']['purposes']);
     }
+
+    #[Test]
+    public function decodesTheDraftTableToo(): void
+    {
+        // The BE edit form opens services from the draft table.
+        $provider = new DecodePurposesJson();
+        $result = $provider->addData([
+            'tableName' => 'tx_t3simplecmp_service_draft',
+            'databaseRow' => ['purposes' => '["analytics","marketing"]'],
+        ]);
+        self::assertSame('analytics,marketing', $result['databaseRow']['purposes']);
+    }
 }

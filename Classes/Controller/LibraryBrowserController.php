@@ -714,21 +714,15 @@ final class LibraryBrowserController extends ActionController
 
     private function editServiceUri(string $serviceId): ?string
     {
-        $qb = $this->connectionPool->getQueryBuilderForTable('tx_t3simplecmp_service');
-        $qb->getRestrictions()->removeAll();
-        $uid = $qb->select('uid')
-            ->from('tx_t3simplecmp_service')
-            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId)))
-            ->setMaxResults(1)
-            ->executeQuery()
-            ->fetchOne();
-        if ($uid === false) {
+        $exists = $this->serviceRepository->findOne($serviceId) !== null
+            || $this->serviceRepository->findDraftUid(LockState::SCOPE_GLOBAL, $serviceId) !== null;
+        if (!$exists) {
             return null;
         }
-        $returnUrl = $this->uri('list');
-        return (string) $this->backendUriBuilder->buildUriFromRoute('record_edit', [
-            'edit' => ['tx_t3simplecmp_service' => [(int) $uid => 'edit']],
-            'returnUrl' => $returnUrl,
+        // Edits go through the draft workspace — see RegistryListController::editAction().
+        return (string) $this->backendUriBuilder->buildUriFromRoute('simplecmp_detections.RegistryList_edit', [
+            'serviceId' => $serviceId,
+            'returnUrl' => $this->uri('list'),
         ]);
     }
 
