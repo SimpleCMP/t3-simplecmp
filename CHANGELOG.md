@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.22 — 2026-11-24
+
 ### Added
 
 - **Consent cookie lifetime is configurable.** The new site setting
