@@ -17,6 +17,12 @@ settings:
     type: int
     default: 120
 
+  simplecmp.listConsentCookie:
+    label: 'List the consent cookie in the banner'
+    description: 'Shows SimpleCMP''s own consent cookie as a locked, technically necessary entry "Cookie consent" in the banner, with its real name (storageName) and lifetime (cookieExpiresAfterDays). Skipped automatically when a curated service already lists the cookie. Turn off only if the cookie is documented elsewhere.'
+    type: bool
+    default: true
+
   simplecmp.privacyPolicyUrl:
     label: 'Privacy policy URL'
     description: 'Required by GDPR / DSGVO. Linked in the banner and modal. A page link (t3://page?uid=123) resolves to the page in the visitor''s language.'

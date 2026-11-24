@@ -10,6 +10,17 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **The consent cookie lists itself in the banner.** SimpleCMP's own
+  cookie (`simplecmp-<site>`) now appears as a locked, technically
+  necessary entry "Cookie consent" / "Cookie-Einwilligung", with its
+  real name and lifetime taken from `storageName` and
+  `cookieExpiresAfterDays`. Editors no longer curate a service for it.
+  Sites that already did keep their own entry: the built-in one is left
+  out when a curated service lists the cookie. The new site setting
+  `simplecmp.listConsentCookie` switches it off.
+
 ## 12.0.2 — 2026-11-24
 
 TYPO3 12 backport of 14.0.22.

@@ -100,6 +100,23 @@ Site Settings reference
     A changed value takes effect the next time a visitor saves a
     decision; cookies already set keep their old expiry.
 
+..  confval:: simplecmp.listConsentCookie
+
+    :type: bool
+    :Default: true
+
+    Lists SimpleCMP's own consent cookie in the banner as a locked,
+    technically necessary entry *Cookie consent* / *Cookie-Einwilligung*.
+    The entry states the real cookie name (:code:`storageName`) and
+    lifetime (:code:`cookieExpiresAfterDays`) and follows both settings
+    automatically, so no service has to be curated for it.
+
+    If a curated service already lists the cookie (exact name or a
+    matching :code:`/regex/`), the built-in entry is left out to avoid a
+    duplicate. Title and description can be changed per language
+    through the translation overrides under the key
+    :code:`simplecmp-consent`.
+
 ..  confval:: simplecmp.privacyPolicyUrl
 
     :type: string
