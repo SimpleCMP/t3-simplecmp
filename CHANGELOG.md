@@ -10,6 +10,16 @@ development.
 
 ## Unreleased
 
+### Added
+
+- **Consent cookie lifetime is configurable.** The new site setting
+  `simplecmp.cookieExpiresAfterDays` sets how many days the cookie with
+  the visitor's consent decision stays valid (default 120, as before).
+  It only covers SimpleCMP's own cookie; cookies set by the services
+  themselves keep their vendor's lifetime. Like the other banner
+  settings, it goes through the "Proposed / Adopt" workflow in the
+  backend Settings tab.
+
 ## 12.0.1 — 2026-11-03
 
 TYPO3 12 backport of 14.0.18.

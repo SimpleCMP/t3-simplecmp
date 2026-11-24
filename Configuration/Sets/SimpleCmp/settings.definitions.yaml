@@ -11,6 +11,12 @@ settings:
     type: string
     default: ''
 
+  simplecmp.cookieExpiresAfterDays:
+    label: 'Consent cookie lifetime (days)'
+    description: 'How long the cookie holding the visitor''s consent decision stays valid. When it expires, the banner asks again. Applies to the SimpleCMP consent cookie only: cookies set by the services themselves (e.g. Google Analytics) keep the lifetime their vendor configures. Values below 1 fall back to the default of 120 days. A changed value takes effect the next time a visitor saves a decision.'
+    type: int
+    default: 120
+
   simplecmp.privacyPolicyUrl:
     label: 'Privacy policy URL'
     description: 'Required by GDPR / DSGVO. Linked in the banner and modal. A page link (t3://page?uid=123) resolves to the page in the visitor''s language.'
