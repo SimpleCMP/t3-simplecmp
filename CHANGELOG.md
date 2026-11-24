@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.23 — 2026-11-24
+
 ### Added
 
 - **The consent cookie lists itself in the banner.** SimpleCMP's own
