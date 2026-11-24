@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleCMP\T3SimpleCmp\Tests\Unit\EventListener;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -825,6 +826,68 @@ final class RegisterAssetsTest extends TestCase
 
         $config = $this->extractConfig($captured);
         self::assertArrayNotHasKey('noNotice', $config);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function initConfigWith(array $settings): array
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+        ] + $settings);
+        $captured = null;
+        $this->assetCollector->method('addInlineJavaScript')
+            ->willReturnCallback(function (string $id, string $payload) use (&$captured): AssetCollector {
+                if ($id === 'simplecmp-init') {
+                    $captured = $payload;
+                }
+                return $this->assetCollector;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        return $this->extractConfig($captured);
+    }
+
+    #[Test]
+    public function cookieExpiresAfterDaysEmittedWhenConfigured(): void
+    {
+        $config = $this->initConfigWith(['simplecmp.cookieExpiresAfterDays' => 30]);
+        self::assertSame(30, $config['cookieExpiresAfterDays'] ?? null);
+    }
+
+    #[Test]
+    public function cookieExpiresAfterDaysAcceptsNumericString(): void
+    {
+        $config = $this->initConfigWith(['simplecmp.cookieExpiresAfterDays' => '90']);
+        self::assertSame(90, $config['cookieExpiresAfterDays'] ?? null);
+    }
+
+    #[Test]
+    public function cookieExpiresAfterDaysOmittedWhenUnset(): void
+    {
+        self::assertArrayNotHasKey('cookieExpiresAfterDays', $this->initConfigWith([]));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function cookieExpiresAfterDaysFallbackValues(): iterable
+    {
+        yield 'default value' => [120];
+        yield 'zero' => [0];
+        yield 'negative' => [-5];
+        yield 'non-numeric' => ['abc'];
+        yield 'empty string' => [''];
+    }
+
+    #[Test]
+    #[DataProvider('cookieExpiresAfterDaysFallbackValues')]
+    public function cookieExpiresAfterDaysOmittedForDefaultOrInvalidValue(mixed $value): void
+    {
+        $config = $this->initConfigWith(['simplecmp.cookieExpiresAfterDays' => $value]);
+        self::assertArrayNotHasKey('cookieExpiresAfterDays', $config);
     }
 
     #[Test]
