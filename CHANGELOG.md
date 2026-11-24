@@ -10,6 +10,10 @@ development.
 
 ## Unreleased
 
+## 12.0.2 — 2026-11-24
+
+TYPO3 12 backport of 14.0.22.
+
 ### Added
 
 - **Consent cookie lifetime is configurable.** The new site setting
