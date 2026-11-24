@@ -82,6 +82,9 @@ final readonly class RegisterAssets
      */
     public const string PREVIEW_NONCE_SOURCE_PREFIX = 'simplecmp-preview-';
 
+    /** Consent-cookie lifetime the bundle uses when the config omits it. */
+    private const int DEFAULT_COOKIE_EXPIRES_AFTER_DAYS = 120;
+
     public function __construct(
         private AssetCollector $assetCollector,
         private PageRenderer $pageRenderer,
@@ -981,6 +984,15 @@ final readonly class RegisterAssets
                 'position' => $this->resolveTriggerPosition($site, $previewDraft),
             ],
         ];
+        // Lifetime of the consent cookie. The bundle defaults to 120 days, so
+        // the key is only emitted for a valid value that differs from it.
+        // Non-numeric or non-positive values fall back to the default rather
+        // than writing a cookie that expires immediately.
+        $cookieDays = $get('simplecmp.cookieExpiresAfterDays', self::DEFAULT_COOKIE_EXPIRES_AFTER_DAYS);
+        $cookieDays = is_numeric($cookieDays) ? (int) $cookieDays : self::DEFAULT_COOKIE_EXPIRES_AFTER_DAYS;
+        if ($cookieDays > 0 && $cookieDays !== self::DEFAULT_COOKIE_EXPIRES_AFTER_DAYS) {
+            $config['cookieExpiresAfterDays'] = $cookieDays;
+        }
         // REQ-N4 region engine: baseline regime + optional per-visitor region
         // (resolved server-side from a configured geo header — the engine never
         // geo-locates client-side). Unknown/unmapped region falls back to the
