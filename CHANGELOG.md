@@ -10,6 +10,10 @@ development.
 
 ## Unreleased
 
+## 13.0.3 — 2026-11-24
+
+TYPO3 13 backport of 14.0.23.
+
 ### Added
 
 - **The consent cookie lists itself in the banner.** SimpleCMP's own
