@@ -40,6 +40,7 @@ final class EffectiveSettingsResolver
     public const EDITOR_CONTENT_KEYS = [
         'simplecmp.enabled',
         'simplecmp.storageName',
+        'simplecmp.cookieExpiresAfterDays',
         'simplecmp.privacyPolicyUrl',
         'simplecmp.imprintUrl',
         'simplecmp.floatingTriggerLabel',

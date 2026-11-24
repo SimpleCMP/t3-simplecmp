@@ -82,6 +82,24 @@ Site Settings reference
     identifier — typically what you want. Override only if you need
     a specific key (e.g. for cross-site cookie sharing).
 
+..  confval:: simplecmp.cookieExpiresAfterDays
+
+    :type: int
+    :Default: 120
+
+    Lifetime in days of the cookie that stores the visitor's consent
+    decision. When it expires, the banner asks again. Values below 1
+    fall back to the default.
+
+    This only affects the SimpleCMP consent cookie. Cookies set by the
+    services themselves (for example :code:`_ga` from Google
+    Analytics) keep the lifetime their vendor configures. Shorten
+    those in the service's own configuration and update the
+    service's retention field so the banner states the real lifetime.
+
+    A changed value takes effect the next time a visitor saves a
+    decision; cookies already set keep their old expiry.
+
 ..  confval:: simplecmp.privacyPolicyUrl
 
     :type: string
