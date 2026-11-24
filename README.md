@@ -499,7 +499,7 @@ einem bestimmten Zeitpunkt aussah (DSGVO Art. 7 Abs. 1).
 - Banner-Theme-Tokens für die Site
 - Translation-Overrides + Tone-Wahl je Sprache
 - Kuratierte `simplecmp.*` Site-Settings:
-  `enabled`, `storageName`, `cookieExpiresAfterDays`, `privacyPolicyUrl`, `imprintUrl`,
+  `enabled`, `storageName`, `cookieExpiresAfterDays`, `listConsentCookie`, `privacyPolicyUrl`, `imprintUrl`,
   `floatingTriggerLabel`, `respectGPC`, `regimeDefault`,
   `universalBlocking.enabled`, `universalBlocking.blockStylesheets`,
   `universalBlocking.allowlist`, `libraryUpstreamUrl`, `trackers`
@@ -770,11 +770,11 @@ Zentrale Komponenten:
 ### Editor-vs-Ops-Scope
 
 Hardcoded in `EffectiveSettingsResolver::EDITOR_CONTENT_KEYS` —
-14 Keys, alle Banner-Inhalt mit DSGVO-Relevanz. Beispiele:
+15 Keys, alle Banner-Inhalt mit DSGVO-Relevanz. Beispiele:
 
 ```
 ✓ Editor-content (durchläuft Vorschlag/Übernehmen):
-  simplecmp.enabled, .storageName, .cookieExpiresAfterDays, .privacyPolicyUrl, .imprintUrl,
+  simplecmp.enabled, .storageName, .cookieExpiresAfterDays, .listConsentCookie, .privacyPolicyUrl, .imprintUrl,
   .floatingTriggerLabel, .respectGPC, .regimeDefault, .showNotice,
   .hideDeclineAll, .universalBlocking.enabled, .blockStylesheets,
   .allowlist, .trackers (Sonderfall — als Tracker-Vorschläge)

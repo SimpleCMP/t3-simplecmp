@@ -41,6 +41,7 @@ final class EffectiveSettingsResolver
         'simplecmp.enabled',
         'simplecmp.storageName',
         'simplecmp.cookieExpiresAfterDays',
+        'simplecmp.listConsentCookie',
         'simplecmp.privacyPolicyUrl',
         'simplecmp.imprintUrl',
         'simplecmp.floatingTriggerLabel',
