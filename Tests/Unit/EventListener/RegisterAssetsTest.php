@@ -202,7 +202,7 @@ final class RegisterAssetsTest extends TestCase
             ]);
 
         $config = $this->captureInitConfig();
-        self::assertSame(['draft-only'], array_column($config['services'], 'name'));
+        self::assertSame(['draft-only', 'simplecmp-consent'], array_column($config['services'], 'name'));
     }
 
     #[Test]
@@ -224,7 +224,7 @@ final class RegisterAssetsTest extends TestCase
         $this->services->expects(self::never())->method('findAllDraft');
 
         $config = $this->captureInitConfig();
-        self::assertSame(['live-only'], array_column($config['services'], 'name'));
+        self::assertSame(['live-only', 'simplecmp-consent'], array_column($config['services'], 'name'));
     }
 
     #[Test]
@@ -247,7 +247,7 @@ final class RegisterAssetsTest extends TestCase
         $this->services->expects(self::never())->method('findAllDraft');
 
         $config = $this->captureInitConfig();
-        self::assertSame(['live-only'], array_column($config['services'], 'name'));
+        self::assertSame(['live-only', 'simplecmp-consent'], array_column($config['services'], 'name'));
     }
 
     #[Test]
@@ -888,6 +888,84 @@ final class RegisterAssetsTest extends TestCase
     {
         $config = $this->initConfigWith(['simplecmp.cookieExpiresAfterDays' => $value]);
         self::assertArrayNotHasKey('cookieExpiresAfterDays', $config);
+    }
+
+    #[Test]
+    public function consentCookieIsListedAsRequiredServiceByDefault(): void
+    {
+        $config = $this->initConfigWith([]);
+        $services = array_column($config['services'], null, 'name');
+
+        self::assertSame([
+            'name' => 'simplecmp-consent',
+            'purposes' => ['functional'],
+            'required' => true,
+            'cookies' => ['simplecmp-default'],
+        ], $services['simplecmp-consent'] ?? null);
+        self::assertSame('Cookie-Einwilligung', $config['translations']['de']['simplecmp-consent']['title'] ?? null);
+        self::assertStringContainsString('120 Tage', $config['translations']['de']['simplecmp-consent']['description'] ?? '');
+        self::assertStringContainsString('120 days', $config['translations']['zz']['simplecmp-consent']['description'] ?? '');
+    }
+
+    #[Test]
+    public function consentCookieEntryFollowsStorageNameAndLifetime(): void
+    {
+        $config = $this->initConfigWith([
+            'simplecmp.storageName' => 'my-consent',
+            'simplecmp.cookieExpiresAfterDays' => 28,
+        ]);
+        $services = array_column($config['services'], null, 'name');
+
+        self::assertSame(['my-consent'], $services['simplecmp-consent']['cookies'] ?? null);
+        self::assertStringContainsString('„my-consent“, Laufzeit 28 Tage', $config['translations']['de']['simplecmp-consent']['description'] ?? '');
+    }
+
+    #[Test]
+    public function consentCookieEntryStatesDefaultLifetimeForInvalidValue(): void
+    {
+        $config = $this->initConfigWith(['simplecmp.cookieExpiresAfterDays' => 0]);
+        self::assertStringContainsString('120 Tage', $config['translations']['de']['simplecmp-consent']['description'] ?? '');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function curatedConsentCookieMatchers(): iterable
+    {
+        yield 'exact name' => ['simplecmp-default'];
+        yield 'regex' => ['/^simplecmp-/'];
+    }
+
+    #[Test]
+    #[DataProvider('curatedConsentCookieMatchers')]
+    public function consentCookieEntrySkippedWhenCuratedServiceClaimsCookie(string $matcher): void
+    {
+        $this->services->method('findAll')->willReturn([
+            ['id' => 'own-consent', 'name' => 'Einwilligung', 'purposes' => ['functional'], 'required' => true, 'matches' => ['cookies' => [$matcher]]],
+        ]);
+        $config = $this->initConfigWith([]);
+
+        self::assertSame(['own-consent'], array_column($config['services'], 'name'));
+        self::assertArrayNotHasKey('simplecmp-consent', $config['translations']['de'] ?? []);
+    }
+
+    #[Test]
+    public function consentCookieEntryCanBeSwitchedOff(): void
+    {
+        $config = $this->initConfigWith(['simplecmp.listConsentCookie' => false]);
+        self::assertNotContains('simplecmp-consent', array_column($config['services'], 'name'));
+    }
+
+    #[Test]
+    public function consentCookieEntryDoesNotOverrideEditorTranslation(): void
+    {
+        $this->overrideRepository = $this->createMock(TranslationOverrideRepository::class);
+        $this->overrideRepository->method('findBySite')->willReturn([
+            'de' => ['overrides' => ['simplecmp-consent.title' => 'Eigener Titel']],
+        ]);
+        $config = $this->initConfigWith([]);
+        self::assertSame('Eigener Titel', $config['translations']['de']['simplecmp-consent']['title'] ?? null);
+        self::assertStringContainsString('120 Tage', $config['translations']['de']['simplecmp-consent']['description'] ?? '');
     }
 
     #[Test]

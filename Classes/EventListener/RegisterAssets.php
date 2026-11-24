@@ -81,6 +81,9 @@ final readonly class RegisterAssets
     /** Consent-cookie lifetime the bundle uses when the config omits it. */
     private const DEFAULT_COOKIE_EXPIRES_AFTER_DAYS = 120;
 
+    /** Consent key of the built-in entry listing SimpleCMP's own cookie. */
+    private const CONSENT_COOKIE_SERVICE = 'simplecmp-consent';
+
     public function __construct(
         private AssetCollector $assetCollector,
         private PageRenderer $pageRenderer,
@@ -1245,7 +1248,82 @@ final readonly class RegisterAssets
             return null;
         }
 
+        // Appended after the gate above: the consent cookie alone is no
+        // reason to mount the banner on a site that has nothing else.
+        if ((bool) $get('simplecmp.listConsentCookie', true)) {
+            $config = $this->appendConsentCookieService($config, $cookieDays > 0 ? $cookieDays : self::DEFAULT_COOKIE_EXPIRES_AFTER_DAYS);
+        }
+
         return $config;
+    }
+
+    /**
+     * Lists SimpleCMP's own consent cookie in the banner as a locked,
+     * technically necessary service, so editors don't have to curate it
+     * by hand. The cookie name is the configured `storageName`, the stated
+     * lifetime is the effective `cookieExpiresAfterDays` — both stay in
+     * sync with the settings automatically.
+     *
+     * Skipped when a curated service already claims the cookie (an editor
+     * who created the entry manually would otherwise see it twice).
+     *
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
+     */
+    private function appendConsentCookieService(array $config, int $days): array
+    {
+        $cookieName = (string) $config['storageName'];
+        foreach ($config['services'] as $service) {
+            foreach ($service['cookies'] ?? [] as $matcher) {
+                if (is_string($matcher) && self::cookieMatcherMatches($matcher, $cookieName)) {
+                    return $config;
+                }
+            }
+        }
+
+        $config['services'][] = [
+            'name' => self::CONSENT_COOKIE_SERVICE,
+            'purposes' => ['functional'],
+            'required' => true,
+            'cookies' => [$cookieName],
+        ];
+        $texts = [
+            'zz' => [
+                'title' => 'Cookie consent',
+                'description' => sprintf(
+                    'Stores your choices in this cookie banner (cookie "%s", lifetime %d days).',
+                    $cookieName,
+                    $days
+                ),
+            ],
+            'de' => [
+                'title' => 'Cookie-Einwilligung',
+                'description' => sprintf(
+                    'Speichert Ihre Auswahl in diesem Cookie-Banner (Cookie „%s“, Laufzeit %d Tage).',
+                    $cookieName,
+                    $days
+                ),
+            ],
+        ];
+        foreach ($texts as $lang => $fields) {
+            foreach ($fields as $field => $text) {
+                // `??=` per field, so an editor's translation override wins.
+                $config['translations'][$lang][self::CONSENT_COOKIE_SERVICE][$field] ??= $text;
+            }
+        }
+        return $config;
+    }
+
+    /**
+     * Same matcher semantics as the registry: an exact cookie name, or a
+     * slash-bounded `/regex/`.
+     */
+    private static function cookieMatcherMatches(string $matcher, string $cookieName): bool
+    {
+        if (strlen($matcher) > 2 && $matcher[0] === '/' && str_ends_with($matcher, '/')) {
+            return @preg_match('/' . substr($matcher, 1, -1) . '/', $cookieName) === 1;
+        }
+        return $matcher === $cookieName;
     }
 
     /**
