@@ -41,6 +41,9 @@ final class RegisterAssetsTest extends TestCase
     private BridgeNonceService&MockObject $nonceService;
     private \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService&MockObject $draftWorkspace;
     private LoggerInterface&MockObject $logger;
+    private \TYPO3\CMS\Core\Page\PageRenderer&MockObject $pageRenderer;
+    private \TYPO3\CMS\Core\SystemResource\SystemResourceFactory&MockObject $systemResourceFactory;
+    private \TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface&MockObject $resourcePublisher;
 
     protected function setUp(): void
     {
@@ -59,6 +62,9 @@ final class RegisterAssetsTest extends TestCase
         // listener reads live config exactly as before this feature.
         $this->draftWorkspace = $this->createMock(\SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->pageRenderer = $this->createMock(\TYPO3\CMS\Core\Page\PageRenderer::class);
+        $this->systemResourceFactory = $this->createMock(\TYPO3\CMS\Core\SystemResource\SystemResourceFactory::class);
+        $this->resourcePublisher = $this->createMock(\TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface::class);
     }
 
     protected function tearDown(): void
@@ -281,6 +287,53 @@ final class RegisterAssetsTest extends TestCase
             );
 
         $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+    }
+
+    #[Test]
+    public function preloadHrefIsTheCacheBustedUriTheScriptTagUses(): void
+    {
+        // The preload must point at exactly the URL of the <script src>,
+        // cache-busting query included. A bare path is a different
+        // resource to the browser: the preload goes unused and the bundle
+        // is downloaded twice.
+        $GLOBALS['TYPO3_REQUEST'] = $this->request(settings: [
+            'simplecmp.privacyPolicyUrl' => 'https://example.com/privacy',
+            'simplecmp.preloadBundle' => true,
+        ]);
+        $resource = $this->createMock(\TYPO3\CMS\Core\SystemResource\Type\PublicResourceInterface::class);
+        $bundlePath = null;
+        $this->systemResourceFactory->expects(self::once())
+            ->method('createPublicResource')
+            ->willReturnCallback(static function (string $path) use (&$bundlePath, $resource) {
+                $bundlePath = $path;
+                return $resource;
+            });
+        $this->resourcePublisher->expects(self::once())
+            ->method('generateUri')
+            ->with($resource, null)
+            ->willReturn(new \TYPO3\CMS\Core\Http\Uri('/_assets/abc/JavaScript/simplecmp.global.js?1795734820'));
+        $scriptSource = null;
+        $collector = $this->assetCollector;
+        $this->assetCollector->method('addJavaScript')
+            ->willReturnCallback(static function (string $id, string $source) use (&$scriptSource, $collector) {
+                if ($id === 'simplecmp-bundle') {
+                    $scriptSource = $source;
+                }
+                return $collector;
+            });
+        $headerData = [];
+        $this->pageRenderer->method('addHeaderData')
+            ->willReturnCallback(static function (string $data) use (&$headerData): void {
+                $headerData[] = $data;
+            });
+
+        $this->listener()(new BeforeJavaScriptsRenderingEvent($this->assetCollector, false, false));
+
+        self::assertSame($scriptSource, $bundlePath, 'preload and <script> must resolve the same bundle');
+        self::assertSame(
+            ['<link rel="preload" as="script" href="/_assets/abc/JavaScript/simplecmp.global.js?1795734820" />'],
+            $headerData,
+        );
     }
 
     #[Test]
@@ -1326,7 +1379,7 @@ final class RegisterAssetsTest extends TestCase
     {
         return new RegisterAssets(
             $this->assetCollector,
-            $this->createMock(\TYPO3\CMS\Core\Page\PageRenderer::class),
+            $this->pageRenderer,
             $this->services,
             $this->themes,
             $this->overrideRepository,
@@ -1339,6 +1392,8 @@ final class RegisterAssetsTest extends TestCase
             $this->createMock(\SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener::class),
             $this->effectiveSettingsResolver(),
             $this->draftWorkspace,
+            $this->systemResourceFactory,
+            $this->resourcePublisher,
         );
     }
 

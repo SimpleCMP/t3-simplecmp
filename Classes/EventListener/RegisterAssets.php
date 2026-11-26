@@ -12,6 +12,8 @@ use TYPO3\CMS\Core\Page\AssetCollector;
 use TYPO3\CMS\Core\Page\Event\BeforeJavaScriptsRenderingEvent;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
+use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ServiceRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\ThemeRepository;
 use SimpleCMP\T3SimpleCmp\Domain\Repository\TranslationOverrideRepository;
@@ -103,6 +105,8 @@ final readonly class RegisterAssets
         private \SimpleCMP\T3SimpleCmp\Service\ConfigSnapshotListener $snapshotListener,
         private \SimpleCMP\T3SimpleCmp\Service\EffectiveSettingsResolver $effectiveSettings,
         private \SimpleCMP\T3SimpleCmp\Service\DraftWorkspaceService $draftWorkspace,
+        private SystemResourceFactory $systemResourceFactory,
+        private SystemResourcePublisherInterface $resourcePublisher,
     ) {
     }
 
@@ -182,11 +186,21 @@ final readonly class RegisterAssets
         // on; switchable via `simplecmp.preloadBundle`. PageRenderer
         // is the cleanest path — TYPO3's AssetCollector has no
         // first-class preload API in v14.
+        // The href must be byte-identical to the `<script src>` the
+        // AssetRenderer emits, cache-busting query included — otherwise
+        // the browser treats them as two resources: the preload goes
+        // unused ("preloaded but not used" console warning) and the
+        // bundle is downloaded twice. Hence the same System Resource API
+        // call as AssetRenderer::getAbsoluteWebPath() (it also replaces
+        // PathUtility::getPublicResourceWebPath(), deprecated in v14).
         // Ops-key; keep direct read here so test fixtures that pre-date
         // Phase 5 (and intentionally leave the value unset to disable
         // preload during unit tests) still get the null fallback.
         if ((bool) $settings->get('simplecmp.preloadBundle', true)) {
-            $resolvedHref = \TYPO3\CMS\Core\Utility\PathUtility::getPublicResourceWebPath($bundlePath);
+            $resolvedHref = (string) $this->resourcePublisher->generateUri(
+                $this->systemResourceFactory->createPublicResource($bundlePath),
+                null,
+            );
             if ($resolvedHref !== '') {
                 $this->pageRenderer->addHeaderData(
                     '<link rel="preload" as="script" href="'
