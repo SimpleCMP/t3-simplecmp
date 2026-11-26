@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.24 — 2026-11-27
+
 ### Fixed
 
 - **Overlong URLs no longer break the detection webhook.** Values sent
