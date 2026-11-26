@@ -146,6 +146,38 @@ final class DetectionRepositoryTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function ingestCutsOverlongValuesToTheirColumnWidth(): void
+    {
+        // A page path with a long slug overflowed page_url (varchar 500) on
+        // a production site; strict-mode MariaDB refused the whole INSERT.
+        $longPath = 'https://example.com/pl/' . str_repeat('bardzo-dlugi-adres-', 40) . '/';
+        $longResource = 'https://cdn.example.com/' . str_repeat('x', 600) . '.js';
+        $this->repository->ingest($this->payload([
+            'page' => [
+                'url' => $longPath . '?utm_source=x',
+                'referrer' => $longPath,
+                'userAgent' => str_repeat('Mozilla/5.0 ', 60),
+            ],
+            'library' => ['name' => 'simplecmp', 'version' => str_repeat('1.', 30)],
+            'detections' => [
+                $this->detection($longResource, kind: 'script', firstSeenOn: $longPath),
+                // Second sighting must hit the same (cut) row, not a new one.
+                $this->detection($longResource, kind: 'script', firstSeenOn: $longPath),
+            ],
+        ]));
+
+        self::assertSame(1, $this->repository->count());
+        $row = $this->get(ConnectionPool::class)->getConnectionForTable(self::TABLE)->select(['*'], self::TABLE)->fetchAssociative();
+        self::assertSame(2, (int) $row['occurrences']);
+        self::assertSame(mb_substr($longResource, 0, 500), $row['identifier']);
+        self::assertSame(mb_substr($longPath, 0, 500), $row['page_url']);
+        self::assertSame(500, mb_strlen((string) $row['referrer']));
+        self::assertSame(500, mb_strlen((string) $row['first_seen_on']));
+        self::assertSame(500, mb_strlen((string) $row['user_agent']));
+        self::assertSame(40, mb_strlen((string) $row['library_version']));
+    }
+
+    #[Test]
     public function ingestSilentlyDropsMalformedDetection(): void
     {
         $this->repository->ingest(['source' => 'site-a']);  // no detection

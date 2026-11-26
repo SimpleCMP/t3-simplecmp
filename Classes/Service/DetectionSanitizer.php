@@ -49,6 +49,20 @@ final class DetectionSanitizer
         return $stripped === '' ? null : $stripped;
     }
 
+    /**
+     * Value cut to a varchar column's width; null stays null.
+     *
+     * The webhook is fed by visitors' browsers, so any string can be longer
+     * than its column — a page path with a long slug overflowed `page_url`
+     * (varchar 500) on a production site, and MariaDB in strict mode
+     * rejects the whole INSERT with "Data too long". Counted in characters,
+     * as MariaDB counts varchar lengths.
+     */
+    public static function fit(?string $value, int $length): ?string
+    {
+        return $value === null ? null : mb_substr($value, 0, $length);
+    }
+
     /** URL-like string without query string and fragment; null stays null. */
     public static function stripQuery(?string $url): ?string
     {
