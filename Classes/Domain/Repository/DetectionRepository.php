@@ -74,6 +74,12 @@ final readonly class DetectionRepository
         if ($identifier === null) {
             return;
         }
+        // Cut everything to its column width (ext_tables.sql) before the
+        // dedup lookup, so lookup and insert use the same values.
+        $source = (string) DetectionSanitizer::fit($source, 100);
+        $kind = (string) DetectionSanitizer::fit($kind, 32);
+        $identifier = (string) DetectionSanitizer::fit($identifier, 500);
+        $origin = DetectionSanitizer::fit($origin, 255);
 
         $conn = $this->connectionPool->getConnectionForTable(self::TABLE);
         $existing = $this->fetchExisting($conn, $source, $kind, $identifier);
@@ -84,31 +90,49 @@ final readonly class DetectionRepository
             'last_seen' => isset($detection['lastSeen']) && is_int($detection['lastSeen'])
                 ? $detection['lastSeen']
                 : null,
-            'sent_at' => isset($envelope['sentAt']) && is_string($envelope['sentAt'])
-                ? $envelope['sentAt']
-                : null,
+            'sent_at' => DetectionSanitizer::fit(
+                isset($envelope['sentAt']) && is_string($envelope['sentAt'])
+                    ? $envelope['sentAt']
+                    : null,
+                40,
+            ),
             'origin' => $origin,
-            'page_url' => DetectionSanitizer::stripQuery(
-                isset($envelope['page']['url']) && is_string($envelope['page']['url'])
-                    ? $envelope['page']['url']
-                    : null,
+            'page_url' => DetectionSanitizer::fit(
+                DetectionSanitizer::stripQuery(
+                    isset($envelope['page']['url']) && is_string($envelope['page']['url'])
+                        ? $envelope['page']['url']
+                        : null,
+                ),
+                500,
             ),
-            'first_seen_on' => DetectionSanitizer::stripQuery(
-                isset($detection['firstSeenOn']) && is_string($detection['firstSeenOn'])
-                    ? $detection['firstSeenOn']
-                    : null,
+            'first_seen_on' => DetectionSanitizer::fit(
+                DetectionSanitizer::stripQuery(
+                    isset($detection['firstSeenOn']) && is_string($detection['firstSeenOn'])
+                        ? $detection['firstSeenOn']
+                        : null,
+                ),
+                500,
             ),
-            'referrer' => DetectionSanitizer::stripQuery(
-                isset($envelope['page']['referrer']) && is_string($envelope['page']['referrer'])
-                    ? $envelope['page']['referrer']
-                    : null,
+            'referrer' => DetectionSanitizer::fit(
+                DetectionSanitizer::stripQuery(
+                    isset($envelope['page']['referrer']) && is_string($envelope['page']['referrer'])
+                        ? $envelope['page']['referrer']
+                        : null,
+                ),
+                500,
             ),
-            'user_agent' => isset($envelope['page']['userAgent']) && is_string($envelope['page']['userAgent'])
-                ? $envelope['page']['userAgent']
-                : null,
-            'library_version' => isset($envelope['library']['version']) && is_string($envelope['library']['version'])
-                ? $envelope['library']['version']
-                : null,
+            'user_agent' => DetectionSanitizer::fit(
+                isset($envelope['page']['userAgent']) && is_string($envelope['page']['userAgent'])
+                    ? $envelope['page']['userAgent']
+                    : null,
+                500,
+            ),
+            'library_version' => DetectionSanitizer::fit(
+                isset($envelope['library']['version']) && is_string($envelope['library']['version'])
+                    ? $envelope['library']['version']
+                    : null,
+                40,
+            ),
             'payload' => json_encode(
                 DetectionSanitizer::payload($envelope, $detection, $identifier),
                 JSON_THROW_ON_ERROR,

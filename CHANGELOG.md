@@ -10,6 +10,17 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **Overlong URLs no longer break the detection webhook.** Values sent
+  by the browser are now cut to their column width before they are
+  stored. A page path with a long slug exceeded `page_url` (varchar 500),
+  and MariaDB in strict mode rejected the whole INSERT with "Data too
+  long", so the detection was lost and the request ended in an
+  exception. The same applies to `identifier`, `referrer`,
+  `first_seen_on`, `user_agent`, `origin`, `sent_at`, `library_version`,
+  `source` and `kind`.
+
 ## 14.0.23 — 2026-11-24
 
 ### Added

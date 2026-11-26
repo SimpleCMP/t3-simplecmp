@@ -51,6 +51,16 @@ final class DetectionSanitizerTest extends TestCase
     }
 
     #[Test]
+    public function fitCutsToTheColumnWidthInCharacters(): void
+    {
+        self::assertSame('abc', DetectionSanitizer::fit('abcdef', 3));
+        self::assertSame('ab', DetectionSanitizer::fit('ab', 3));
+        // Multibyte characters count once, as in a utf8mb4 varchar.
+        self::assertSame('äöü', DetectionSanitizer::fit('äöüß', 3));
+        self::assertNull(DetectionSanitizer::fit(null, 3));
+    }
+
+    #[Test]
     public function stripQueryCutsAtTheFirstQueryOrFragmentMarker(): void
     {
         self::assertSame('https://www.example.test/landing/', DetectionSanitizer::stripQuery('https://www.example.test/landing/?gclid=g#top'));
