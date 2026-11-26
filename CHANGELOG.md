@@ -10,6 +10,8 @@ development.
 
 ## Unreleased
 
+## 14.0.25 — 2026-11-27
+
 ### Fixed
 
 - **The bundle preload is used again instead of downloading the bundle
