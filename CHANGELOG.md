@@ -10,6 +10,18 @@ development.
 
 ## Unreleased
 
+### Fixed
+
+- **The bundle preload is used again instead of downloading the bundle
+  twice.** The `<link rel="preload">` pointed at the bare bundle path,
+  while the `<script>` tag carries TYPO3's cache-busting query
+  (`simplecmp.global.js?<mtime>`). Browsers treat the two as different
+  resources, so the preloaded copy went unused ("preloaded but not used"
+  console warning) and the bundle was fetched a second time. The preload
+  href now comes from the same System Resource API call the
+  AssetRenderer uses, which also replaces the deprecated
+  `PathUtility::getPublicResourceWebPath()`.
+
 ## 14.0.24 — 2026-11-27
 
 ### Fixed
